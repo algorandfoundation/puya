@@ -8,15 +8,13 @@ main:
 
 main_block@0:
     // hello_world/scratch_gvn.py:6
-    // assert scratch_gvn_demo(Txn.num_app_args) == Txn.num_app_args + Txn.num_app_args
-    txn NumAppArgs
-    callsub scratch_gvn_demo
-    txn NumAppArgs
-    txn NumAppArgs
-    +
-    ==
-    assert
+    // n = UInt64(42)
+    pushint 42
     // hello_world/scratch_gvn.py:7
+    // scratch_gvn_demo(n)
+    callsub scratch_gvn_demo
+    pop
+    // hello_world/scratch_gvn.py:8
     // return True
     intc_0 // 1
     return
@@ -24,7 +22,7 @@ main_block@0:
 
 // examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
 scratch_gvn_demo:
-    // hello_world/scratch_gvn.py:13-14
+    // hello_world/scratch_gvn.py:14-15
     // @subroutine(inline=False)
     // def scratch_gvn_demo(n: UInt64) -> UInt64:
     proto 1 1
@@ -33,10 +31,10 @@ scratch_gvn_demo:
     b scratch_gvn_demo_block@0
 
 scratch_gvn_demo_block@0:
-    // hello_world/scratch_gvn.py:15
+    // hello_world/scratch_gvn.py:16
     // a = n
     frame_dig -1
-    // hello_world/scratch_gvn.py:16
+    // hello_world/scratch_gvn.py:17
     // b = n
     frame_dig -1
     b scratch_gvn_demo_while_top@1
@@ -46,14 +44,14 @@ scratch_gvn_demo_while_top@1:
     frame_bury 1
     frame_dig 2
     frame_bury 0
-    // hello_world/scratch_gvn.py:17
+    // hello_world/scratch_gvn.py:18
     // while True:
     intc_0 // 1
     bz scratch_gvn_demo_after_while@7
     b scratch_gvn_demo_while_body@2
 
 scratch_gvn_demo_while_body@2:
-    // hello_world/scratch_gvn.py:18
+    // hello_world/scratch_gvn.py:19
     // if not n:
     frame_dig -1
     intc_1 // 0
@@ -62,36 +60,36 @@ scratch_gvn_demo_while_body@2:
     b scratch_gvn_demo_if_body@3
 
 scratch_gvn_demo_if_body@3:
-    // hello_world/scratch_gvn.py:19
+    // hello_world/scratch_gvn.py:20
     // a = n
     frame_dig -1
     frame_bury 2
-    // hello_world/scratch_gvn.py:20
+    // hello_world/scratch_gvn.py:21
     // b = n
     frame_dig -1
     frame_bury 3
     b scratch_gvn_demo_after_if_else@4
 
 scratch_gvn_demo_after_if_else@4:
-    // hello_world/scratch_gvn.py:21
-    // log(op.itob(a))
+    // hello_world/scratch_gvn.py:22
+    // log(a)
     frame_dig 2
     dup
     itob
     log
-    // hello_world/scratch_gvn.py:22
-    // log(op.itob(b))
+    // hello_world/scratch_gvn.py:23
+    // log(b)
     frame_dig 3
     itob
     log
-    // hello_world/scratch_gvn.py:23
+    // hello_world/scratch_gvn.py:24
     // b = a
     dup
     frame_bury 3
-    // hello_world/scratch_gvn.py:24
+    // hello_world/scratch_gvn.py:25
     // a = b
     frame_bury 2
-    // hello_world/scratch_gvn.py:25
+    // hello_world/scratch_gvn.py:26
     // if not n:
     frame_dig -1
     intc_1 // 0
@@ -104,12 +102,12 @@ scratch_gvn_demo_if_body@5:
     frame_bury 1
     frame_dig 2
     frame_bury 0
-    // hello_world/scratch_gvn.py:26
+    // hello_world/scratch_gvn.py:27
     // break
     b scratch_gvn_demo_after_while@7
 
 scratch_gvn_demo_after_while@7:
-    // hello_world/scratch_gvn.py:27
+    // hello_world/scratch_gvn.py:28
     // return a + b
     frame_dig 0
     frame_dig 1

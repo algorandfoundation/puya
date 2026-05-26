@@ -4,15 +4,13 @@
 // examples.hello_world.scratch_gvn.ScratchGVN.approval_program() -> uint64:
 main:
     // hello_world/scratch_gvn.py:6
-    // assert scratch_gvn_demo(Txn.num_app_args) == Txn.num_app_args + Txn.num_app_args
-    txn NumAppArgs
-    callsub scratch_gvn_demo
-    txn NumAppArgs
-    dup
-    +
-    ==
-    assert
+    // n = UInt64(42)
+    pushint 42
     // hello_world/scratch_gvn.py:7
+    // scratch_gvn_demo(n)
+    callsub scratch_gvn_demo
+    pop
+    // hello_world/scratch_gvn.py:8
     // return True
     pushint 1
     return
@@ -20,26 +18,26 @@ main:
 
 // examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
 scratch_gvn_demo:
-    // hello_world/scratch_gvn.py:13-14
+    // hello_world/scratch_gvn.py:14-15
     // @subroutine(inline=False)
     // def scratch_gvn_demo(n: UInt64) -> UInt64:
     proto 1 1
 
 scratch_gvn_demo_while_top@1:
-    // hello_world/scratch_gvn.py:21
-    // log(op.itob(a))
+    // hello_world/scratch_gvn.py:22
+    // log(a)
     frame_dig -1
     itob
     dup
     log
-    // hello_world/scratch_gvn.py:22
-    // log(op.itob(b))
+    // hello_world/scratch_gvn.py:23
+    // log(b)
     log
-    // hello_world/scratch_gvn.py:25
+    // hello_world/scratch_gvn.py:26
     // if not n:
     frame_dig -1
     bnz scratch_gvn_demo_while_top@1
-    // hello_world/scratch_gvn.py:27
+    // hello_world/scratch_gvn.py:28
     // return a + b
     frame_dig -1
     dup

@@ -1,4 +1,5 @@
 debug: PuyaPyOptions(output_teal=True, output_source_map=False, output_assembly_report=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=0, treat_warnings_as_errors=False, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_args=True, validate_abi_return=True, paths=['hello_world'], resource_encoding='value', output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False)
+hello_world/scratch_gvn.py:7:9 warning: expression result is ignored
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
 debug: Terminated block@0
@@ -627,6 +628,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable n#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -640,7 +642,26 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
-debug: No optimizations performed in pass 1, ending loop
+debug: Begin optimization pass 2/100
+debug: Optimizing subroutine examples.hello_world.scratch_gvn.ScratchGVN.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizing subroutine examples.hello_world.scratch_gvn.scratch_gvn_demo
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: No optimizations performed in pass 2, ending loop
 debug: optimizing clear program of examples.hello_world.scratch_gvn.ScratchGVN at level 0
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program
@@ -690,10 +711,10 @@ debug: Optimizer: Replace Aggregate Box Ops
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of examples.hello_world.scratch_gvn.ScratchGVN
 hello_world/scratch_gvn.py:5:5 debug: auto reserving slots in examples.hello_world.scratch_gvn.ScratchGVN.approval_program, []
-hello_world/scratch_gvn.py:13:2 debug: auto reserving slots in examples.hello_world.scratch_gvn.scratch_gvn_demo, []
+hello_world/scratch_gvn.py:14:2 debug: auto reserving slots in examples.hello_world.scratch_gvn.scratch_gvn_demo, []
 debug: Slot allocation not required
 debug: removing local static slots in clear program of examples.hello_world.scratch_gvn.ScratchGVN
-hello_world/scratch_gvn.py:9:5 debug: auto reserving slots in examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program, []
+hello_world/scratch_gvn.py:10:5 debug: auto reserving slots in examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program, []
 debug: Slot allocation not required
 debug: Performing SSA IR destructuring for examples.hello_world.scratch_gvn.ScratchGVN.approval_program
 debug: Converting to CSSA
@@ -740,18 +761,6 @@ debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program
 debug: Performing post-SSA optimizations at level 0
 debug: Output IR to hello_world/out_unoptimized/ScratchGVN.ir/ScratchGVN.clear.400.destructured.ir
-debug: Inserted main_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
-debug: Replaced main_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted main_block@0.ops[17]: 'l-store-copy tmp%5#0 0'
-debug: Replaced main_block@0.ops[19]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted main_block@0.ops[9]: 'l-store-copy tmp%3#0 0'
-debug: Replaced main_block@0.ops[12]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted main_block@0.ops[14]: 'l-store-copy tmp%4#0 0'
-debug: Replaced main_block@0.ops[17]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted main_block@0.ops[7]: 'l-store-copy tmp%2#0 0'
-debug: Replaced main_block@0.ops[12]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted main_block@0.ops[5]: 'l-store-copy tmp%1#0 0'
-debug: Replaced main_block@0.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted scratch_gvn_demo_while_body@2.ops[3]: 'l-store-copy tmp%0#0 0'
 debug: Replaced scratch_gvn_demo_while_body@2.ops[5]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted scratch_gvn_demo_after_if_else@4.ops[2]: 'l-store-copy tmp%1#0 0'
@@ -769,8 +778,8 @@ debug: Replaced scratch_gvn_demo_after_while@7.ops[5]: 'v-load tmp%4#0' with 'l-
 debug: examples.hello_world.scratch_gvn.scratch_gvn_demo f-stack entry: ['a#5', 'b#5']
 debug: examples.hello_world.scratch_gvn.scratch_gvn_demo f-stack on first store: ['a#0', 'b#0']
 hello_world/scratch_gvn.py:5:5 debug: optimizing TEAL subroutine ops examples.hello_world.scratch_gvn.ScratchGVN.approval_program() -> uint64:
-hello_world/scratch_gvn.py:13:2 debug: optimizing TEAL subroutine ops examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
-hello_world/scratch_gvn.py:9:5 debug: optimizing TEAL subroutine ops examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program() -> uint64:
+hello_world/scratch_gvn.py:14:2 debug: optimizing TEAL subroutine ops examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
+hello_world/scratch_gvn.py:10:5 debug: optimizing TEAL subroutine ops examples.hello_world.scratch_gvn.ScratchGVN.clear_state_program() -> uint64:
 debug: optimizing approval program of examples.hello_world.contract.HelloWorldContract at level 0
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine examples.hello_world.contract.HelloWorldContract.approval_program
