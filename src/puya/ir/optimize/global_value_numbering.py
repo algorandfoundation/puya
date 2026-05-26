@@ -1315,23 +1315,25 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         phi_key = frozenset(phi_key_entries)
 
         # Compute the candidate VN for this iteration:
-        #   - if all real args agree, the phi is redundant and inherits that VN;
+        #   - if all real args agree, the phi is redundant and inherits that VN.
+        #     A monotonic-convergence guard pins to the stable VN if this would
+        #     flip the phi between distinct redundant VNs across iterations
+        #     (which can happen when its args sit in a cycle);
         #   - else if a prior phi in this block matches the key, share its VN;
         #   - else the phi is non-redundant and uses its persistent stable VN.
+        # The guard is scoped to the redundancy branch only. Applying it to
+        # the sibling-congruence branch would split block-local-congruent
+        # cohorts onto distinct stable VNs, because `stable_phi_vn` is keyed
+        # per-Phi — each cohort member has its own.
         candidate: VN | None = None
         if real_vns and len(set(real_vns)) == 1:
             candidate = real_vns[0]
+            prev_vn = self.tables.register_vn.get(phi.register)
+            if prev_vn is not None and prev_vn != candidate:
+                candidate = self.tables.stable_phi_vn(phi)
         if candidate is None:
             candidate = self.phi_table.get(phi_key)
         if candidate is None:
-            candidate = self.tables.stable_phi_vn(phi)
-
-        # Monotonic-convergence guard: if this phi already had a VN from a prior
-        # iteration and the candidate disagrees, downgrade to the stable VN.
-        # Re-flipping a redundant phi to a different "redundant" VN across
-        # iterations can otherwise oscillate when its args sit in a cycle.
-        prev_vn = self.tables.register_vn.get(phi.register)
-        if prev_vn is not None and prev_vn != candidate:
             candidate = self.tables.stable_phi_vn(phi)
 
         self.tables.set_register_vn(phi.register, candidate)
