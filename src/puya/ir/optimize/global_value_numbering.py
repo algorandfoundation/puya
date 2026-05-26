@@ -279,6 +279,11 @@ class _GVNTables:
     # Stable VN per non-redundant phi, pinned once minted so its identity
     # survives optimistic re-iteration.
     _phi_stable_vn: dict[models.Phi, VN] = attrs.field(factory=dict)
+    # Memo for VNs minted for non-structurally-numbered value providers
+    # (side-effecting reads, undefined values, compiled references, etc.).
+    # Keyed by ``id(vp)`` so the same op instance is stable across
+    # optimistic-iteration re-walks.
+    _identity_vns: dict[int, tuple[VN, ...]] = attrs.field(factory=dict)
 
     def next_vn(self) -> VN:
         return next(self._vn_counter)
@@ -316,7 +321,22 @@ class _GVNTables:
         return vn
 
     def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
+        """Mint VNs for a value provider that can't be value-numbered structurally.
+
+        Memoised by ``id(vp)`` so that the same op instance gets the same VNs
+        across optimistic-iteration walks — this stops downstream expression
+        keys from shifting each iteration. Different op instances still get
+        distinct VNs, which is what we want for side-effecting reads (each
+        call to ``box_get`` / ``read_slot`` / a non-pure subroutine / etc. may
+        return a different value).
+        """
+        cache_key = id(vp)
+        try:
+            return self._identity_vns[cache_key]
+        except KeyError:
+            pass
         vns = tuple(self.next_vn() for _ in vp.types)
+        self._identity_vns[cache_key] = vns
         return vns
 
     def lookup_or_assign_vp(
@@ -1171,7 +1191,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_value_tuple(self, tup: models.ValueTuple) -> tuple[VN, ...]:
-        return self._tables.fresh_vns(tup)  # catch these on the next pass
+        # A ValueTuple just pairs up its constituent values for a multi-target
+        # binding; the i-th target inherits the i-th value's VN directly.
+        return tuple(self._visit_value(v) for v in tup.values)
 
     # -- Value subtypes --
 
@@ -1294,25 +1316,30 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
             else:
                 real_vns.append(existing_vn)
                 phi_key_entries.append((arg.through, existing_vn))
-
-        if real_vns:
-            unique_real = set(real_vns)
-            if len(unique_real) == 1:
-                (uniq,) = unique_real
-                self.tables.set_register_vn(phi.register, uniq)
-                logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={uniq})")
-                return
-
         phi_key = frozenset(phi_key_entries)
-        existing_phi_vn = self.phi_table.get(phi_key)
-        if existing_phi_vn is not None:
-            self.tables.set_register_vn(phi.register, existing_phi_vn)
-            logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_phi_vn})")
-            return
 
-        stable = self.tables.stable_phi_vn(phi)
-        self.phi_table[phi_key] = stable
-        self.tables.set_register_vn(phi.register, stable)
+        # Compute the candidate VN for this iteration:
+        #   - if all real args agree, the phi is redundant and inherits that VN;
+        #   - else if a prior phi in this block matches the key, share its VN;
+        #   - else the phi is non-redundant and uses its persistent stable VN.
+        candidate: VN | None = None
+        if real_vns and len(set(real_vns)) == 1:
+            candidate = real_vns[0]
+        if candidate is None:
+            candidate = self.phi_table.get(phi_key)
+        if candidate is None:
+            candidate = self.tables.stable_phi_vn(phi)
+
+        # Monotonic-convergence guard: if this phi already had a VN from a prior
+        # iteration and the candidate disagrees, downgrade to the stable VN.
+        # Re-flipping a redundant phi to a different "redundant" VN across
+        # iterations can otherwise oscillate when its args sit in a cycle.
+        prev_vn = self.tables.register_vn.get(phi.register)
+        if prev_vn is not None and prev_vn != candidate:
+            candidate = self.tables.stable_phi_vn(phi)
+
+        self.tables.set_register_vn(phi.register, candidate)
+        self.phi_table.setdefault(phi_key, candidate)
 
 
 def _process_blocks_pre_order(
@@ -1333,7 +1360,7 @@ def _process_blocks_pre_order(
 # downgrade a phi's classification (redundant -> non-redundant pins the stable VN
 # permanently), so termination is guaranteed within a bounded number of iterations
 # in practice — this cap exists only to protect against pathological cases.
-_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 8
+_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 16
 
 
 def _number_values(
