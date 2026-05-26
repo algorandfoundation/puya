@@ -223,59 +223,61 @@ subroutine inc_array:
         p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | arr#0 (copy)
         int 0                                                                                                     (𝕡) arr#0,inc#0 | arr#0 (copy),0
         extract_uint16 // on error: invalid array length header                                                   (𝕡) arr#0,inc#0 | aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0                                                                        (𝕡) arr#0,inc#0 |
-        int 0                                                                                                     (𝕡) arr#0,inc#0 | value_internal%0#0
-        p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | value_internal%0#0,arr#0 (copy)
-        v-store new#1                                                                                             (𝕡) arr#0,inc#0 | value_internal%0#0
-        l-load value_internal%0#0 0                                                                               (𝕡) arr#0,inc#0 | value_internal%0#0
-        v-store idx#0                                                                                             (𝕡) arr#0,inc#0 |
-        b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 |
+        x-store aggregate%array_length%0#0                                                                        (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 |
+        int 0                                                                                                     (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | value_internal%0#0
+        p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | value_internal%0#0,arr#0 (copy)
+        x-store new#1                                                                                             (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | value_internal%0#0
+        l-load value_internal%0#0 0                                                                               (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | value_internal%0#0
+        x-store idx#0                                                                                             (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
+        b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
 
-    inc_array_for_header@1:                                                                                       (𝕡) arr#0,inc#0 |
+    inc_array_for_header@1:                                                                                       (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
         // large_box_operations/struct_multiple_array_uint64.py:96
         // for idx in urange(new.length):
-        v-load idx#0                                                                                              (𝕡) arr#0,inc#0 | idx#0
-        v-load aggregate%array_length%0#0                                                                         (𝕡) arr#0,inc#0 | idx#0,aggregate%array_length%0#0
-        <                                                                                                         (𝕡) arr#0,inc#0 | continue_looping%0#0
-        bz inc_array_after_for@4 ; b inc_array_for_body@2                                                         (𝕡) arr#0,inc#0 |
+        x-load-copy idx#0                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 | idx#0 (copy)
+        x-load-copy aggregate%array_length%0#0                                                                    (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 | idx#0 (copy),aggregate%array_length%0#0 (copy)
+        <                                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 | continue_looping%0#0
+        bz inc_array_after_for@4 ; b inc_array_for_body@2                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
 
-    inc_array_for_body@2:                                                                                         (𝕡) arr#0,inc#0 |
+    inc_array_for_body@2:                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
         // large_box_operations/struct_multiple_array_uint64.py:97
         // new[idx] += inc
-        v-load new#1                                                                                              (𝕡) arr#0,inc#0 | new#1
-        l-store-copy new#1 0                                                                                      (𝕡) arr#0,inc#0 | new#1,new#1 (copy)
-        extract 2 0                                                                                               (𝕡) arr#0,inc#0 | new#1,aggregate%array_trimmed%0#0
-        v-load idx#0                                                                                              (𝕡) arr#0,inc#0 | new#1,aggregate%array_trimmed%0#0,idx#0
-        l-store-copy idx#0 2                                                                                      (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%array_trimmed%0#0,idx#0 (copy)
-        int 8                                                                                                     (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%array_trimmed%0#0,idx#0 (copy),8
-        *                                                                                                         (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        l-load aggregate%array_trimmed%0#0 1                                                                      (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
-        l-load-copy aggregate%bytes_offset%0#0 1                                                                  (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0 (copy)
-        extract_uint64                                                                                            (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%1#0
-        p-load inc#0                                                                                              (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%1#0,inc#0 (copy)
-        +                                                                                                         (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%2#0
-        itob                                                                                                      (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%bytes_offset%0#0 1                                                                       (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%bytes_offset%0#0
-        int 2                                                                                                     (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%bytes_offset%0#0,2
-        +                                                                                                         (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%write_offset_with_length_header%0#0
-        l-load new#1 2                                                                                            (𝕡) arr#0,inc#0 | idx#0,aggregate%val_as_bytes%0#0,aggregate%write_offset_with_length_header%0#0,new#1
-        l-load aggregate%write_offset_with_length_header%0#0 1                                                    (𝕡) arr#0,inc#0 | idx#0,aggregate%val_as_bytes%0#0,new#1,aggregate%write_offset_with_length_header%0#0
-        l-load aggregate%val_as_bytes%0#0 2                                                                       (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%write_offset_with_length_header%0#0,aggregate%val_as_bytes%0#0
-        replace3 // on error: index access is out of bounds                                                       (𝕡) arr#0,inc#0 | idx#0,new#1
-        v-store new#1                                                                                             (𝕡) arr#0,inc#0 | idx#0
+        x-load new#1                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,idx#0 | new#1
+        l-store-copy new#1 0                                                                                      (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,idx#0 | new#1,new#1 (copy)
+        extract 2 0                                                                                               (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,idx#0 | new#1,aggregate%array_trimmed%0#0
+        x-load idx#0                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | new#1,aggregate%array_trimmed%0#0,idx#0
+        l-store-copy idx#0 2                                                                                      (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%array_trimmed%0#0,idx#0 (copy)
+        int 8                                                                                                     (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%array_trimmed%0#0,idx#0 (copy),8
+        *                                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                                      (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load-copy aggregate%bytes_offset%0#0 1                                                                  (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0 (copy)
+        extract_uint64                                                                                            (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%1#0
+        p-load inc#0                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%1#0,inc#0 (copy)
+        +                                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,tmp%2#0
+        itob                                                                                                      (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                                       (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%bytes_offset%0#0
+        int 2                                                                                                     (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%bytes_offset%0#0,2
+        +                                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%val_as_bytes%0#0,aggregate%write_offset_with_length_header%0#0
+        l-load new#1 2                                                                                            (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,aggregate%val_as_bytes%0#0,aggregate%write_offset_with_length_header%0#0,new#1
+        l-load aggregate%write_offset_with_length_header%0#0 1                                                    (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,aggregate%val_as_bytes%0#0,new#1,aggregate%write_offset_with_length_header%0#0
+        l-load aggregate%val_as_bytes%0#0 2                                                                       (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1,aggregate%write_offset_with_length_header%0#0,aggregate%val_as_bytes%0#0
+        replace3 // on error: index access is out of bounds                                                       (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | idx#0,new#1
+        x-store new#1                                                                                             (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | idx#0
         // large_box_operations/struct_multiple_array_uint64.py:96
         // for idx in urange(new.length):
-        l-load idx#0 0                                                                                            (𝕡) arr#0,inc#0 | idx#0
-        int 1                                                                                                     (𝕡) arr#0,inc#0 | idx#0,1
-        +                                                                                                         (𝕡) arr#0,inc#0 | value_internal%0#0
-        v-store idx#0                                                                                             (𝕡) arr#0,inc#0 |
-        b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 |
+        l-load idx#0 0                                                                                            (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | idx#0
+        int 1                                                                                                     (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | idx#0,1
+        +                                                                                                         (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | value_internal%0#0
+        x-store idx#0                                                                                             (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
+        b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
 
-    inc_array_after_for@4:                                                                                        (𝕡) arr#0,inc#0 |
+    inc_array_after_for@4:                                                                                        (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1,idx#0 |
+        x-load idx#0                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 | idx#0
+        pop 1                                                                                                     (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0,new#1 |
         // large_box_operations/struct_multiple_array_uint64.py:98
         // return new
-        v-load new#1                                                                                              (𝕡) arr#0,inc#0 | new#1
-        p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | new#1,arr#0 (copy)
+        x-load new#1                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | new#1
+        p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | (𝕏) aggregate%array_length%0#0 | new#1,arr#0 (copy)
         retsub                                                                                                    new#1,arr#0 (copy)
 
 

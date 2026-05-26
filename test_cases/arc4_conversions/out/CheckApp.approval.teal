@@ -354,7 +354,7 @@ check_dyn_array_dyn_struct:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -365,15 +365,15 @@ check_dyn_array_dyn_struct_for_header@1:
     dig 5
     <
     bz check_dyn_array_dyn_struct_after_for@4
-    dupn 2
+    dup
     intc_1 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -397,19 +397,19 @@ check_dyn_array_dyn_struct_for_header@1:
     pushint 44
     +
     +
-    bury 5
+    cover 2
     intc_2 // 1
     +
-    bury 1
     b check_dyn_array_dyn_struct_for_header@1
 
 check_dyn_array_dyn_struct_after_for@4:
+    popn 2
+    uncover 2
+    pop
     // arc4_conversions/contract.py:279
     // @arc4.abimethod
-    dig 3
     intc_1 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
     txna ApplicationArgs 2
@@ -425,7 +425,6 @@ check_dyn_array_dyn_struct_after_for@4:
     extract 2 0
     // arc4_conversions/contract.py:283
     // assert value.bytes == expected, "expected to encode correctly"
-    dig 6
     ==
     assert // expected to encode correctly
     // arc4_conversions/contract.py:279
@@ -438,8 +437,8 @@ check_dyn_array_dyn_struct_after_for@4:
 check_static_array_dyn_struct:
     // arc4_conversions/contract.py:285
     // @arc4.abimethod
-    txna ApplicationArgs 1
     pushint 6
+    txna ApplicationArgs 1
     intc_0 // 0
 
 check_static_array_dyn_struct_for_header@1:
@@ -449,15 +448,15 @@ check_static_array_dyn_struct_for_header@1:
     pushint 3
     <
     bz check_static_array_dyn_struct_after_for@4
-    dupn 2
+    dup
     intc_1 // 2
     *
-    dig 4
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    uncover 5
     dup
     cover 4
     ==
@@ -481,19 +480,18 @@ check_static_array_dyn_struct_for_header@1:
     pushint 44
     +
     +
-    bury 3
+    cover 2
     intc_2 // 1
     +
-    bury 1
     b check_static_array_dyn_struct_for_header@1
 
 check_static_array_dyn_struct_after_for@4:
+    pop
     // arc4_conversions/contract.py:285
     // @arc4.abimethod
-    dig 2
     dup
     len
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
     txna ApplicationArgs 2

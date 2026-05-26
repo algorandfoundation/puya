@@ -3,24 +3,21 @@
 
 // test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     bytecblock 0x66616c7365 0x74727565 0x6c6873 0x726873
-    intc_0 // 0
-    dupn 3
-    pushbytes ""
-    dupn 4
-    intc_0 // 0
+    intc_1 // 0
+    dupn 2
     // boolean_binary_ops/contract.py:42
     // for lhs in (True, False):
-    intc_1 // 1
+    intc_0 // 1
 
 main_for_body@4:
-    intc_0 // 0
-    bury 6
+    intc_1 // 0
+    cover 2
     // boolean_binary_ops/contract.py:43
     // for rhs in (True, False):
-    intc_1 // 1
-    bury 5
+    intc_0 // 1
+    cover 2
 
 main_for_body@5:
     // boolean_binary_ops/contract.py:37
@@ -37,22 +34,22 @@ main_for_body@5:
     swap
     concat
     dup
-    bury 10
+    cover 6
     pushbytes 0x5f616e645f
     concat
     // boolean_binary_ops/contract.py:37
     // return Bytes(b"true" if x else b"false")
     bytec_0 // 0x66616c7365
     bytec_1 // 0x74727565
-    dig 8
+    dig 6
     select
     dup
-    bury 12
+    cover 7
     // boolean_binary_ops/contract.py:44
     // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
     concat
     dup
-    bury 13
+    bury 10
     // boolean_binary_ops/contract.py:45
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     bytec_2 // 0x6c6873
@@ -69,7 +66,7 @@ main_for_body@5:
     // boolean_binary_ops/contract.py:46
     // rhs, b"rhs" + and_msg
     bytec_3 // 0x726873
-    dig 11
+    dig 8
     concat
     // boolean_binary_ops/contract.py:58
     // log(msg)
@@ -78,29 +75,29 @@ main_for_body@5:
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     //     rhs, b"rhs" + and_msg
     // )
-    dig 4
+    dig 2
     bz main_bool_false@8
-    intc_1 // 1
+    intc_0 // 1
 
 main_bool_merge@9:
     // boolean_binary_ops/contract.py:48
     // assert and_result == (lhs and rhs)
     dig 1
     dup
-    dig 7
+    dig 5
     &&
     uncover 2
     ==
     assert
     // boolean_binary_ops/contract.py:49
     // or_msg = b"_" + bool_to_bytes(lhs) + b"_or_" + bool_to_bytes(rhs)
-    dig 8
+    uncover 6
     pushbytes 0x5f6f725f
     concat
-    dig 10
+    uncover 6
     concat
     dup
-    bury 12
+    bury 7
     // boolean_binary_ops/contract.py:50
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     bytec_2 // 0x6c6873
@@ -117,7 +114,7 @@ main_bool_merge@9:
     // boolean_binary_ops/contract.py:51
     // rhs, b"rhs" + or_msg
     bytec_3 // 0x726873
-    dig 10
+    dig 5
     concat
     // boolean_binary_ops/contract.py:58
     // log(msg)
@@ -126,83 +123,78 @@ main_bool_merge@9:
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     //     rhs, b"rhs" + or_msg
     // )
-    dig 4
+    dig 2
     bz main_bool_false@12
 
 main_bool_true@11:
-    intc_1 // 1
+    intc_0 // 1
 
 main_bool_merge@13:
     // boolean_binary_ops/contract.py:53
     // assert or_result == (lhs or rhs)
     dig 1
-    dig 6
+    uncover 4
     ||
     ==
     assert
     // boolean_binary_ops/contract.py:43
     // for rhs in (True, False):
-    dig 5
+    uncover 2
     bnz main_after_for@16
-    intc_1 // 1
-    bury 6
-    intc_0 // 0
-    bury 5
+    intc_0 // 1
+    cover 2
+    intc_1 // 0
+    cover 2
     b main_for_body@5
 
 main_after_for@16:
+    pop
     // boolean_binary_ops/contract.py:42
     // for lhs in (True, False):
-    dig 1
     bnz main_after_for@19
-    intc_1 // 1
-    bury 2
-    intc_0 // 0
-    bury 1
+    intc_0 // 1
+    intc_1 // 0
     b main_for_body@4
 
 main_after_for@19:
-    intc_0 // 0
-    bury 7
+    intc_1 // 0
 
 main_for_header@68:
     // boolean_binary_ops/contract.py:87
     // for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
-    dig 6
+    dup
     pushint 3
     <
     bz main_after_for@71
-    dig 6
-    intc_1 // 1
+    intc_0 // 1
     +
-    bury 7
     b main_for_header@68
 
 main_after_for@71:
-    intc_0 // 0
-    bury 4
+    pop
+    intc_1 // 0
 
 main_while_top@118:
-    dig 3
+    dup
     pushint 4
     +
     dup
-    bury 4
     pushint 5
     <=
     bz main_after_while@122
     // boolean_binary_ops/contract.py:91
     // assert "ight" in (String("left") and String("right"))
     pushbytes "right"
-    dig 4
-    dig 4
+    dig 2
+    uncover 2
     substring3
     // boolean_binary_ops/contract.py:91
     // assert "ight" in (String("left") and String("right"))
     pushbytes "ight"
     ==
     bz main_after_if_else@121
-    intc_1 // 1
+    pop
+    intc_0 // 1
 
 main_after_inlined__puya_lib.bytes_.is_substring@123:
     // boolean_binary_ops/contract.py:91
@@ -220,26 +212,25 @@ main_after_inlined__puya_lib.bytes_.is_substring@123:
     assert
     // boolean_binary_ops/contract.py:15
     // return True
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_after_if_else@121:
-    dig 3
-    intc_1 // 1
+    intc_0 // 1
     +
-    bury 4
     b main_while_top@118
 
 main_after_while@122:
-    intc_0 // 0
+    popn 2
+    intc_1 // 0
     // boolean_binary_ops/contract.py:91
     // assert "ight" in (String("left") and String("right"))
     b main_after_inlined__puya_lib.bytes_.is_substring@123
 
 main_bool_false@12:
-    intc_0 // 0
+    intc_1 // 0
     b main_bool_merge@13
 
 main_bool_false@8:
-    intc_0 // 0
+    intc_1 // 0
     b main_bool_merge@9

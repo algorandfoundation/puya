@@ -374,9 +374,6 @@ template_value:
 
 // test_cases.arc_56.contract.Contract.with_constant_defaults[routing]() -> void:
 with_constant_defaults:
-    intc_0 // 0
-    bytec_0 // ""
-    dupn 5
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -448,8 +445,8 @@ with_constant_defaults:
     extract_uint64
     swap
     extract 2 0
-    txna ApplicationArgs 6
     pushint 4
+    txna ApplicationArgs 6
     intc_0 // 0
 
 with_constant_defaults_for_header@1:
@@ -471,15 +468,15 @@ with_constant_defaults_for_header@1:
     intc_2 // 2
     <
     bz with_constant_defaults_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 4
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    uncover 5
     dup
     cover 4
     ==
@@ -492,13 +489,13 @@ with_constant_defaults_for_header@1:
     intc_2 // 2
     +
     +
-    bury 3
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b with_constant_defaults_for_header@1
 
 with_constant_defaults_after_for@4:
+    pop
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -513,9 +510,9 @@ with_constant_defaults_after_for@4:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    dig 2
+    dup
     len
-    dig 2
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>
     txna ApplicationArgs 7
@@ -523,17 +520,15 @@ with_constant_defaults_after_for@4:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 17
+    cover 3
     intc_2 // 2
     *
-    bury 12
+    cover 2
     dup
     len
-    bury 11
+    cover 3
     extract 2 0
-    bury 16
     intc_0 // 0
-    bury 12
 
 with_constant_defaults_for_header@5:
     // arc_56/contract.py:131-143
@@ -550,20 +545,19 @@ with_constant_defaults_for_header@5:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    dig 11
-    dig 15
+    dup
+    dig 6
     <
     bz with_constant_defaults_after_for@8
-    dig 11
     dup
     intc_2 // 2
     *
-    dig 17
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 14
+    uncover 6
     dup
     cover 4
     ==
@@ -576,13 +570,13 @@ with_constant_defaults_for_header@5:
     intc_2 // 2
     +
     +
-    bury 12
+    cover 3
     intc_1 // 1
     +
-    bury 12
     b with_constant_defaults_for_header@5
 
 with_constant_defaults_after_for@8:
+    popn 2
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -597,10 +591,10 @@ with_constant_defaults_after_for@8:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    dig 10
+    swap
     intc_2 // 2
     +
-    dig 10
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
     txna ApplicationArgs 8
@@ -610,7 +604,7 @@ with_constant_defaults_after_for@8:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 14
+    swap
     txna ApplicationArgs 9
     dup
     len
@@ -618,30 +612,30 @@ with_constant_defaults_after_for@8:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 13
+    swap
     // arc_56/contract.py:156
     // assert a
-    dig 8
+    dig 9
     bytec_0 // 0x
     b!=
     assert
     // arc_56/contract.py:157
     // assert b
-    dig 7
+    dig 8
     assert
     // arc_56/contract.py:158
     // assert c
-    dig 6
+    dig 7
     len
     assert
     // arc_56/contract.py:159
     // assert d.x or d.y
-    dig 5
+    dig 6
     extract 0 8
     bytec_0 // 0x
     b!=
     bnz with_constant_defaults_bool_true@11
-    dig 5
+    dig 6
     extract 8 8
     bytec_0 // 0x
     b!=
@@ -656,9 +650,9 @@ with_constant_defaults_bool_merge@13:
     assert
     // arc_56/contract.py:160
     // assert e[0] or e[1]
-    dig 4
+    dig 5
     bnz with_constant_defaults_bool_true@15
-    dig 3
+    dig 4
     len
     bz with_constant_defaults_bool_false@16
 
@@ -669,7 +663,6 @@ with_constant_defaults_bool_merge@17:
     // arc_56/contract.py:160
     // assert e[0] or e[1]
     assert
-    dig 2
     dup
     intc_0 // 0
     extract_uint16
@@ -685,19 +678,18 @@ with_constant_defaults_bool_merge@17:
     assert
     // arc_56/contract.py:162
     // assert g.length == 2
-    dig 14
+    uncover 2
     intc_2 // 2
     ==
     assert
     // arc_56/contract.py:163
     // assert h == 42
-    dig 13
+    swap
     pushint 42
     ==
     assert
     // arc_56/contract.py:164
     // assert i == 1234
-    dig 12
     pushint 1234
     ==
     assert

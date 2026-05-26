@@ -156,47 +156,47 @@ subroutine test_self_ref_phi:
     test_self_ref_phi_block@0:
         // unssa/no_inlining.py:38
         // a = UInt64(1)
-        int 1                                                                    1
-        f-store a#0                                                              (𝕗) a#0 |
-        b test_self_ref_phi_while_top@1                                          (𝕗) a#0 |
+        int 1                                                                    a#0
+        x-store a#0                                                              (𝕏) a#0 |
+        b test_self_ref_phi_while_top@1                                          (𝕏) a#0 |
 
-    test_self_ref_phi_while_top@1:                                               (𝕗) a#0 |
+    test_self_ref_phi_while_top@1:                                               (𝕏) a#0 |
         // unssa/no_inlining.py:39
         // while a < 100:
-        f-load a#0                                                               (𝕗) a#0 | a#0
-        int 100                                                                  (𝕗) a#0 | a#0,100
-        <                                                                        (𝕗) a#0 | tmp%0#0
-        bz test_self_ref_phi_after_while@7 ; b test_self_ref_phi_while_body@2    (𝕗) a#0 |
+        x-load-copy a#0                                                          (𝕏) a#0 | a#0 (copy)
+        int 100                                                                  (𝕏) a#0 | a#0 (copy),100
+        <                                                                        (𝕏) a#0 | tmp%0#0
+        bz test_self_ref_phi_after_while@7 ; b test_self_ref_phi_while_body@2    (𝕏) a#0 |
 
-    test_self_ref_phi_while_body@2:                                              (𝕗) a#0 |
+    test_self_ref_phi_while_body@2:                                              (𝕏) a#0 |
         // unssa/no_inlining.py:40
         // if a % 105 == 0:
-        f-load a#0                                                               (𝕗) a#0 | a#0
-        int 105                                                                  (𝕗) a#0 | a#0,105
-        %                                                                        (𝕗) a#0 | tmp%1#0
-        bz test_self_ref_phi_while_top@1 ; b test_self_ref_phi_after_if_else@4   (𝕗) a#0 |
+        x-load-copy a#0                                                          (𝕏) a#0 | a#0 (copy)
+        int 105                                                                  (𝕏) a#0 | a#0 (copy),105
+        %                                                                        (𝕏) a#0 | tmp%1#0
+        bz test_self_ref_phi_while_top@1 ; b test_self_ref_phi_after_if_else@4   (𝕏) a#0 |
 
-    test_self_ref_phi_after_if_else@4:                                           (𝕗) a#0 |
+    test_self_ref_phi_after_if_else@4:                                           (𝕏) a#0 |
         // unssa/no_inlining.py:42
         // if not a % 21:
-        f-load a#0                                                               (𝕗) a#0 | a#0
-        int 21                                                                   (𝕗) a#0 | a#0,21
-        %                                                                        (𝕗) a#0 | tmp%3#0
-        bz test_self_ref_phi_after_while@7 ; b test_self_ref_phi_after_if_else@6 (𝕗) a#0 |
+        x-load-copy a#0                                                          (𝕏) a#0 | a#0 (copy)
+        int 21                                                                   (𝕏) a#0 | a#0 (copy),21
+        %                                                                        (𝕏) a#0 | tmp%3#0
+        bz test_self_ref_phi_after_while@7 ; b test_self_ref_phi_after_if_else@6 (𝕏) a#0 |
 
-    test_self_ref_phi_after_if_else@6:                                           (𝕗) a#0 |
+    test_self_ref_phi_after_if_else@6:                                           (𝕏) a#0 |
         // unssa/no_inlining.py:44
         // a += 1
-        f-load a#0                                                               (𝕗) a#0 | a#0
-        int 1                                                                    (𝕗) a#0 | a#0,1
-        +                                                                        (𝕗) a#0 | a#0
-        f-store a#0                                                              (𝕗) a#0 |
-        b test_self_ref_phi_while_top@1                                          (𝕗) a#0 |
+        x-load a#0                                                               a#0
+        int 1                                                                    a#0,1
+        +                                                                        a#0
+        x-store a#0                                                              (𝕏) a#0 |
+        b test_self_ref_phi_while_top@1                                          (𝕏) a#0 |
 
-    test_self_ref_phi_after_while@7:                                             (𝕗) a#0 |
+    test_self_ref_phi_after_while@7:                                             (𝕏) a#0 |
         // unssa/no_inlining.py:45
         // return a
-        f-load a#0                                                               (𝕗) a#0 | a#0
+        x-load a#0                                                               a#0
         retsub                                                                   a#0
 
 
@@ -205,38 +205,40 @@ subroutine test_swap:
     test_swap_block@0:                                                           (𝕡) i#0 |
         // unssa/no_inlining.py:50
         // x = UInt64(1)
-        int 1                                                                    (𝕡) i#0 | 1
-        f-store x#0                                                              (𝕡) i#0 | (𝕗) x#0 |
+        int 1                                                                    (𝕡) i#0 | x#0
+        x-store x#0                                                              (𝕡) i#0 | (𝕏) x#0 |
         // unssa/no_inlining.py:51
         // y = UInt64(2)
-        int 2                                                                    (𝕡) i#0 | (𝕗) x#0 | 2
-        f-store y#0                                                              (𝕡) i#0 | (𝕗) x#0,y#0 |
-        b test_swap_while_top@1                                                  (𝕡) i#0 | (𝕗) x#0,y#0 |
+        int 2                                                                    (𝕡) i#0 | (𝕏) x#0 | y#0
+        x-store y#0                                                              (𝕡) i#0 | (𝕏) x#0,y#0 |
+        b test_swap_while_top@1                                                  (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_while_top@1:                                                       (𝕡) i#0 | (𝕗) x#0,y#0 |
+    test_swap_while_top@1:                                                       (𝕡) i#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:52
         // while i > 0:
-        p-load i#0                                                               (𝕡) i#0 | (𝕗) x#0,y#0 | i#0 (copy)
-        bz test_swap_after_while@3 ; b test_swap_while_body@2                    (𝕡) i#0 | (𝕗) x#0,y#0 |
+        p-load i#0                                                               (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        bz test_swap_after_while@3 ; b test_swap_while_body@2                    (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_while_body@2:                                                      (𝕡) i#0 | (𝕗) x#0,y#0 |
+    test_swap_while_body@2:                                                      (𝕡) i#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:56
         // i = i - 1
-        p-load i#0                                                               (𝕡) i#0 | (𝕗) x#0,y#0 | i#0 (copy)
-        int 1                                                                    (𝕡) i#0 | (𝕗) x#0,y#0 | i#0 (copy),1
-        -                                                                        (𝕡) i#0 | (𝕗) x#0,y#0 | i#0
-        p-store i#0                                                              (𝕡) i#0 | (𝕗) x#0,y#0 |
-        f-load y#0                                                               (𝕡) i#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        f-load x#0                                                               (𝕡) i#0 | (𝕗) x#0,y#0 | parcopy%0#0,x#0
-        f-store y#0                                                              (𝕡) i#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        l-load parcopy%0#0 0                                                     (𝕡) i#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        f-store x#0                                                              (𝕡) i#0 | (𝕗) x#0,y#0 |
-        b test_swap_while_top@1                                                  (𝕡) i#0 | (𝕗) x#0,y#0 |
+        p-load i#0                                                               (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        int 1                                                                    (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy),1
+        -                                                                        (𝕡) i#0 | (𝕏) x#0,y#0 | i#0
+        p-store i#0                                                              (𝕡) i#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                               (𝕡) i#0 | (𝕏) x#0 | y#0
+        x-load x#0                                                               (𝕡) i#0 | y#0,y#0
+        x-store y#0                                                              (𝕡) i#0 | (𝕏) y#0 | y#0
+        l-load parcopy%0#0 0                                                     (𝕡) i#0 | (𝕏) y#0 | x#0
+        x-store x#0                                                              (𝕡) i#0 | (𝕏) x#0,y#0 |
+        b test_swap_while_top@1                                                  (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_after_while@3:                                                     (𝕡) i#0 | (𝕗) x#0,y#0 |
+    test_swap_after_while@3:                                                     (𝕡) i#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                               (𝕡) i#0 | (𝕏) x#0 | y#0
+        pop 1                                                                    (𝕡) i#0 | (𝕏) x#0 |
         // unssa/no_inlining.py:57
         // return x
-        f-load x#0                                                               (𝕡) i#0 | (𝕗) x#0,y#0 | x#0
+        x-load x#0                                                               (𝕡) i#0 | x#0
         retsub                                                                   x#0
 
 
@@ -245,53 +247,55 @@ subroutine test_swap_loop:
     test_swap_loop_block@0:                                                      (𝕡) i#0,j#0 |
         // unssa/no_inlining.py:62
         // x = UInt64(1)
-        int 1                                                                    (𝕡) i#0,j#0 | 1
-        f-store x#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0 |
+        int 1                                                                    (𝕡) i#0,j#0 | x#0
+        x-store x#0                                                              (𝕡) i#0,j#0 | (𝕏) x#0 |
         // unssa/no_inlining.py:63
         // y = UInt64(2)
-        int 2                                                                    (𝕡) i#0,j#0 | (𝕗) x#0 | 2
-        f-store y#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
-        b test_swap_loop_while_top@1                                             (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+        int 2                                                                    (𝕡) i#0,j#0 | (𝕏) x#0 | y#0
+        x-store y#0                                                              (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
+        b test_swap_loop_while_top@1                                             (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
 
-    test_swap_loop_while_top@1:                                                  (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+    test_swap_loop_while_top@1:                                                  (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:64
         // while i > 0:
-        p-load i#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | i#0 (copy)
-        bz test_swap_loop_after_while@6 ; b test_swap_loop_while_top@3           (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+        p-load i#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        bz test_swap_loop_after_while@6 ; b test_swap_loop_while_top@3           (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
 
-    test_swap_loop_while_top@3:                                                  (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+    test_swap_loop_while_top@3:                                                  (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:65
         // while j > 0:
-        p-load j#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | j#0 (copy)
-        bz test_swap_loop_after_while@5 ; b test_swap_loop_while_body@4          (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+        p-load j#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | j#0 (copy)
+        bz test_swap_loop_after_while@5 ; b test_swap_loop_while_body@4          (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
 
-    test_swap_loop_while_body@4:                                                 (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+    test_swap_loop_while_body@4:                                                 (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:69
         // j = j - 1
-        p-load j#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | j#0 (copy)
-        int 1                                                                    (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | j#0 (copy),1
-        -                                                                        (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | j#0
-        p-store j#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
-        f-load y#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        f-load x#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | parcopy%0#0,x#0
-        f-store y#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        l-load parcopy%0#0 0                                                     (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | parcopy%0#0
-        f-store x#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
-        b test_swap_loop_while_top@3                                             (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+        p-load j#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | j#0 (copy)
+        int 1                                                                    (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | j#0 (copy),1
+        -                                                                        (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | j#0
+        p-store j#0                                                              (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0 | y#0
+        x-load x#0                                                               (𝕡) i#0,j#0 | y#0,y#0
+        x-store y#0                                                              (𝕡) i#0,j#0 | (𝕏) y#0 | y#0
+        l-load parcopy%0#0 0                                                     (𝕡) i#0,j#0 | (𝕏) y#0 | x#0
+        x-store x#0                                                              (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
+        b test_swap_loop_while_top@3                                             (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
 
-    test_swap_loop_after_while@5:                                                (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+    test_swap_loop_after_while@5:                                                (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
         // unssa/no_inlining.py:70
         // i = i - 1
-        p-load i#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | i#0 (copy)
-        int 1                                                                    (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | i#0 (copy),1
-        -                                                                        (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | i#0
-        p-store i#0                                                              (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
-        b test_swap_loop_while_top@1                                             (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+        p-load i#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        int 1                                                                    (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | i#0 (copy),1
+        -                                                                        (𝕡) i#0,j#0 | (𝕏) x#0,y#0 | i#0
+        p-store i#0                                                              (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
+        b test_swap_loop_while_top@1                                             (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
 
-    test_swap_loop_after_while@6:                                                (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
+    test_swap_loop_after_while@6:                                                (𝕡) i#0,j#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                               (𝕡) i#0,j#0 | (𝕏) x#0 | y#0
+        pop 1                                                                    (𝕡) i#0,j#0 | (𝕏) x#0 |
         // unssa/no_inlining.py:71
         // return x
-        f-load x#0                                                               (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | x#0
+        x-load x#0                                                               (𝕡) i#0,j#0 | x#0
         retsub                                                                   x#0
 
 
@@ -300,37 +304,37 @@ subroutine test_tuple_swap:
     test_tuple_swap_block@0:                                                     (𝕡) a#0,b#0,i#0 |
         // unssa/no_inlining.py:76
         // for _item in urange(i):
-        int 0                                                                    (𝕡) a#0,b#0,i#0 | value_internal%0#0
-        f-store _item#0                                                          (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
-        b test_tuple_swap_for_header@1                                           (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+        int 0                                                                    (𝕡) a#0,b#0,i#0 | _item#0
+        x-store _item#0                                                          (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        b test_tuple_swap_for_header@1                                           (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_for_header@1:                                                (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+    test_tuple_swap_for_header@1:                                                (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/no_inlining.py:76
         // for _item in urange(i):
-        f-load _item#0                                                           (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | _item#0
-        p-load i#0                                                               (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | _item#0,i#0 (copy)
-        <                                                                        (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | continue_looping%0#0
-        bz test_tuple_swap_after_for@4 ; b test_tuple_swap_for_body@2            (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+        x-load-copy _item#0                                                      (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | _item#0 (copy)
+        p-load i#0                                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | _item#0 (copy),i#0 (copy)
+        <                                                                        (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | continue_looping%0#0
+        bz test_tuple_swap_after_for@4 ; b test_tuple_swap_for_body@2            (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_for_body@2:                                                  (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+    test_tuple_swap_for_body@2:                                                  (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/no_inlining.py:76
         // for _item in urange(i):
-        f-load _item#0                                                           (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | _item#0
-        int 1                                                                    (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | _item#0,1
-        +                                                                        (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | value_internal%0#0
-        f-store _item#0                                                          (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
-        p-load a#0                                                               (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | parcopy%0#0
-        p-load b#0                                                               (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | parcopy%0#0,b#0 (copy)
-        p-store a#0                                                              (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | parcopy%0#0
-        l-load parcopy%0#0 0                                                     (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | parcopy%0#0
-        p-store b#0                                                              (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
-        b test_tuple_swap_for_header@1                                           (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+        x-load _item#0                                                           (𝕡) a#0,b#0,i#0 | _item#0
+        int 1                                                                    (𝕡) a#0,b#0,i#0 | _item#0,1
+        +                                                                        (𝕡) a#0,b#0,i#0 | _item#0
+        x-store _item#0                                                          (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        p-load a#0                                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        p-load b#0                                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0,b#0 (copy)
+        p-store a#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        l-load parcopy%0#0 0                                                     (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        p-store b#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        b test_tuple_swap_for_header@1                                           (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_after_for@4:                                                 (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 |
+    test_tuple_swap_after_for@4:                                                 (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/no_inlining.py:78
         // return a, b
-        p-load a#0                                                               (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | a#0 (copy)
-        p-load b#0                                                               (𝕡) a#0,b#0,i#0 | (𝕗) _item#0 | a#0 (copy),b#0 (copy)
+        p-load a#0                                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | a#0 (copy)
+        p-load b#0                                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | a#0 (copy),b#0 (copy)
         retsub                                                                   a#0 (copy),b#0 (copy)
 
 

@@ -335,27 +335,27 @@ subroutine maybe:
         int 0                                                                          map_prefixed_key%0#0,account#0,0
         l-load map_prefixed_key%0#0 2                                                  account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                               value#0,exists#0
-        l-store-copy exists#0 1                                                        exists#0,value#0,exists#0 (copy)
-        v-store exists#0                                                               exists#0,value#0
-        v-store value#0                                                                exists#0
+        l-store-copy exists#0 1                                                        exists#0,value#0,exists#0
+        x-store exists#0                                                               (𝕏) exists#0 | exists#0,value#0
+        v-store value#0                                                                (𝕏) exists#0 | exists#0
         // local_map/account_struct.py:63
         // if not exists:
-        l-load exists#0 0                                                              exists#0
-        bz maybe_if_body@2 ; b maybe_after_if_else@3
+        l-load exists#0 0                                                              (𝕏) exists#0 | exists#0
+        bz maybe_if_body@2 ; b maybe_after_if_else@3                                   (𝕏) exists#0 |
 
-    maybe_if_body@2:
+    maybe_if_body@2:                                                                   (𝕏) exists#0 |
         // local_map/account_struct.py:65
         // value = Data(foo=UInt64(), bar=Bytes4())
-        byte 0x000000000000000000000000                                                0x000000000000000000000000
-        v-store value#0
-        b maybe_after_if_else@3
+        byte 0x000000000000000000000000                                                (𝕏) exists#0 | 0x000000000000000000000000
+        v-store value#0                                                                (𝕏) exists#0 |
+        b maybe_after_if_else@3                                                        (𝕏) exists#0 |
 
-    maybe_after_if_else@3:
+    maybe_after_if_else@3:                                                             (𝕏) exists#0 |
         // local_map/account_struct.py:60
         // @public
-        byte 0x00                                                                      0x00
-        int 0                                                                          0x00,0
-        v-load exists#0                                                                0x00,0,exists#0
+        byte 0x00                                                                      (𝕏) exists#0 | 0x00
+        int 0                                                                          (𝕏) exists#0 | 0x00,0
+        x-load exists#0                                                                0x00,0,exists#0
         setbit                                                                         aggregate%encoded_bool%0#0
         v-load value#0                                                                 aggregate%encoded_bool%0#0,value#0
         l-load aggregate%encoded_bool%0#0 1                                            value#0,aggregate%encoded_bool%0#0

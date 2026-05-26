@@ -6,9 +6,8 @@ main:
     intcblock 0 6 5 3 1000
     bytecblock 0x098101 0x09361a00b08101 0x31 0x32 0x41535432 0x756e6974 0x33 0x34 0x35 0x41535431 0x41535433 "name" 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
     intc_0 // 0
-    dupn 3
+    dup
     pushbytes ""
-    dupn 2
     txn ApplicationID
     bnz main_after_if_else@2
     // inner_transactions/contract.py:24
@@ -736,7 +735,7 @@ main_switch_case_2@6:
 
 main_switch_case_1@5:
     intc_0 // 0
-    bury 5
+    bury 3
     pushbytes ""
     bury 1
     // inner_transactions/contract.py:90
@@ -746,19 +745,15 @@ main_switch_case_1@5:
     // inner_transactions/contract.py:91
     // args = Bytes(b"1"), Bytes(b"2")
     bytec_2 // 0x31
-    bury 7
     bytec_3 // 0x32
-    bury 6
     // inner_transactions/contract.py:95
     // app_args=args,
     pushint 2
-    bury 3
     // inner_transactions/contract.py:96
     // on_completion=OnCompleteAction.NoOp,
     intc_0 // NoOp
-    bury 1
+    bury 4
     pushint 1
-    bury 2
     // inner_transactions/contract.py:97
     // note=b"with args param set",
     bytec 19 // 0x77697468206172677320706172616d20736574
@@ -768,23 +763,21 @@ main_after_if_else@34:
     // create_app_txn = create_app_params.submit()
     itxn_begin
     itxn_field Note
-    dig 1
     bz main_next_field@36
-    dup
+    dig 3
     itxn_field OnCompletion
 
 main_next_field@36:
-    dig 6
+    uncover 2
     itxn_field ApplicationArgs
-    dig 5
+    swap
     itxn_field ApplicationArgs
-    dig 2
     intc_3 // 3
     >=
     // inner_transactions/contract.py:106
     // create_app_txn = create_app_params.submit()
     bz main_next_field@38
-    dig 4
+    dig 2
     itxn_field ApplicationArgs
 
 main_next_field@38:
@@ -806,7 +799,7 @@ main_next_field@38:
     // create_app_txn = create_app_params.submit()
     itxn_submit
     itxn Note
-    bury 4
+    bury 2
     // inner_transactions/contract.py:107
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
@@ -871,7 +864,7 @@ main_next_field@38:
     assert // correct args used 2
     // inner_transactions/contract.py:118
     // assert create_app_txn.note == b"with args param set"
-    dig 3
+    dig 1
     bytec 19 // 0x77697468206172677320706172616d20736574
     ==
     assert
@@ -881,20 +874,16 @@ main_else_body@33:
     // inner_transactions/contract.py:103
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     bytec 6 // 0x33
-    bury 7
     bytec 7 // 0x34
-    bury 6
     bytec 8 // 0x35
     bury 5
     intc_3 // 3
-    bury 3
-    // inner_transactions/contract.py:104
-    // note=b"no args param set",
-    pushbytes 0x6e6f206172677320706172616d20736574
     // inner_transactions/contract.py:100
     // create_app_params = itxn.ApplicationCall(
     intc_0 // 0
-    bury 3
+    // inner_transactions/contract.py:104
+    // note=b"no args param set",
+    pushbytes 0x6e6f206172677320706172616d20736574
     b main_after_if_else@34
 
 main_switch_case_0@4:

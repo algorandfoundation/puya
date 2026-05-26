@@ -865,8 +865,6 @@ slice_big_bytes:
 
 // examples.box_storage.contract.BoxContract.sum_many_ints[routing]() -> void:
 sum_many_ints:
-    pushbytes ""
-    dup
 
 sum_many_ints_while_top@7:
     pushint 10510
@@ -891,7 +889,6 @@ sum_many_ints_after_while@12:
     // box_storage/contract.py:167
     // total = UInt64(0)
     intc_3 // 0
-    bury 1
     // box_storage/contract.py:168
     // for val in self.many_ints.value:
     bytec 13 // "many_ints"
@@ -899,16 +896,14 @@ sum_many_ints_after_while@12:
     bury 1
     assert // check self.many_ints exists
     intc_3 // 0
-    bury 2
 
 sum_many_ints_for_header@2:
     // box_storage/contract.py:168
     // for val in self.many_ints.value:
-    dig 1
+    dup
     pushint 513
     <
     bz sum_many_ints_after_for@5
-    dig 1
     dup
     intc_2 // 8
     *
@@ -919,18 +914,17 @@ sum_many_ints_for_header@2:
     btoi
     // box_storage/contract.py:169
     // total = total + val
-    dig 2
+    uncover 2
     +
-    bury 2
+    swap
     intc_0 // 1
     +
-    bury 2
     b sum_many_ints_for_header@2
 
 sum_many_ints_after_for@5:
+    pop
     // box_storage/contract.py:164
     // @arc4.abimethod()
-    dup
     itob
     bytec_2 // 0x151f7c75
     swap
@@ -1234,7 +1228,7 @@ append_dynamic_arr_struct_for_header@2:
     bz append_dynamic_arr_struct_after_for@5
     // box_storage/contract.py:220
     // self.dynamic_arr_struct.value.arr.append(i)
-    dupn 2
+    dup
     itob
     bytec_1 // "dynamic_arr_struct"
     pushint 18
@@ -1265,7 +1259,6 @@ append_dynamic_arr_struct_for_header@2:
     // for i in urange(times):
     intc_0 // 1
     +
-    bury 1
     b append_dynamic_arr_struct_for_header@2
 
 append_dynamic_arr_struct_after_for@5:
@@ -1336,10 +1329,8 @@ pop_dynamic_arr_struct_for_header@2:
     callsub box_dynamic_array_pop_fixed_size
     // box_storage/contract.py:225
     // for _pop in urange(times):
-    dup
     intc_0 // 1
     +
-    bury 1
     b pop_dynamic_arr_struct_for_header@2
 
 pop_dynamic_arr_struct_after_for@5:
@@ -1364,9 +1355,8 @@ pop_dynamic_arr_struct_after_for@5:
 // examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
 set_nested_struct:
     intc_3 // 0
-    dup
     pushbytes ""
-    dupn 6
+    dupn 2
     // box_storage/contract.py:230
     // @arc4.abimethod()
     txna ApplicationArgs 1
@@ -1398,7 +1388,7 @@ set_nested_struct:
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 4
     intc_1 // 2
     *
     swap
@@ -1409,18 +1399,18 @@ set_nested_struct_for_header@1:
     // box_storage/contract.py:230
     // @arc4.abimethod()
     dup
-    dig 4
+    dig 6
     <
     bz set_nested_struct_after_for@4
-    dupn 2
+    dup
     intc_1 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 6
+    uncover 5
     dup
     cover 4
     ==
@@ -1435,21 +1425,20 @@ set_nested_struct_for_header@1:
     intc_1 // 2
     +
     +
-    bury 4
+    cover 2
     intc_0 // 1
     +
-    bury 1
     b set_nested_struct_for_header@1
 
 set_nested_struct_after_for@4:
+    popn 2
     // box_storage/contract.py:230
     // @arc4.abimethod()
-    dig 2
     pushint 40
     +
     dup
-    bury 14
-    dig 6
+    bury 7
+    dig 2
     dup
     cover 2
     pushint 10
@@ -1458,37 +1447,36 @@ set_nested_struct_after_for@4:
     uncover 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
-    dig 6
+    dig 2
     substring3
     dup
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 14
+    bury 7
     intc_1 // 2
     *
-    bury 9
+    swap
     extract 2 0
-    bury 15
+    bury 8
     intc_3 // 0
-    bury 10
 
 set_nested_struct_for_header@5:
     // box_storage/contract.py:230
     // @arc4.abimethod()
-    dig 9
-    dig 12
+    dup
+    dig 7
     <
     bz set_nested_struct_after_for@12
-    dig 9
+    dup
     intc_1 // 2
     *
-    dig 15
+    dig 9
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 10
+    dig 4
     ==
     assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[])
     dig 1
@@ -1509,32 +1497,30 @@ set_nested_struct_for_header@5:
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 13
+    bury 8
     intc_1 // 2
     *
-    bury 8
+    cover 3
     extract 2 0
-    bury 14
+    swap
     intc_3 // 0
-    bury 9
 
 set_nested_struct_for_header@7:
     // box_storage/contract.py:230
     // @arc4.abimethod()
-    dig 8
-    dig 11
+    dup
+    dig 9
     <
     bz set_nested_struct_after_for@10
-    dig 8
     dup
     intc_1 // 2
     *
-    dig 15
+    dig 3
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 10
+    uncover 7
     dup
     cover 4
     ==
@@ -1549,41 +1535,38 @@ set_nested_struct_for_header@7:
     intc_1 // 2
     +
     +
-    bury 8
+    cover 4
     intc_0 // 1
     +
-    bury 9
     b set_nested_struct_for_header@7
 
 set_nested_struct_after_for@10:
+    pop
+    bury 1
     // box_storage/contract.py:230
     // @arc4.abimethod()
-    dig 6
+    uncover 2
     pushint 20
     +
-    dig 8
+    uncover 2
     +
-    bury 8
-    dig 9
+    swap
     intc_0 // 1
     +
-    bury 10
     b set_nested_struct_for_header@5
 
 set_nested_struct_after_for@12:
+    pop
     // box_storage/contract.py:230
     // @arc4.abimethod()
-    dig 7
     intc_1 // 2
     +
-    dig 13
+    dig 6
     +
-    dig 5
     ==
     assert // invalid number of bytes for examples.box_storage.contract.NestedStruct
     // box_storage/contract.py:233
     // assert struct.a, "struct.a is truthy"
-    dig 5
     intc_3 // 0
     extract_uint64
     assert // struct.a is truthy
@@ -2109,8 +2092,6 @@ nested_read:
 
 // examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[routing]() -> void:
 sum_dynamic_arr_struct:
-    pushbytes ""
-    dup
     // box_storage/contract.py:268
     // assert self.dynamic_arr_struct.value.a == 1, "expected 1"
     bytec_1 // "dynamic_arr_struct"
@@ -2143,13 +2124,14 @@ sum_dynamic_arr_struct:
     intc_1 // 2
     box_extract
     btoi
+    swap
     intc_3 // 0
 
 sum_dynamic_arr_struct_for_header@2:
     // box_storage/contract.py:271
     // for val in self.dynamic_arr_struct.value.arr:
     dup
-    dig 2
+    dig 3
     <
     bz sum_dynamic_arr_struct_after_for@5
     bytec_1 // "dynamic_arr_struct"
@@ -2158,9 +2140,7 @@ sum_dynamic_arr_struct_for_header@2:
     box_extract
     btoi
     dig 1
-    dup
-    uncover 2
-    <
+    >
     assert // index out of bounds
     dup
     intc_2 // 8
@@ -2174,15 +2154,15 @@ sum_dynamic_arr_struct_for_header@2:
     btoi
     // box_storage/contract.py:272
     // total += val
-    dig 4
+    uncover 2
     +
-    bury 4
+    swap
     intc_0 // 1
     +
-    bury 1
     b sum_dynamic_arr_struct_for_header@2
 
 sum_dynamic_arr_struct_after_for@5:
+    pop
     // box_storage/contract.py:273
     // for val in self.dynamic_arr_struct.value.arr2:
     bytec_1 // "dynamic_arr_struct"
@@ -2195,15 +2175,14 @@ sum_dynamic_arr_struct_after_for@5:
     intc_1 // 2
     box_extract
     btoi
-    bury 5
+    swap
     intc_3 // 0
-    bury 4
 
 sum_dynamic_arr_struct_for_header@6:
     // box_storage/contract.py:273
     // for val in self.dynamic_arr_struct.value.arr2:
+    dup
     dig 3
-    dig 5
     <
     bz sum_dynamic_arr_struct_after_for@9
     bytec_1 // "dynamic_arr_struct"
@@ -2213,9 +2192,7 @@ sum_dynamic_arr_struct_for_header@6:
     btoi
     intc_1 // 2
     +
-    dig 4
-    dup
-    cover 2
+    dig 1
     intc_2 // 8
     *
     +
@@ -2226,18 +2203,17 @@ sum_dynamic_arr_struct_for_header@6:
     btoi
     // box_storage/contract.py:274
     // total += val
-    dig 4
+    uncover 2
     +
-    bury 4
+    swap
     intc_0 // 1
     +
-    bury 4
     b sum_dynamic_arr_struct_for_header@6
 
 sum_dynamic_arr_struct_after_for@9:
+    pop
     // box_storage/contract.py:266
     // @arc4.abimethod
-    dig 2
     itob
     bytec_2 // 0x151f7c75
     swap
@@ -2340,10 +2316,10 @@ sum_bools_for_header@2:
     bz sum_bools_after_if_else@5
     // box_storage/contract.py:290
     // total += 1
-    dig 1
+    swap
     intc_0 // 1
     +
-    bury 2
+    swap
 
 sum_bools_after_if_else@5:
     // box_storage/contract.py:291
@@ -2352,16 +2328,14 @@ sum_bools_after_if_else@5:
     dig 3
     ==
     bnz sum_bools_after_for@9
-    dup
     intc_0 // 1
     +
-    bury 1
     b sum_bools_for_header@2
 
 sum_bools_after_for@9:
+    pop
     // box_storage/contract.py:285
     // @arc4.abimethod()
-    dig 1
     itob
     bytec_2 // 0x151f7c75
     swap
@@ -2411,7 +2385,7 @@ append_dynamic_box_for_header@2:
     bz append_dynamic_box_after_for@5
     // box_storage/contract.py:306
     // self.dynamic_box.value.append(i)
-    dupn 2
+    dup
     itob
     bytec 5 // "dynamic_box"
     intc_3 // 0
@@ -2423,7 +2397,6 @@ append_dynamic_box_for_header@2:
     // for i in urange(times):
     intc_0 // 1
     +
-    bury 1
     b append_dynamic_box_for_header@2
 
 append_dynamic_box_after_for@5:
@@ -2475,10 +2448,8 @@ pop_dynamic_box_for_header@2:
     callsub box_dynamic_array_pop_fixed_size
     // box_storage/contract.py:311
     // for _pop in urange(times):
-    dup
     intc_0 // 1
     +
-    bury 1
     b pop_dynamic_box_for_header@2
 
 pop_dynamic_box_after_for@5:
@@ -2512,16 +2483,17 @@ sum_dynamic_box:
     intc_1 // 2
     box_extract
     btoi
+    swap
     intc_3 // 0
 
 sum_dynamic_box_for_header@2:
     // box_storage/contract.py:319
     // for val in self.dynamic_box.value:
     dup
-    dig 2
+    dig 3
     <
     bz sum_dynamic_box_after_for@5
-    dupn 2
+    dup
     intc_2 // 8
     *
     intc_1 // 2
@@ -2533,18 +2505,17 @@ sum_dynamic_box_for_header@2:
     btoi
     // box_storage/contract.py:320
     // total += val
-    dig 4
+    uncover 2
     +
-    bury 4
+    swap
     intc_0 // 1
     +
-    bury 1
     b sum_dynamic_box_for_header@2
 
 sum_dynamic_box_after_for@5:
+    pop
     // box_storage/contract.py:316
     // @arc4.abimethod
-    dig 2
     itob
     bytec_2 // 0x151f7c75
     swap

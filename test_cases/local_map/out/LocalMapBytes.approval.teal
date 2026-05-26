@@ -301,8 +301,6 @@ maybe:
     swap
     app_local_get_ex
     dup
-    uncover 2
-    swap
     // local_map/bytes.py:44
     // if not exists:
     bnz maybe_after_if_else@3
@@ -310,12 +308,13 @@ maybe:
     // # AVM actually returns a uint64 if value not present
     // value = Bytes()
     pushbytes 0x
-    bury 1
+    bury 2
 
 maybe_after_if_else@3:
     // local_map/bytes.py:41
     // @public
-    dupn 2
+    dig 1
+    dup
     len
     itob
     extract 6 2
@@ -323,7 +322,7 @@ maybe_after_if_else@3:
     concat
     bytec_2 // 0x00
     intc_0 // 0
-    dig 4
+    uncover 3
     setbit
     pushbytes 0x0003
     swap

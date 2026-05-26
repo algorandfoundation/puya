@@ -4,44 +4,46 @@ subroutine main:
     main_block@0:
         // unssa/contract.py:34
         // a = UInt64(1)
-        int 1                                                                   1
-        v-store a#0
-        b main_while_top@41
+        int 1                                                                   a#0
+        x-store a#0                                                             (𝕏) a#0 |
+        b main_while_top@41                                                     (𝕏) a#0 |
 
-    main_while_top@41:
+    main_while_top@41:                                                          (𝕏) a#0 |
         // unssa/contract.py:35
         // while a < 100:
-        v-load a#0                                                              a#0
-        int 100                                                                 a#0,100
-        <                                                                       tmp%0#6
-        bz main_after_while@47 ; b main_while_body@42
+        x-load-copy a#0                                                         (𝕏) a#0 | a#0 (copy)
+        int 100                                                                 (𝕏) a#0 | a#0 (copy),100
+        <                                                                       (𝕏) a#0 | tmp%0#6
+        bz main_after_while@47 ; b main_while_body@42                           (𝕏) a#0 |
 
-    main_while_body@42:
+    main_while_body@42:                                                         (𝕏) a#0 |
         // unssa/contract.py:36
         // if a % 105 == 0:
-        v-load a#0                                                              a#0
-        int 105                                                                 a#0,105
-        %                                                                       tmp%1#6
-        bz main_while_top@41 ; b main_after_if_else@44
+        x-load-copy a#0                                                         (𝕏) a#0 | a#0 (copy)
+        int 105                                                                 (𝕏) a#0 | a#0 (copy),105
+        %                                                                       (𝕏) a#0 | tmp%1#6
+        bz main_while_top@41 ; b main_after_if_else@44                          (𝕏) a#0 |
 
-    main_after_if_else@44:
+    main_after_if_else@44:                                                      (𝕏) a#0 |
         // unssa/contract.py:38
         // if not a % 21:
-        v-load a#0                                                              a#0
-        int 21                                                                  a#0,21
-        %                                                                       tmp%3#3
-        bz main_after_while@47 ; b main_after_if_else@46
+        x-load-copy a#0                                                         (𝕏) a#0 | a#0 (copy)
+        int 21                                                                  (𝕏) a#0 | a#0 (copy),21
+        %                                                                       (𝕏) a#0 | tmp%3#3
+        bz main_after_while@47 ; b main_after_if_else@46                        (𝕏) a#0 |
 
-    main_after_if_else@46:
+    main_after_if_else@46:                                                      (𝕏) a#0 |
         // unssa/contract.py:40
         // a += 1
-        v-load a#0                                                              a#0
+        x-load a#0                                                              a#0
         int 1                                                                   a#0,1
         +                                                                       a#0
-        v-store a#0
-        b main_while_top@41
+        x-store a#0                                                             (𝕏) a#0 |
+        b main_while_top@41                                                     (𝕏) a#0 |
 
-    main_after_while@47:
+    main_after_while@47:                                                        (𝕏) a#0 |
+        x-load a#0                                                              a#0
+        pop 1
         // unssa/contract.py:7
         // result1 = test_swap(UInt64(1))
         int 1                                                                   1
@@ -122,56 +124,62 @@ subroutine main:
         assert
         // unssa/contract.py:13
         // test_swap_loop(UInt64(7), UInt64(11))
-        int 7                                                                   7
-        v-store i#0
-        int 11                                                                  11
-        v-store j#0
+        int 7                                                                   i#0
+        x-store i#0                                                             (𝕏) i#0 |
+        int 11                                                                  (𝕏) i#0 | j#0
+        x-store j#0                                                             (𝕏) j#0,i#0 |
         // unssa/contract.py:58
         // x = UInt64(1)
-        int 1                                                                   1
-        v-store x#0
+        int 1                                                                   (𝕏) j#0,i#0 | 1
+        v-store x#0                                                             (𝕏) j#0,i#0 |
         // unssa/contract.py:59
         // y = UInt64(2)
-        int 2                                                                   2
-        v-store y#0
-        b main_while_top@10
+        int 2                                                                   (𝕏) j#0,i#0 | y#0
+        x-store y#0                                                             (𝕏) j#0,i#0,y#0 |
+        b main_while_top@10                                                     (𝕏) j#0,i#0,y#0 |
 
-    main_while_top@10:
+    main_while_top@10:                                                          (𝕏) j#0,i#0,y#0 |
         // unssa/contract.py:60
         // while i > 0:
-        v-load i#0                                                              i#0
-        bz main_after_while@15 ; b main_while_top@12
+        x-load-copy i#0                                                         (𝕏) j#0,i#0,y#0 | i#0 (copy)
+        bz main_after_while@15 ; b main_while_top@12                            (𝕏) j#0,i#0,y#0 |
 
-    main_while_top@12:
+    main_while_top@12:                                                          (𝕏) j#0,i#0,y#0 |
         // unssa/contract.py:61
         // while j > 0:
-        v-load j#0                                                              j#0
-        bz main_after_while@14 ; b main_while_body@13
+        x-load-copy j#0                                                         (𝕏) j#0,i#0,y#0 | j#0 (copy)
+        bz main_after_while@14 ; b main_while_body@13                           (𝕏) j#0,i#0,y#0 |
 
-    main_while_body@13:
+    main_while_body@13:                                                         (𝕏) j#0,i#0,y#0 |
         // unssa/contract.py:65
         // j = j - 1
-        v-load j#0                                                              j#0
-        int 1                                                                   j#0,1
-        -                                                                       j#0
-        v-store j#0
-        v-load y#0                                                              parcopy%0#0
-        v-load x#0                                                              parcopy%0#0,x#0
-        v-store y#0                                                             parcopy%0#0
-        l-load parcopy%0#0 0                                                    parcopy%0#0
-        v-store x#0
-        b main_while_top@12
+        x-load j#0                                                              (𝕏) i#0,y#0 | j#0
+        int 1                                                                   (𝕏) i#0,y#0 | j#0,1
+        -                                                                       (𝕏) i#0,y#0 | j#0
+        x-store j#0                                                             (𝕏) j#0,i#0,y#0 |
+        x-load y#0                                                              (𝕏) j#0,i#0 | y#0
+        v-load x#0                                                              (𝕏) j#0,i#0 | y#0,y#0
+        x-store y#0                                                             (𝕏) j#0,i#0,y#0 | y#0
+        l-load parcopy%0#0 0                                                    (𝕏) j#0,i#0,y#0 | parcopy%0#0
+        v-store x#0                                                             (𝕏) j#0,i#0,y#0 |
+        b main_while_top@12                                                     (𝕏) j#0,i#0,y#0 |
 
-    main_after_while@14:
+    main_after_while@14:                                                        (𝕏) j#0,i#0,y#0 |
         // unssa/contract.py:66
         // i = i - 1
-        v-load i#0                                                              i#0
-        int 1                                                                   i#0,1
-        -                                                                       i#0
-        v-store i#0
-        b main_while_top@10
+        x-load i#0                                                              (𝕏) j#0,y#0 | i#0
+        int 1                                                                   (𝕏) j#0,y#0 | i#0,1
+        -                                                                       (𝕏) j#0,y#0 | i#0
+        x-store i#0                                                             (𝕏) j#0,i#0,y#0 |
+        b main_while_top@10                                                     (𝕏) j#0,i#0,y#0 |
 
-    main_after_while@15:
+    main_after_while@15:                                                        (𝕏) j#0,i#0,y#0 |
+        x-load y#0                                                              (𝕏) j#0,i#0 | y#0
+        pop 1                                                                   (𝕏) j#0,i#0 |
+        x-load i#0                                                              (𝕏) j#0 | i#0
+        pop 1                                                                   (𝕏) j#0 |
+        x-load j#0                                                              j#0
+        pop 1
         // unssa/contract.py:14
         // assert test_param_update_with_reentrant_entry_block(UInt64(0)) == 10
         int 0                                                                   0
@@ -247,38 +255,40 @@ subroutine test_swap:
     test_swap_block@0:                                                          (𝕡) i#0 |
         // unssa/contract.py:46
         // x = UInt64(1)
-        int 1                                                                   (𝕡) i#0 | 1
-        v-store x#0                                                             (𝕡) i#0 |
+        int 1                                                                   (𝕡) i#0 | x#0
+        x-store x#0                                                             (𝕡) i#0 | (𝕏) x#0 |
         // unssa/contract.py:47
         // y = UInt64(2)
-        int 2                                                                   (𝕡) i#0 | 2
-        v-store y#0                                                             (𝕡) i#0 |
-        b test_swap_while_top@1                                                 (𝕡) i#0 |
+        int 2                                                                   (𝕡) i#0 | (𝕏) x#0 | y#0
+        x-store y#0                                                             (𝕡) i#0 | (𝕏) x#0,y#0 |
+        b test_swap_while_top@1                                                 (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_while_top@1:                                                      (𝕡) i#0 |
+    test_swap_while_top@1:                                                      (𝕡) i#0 | (𝕏) x#0,y#0 |
         // unssa/contract.py:48
         // while i > 0:
-        p-load i#0                                                              (𝕡) i#0 | i#0 (copy)
-        bz test_swap_after_while@3 ; b test_swap_while_body@2                   (𝕡) i#0 |
+        p-load i#0                                                              (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        bz test_swap_after_while@3 ; b test_swap_while_body@2                   (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_while_body@2:                                                     (𝕡) i#0 |
+    test_swap_while_body@2:                                                     (𝕡) i#0 | (𝕏) x#0,y#0 |
         // unssa/contract.py:52
         // i = i - 1
-        p-load i#0                                                              (𝕡) i#0 | i#0 (copy)
-        int 1                                                                   (𝕡) i#0 | i#0 (copy),1
-        -                                                                       (𝕡) i#0 | i#0
-        p-store i#0                                                             (𝕡) i#0 |
-        v-load y#0                                                              (𝕡) i#0 | parcopy%0#0
-        v-load x#0                                                              (𝕡) i#0 | parcopy%0#0,x#0
-        v-store y#0                                                             (𝕡) i#0 | parcopy%0#0
-        l-load parcopy%0#0 0                                                    (𝕡) i#0 | parcopy%0#0
-        v-store x#0                                                             (𝕡) i#0 |
-        b test_swap_while_top@1                                                 (𝕡) i#0 |
+        p-load i#0                                                              (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy)
+        int 1                                                                   (𝕡) i#0 | (𝕏) x#0,y#0 | i#0 (copy),1
+        -                                                                       (𝕡) i#0 | (𝕏) x#0,y#0 | i#0
+        p-store i#0                                                             (𝕡) i#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                              (𝕡) i#0 | (𝕏) x#0 | y#0
+        x-load x#0                                                              (𝕡) i#0 | y#0,y#0
+        x-store y#0                                                             (𝕡) i#0 | (𝕏) y#0 | y#0
+        l-load parcopy%0#0 0                                                    (𝕡) i#0 | (𝕏) y#0 | x#0
+        x-store x#0                                                             (𝕡) i#0 | (𝕏) x#0,y#0 |
+        b test_swap_while_top@1                                                 (𝕡) i#0 | (𝕏) x#0,y#0 |
 
-    test_swap_after_while@3:                                                    (𝕡) i#0 |
+    test_swap_after_while@3:                                                    (𝕡) i#0 | (𝕏) x#0,y#0 |
+        x-load y#0                                                              (𝕡) i#0 | (𝕏) x#0 | y#0
+        pop 1                                                                   (𝕡) i#0 | (𝕏) x#0 |
         // unssa/contract.py:53
         // return x
-        v-load x#0                                                              (𝕡) i#0 | x#0
+        x-load x#0                                                              (𝕡) i#0 | x#0
         retsub                                                                  x#0
 
 
@@ -287,37 +297,37 @@ subroutine test_tuple_swap:
     test_tuple_swap_block@0:                                                    (𝕡) a#0,b#0,i#0 |
         // unssa/contract.py:72
         // for _item in urange(i):
-        int 0                                                                   (𝕡) a#0,b#0,i#0 | value_internal%0#0
-        v-store _item#0                                                         (𝕡) a#0,b#0,i#0 |
-        b test_tuple_swap_for_header@1                                          (𝕡) a#0,b#0,i#0 |
+        int 0                                                                   (𝕡) a#0,b#0,i#0 | _item#0
+        x-store _item#0                                                         (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        b test_tuple_swap_for_header@1                                          (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_for_header@1:                                               (𝕡) a#0,b#0,i#0 |
+    test_tuple_swap_for_header@1:                                               (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/contract.py:72
         // for _item in urange(i):
-        v-load _item#0                                                          (𝕡) a#0,b#0,i#0 | _item#0
-        p-load i#0                                                              (𝕡) a#0,b#0,i#0 | _item#0,i#0 (copy)
-        <                                                                       (𝕡) a#0,b#0,i#0 | continue_looping%0#0
-        bz test_tuple_swap_after_for@4 ; b test_tuple_swap_for_body@2           (𝕡) a#0,b#0,i#0 |
+        x-load-copy _item#0                                                     (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | _item#0 (copy)
+        p-load i#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | _item#0 (copy),i#0 (copy)
+        <                                                                       (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | continue_looping%0#0
+        bz test_tuple_swap_after_for@4 ; b test_tuple_swap_for_body@2           (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_for_body@2:                                                 (𝕡) a#0,b#0,i#0 |
+    test_tuple_swap_for_body@2:                                                 (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/contract.py:72
         // for _item in urange(i):
-        v-load _item#0                                                          (𝕡) a#0,b#0,i#0 | _item#0
+        x-load _item#0                                                          (𝕡) a#0,b#0,i#0 | _item#0
         int 1                                                                   (𝕡) a#0,b#0,i#0 | _item#0,1
-        +                                                                       (𝕡) a#0,b#0,i#0 | value_internal%0#0
-        v-store _item#0                                                         (𝕡) a#0,b#0,i#0 |
-        p-load a#0                                                              (𝕡) a#0,b#0,i#0 | parcopy%0#0
-        p-load b#0                                                              (𝕡) a#0,b#0,i#0 | parcopy%0#0,b#0 (copy)
-        p-store a#0                                                             (𝕡) a#0,b#0,i#0 | parcopy%0#0
-        l-load parcopy%0#0 0                                                    (𝕡) a#0,b#0,i#0 | parcopy%0#0
-        p-store b#0                                                             (𝕡) a#0,b#0,i#0 |
-        b test_tuple_swap_for_header@1                                          (𝕡) a#0,b#0,i#0 |
+        +                                                                       (𝕡) a#0,b#0,i#0 | _item#0
+        x-store _item#0                                                         (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        p-load a#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        p-load b#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0,b#0 (copy)
+        p-store a#0                                                             (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        l-load parcopy%0#0 0                                                    (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | parcopy%0#0
+        p-store b#0                                                             (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
+        b test_tuple_swap_for_header@1                                          (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
 
-    test_tuple_swap_after_for@4:                                                (𝕡) a#0,b#0,i#0 |
+    test_tuple_swap_after_for@4:                                                (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 |
         // unssa/contract.py:74
         // return a, b
-        p-load a#0                                                              (𝕡) a#0,b#0,i#0 | a#0 (copy)
-        p-load b#0                                                              (𝕡) a#0,b#0,i#0 | a#0 (copy),b#0 (copy)
+        p-load a#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | a#0 (copy)
+        p-load b#0                                                              (𝕡) a#0,b#0,i#0 | (𝕏) _item#0 | a#0 (copy),b#0 (copy)
         retsub                                                                  a#0 (copy),b#0 (copy)
 
 

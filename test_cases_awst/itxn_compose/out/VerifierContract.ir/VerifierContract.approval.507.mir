@@ -42,31 +42,31 @@ subroutine main:
 subroutine verify:
     verify_block@0:
         int 0                                                     i#0
-        f-store i#0                                               (𝕗) i#0 |
-        b verify_while_top@2                                      (𝕗) i#0 |
+        x-store i#0                                               (𝕏) i#0 |
+        b verify_while_top@2                                      (𝕏) i#0 |
 
-    verify_while_top@2:                                           (𝕗) i#0 |
-        txn GroupIndex                                            (𝕗) i#0 | tmp%0#0
-        f-load i#0                                                (𝕗) i#0 | tmp%0#0,i#0
-        l-load tmp%0#0 1                                          (𝕗) i#0 | i#0,tmp%0#0
-        <                                                         (𝕗) i#0 | tmp%1#0
-        bz verify_after_while@4 ; b verify_while_body@3           (𝕗) i#0 |
+    verify_while_top@2:                                           (𝕏) i#0 |
+        txn GroupIndex                                            (𝕏) i#0 | tmp%0#0
+        x-load-copy i#0                                           (𝕏) i#0 | tmp%0#0,i#0 (copy)
+        l-load tmp%0#0 1                                          (𝕏) i#0 | i#0 (copy),tmp%0#0
+        <                                                         (𝕏) i#0 | tmp%1#0
+        bz verify_after_while@4 ; b verify_while_body@3           (𝕏) i#0 |
 
-    verify_while_body@3:                                          (𝕗) i#0 |
-        f-load i#0                                                (𝕗) i#0 | i#0
-        l-store-copy i#0 0                                        (𝕗) i#0 | i#0,i#0 (copy)
-        gtxns TypeEnum                                            (𝕗) i#0 | i#0,tmp%2#0
-        int 1                                                     (𝕗) i#0 | i#0,tmp%2#0,1
-        ==                                                        (𝕗) i#0 | i#0,tmp%3#0
-        assert // Txn must be pay                                 (𝕗) i#0 | i#0
-        l-load i#0 0                                              (𝕗) i#0 | i#0
-        int 1                                                     (𝕗) i#0 | i#0,1
-        +                                                         (𝕗) i#0 | i#0
-        f-store i#0                                               (𝕗) i#0 |
-        b verify_while_top@2                                      (𝕗) i#0 |
+    verify_while_body@3:                                          (𝕏) i#0 |
+        x-load i#0                                                i#0
+        l-store-copy i#0 0                                        i#0,i#0 (copy)
+        gtxns TypeEnum                                            i#0,tmp%2#0
+        int 1                                                     i#0,tmp%2#0,1
+        ==                                                        i#0,tmp%3#0
+        assert // Txn must be pay                                 i#0
+        l-load i#0 0                                              i#0
+        int 1                                                     i#0,1
+        +                                                         i#0
+        x-store i#0                                               (𝕏) i#0 |
+        b verify_while_top@2                                      (𝕏) i#0 |
 
-    verify_after_while@4:                                         (𝕗) i#0 |
-        int 1                                                     (𝕗) i#0 | 1
-        return                                                    (𝕗) i#0 |
+    verify_after_while@4:                                         (𝕏) i#0 |
+        int 1                                                     (𝕏) i#0 | 1
+        return                                                    (𝕏) i#0 |
 
 

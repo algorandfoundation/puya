@@ -5,46 +5,48 @@ subroutine main:
         // undefined_phi_args/baddie.py:6
         // test_case = op.Txn.application_args(0)
         txna ApplicationArgs 0                                                     test_case#0
-        v-store test_case#0
+        x-store test_case#0                                                        (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:8
         // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
-        txn NumAppArgs                                                             tmp%1#0
-        int 1                                                                      tmp%1#0,1
-        >                                                                          tmp%2#0
-        bz main_bool_false@3 ; b main_and_contd@1
+        txn NumAppArgs                                                             (𝕏) test_case#0 | tmp%1#0
+        int 1                                                                      (𝕏) test_case#0 | tmp%1#0,1
+        >                                                                          (𝕏) test_case#0 | tmp%2#0
+        bz main_bool_false@3 ; b main_and_contd@1                                  (𝕏) test_case#0 |
 
-    main_and_contd@1:
+    main_and_contd@1:                                                              (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:8
         // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
-        txna ApplicationArgs 1                                                     tmp%3#0
-        btoi                                                                       tmp%4#0
-        bz main_bool_false@3 ; b main_bool_true@2
+        txna ApplicationArgs 1                                                     (𝕏) test_case#0 | tmp%3#0
+        btoi                                                                       (𝕏) test_case#0 | tmp%4#0
+        bz main_bool_false@3 ; b main_bool_true@2                                  (𝕏) test_case#0 |
 
-    main_bool_true@2:
-        int 1                                                                      invert_second_condition#0
-        x-store invert_second_condition#0                                          (𝕏) invert_second_condition#0 |
-        b main_bool_merge@4                                                        (𝕏) invert_second_condition#0 |
+    main_bool_true@2:                                                              (𝕏) test_case#0 |
+        int 1                                                                      (𝕏) test_case#0 | invert_second_condition#0
+        x-store invert_second_condition#0                                          (𝕏) test_case#0,invert_second_condition#0 |
+        b main_bool_merge@4                                                        (𝕏) test_case#0,invert_second_condition#0 |
 
-    main_bool_false@3:
-        int 0                                                                      invert_second_condition#0
-        x-store invert_second_condition#0                                          (𝕏) invert_second_condition#0 |
-        b main_bool_merge@4                                                        (𝕏) invert_second_condition#0 |
+    main_bool_false@3:                                                             (𝕏) test_case#0 |
+        int 0                                                                      (𝕏) test_case#0 | invert_second_condition#0
+        x-store invert_second_condition#0                                          (𝕏) test_case#0,invert_second_condition#0 |
+        b main_bool_merge@4                                                        (𝕏) test_case#0,invert_second_condition#0 |
 
-    main_bool_merge@4:                                                             (𝕏) invert_second_condition#0 |
+    main_bool_merge@4:                                                             (𝕏) test_case#0,invert_second_condition#0 |
         // undefined_phi_args/baddie.py:11
         // if invert_second_condition:
-        x-load invert_second_condition#0                                           invert_second_condition#0
-        bz main_else_body@12 ; b main_if_body@5
+        x-load invert_second_condition#0                                           (𝕏) test_case#0 | invert_second_condition#0
+        bz main_else_body@12 ; b main_if_body@5                                    (𝕏) test_case#0 |
 
-    main_if_body@5:
+    main_if_body@5:                                                                (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:12
         // if test_case == b"uint":
-        v-load test_case#0                                                         test_case#0
-        byte 0x75696e74                                                            test_case#0,0x75696e74
-        ==                                                                         tmp%6#0
-        bz main_else_body@7 ; b main_if_body@6
+        x-load-copy test_case#0                                                    (𝕏) test_case#0 | test_case#0 (copy)
+        byte 0x75696e74                                                            (𝕏) test_case#0 | test_case#0 (copy),0x75696e74
+        ==                                                                         (𝕏) test_case#0 | tmp%6#0
+        bz main_else_body@7 ; b main_if_body@6                                     (𝕏) test_case#0 |
 
-    main_if_body@6:
+    main_if_body@6:                                                                (𝕏) test_case#0 |
+        x-load test_case#0                                                         test_case#0
+        pop 1
         // undefined_phi_args/baddie.py:13
         // assert test_uint_undefined(True, False) == 10
         int 1                                                                      1
@@ -63,10 +65,10 @@ subroutine main:
         assert
         b main_after_if_else@19
 
-    main_else_body@7:
+    main_else_body@7:                                                              (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:15
         // elif test_case == b"bytes":
-        v-load test_case#0                                                         test_case#0
+        x-load test_case#0                                                         test_case#0
         byte 0x6279746573                                                          test_case#0,0x6279746573
         ==                                                                         tmp%11#0
         bz main_else_body@9 ; b main_if_body@8
@@ -109,15 +111,17 @@ subroutine main:
         assert
         b main_after_if_else@19
 
-    main_else_body@12:
+    main_else_body@12:                                                             (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:22
         // if test_case == b"uint":
-        v-load test_case#0                                                         test_case#0
-        byte 0x75696e74                                                            test_case#0,0x75696e74
-        ==                                                                         tmp%20#0
-        bz main_else_body@14 ; b main_if_body@13
+        x-load-copy test_case#0                                                    (𝕏) test_case#0 | test_case#0 (copy)
+        byte 0x75696e74                                                            (𝕏) test_case#0 | test_case#0 (copy),0x75696e74
+        ==                                                                         (𝕏) test_case#0 | tmp%20#0
+        bz main_else_body@14 ; b main_if_body@13                                   (𝕏) test_case#0 |
 
-    main_if_body@13:
+    main_if_body@13:                                                               (𝕏) test_case#0 |
+        x-load test_case#0                                                         test_case#0
+        pop 1
         // undefined_phi_args/baddie.py:23
         // assert test_uint_undefined(True, True) == 8
         int 1                                                                      1
@@ -136,10 +140,10 @@ subroutine main:
         assert
         b main_after_if_else@19
 
-    main_else_body@14:
+    main_else_body@14:                                                             (𝕏) test_case#0 |
         // undefined_phi_args/baddie.py:25
         // elif test_case == b"bytes":
-        v-load test_case#0                                                         test_case#0
+        x-load test_case#0                                                         test_case#0
         byte 0x6279746573                                                          test_case#0,0x6279746573
         ==                                                                         tmp%25#0
         bz main_else_body@16 ; b main_if_body@15

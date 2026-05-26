@@ -77,15 +77,17 @@ test_implicit_conversion_abi_call:
     swap
     concat
     pushbytes 0x0001
+    swap
     intc_0 // 0
+    cover 2
 
 test_implicit_conversion_abi_call_for_header@2:
-    dup
+    dig 2
     intc_0 // 0
     <
     bz test_implicit_conversion_abi_call_after_for@4
     pushbytes 0x
-    dig 1
+    dig 3
     dup
     cover 2
     extract_uint16
@@ -93,50 +95,47 @@ test_implicit_conversion_abi_call_for_header@2:
     +
     itob
     extract 6 0
-    dig 3
+    uncover 3
     swap
     concat
-    bury 3
+    cover 2
     intc_1 // 2
     +
-    bury 1
+    bury 3
     b test_implicit_conversion_abi_call_for_header@2
 
 test_implicit_conversion_abi_call_after_for@4:
     intc_0 // 0
-    bury 1
+    bury 3
 
 test_implicit_conversion_abi_call_for_header@5:
-    dup
+    dig 2
     intc_1 // 2
     <
     bz test_implicit_conversion_abi_call_after_for@7
-    dig 2
-    dig 1
+    dup
+    dig 3
     dup
     cover 2
     extract_uint16
     itob
     extract 6 0
-    dig 3
+    uncover 3
     swap
     concat
-    bury 3
+    cover 2
     intc_1 // 2
     +
-    bury 1
+    bury 3
     b test_implicit_conversion_abi_call_for_header@5
 
 test_implicit_conversion_abi_call_after_for@7:
-    dig 2
     extract 2 0
-    dig 2
-    swap
     concat
     // array/unused_opt_allowed.py:22
     // arc4.abi_call("dont_call(uint64[][])uint64", nested_arr, app_id=app)
     itxn_begin
-    dig 4
+    dig 2
     dup
     cover 2
     itxn_field ApplicationID

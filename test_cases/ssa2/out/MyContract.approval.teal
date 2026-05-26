@@ -6,7 +6,7 @@ main:
     // ssa2/contract.py:8-9
     // a = UInt64(1) + 2
     // b = UInt64(4) * 5
-    pushints 3 20 0
+    pushints 20 3 0
 
 main_for_header@1:
     // ssa2/contract.py:15
@@ -17,30 +17,25 @@ main_for_header@1:
     bz main_after_for@4
     // ssa2/contract.py:16
     // b = b + a
-    dig 1
-    dig 3
+    cover 2
     dup
     cover 2
     +
-    bury 3
+    cover 2
     // ssa2/contract.py:17
     // a = a + i
     dig 1
-    dup
-    cover 2
     +
-    bury 4
+    swap
     // ssa2/contract.py:15
     // for i in urange(5):
     pushint 1
     +
-    bury 1
     b main_for_header@1
 
 main_after_for@4:
+    pop
     // ssa2/contract.py:18
     // return a + b
-    dig 2
-    dig 2
     +
     return

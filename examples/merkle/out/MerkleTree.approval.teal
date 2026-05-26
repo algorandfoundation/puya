@@ -105,7 +105,7 @@ verify_for_header@2:
     dig 3
     b>
     bz verify_ternary_false@5
-    dig 2
+    uncover 2
     swap
     concat
 
@@ -113,27 +113,24 @@ verify_ternary_merge@6:
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     sha256
-    bury 2
+    swap
     // merkle/contract.py:22
     // for idx in urange(proof.length):
-    dup
     intc_2 // 1
     +
-    bury 1
     b verify_for_header@2
 
 verify_ternary_false@5:
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-    dig 2
+    uncover 2
     concat
     b verify_ternary_merge@6
 
 verify_after_for@7:
+    pop
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
-    dig 2
-    dig 2
     ==
     // merkle/contract.py:14
     // @arc4.abimethod

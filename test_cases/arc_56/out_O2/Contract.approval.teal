@@ -6,9 +6,9 @@ main:
     intcblock 0 1 2 8 TMPL_AVM_UINT64
     bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     intc_0 // 0
-    dupn 5
+    dupn 3
     bytec_0 // ""
-    dupn 9
+    dup
     txn NumAppArgs
     bz main_bare_routing@18
     pushbytes 0x4c5c61ba // method "create()void"
@@ -29,7 +29,7 @@ main_after_if_else@22:
 main_with_constant_defaults_route@14:
     txna ApplicationArgs 1
     dup
-    bury 17
+    bury 7
     len
     intc_3 // 8
     ==
@@ -41,7 +41,7 @@ main_with_constant_defaults_route@14:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 9
+    bury 2
     txna ApplicationArgs 3
     dup
     intc_0 // 0
@@ -53,10 +53,10 @@ main_with_constant_defaults_route@14:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    bury 14
+    bury 5
     txna ApplicationArgs 4
     dup
-    bury 14
+    bury 5
     len
     pushint 16
     ==
@@ -86,31 +86,27 @@ main_with_constant_defaults_route@14:
     swap
     intc_0 // 0
     extract_uint64
-    bury 9
+    bury 2
     extract 2 0
-    bury 12
-    txna ApplicationArgs 6
-    bury 11
-    pushint 4
     bury 3
+    pushint 4
+    txna ApplicationArgs 6
     intc_0 // 0
-    bury 5
 
 main_for_header@28:
-    dig 4
+    dup
     intc_2 // 2
     <
     bz main_after_for@30
-    dig 4
     dup
     intc_2 // 2
     *
-    dig 12
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 6
+    uncover 5
     dup
     cover 4
     ==
@@ -123,16 +119,16 @@ main_for_header@28:
     intc_2 // 2
     +
     +
-    bury 4
+    cover 2
     intc_1 // 1
     +
-    bury 5
     b main_for_header@28
 
 main_after_for@30:
-    dig 10
+    pop
+    dup
     len
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>
     txna ApplicationArgs 7
@@ -140,33 +136,30 @@ main_after_for@30:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 12
+    cover 3
     intc_2 // 2
     *
-    bury 3
+    cover 2
     dup
     len
-    bury 2
+    cover 3
     extract 2 0
-    bury 15
     intc_0 // 0
-    bury 4
 
 main_for_header@31:
-    dig 3
-    dig 10
+    dup
+    dig 6
     <
     bz main_after_for@33
-    dig 3
     dup
     intc_2 // 2
     *
-    dig 16
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    uncover 6
     dup
     cover 4
     ==
@@ -179,17 +172,17 @@ main_for_header@31:
     intc_2 // 2
     +
     +
-    bury 3
+    cover 3
     intc_1 // 1
     +
-    bury 4
     b main_for_header@31
 
 main_after_for@33:
-    dig 1
+    popn 2
+    swap
     intc_2 // 2
     +
-    dig 1
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
     txna ApplicationArgs 8
@@ -199,7 +192,7 @@ main_after_for@33:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 7
+    swap
     txna ApplicationArgs 9
     dup
     len
@@ -207,22 +200,22 @@ main_after_for@33:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 6
-    dig 15
+    swap
+    dig 9
     bytec_0 // 0x
     b!=
     assert
-    dig 8
+    dig 5
     assert
-    dig 13
+    dig 8
     len
     assert
-    dig 12
+    dig 7
     extract 0 8
     bytec_0 // 0x
     b!=
     bnz main_bool_true@35
-    dig 12
+    dig 7
     extract 8 8
     bytec_0 // 0x
     b!=
@@ -233,9 +226,9 @@ main_bool_true@35:
 
 main_bool_merge@37:
     assert
-    dig 7
+    dig 4
     bnz main_bool_true@39
-    dig 11
+    dig 6
     len
     bz main_bool_false@40
 
@@ -244,7 +237,6 @@ main_bool_true@39:
 
 main_bool_merge@41:
     assert
-    dig 10
     dup
     intc_0 // 0
     extract_uint16
@@ -256,15 +248,14 @@ main_bool_merge@41:
     pushbytes 0x00026869
     ==
     assert
-    dig 9
+    uncover 2
     intc_2 // 2
     ==
     assert
-    dig 6
+    swap
     pushint 42
     ==
     assert
-    dig 5
     pushint 1234
     ==
     assert

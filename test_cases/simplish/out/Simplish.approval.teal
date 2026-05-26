@@ -5,10 +5,7 @@
 main:
     intcblock 1 0 100000 2 314159 628318
     bytecblock "counter" 0x30313233343536373839
-    intc_1 // 0
-    dupn 2
     pushbytes ""
-    dupn 4
     txn ApplicationID
     bnz main_after_if_else@2
     // simplish/base_class.py:8
@@ -31,12 +28,12 @@ main_after_if_else@4:
     // simplish/contract.py:33
     // oca = Txn.on_completion
     txn OnCompletion
-    dup
-    bury 4
     // simplish/contract.py:34
     // sender = Txn.sender
     txn Sender
-    bury 7
+    // simplish/contract.py:33
+    // oca = Txn.on_completion
+    txn OnCompletion
     // simplish/contract.py:36
     // OnCompleteAction.UpdateApplication,
     pushint 4 // UpdateApplication
@@ -47,7 +44,7 @@ main_after_if_else@4:
     // ):
     ==
     bnz main_if_body@6
-    dig 2
+    dig 1
     // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
     pushint 5 // DeleteApplication
@@ -62,7 +59,7 @@ main_after_if_else@4:
 main_if_body@6:
     // simplish/contract.py:39
     // if oca == OnCompleteAction.DeleteApplication:
-    dig 2
+    swap
     pushint 5 // DeleteApplication
     ==
     bz main_after_if_else@8
@@ -84,17 +81,17 @@ main_after_if_else@8:
     // simplish/contract.py:41
     // return Global.creator_address == sender
     global CreatorAddress
-    dig 6
     ==
     return
 
 main_after_if_else@9:
     // simplish/contract.py:43
     // if oca == OnCompleteAction.OptIn:
-    dig 2
+    dig 1
     intc_0 // OptIn
     ==
     bz main_after_if_else@13
+    popn 2
     // simplish/contract.py:44
     // if Txn.num_app_args > 0:
     txn NumAppArgs
@@ -119,7 +116,7 @@ main_after_if_else@12:
 main_after_if_else@13:
     // simplish/contract.py:47
     // if oca != OnCompleteAction.NoOp:
-    dig 2
+    swap
     bz main_after_if_else@15
     // simplish/contract.py:48
     // return False
@@ -130,16 +127,15 @@ main_after_if_else@15:
     // if (num_app_args := Txn.num_app_args) > 0:
     txn NumAppArgs
     dup
-    bury 5
     bz main_else_body@17
+    bury 1
     // simplish/contract.py:51
     // method_name = Txn.application_args(0)
     txna ApplicationArgs 0
     dup
-    bury 9
     // simplish/contract.py:72
     // assert num_app_args == 2, "insufficient arguments"
-    dig 4
+    uncover 2
     intc_3 // 2
     ==
     assert // insufficient arguments
@@ -147,20 +143,20 @@ main_after_if_else@15:
     // radius = btoi(Txn.application_args(1))
     txna ApplicationArgs 1
     btoi
-    bury 3
+    swap
     // simplish/contract.py:75
     // status = True
     intc_0 // 1
-    bury 2
+    bury 4
     // simplish/contract.py:76
     // if method_name == b"circle_area":
     pushbytes 0x636972636c655f61726561
     ==
     bz main_else_body@29
+    bury 1
     // simplish/contract.py:112-113
     // # PI * r ^ 2
     // result = radius**2 * SCALED_PI // SCALE
-    dig 1
     intc_3 // 2
     exp
     intc 4 // 314159
@@ -174,12 +170,10 @@ main_after_if_else@15:
 main_after_if_else@36:
     dig 1
     swap
-    bury 8
 
 main_after_if_else@24:
     // simplish/contract.py:63
     // log(msg)
-    dig 7
     log
     // simplish/contract.py:99
     // log("Incrementing counter!")
@@ -203,13 +197,11 @@ main_after_if_else@24:
 main_else_body@29:
     // simplish/contract.py:79
     // elif method_name == b"circle_circumference":
-    dig 7
+    dig 1
     pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
     bz main_else_body@31
-    // simplish/contract.py:107
-    // return radius * two_pi // SCALE
-    dig 1
+    bury 1
     // simplish/contract.py:105-106
     // # PI * 2r
     // two_pi = UInt64(2) * SCALED_PI
@@ -227,14 +219,13 @@ main_else_body@29:
 main_else_body@31:
     // simplish/contract.py:82
     // elif method_name == b"circle_report":
-    dig 7
+    swap
     pushbytes 0x636972636c655f7265706f7274
     ==
     bz main_else_body@33
     // simplish/contract.py:112-113
     // # PI * r ^ 2
     // result = radius**2 * SCALED_PI // SCALE
-    dig 1
     dup
     intc_3 // 2
     exp
@@ -309,6 +300,7 @@ main_else_body@31:
     b main_after_if_else@36
 
 main_else_body@33:
+    pop
     // simplish/contract.py:93
     // status = False
     intc_1 // 0
@@ -319,6 +311,7 @@ main_else_body@33:
     b main_after_if_else@36
 
 main_else_body@17:
+    pop
     // simplish/contract.py:53
     // elif Txn.num_assets == 1:
     txn NumAssets
@@ -327,44 +320,40 @@ main_else_body@17:
     bz main_else_body@22
     // simplish/contract.py:54
     // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
-    dig 5
     intc_1 // 0
     asset_holding_get AssetBalance
-    swap
-    bury 6
     // simplish/contract.py:55
     // if not asset_exists:
     bnz main_else_body@20
+    pop
     // simplish/contract.py:56
     // msg = Bytes(b"You do not have any of the asset")
     pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
-    bury 7
 
 main_after_if_else@21:
     // simplish/contract.py:59
     // result = True
     intc_0 // 1
+    swap
     b main_after_if_else@24
 
 main_else_body@20:
     // simplish/contract.py:58
     // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
-    dig 4
     callsub itoa
     pushbytes 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
-    bury 7
     b main_after_if_else@21
 
 main_else_body@22:
-    // simplish/contract.py:61
-    // msg = Bytes(b"not enough app args or foreign assets")
-    pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
-    bury 7
+    pop
     // simplish/contract.py:62
     // result = False
     intc_1 // 0
+    // simplish/contract.py:61
+    // msg = Bytes(b"not enough app args or foreign assets")
+    pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
     b main_after_if_else@24
 
 

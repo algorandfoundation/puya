@@ -6,9 +6,9 @@ main:
     intcblock 8 0 16 1 128 4272
     bytecblock "tup_bag" 0x151f7c75
     intc_1 // 0
-    dupn 2
+    dup
     pushbytes ""
-    dupn 3
+    dup
     txn NumAppArgs
     bz main___algopy_default_create@20
     txn OnCompletion
@@ -23,7 +23,6 @@ main:
 
 main_get_all_tups_route@16:
     pushbytes 0x0000
-    bury 7
     bytec_0 // "tup_bag"
     intc_1 // 0
     intc_0 // 8
@@ -31,25 +30,22 @@ main_get_all_tups_route@16:
     btoi
     bury 2
     intc_1 // 0
-    bury 3
 
 main_for_header@24:
-    dig 2
-    dig 2
+    dup
+    dig 3
     <
     bz main_after_for@26
     bytec_0 // "tup_bag"
     intc_0 // 8
     intc 4 // 128
     box_extract // on error: index out of bounds
-    dig 3
-    dup
-    cover 2
+    dig 1
     intc_2 // 16
     *
     intc_2 // 16
     extract3 // on error: index access is out of bounds
-    dig 8
+    uncover 2
     dup
     intc_1 // 0
     extract_uint16
@@ -60,15 +56,15 @@ main_for_header@24:
     replace2 0
     swap
     concat
-    bury 8
+    swap
     intc_3 // 1
     +
-    bury 3
     b main_for_header@24
 
 main_after_for@26:
+    pop
     bytec_1 // 0x151f7c75
-    dig 7
+    swap
     concat
     log
     intc_3 // 1
@@ -135,7 +131,7 @@ main_get_3_tups_route@15:
 main_set_b_route@14:
     txna ApplicationArgs 1
     dup
-    bury 7
+    bury 5
     len
     intc_0 // 8
     ==
@@ -146,16 +142,14 @@ main_set_b_route@14:
     intc_0 // 8
     box_extract // on error: index out of bounds
     btoi
-    bury 2
+    bury 1
     intc_1 // 0
-    bury 3
 
 main_for_header@31:
-    dig 2
+    dup
     dig 2
     <
     bz main_after_for@48
-    dig 2
     dup
     intc_0 // 8
     <
@@ -167,11 +161,10 @@ main_for_header@31:
     +
     bytec_0 // "tup_bag"
     swap
-    dig 8
+    dig 6
     box_replace // on error: index out of bounds
     intc_3 // 1
     +
-    bury 3
     b main_for_header@31
 
 main_after_for@48:
@@ -181,7 +174,7 @@ main_after_for@48:
 main_set_a_route@13:
     txna ApplicationArgs 1
     dup
-    bury 7
+    bury 5
     len
     intc_0 // 8
     ==
@@ -192,16 +185,14 @@ main_set_a_route@13:
     intc_0 // 8
     box_extract // on error: index out of bounds
     btoi
-    bury 2
+    bury 1
     intc_1 // 0
-    bury 3
 
 main_for_header@36:
-    dig 2
+    dup
     dig 2
     <
     bz main_after_for@48
-    dig 2
     dup
     intc_0 // 8
     <
@@ -213,34 +204,31 @@ main_for_header@36:
     +
     bytec_0 // "tup_bag"
     swap
-    dig 8
+    dig 6
     box_replace // on error: index out of bounds
     intc_3 // 1
     +
-    bury 3
     b main_for_header@36
 
 main_add_fixed_tups_route@12:
     txna ApplicationArgs 1
     dup
-    bury 6
+    bury 4
     len
     pushint 48
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>
     intc_1 // 0
-    bury 3
 
 main_for_header@41:
-    dig 2
+    dup
     pushint 3
     <
     bz main_after_for@48
-    dig 2
     dup
     intc_2 // 16
     *
-    dig 6
+    dig 4
     swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
@@ -248,18 +236,17 @@ main_for_header@41:
     pop
     intc_3 // 1
     +
-    bury 3
     b main_for_header@41
 
 main_add_many_tups_route@11:
     txna ApplicationArgs 1
     dup
-    bury 6
+    bury 4
     dup
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 6
+    bury 4
     intc_2 // 16
     *
     pushint 2
@@ -269,18 +256,15 @@ main_add_many_tups_route@11:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>
     intc_1 // 0
-    bury 3
 
 main_for_header@46:
-    dig 2
-    dig 4
+    dup
+    dig 3
     <
     bz main_after_for@48
-    dig 4
-    extract 2 0
     dig 3
-    dup
-    cover 2
+    extract 2 0
+    dig 1
     intc_2 // 16
     *
     intc_2 // 16
@@ -289,12 +273,10 @@ main_for_header@46:
     pop
     intc_3 // 1
     +
-    bury 3
     b main_for_header@46
 
 main_sum_route@10:
     intc_1 // 0
-    bury 1
     bytec_0 // "tup_bag"
     intc_1 // 0
     intc_0 // 8
@@ -302,20 +284,17 @@ main_sum_route@10:
     btoi
     bury 2
     intc_1 // 0
-    bury 3
 
 main_for_header@51:
-    dig 2
-    dig 2
+    dup
+    dig 3
     <
     bz main_after_for@53
     bytec_0 // "tup_bag"
     intc_0 // 8
     intc 4 // 128
     box_extract // on error: index out of bounds
-    dig 3
-    dup
-    cover 2
+    dig 1
     intc_2 // 16
     *
     intc_2 // 16
@@ -323,20 +302,19 @@ main_for_header@51:
     dup
     intc_1 // 0
     extract_uint64
-    dig 3
+    uncover 3
     +
     swap
     intc_0 // 8
     extract_uint64
     +
-    bury 2
+    swap
     intc_3 // 1
     +
-    bury 3
     b main_for_header@51
 
 main_after_for@53:
-    dup
+    pop
     itob
     bytec_1 // 0x151f7c75
     swap

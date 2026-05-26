@@ -4,10 +4,8 @@
 // test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
 main:
     intcblock 1 0 4 3
-    bytecblock 0xabcd1234 0xcd12 0xabcdef 0x "local" "box"
+    bytecblock 0xabcd1234 0xcd12 0xabcdef "local" "box"
     intc_1 // 0
-    dupn 3
-    bytec_3 // ""
     dup
     // fixed_bytes_ops/contract.py:27
     // if Txn.num_app_args > 0:
@@ -16,7 +14,7 @@ main:
     // fixed_bytes_ops/contract.py:28
     // method = Txn.application_args(0)
     txna ApplicationArgs 0
-    bury 4
+    bury 1
     // fixed_bytes_ops/contract.py:29
     // if Txn.num_app_args == 1:
     txn NumAppArgs
@@ -25,7 +23,7 @@ main:
     bz main_else_body@10
     // fixed_bytes_ops/contract.py:30
     // if method == b"get_state_data_or_assert":
-    dig 3
+    dup
     pushbytes 0x6765745f73746174655f646174615f6f725f617373657274
     ==
     bz main_else_body@6
@@ -35,7 +33,7 @@ main:
     // fixed_bytes_ops/contract.py:125
     // result, exists = self.local.maybe(for_account)
     intc_1 // 0
-    bytec 4 // "local"
+    bytec_3 // "local"
     app_local_get_ex
     // fixed_bytes_ops/contract.py:126
     // assert exists, "no data for account"
@@ -53,13 +51,13 @@ main_after_if_else@34:
 main_else_body@6:
     // fixed_bytes_ops/contract.py:32
     // elif method == b"get_box_data":
-    dig 3
+    dup
     pushbytes 0x6765745f626f785f64617461
     ==
     bz main_after_if_else@34
     // fixed_bytes_ops/contract.py:33
     // log(self.box.value)
-    bytec 5 // "box"
+    bytec 4 // "box"
     box_get
     assert // check self.box exists
     log
@@ -74,7 +72,7 @@ main_else_body@10:
     bz main_else_body@20
     // fixed_bytes_ops/contract.py:35
     // if method == b"set_state_data":
-    dig 3
+    dup
     pushbytes 0x7365745f73746174655f64617461
     ==
     bz main_else_body@13
@@ -83,7 +81,7 @@ main_else_body@10:
     txn Sender
     // fixed_bytes_ops/contract.py:121
     // self.local[for_account] = value
-    bytec 4 // "local"
+    bytec_3 // "local"
     // fixed_bytes_ops/contract.py:38
     // FixedBytes[typing.Literal[4]].from_bytes(Txn.application_args(1)),
     txna ApplicationArgs 1
@@ -95,7 +93,7 @@ main_else_body@10:
 main_else_body@13:
     // fixed_bytes_ops/contract.py:40
     // elif method == b"set_box_data":
-    dig 3
+    dup
     pushbytes 0x7365745f626f785f64617461
     ==
     bz main_else_body@15
@@ -107,7 +105,7 @@ main_else_body@13:
     pushint 5
     ==
     assert // expected bytes to be length 5
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     box_put
     b main_after_if_else@34
@@ -115,7 +113,7 @@ main_else_body@13:
 main_else_body@15:
     // fixed_bytes_ops/contract.py:42
     // elif method == b"validate_fixed_bytes_3":
-    dig 3
+    dup
     pushbytes 0x76616c69646174655f66697865645f62797465735f33
     ==
     bz main_after_if_else@34
@@ -139,7 +137,7 @@ main_else_body@20:
     bz main_after_if_else@34
     // fixed_bytes_ops/contract.py:47
     // if method == b"test_augmented_or_assignment_with_bytes":
-    dig 3
+    dup
     pushbytes 0x746573745f6175676d656e7465645f6f725f61737369676e6d656e745f776974685f6279746573
     ==
     bz main_else_body@23
@@ -165,7 +163,7 @@ main_else_body@20:
 main_else_body@23:
     // fixed_bytes_ops/contract.py:52
     // elif method == b"test_augmented_and_assignment_with_bytes":
-    dig 3
+    dup
     pushbytes 0x746573745f6175676d656e7465645f616e645f61737369676e6d656e745f776974685f6279746573
     ==
     bz main_else_body@25
@@ -191,7 +189,7 @@ main_else_body@23:
 main_else_body@25:
     // fixed_bytes_ops/contract.py:57
     // elif method == b"test_augmented_xor_assignment_with_bytes":
-    dig 3
+    dup
     pushbytes 0x746573745f6175676d656e7465645f786f725f61737369676e6d656e745f776974685f6279746573
     ==
     bz main_after_if_else@34
@@ -231,7 +229,7 @@ main_else_body@33:
     // empty_1 = FixedBytes[typing.Literal[4]]()
     intc_2 // 4
     bzero
-    bury 5
+    bury 2
     // fixed_bytes_ops/contract.py:524
     // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
     txn ApplicationID
@@ -248,10 +246,8 @@ main_else_body@33:
     assert
     // fixed_bytes_ops/contract.py:535
     // result = Bytes()
-    bytec_3 // 0x
-    bury 3
+    pushbytes 0x
     intc_1 // 0
-    bury 1
 
 main_for_header@58:
     // fixed_bytes_ops/contract.py:537
@@ -267,38 +263,34 @@ main_for_header@58:
     // fixed_bytes_ops/contract.py:537
     // for item in val:
     dig 1
-    dup
-    cover 2
     intc_0 // 1
     extract3
     // fixed_bytes_ops/contract.py:538
     // result += item
-    dig 4
+    uncover 2
     swap
     concat
-    bury 4
+    swap
     intc_0 // 1
     +
-    bury 1
     b main_for_header@58
 
 main_after_for@61:
+    pop
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
     bytec_2 // 0xabcdef
     // fixed_bytes_ops/contract.py:539
     // assert result == val
-    dig 3
     ==
     assert
     intc_1 // 0
-    bury 2
 
 main_for_header@62:
     // fixed_bytes_ops/contract.py:541
     // for idx, byte in uenumerate(val):
-    dig 1
+    dup
     intc_3 // 3
     <
     bz main_after_for@65
@@ -308,9 +300,7 @@ main_for_header@62:
     bytec_2 // 0xabcdef
     // fixed_bytes_ops/contract.py:541
     // for idx, byte in uenumerate(val):
-    dig 2
-    dup
-    cover 2
+    dig 1
     intc_0 // 1
     extract3
     // fixed_bytes_ops/contract.py:543
@@ -341,17 +331,15 @@ main_for_header@62:
     assert
     intc_0 // 1
     +
-    bury 2
     b main_for_header@62
 
 main_after_for@65:
+    pop
     // fixed_bytes_ops/contract.py:576
     // arr = zero_bytes(FixedArray[FixedBytes[typing.Literal[4]], typing.Literal[8]])
     pushint 32
     bzero
-    bury 6
     intc_1 // 0
-    bury 1
 
 main_for_header@68:
     // fixed_bytes_ops/contract.py:579
@@ -360,24 +348,24 @@ main_for_header@68:
     pushint 8
     <
     bz main_after_for@71
-    dupn 2
+    dup
     intc_2 // 4
     *
-    dig 7
+    dig 2
     swap
     intc_2 // 4
     extract3 // on error: index access is out of bounds
     // fixed_bytes_ops/contract.py:580
     // assert v == FixedBytes[typing.Literal[4]]()
-    dig 6
+    dig 4
     ==
     assert
     intc_0 // 1
     +
-    bury 1
     b main_for_header@68
 
 main_after_for@71:
+    popn 2
     // fixed_bytes_ops/contract.py:105
     // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
     bytec_0 // 0xabcd1234
@@ -502,36 +490,32 @@ main_after_for@71:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    bytec_3 // ""
     intc_1 // 0
 
 is_substring_while_top@1:
     frame_dig -2
     len
-    frame_dig 1
+    dig 1
     +
     dup
-    frame_bury 0
     frame_dig -1
     len
     <=
     bz is_substring_after_while@5
     frame_dig -1
-    frame_dig 1
-    frame_dig 0
+    dig 2
+    uncover 2
     substring3
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
     intc_0 // 1
-    frame_bury 0
+    swap
     retsub
 
 is_substring_after_if_else@4:
-    frame_dig 1
     intc_0 // 1
     +
-    frame_bury 1
     b is_substring_while_top@1
 
 is_substring_after_while@5:
@@ -546,7 +530,6 @@ test_sequence_ops:
     // @subroutine(inline=False)
     // def test_sequence_ops(val: FixedBytes[typing.Literal[4]]) -> None:
     proto 1 0
-    bytec_3 // ""
     // fixed_bytes_ops/contract.py:448-449
     // # Indexing (returns Bytes)
     // first_byte = val[0]
@@ -612,26 +595,24 @@ test_sequence_ops:
 test_sequence_ops_for_header@1:
     // fixed_bytes_ops/contract.py:477
     // for _byte in val:
-    frame_dig 2
+    dup
     intc_2 // 4
     <
     bz test_sequence_ops_after_for@4
     // fixed_bytes_ops/contract.py:478
     // count += 1
-    frame_dig 1
+    swap
     intc_0 // 1
     +
-    frame_bury 1
-    frame_dig 2
+    swap
     intc_0 // 1
     +
-    frame_bury 2
     b test_sequence_ops_for_header@1
 
 test_sequence_ops_after_for@4:
+    pop
     // fixed_bytes_ops/contract.py:479
     // assert count == 4
-    frame_dig 1
     intc_2 // 4
     ==
     assert
@@ -639,33 +620,29 @@ test_sequence_ops_after_for@4:
     // # Reverse iteration
     // count = UInt64(0)
     intc_1 // 0
-    frame_bury 1
     // fixed_bytes_ops/contract.py:483
     // for _byte in reversed(val):
     intc_2 // 4
-    frame_bury 0
 
 test_sequence_ops_for_header@5:
     // fixed_bytes_ops/contract.py:483
     // for _byte in reversed(val):
-    frame_dig 0
+    dup
     bz test_sequence_ops_after_for@8
-    frame_dig 0
     intc_0 // 1
     -
-    frame_bury 0
     // fixed_bytes_ops/contract.py:484
     // count += 1
-    frame_dig 1
+    swap
     intc_0 // 1
     +
-    frame_bury 1
+    swap
     b test_sequence_ops_for_header@5
 
 test_sequence_ops_after_for@8:
+    pop
     // fixed_bytes_ops/contract.py:485
     // assert count == 4
-    frame_dig 1
     intc_2 // 4
     ==
     assert

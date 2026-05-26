@@ -6,7 +6,6 @@ main:
     intcblock 1 0 3
     bytecblock 0x 0x616263
     bytec_0 // ""
-    dupn 7
     pushbytes "test_forwards"
     log
     intc_1 // 0
@@ -18,30 +17,28 @@ main_for_header@2:
     bz main_after_for@5
     bytec_1 // 0x616263
     dig 1
-    dup
-    cover 2
     intc_0 // 1
     extract3
     log
     intc_0 // 1
     +
-    bury 1
     b main_for_header@2
 
 main_after_for@5:
+    pop
     pushbytes "test_reversed"
     log
     intc_2 // 3
-    bury 7
+    bury 1
 
 main_for_header@8:
-    dig 6
+    dup
     bz main_after_for@11
-    dig 6
+    dup
     intc_0 // 1
     -
     dup
-    bury 8
+    bury 2
     bytec_1 // 0x616263
     swap
     intc_0 // 1
@@ -53,17 +50,14 @@ main_after_for@11:
     pushbytes "test_forwards_with_forwards_index"
     log
     intc_1 // 0
-    bury 9
 
 main_for_header@14:
-    dig 8
+    dup
     intc_2 // 3
     <
     bz main_after_for@17
     bytec_1 // 0x616263
-    dig 9
-    dup
-    cover 2
+    dig 1
     intc_0 // 1
     extract3
     dig 1
@@ -71,27 +65,24 @@ main_for_header@14:
     callsub _log_with_index
     intc_0 // 1
     +
-    bury 9
     b main_for_header@14
 
 main_after_for@17:
+    pop
     pushbytes "test_forwards_with_reverse_index"
     log
-    intc_2 // 3
     intc_1 // 0
+    intc_2 // 3
     bury 2
-    bury 7
 
 main_for_header@20:
-    dig 6
+    dig 1
     bz main_after_for@23
-    dig 6
+    dig 1
     intc_0 // 1
     -
     bytec_1 // 0x616263
     dig 2
-    dup
-    cover 3
     intc_0 // 1
     extract3
     dig 1
@@ -100,49 +91,48 @@ main_for_header@20:
     swap
     intc_0 // 1
     +
+    swap
     bury 2
-    bury 7
     b main_for_header@20
 
 main_after_for@23:
+    pop
     pushbytes "test_reverse_with_forwards_index"
     log
     intc_1 // 0
     intc_2 // 3
-    bury 8
-    bury 9
+    bury 2
 
 main_for_header@26:
-    dig 6
+    dig 1
     bz main_after_for@29
-    dig 6
+    dig 1
     intc_0 // 1
     -
     dup
-    bury 8
+    bury 3
     bytec_1 // 0x616263
     swap
     intc_0 // 1
     extract3
-    dig 9
-    dup
-    uncover 2
+    dig 1
+    swap
     callsub _log_with_index
     intc_0 // 1
     +
-    bury 9
     b main_for_header@26
 
 main_after_for@29:
+    pop
     pushbytes "test_reverse_with_reverse_index"
     log
     intc_2 // 3
-    bury 7
+    bury 1
 
 main_for_header@32:
-    dig 6
+    dup
     bz main_after_for@35
-    dig 6
+    dup
     intc_0 // 1
     -
     bytec_1 // 0x616263
@@ -152,14 +142,13 @@ main_for_header@32:
     dig 1
     swap
     callsub _log_with_index
-    bury 7
+    bury 1
     b main_for_header@32
 
 main_after_for@35:
     pushbytes "test_empty"
     log
     intc_1 // 0
-    bury 1
 
 main_for_header@38:
     dup
@@ -168,28 +157,23 @@ main_for_header@38:
     bz main_after_for@41
     bytec_0 // 0x
     dig 1
-    dup
-    cover 2
     intc_0 // 1
     extract3
     log
     intc_0 // 1
     +
-    bury 1
     b main_for_header@38
 
 main_after_for@41:
+    pop
     intc_1 // 0
-    bury 6
 
 main_for_header@42:
-    dig 5
+    dup
     bz main_after_for@45
-    dig 5
     intc_0 // 1
     -
     dup
-    bury 7
     bytec_0 // 0x
     swap
     intc_0 // 1
@@ -198,18 +182,16 @@ main_for_header@42:
     b main_for_header@42
 
 main_after_for@45:
+    pop
     intc_1 // 0
-    bury 9
 
 main_for_header@46:
-    dig 8
+    dup
     intc_1 // 0
     <
     bz main_after_for@49
     bytec_0 // 0x
-    dig 9
-    dup
-    cover 2
+    dig 1
     intc_0 // 1
     extract3
     dig 1
@@ -217,25 +199,20 @@ main_for_header@46:
     callsub _log_with_index
     intc_0 // 1
     +
-    bury 9
     b main_for_header@46
 
 main_after_for@49:
+    pop
     intc_1 // 0
     dup
-    bury 9
-    bury 5
 
 main_for_header@50:
-    dig 4
+    dup
     bz main_after_for@53
-    dig 4
     intc_0 // 1
     -
     bytec_0 // 0x
-    dig 9
-    dup
-    cover 3
+    dig 2
     intc_0 // 1
     extract3
     dig 1
@@ -244,45 +221,40 @@ main_for_header@50:
     swap
     intc_0 // 1
     +
-    bury 9
-    bury 5
+    swap
     b main_for_header@50
 
 main_after_for@53:
+    popn 2
     intc_1 // 0
     dup
-    bury 5
-    bury 9
 
 main_for_header@54:
-    dig 3
+    dig 1
     bz main_after_for@57
-    dig 3
+    swap
     intc_0 // 1
     -
     dup
-    bury 5
+    cover 2
     bytec_0 // 0x
     swap
     intc_0 // 1
     extract3
-    dig 9
-    dup
-    uncover 2
+    dig 1
+    swap
     callsub _log_with_index
     intc_0 // 1
     +
-    bury 9
     b main_for_header@54
 
 main_after_for@57:
+    popn 2
     intc_1 // 0
-    bury 3
 
 main_for_header@58:
-    dig 2
+    dup
     bz main_after_for@61
-    dig 2
     intc_0 // 1
     -
     bytec_0 // 0x
@@ -292,10 +264,10 @@ main_for_header@58:
     dig 1
     swap
     callsub _log_with_index
-    bury 3
     b main_for_header@58
 
 main_after_for@61:
+    pop
     pushbytes "test_break"
     log
     pushbytes 0x61
@@ -303,17 +275,14 @@ main_after_for@61:
     pushbytes "test_tuple_target"
     log
     intc_1 // 0
-    bury 2
 
 main_for_header@69:
-    dig 1
+    dup
     intc_0 // 1
     <
     bz main_after_for@72
     pushbytes 0x74
-    dig 2
-    dup
-    cover 2
+    dig 1
     intc_0 // 1
     extract3
     dig 1
@@ -321,7 +290,6 @@ main_for_header@69:
     callsub _log_with_index
     intc_0 // 1
     +
-    bury 2
     b main_for_header@69
 
 main_after_for@72:

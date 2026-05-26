@@ -3,12 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 32 1
+    intcblock 32 0 1
     bytecblock "root"
-    intc_0 // 0
-    dupn 2
-    pushbytes ""
-    dup
     txn OnCompletion
     !
     assert
@@ -21,14 +17,12 @@ main:
 
 main_verify_route@3:
     txna ApplicationArgs 1
-    dup
-    bury 4
-    dup
-    intc_0 // 0
+    dupn 2
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 4
-    intc_1 // 32
+    cover 2
+    intc_0 // 32
     *
     pushint 2
     +
@@ -39,60 +33,54 @@ main_verify_route@3:
     txna ApplicationArgs 2
     dup
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "root"
     app_global_get_ex
     swap
-    bury 6
+    cover 2
     assert // check self.root exists
-    intc_0 // 0
-    swap
-    bury 6
-    bury 1
+    intc_1 // 0
 
 main_for_header@10:
     dup
-    dig 2
+    dig 4
     <
     bz main_after_for@15
-    dig 2
+    dig 4
     extract 2 0
     dig 1
-    intc_1 // 32
+    intc_0 // 32
     *
-    intc_1 // 32
+    intc_0 // 32
     extract3 // on error: index access is out of bounds
     dup
-    dig 6
+    dig 3
     b>
     bz main_ternary_false@13
-    dig 5
+    uncover 2
     swap
     concat
 
 main_ternary_merge@14:
     sha256
-    bury 5
-    dup
+    swap
     intc_2 // 1
     +
-    bury 1
     b main_for_header@10
 
 main_ternary_false@13:
-    dig 5
+    uncover 2
     concat
     b main_ternary_merge@14
 
 main_after_for@15:
-    dig 3
-    dig 5
+    pop
     ==
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     pushbytes 0x151f7c75
@@ -112,7 +100,7 @@ main_create_route@6:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     bytec_0 // "root"

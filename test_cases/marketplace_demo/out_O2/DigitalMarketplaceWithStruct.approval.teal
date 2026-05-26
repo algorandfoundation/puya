@@ -6,9 +6,7 @@ main:
     intcblock 1 8 0 4 50500
     bytecblock 0x6c697374696e6773
     intc_2 // 0
-    dupn 4
-    pushbytes ""
-    dupn 5
+    dup
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes "init"
@@ -36,7 +34,6 @@ main_acceptBid_route@14:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 7
     txna ApplicationArgs 2
     dup
     len
@@ -55,17 +52,16 @@ main_acceptBid_route@14:
     swap
     concat
     dup
-    bury 8
+    cover 2
     box_get
     swap
     dup
-    cover 2
-    bury 10
+    uncover 2
     assert // check self.listings entry exists
     dup
     extract 16 32
     dup
-    bury 11
+    cover 3
     global ZeroAddress
     !=
     assert
@@ -74,21 +70,21 @@ main_acceptBid_route@14:
     extract_uint64
     dup
     cover 2
-    bury 5
+    cover 3
     pushint 48
     extract_uint64
     dup
-    bury 4
+    cover 3
     <
     bz main_ternary_false@23
     dig 2
 
 main_ternary_merge@24:
-    dig 8
+    swap
     dup
     pushint 56
     extract_uint64
-    dig 8
+    uncover 6
     dup
     cover 2
     asset_params_get AssetDecimals
@@ -118,7 +114,7 @@ main_ternary_merge@24:
     itxn_begin
     dup
     itxn_field AssetAmount
-    dig 12
+    uncover 6
     dup
     cover 2
     itxn_field AssetReceiver
@@ -131,10 +127,10 @@ main_ternary_merge@24:
     itxn_submit
     uncover 3
     extract 8 8
-    dig 6
+    uncover 5
     dig 2
     -
-    dig 6
+    uncover 5
     uncover 3
     -
     swap
@@ -149,8 +145,6 @@ main_ternary_merge@24:
     swap
     itob
     concat
-    dig 7
-    swap
     box_put
     intc_0 // 1
     return
@@ -174,7 +168,7 @@ main_bid_route@13:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 8
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -186,7 +180,7 @@ main_bid_route@13:
     intc_0 // 1
     -
     dup
-    bury 9
+    cover 5
     gtxns TypeEnum
     intc_0 // pay
     ==
@@ -198,7 +192,7 @@ main_bid_route@13:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 7
+    cover 4
     txna ApplicationArgs 5
     dup
     len
@@ -206,7 +200,7 @@ main_bid_route@13:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 4
+    cover 3
     swap
     itob
     uncover 2
@@ -219,31 +213,29 @@ main_bid_route@13:
     swap
     concat
     dup
-    bury 8
+    cover 4
     box_get
     swap
     dup
-    cover 2
-    bury 10
+    uncover 2
     assert // check self.listings entry exists
     extract 16 32
     dup
-    bury 11
+    bury 8
     global ZeroAddress
     !=
     bz main_after_if_else@28
-    dig 7
-    dup
+    dupn 2
     pushint 56
     extract_uint64
-    dig 2
+    dig 3
     dig 1
     >
     assert
     swap
     pushint 48
     extract_uint64
-    dig 7
+    dig 4
     asset_params_get AssetDecimals
     assert // asset exists
     cover 2
@@ -258,7 +250,7 @@ main_bid_route@13:
     assert
     itxn_begin
     itxn_field Amount
-    dig 9
+    dig 6
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -267,13 +259,13 @@ main_bid_route@13:
     itxn_submit
 
 main_after_if_else@28:
-    dig 5
+    uncover 2
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 1
+    uncover 2
     dup
     cover 2
-    dig 6
+    uncover 4
     dup
     cover 3
     mulw
@@ -285,7 +277,7 @@ main_after_if_else@28:
     swap
     !
     assert
-    dig 7
+    uncover 5
     dup
     gtxns Sender
     txn Sender
@@ -299,7 +291,7 @@ main_after_if_else@28:
     gtxns Amount
     ==
     assert
-    dig 9
+    uncover 2
     dup
     extract 0 8
     swap
@@ -315,8 +307,6 @@ main_after_if_else@28:
     swap
     itob
     concat
-    dig 7
-    swap
     box_put
     intc_0 // 1
     return
@@ -330,7 +320,6 @@ main_withdraw_route@12:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 7
     txna ApplicationArgs 2
     dup
     len
@@ -349,27 +338,25 @@ main_withdraw_route@12:
     swap
     concat
     dup
-    bury 8
+    cover 2
     box_get
     swap
     dup
-    cover 2
-    bury 10
+    uncover 2
     assert // check self.listings entry exists
     extract 16 32
     dup
-    bury 12
+    bury 6
     global ZeroAddress
     !=
     bz main_after_if_else@32
-    dig 7
-    dup
+    dupn 2
     pushint 48
     extract_uint64
     swap
     pushint 56
     extract_uint64
-    dig 7
+    dig 3
     asset_params_get AssetDecimals
     assert // asset exists
     swap
@@ -385,7 +372,7 @@ main_withdraw_route@12:
     assert
     itxn_begin
     itxn_field Amount
-    dig 10
+    dig 4
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -394,7 +381,7 @@ main_withdraw_route@12:
     itxn_submit
 
 main_after_if_else@32:
-    dig 6
+    uncover 2
     box_del
     pop
     itxn_begin
@@ -409,12 +396,11 @@ main_after_if_else@32:
     itxn_submit
     itxn_begin
     txn Sender
-    dig 8
+    swap
     intc_2 // 0
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    dig 5
     itxn_field XferAsset
     intc_3 // axfer
     itxn_field TypeEnum

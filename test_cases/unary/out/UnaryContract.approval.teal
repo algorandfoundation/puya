@@ -4,19 +4,17 @@
 // test_cases.unary.contract.UnaryContract.approval_program() -> uint64:
 main:
     intcblock 1 18446744073709551615 2
+    pushint 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     intc_0 // 1
-    pushint 0
 
 main_for_body@2:
     // unary/contract.py:32
     // assert ~(MAX_UINT64 - i) == i, "~ uint"
     intc_1 // 18446744073709551615
-    uncover 2
-    dup
-    cover 2
+    dig 1
     -
     ~
     ==
@@ -31,25 +29,25 @@ main_for_body@2:
     return
 
 main_for_header_3@6:
+    pushint 3
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     intc_1 // 18446744073709551615
-    pushint 3
     b main_for_body@2
 
 main_for_header_2@5:
+    intc_2 // 2
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     pushint 150
-    intc_2 // 2
     b main_for_body@2
 
 main_for_header_1@4:
+    intc_0 // 1
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     intc_2 // 2
-    intc_0 // 1
     b main_for_body@2

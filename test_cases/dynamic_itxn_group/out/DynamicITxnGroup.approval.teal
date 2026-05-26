@@ -80,7 +80,7 @@ test_firstly:
     swap
     /
     dup
-    cover 2
+    cover 3
     // dynamic_itxn_group/contract.py:25
     // itxn.Payment(amount=share, receiver=addresses[0].native).stage(begin_group=True)
     itxn_begin
@@ -108,10 +108,10 @@ test_firstly_for_header@2:
     bz test_firstly_after_for@5
     // dynamic_itxn_group/contract.py:28
     // addr = addresses[i]
-    dupn 2
+    dup
     intc_2 // 32
     *
-    dig 3
+    dig 2
     swap
     intc_2 // 32
     extract3 // on error: index access is out of bounds
@@ -129,10 +129,10 @@ test_firstly_for_header@2:
     // for i in urange(1, addresses.length):
     intc_0 // 1
     +
-    bury 1
     b test_firstly_for_header@2
 
 test_firstly_after_for@5:
+    popn 2
     // dynamic_itxn_group/contract.py:31-33
     // itxn.ApplicationCall(
     //     app_id=verifier.id, app_args=(arc4_signature("verify()void"),)
@@ -142,7 +142,6 @@ test_firstly_after_for@5:
     // app_id=verifier.id, app_args=(arc4_signature("verify()void"),)
     bytec_0 // method "verify()void"
     itxn_field ApplicationArgs
-    dig 3
     itxn_field ApplicationID
     // dynamic_itxn_group/contract.py:31
     // itxn.ApplicationCall(
@@ -170,7 +169,6 @@ test_firstly_after_for@5:
 
 // test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply[routing]() -> void:
 test_looply:
-    intc_1 // 0
     // dynamic_itxn_group/contract.py:39
     // @public
     txna ApplicationArgs 1
@@ -239,17 +237,15 @@ test_looply_for_header@2:
     *
     intc_2 // 32
     extract3 // on error: index access is out of bounds
-    bury 7
     // dynamic_itxn_group/contract.py:51
     // my_txn.stage(begin_group=is_first)
-    dig 1
+    uncover 2
     bz test_looply_itxn_next@5
     itxn_begin
 
 test_looply_after_itxn_begin_next@6:
-    dig 6
     itxn_field Receiver
-    dig 2
+    dig 1
     itxn_field Amount
     // dynamic_itxn_group/contract.py:50
     // my_txn = itxn.Payment(amount=share, receiver=addr.native)
@@ -260,11 +256,9 @@ test_looply_after_itxn_begin_next@6:
     // dynamic_itxn_group/contract.py:52
     // is_first = False
     intc_1 // 0
-    bury 2
-    dup
+    swap
     intc_0 // 1
     +
-    bury 1
     b test_looply_for_header@2
 
 test_looply_itxn_next@5:
@@ -274,6 +268,7 @@ test_looply_itxn_next@5:
     b test_looply_after_itxn_begin_next@6
 
 test_looply_after_for@8:
+    popn 3
     // dynamic_itxn_group/contract.py:54-56
     // itxn.ApplicationCall(
     //     app_id=verifier.id, app_args=(arc4_signature("verify()void"),)
@@ -283,7 +278,6 @@ test_looply_after_for@8:
     // app_id=verifier.id, app_args=(arc4_signature("verify()void"),)
     bytec_0 // method "verify()void"
     itxn_field ApplicationArgs
-    dig 3
     itxn_field ApplicationID
     // dynamic_itxn_group/contract.py:54
     // itxn.ApplicationCall(
@@ -361,7 +355,7 @@ test_firstly_abi_call:
     swap
     /
     dup
-    cover 2
+    cover 3
     // dynamic_itxn_group/contract.py:71
     // itxn.Payment(amount=share, receiver=addresses[0].native).stage(begin_group=True)
     itxn_begin
@@ -389,10 +383,10 @@ test_firstly_abi_call_for_header@2:
     bz test_firstly_abi_call_after_for@5
     // dynamic_itxn_group/contract.py:74
     // addr = addresses[i]
-    dupn 2
+    dup
     intc_2 // 32
     *
-    dig 3
+    dig 2
     swap
     intc_2 // 32
     extract3 // on error: index access is out of bounds
@@ -410,14 +404,13 @@ test_firstly_abi_call_for_header@2:
     // for i in urange(1, addresses.length):
     intc_0 // 1
     +
-    bury 1
     b test_firstly_abi_call_for_header@2
 
 test_firstly_abi_call_after_for@5:
+    popn 2
     // dynamic_itxn_group/contract.py:77
     // itxn.abi_call("verify", app_id=verifier.id).stage()
     itxn_next
-    dig 3
     itxn_field ApplicationID
     bytec_0 // method "verify()void"
     itxn_field ApplicationArgs
@@ -445,7 +438,6 @@ test_firstly_abi_call_after_for@5:
 
 // test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call[routing]() -> void:
 test_looply_abi_call:
-    intc_1 // 0
     // dynamic_itxn_group/contract.py:83
     // @public
     txna ApplicationArgs 1
@@ -514,17 +506,15 @@ test_looply_abi_call_for_header@2:
     *
     intc_2 // 32
     extract3 // on error: index access is out of bounds
-    bury 7
     // dynamic_itxn_group/contract.py:95
     // my_txn.stage(begin_group=is_first)
-    dig 1
+    uncover 2
     bz test_looply_abi_call_itxn_next@5
     itxn_begin
 
 test_looply_abi_call_after_itxn_begin_next@6:
-    dig 6
     itxn_field Receiver
-    dig 2
+    dig 1
     itxn_field Amount
     // dynamic_itxn_group/contract.py:94
     // my_txn = itxn.Payment(amount=share, receiver=addr.native)
@@ -535,11 +525,9 @@ test_looply_abi_call_after_itxn_begin_next@6:
     // dynamic_itxn_group/contract.py:96
     // is_first = False
     intc_1 // 0
-    bury 2
-    dup
+    swap
     intc_0 // 1
     +
-    bury 1
     b test_looply_abi_call_for_header@2
 
 test_looply_abi_call_itxn_next@5:
@@ -549,10 +537,10 @@ test_looply_abi_call_itxn_next@5:
     b test_looply_abi_call_after_itxn_begin_next@6
 
 test_looply_abi_call_after_for@8:
+    popn 3
     // dynamic_itxn_group/contract.py:98
     // itxn.abi_call("verify", app_id=verifier.id).stage()
     itxn_next
-    dig 3
     itxn_field ApplicationID
     bytec_0 // method "verify()void"
     itxn_field ApplicationArgs

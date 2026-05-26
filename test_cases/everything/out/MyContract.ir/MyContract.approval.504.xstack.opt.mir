@@ -127,74 +127,74 @@ subroutine register:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
         txna ApplicationArgs 1                                                          name#0
-        l-store-copy name#0 0                                                           name#0,name#0 (copy)
-        v-store name#0                                                                  name#0
-        l-load-copy name#0 0                                                            name#0,name#0 (copy)
-        int 0                                                                           name#0,name#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         name#0,aggregate%array_length%0#0
-        int 2                                                                           name#0,aggregate%array_length%0#0,2
-        +                                                                               name#0,add%0#0
-        l-load name#0 1                                                                 add%0#0,name#0
-        len                                                                             add%0#0,len%0#0
-        l-load add%0#0 1                                                                len%0#0,add%0#0
-        ==                                                                              eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        l-store-copy name#0 0                                                           name#0,name#0
+        x-store name#0                                                                  (𝕏) name#0 | name#0
+        l-load-copy name#0 0                                                            (𝕏) name#0 | name#0,name#0 (copy)
+        int 0                                                                           (𝕏) name#0 | name#0,name#0 (copy),0
+        extract_uint16 // on error: invalid array length header                         (𝕏) name#0 | name#0,aggregate%array_length%0#0
+        int 2                                                                           (𝕏) name#0 | name#0,aggregate%array_length%0#0,2
+        +                                                                               (𝕏) name#0 | name#0,add%0#0
+        l-load name#0 1                                                                 (𝕏) name#0 | add%0#0,name#0
+        len                                                                             (𝕏) name#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                (𝕏) name#0 | len%0#0,add%0#0
+        ==                                                                              (𝕏) name#0 | eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>            (𝕏) name#0 |
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        txn Sender                                                                      tmp%0#2
+        txn Sender                                                                      (𝕏) name#0 | tmp%0#2
         // everything/contract.py:25
         // addr = Account(BANNED)
-        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               (𝕏) name#0 | tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        !=                                                                              tmp%2#0
-        assert // You are banned, goodbye
+        !=                                                                              (𝕏) name#0 | tmp%2#0
+        assert // You are banned, goodbye                                               (𝕏) name#0 |
         // everything/contract.py:50
         // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                                                tmp%0#1
-        int OptIn                                                                       tmp%0#1,OptIn
-        ==                                                                              tmp%1#0
-        bz register_after_if_else@5 ; b register_if_body@2
+        txn OnCompletion                                                                (𝕏) name#0 | tmp%0#1
+        int OptIn                                                                       (𝕏) name#0 | tmp%0#1,OptIn
+        ==                                                                              (𝕏) name#0 | tmp%1#0
+        bz register_after_if_else@5 ; b register_if_body@2                              (𝕏) name#0 |
 
-    register_if_body@2:
+    register_if_body@2:                                                                 (𝕏) name#0 |
         // everything/contract.py:51
         // sender_name, sender_name_existed = self.name.maybe(account=0)
-        int 0                                                                           0
-        int 0                                                                           0,0
-        byte "name"                                                                     0,0,"name"
-        app_local_get_ex                                                                sender_name#0,sender_name_existed#0
-        l-store sender_name_existed#0 1                                                 sender_name_existed#0,sender_name#0
-        pop 1                                                                           sender_name_existed#0
+        int 0                                                                           (𝕏) name#0 | 0
+        int 0                                                                           (𝕏) name#0 | 0,0
+        byte "name"                                                                     (𝕏) name#0 | 0,0,"name"
+        app_local_get_ex                                                                (𝕏) name#0 | sender_name#0,sender_name_existed#0
+        l-store sender_name_existed#0 1                                                 (𝕏) name#0 | sender_name_existed#0,sender_name#0
+        pop 1                                                                           (𝕏) name#0 | sender_name_existed#0
         // everything/contract.py:52
         // if not sender_name_existed:
-        l-load sender_name_existed#0 0                                                  sender_name_existed#0
-        bz register_if_body@3 ; b register_after_if_else@5
+        l-load sender_name_existed#0 0                                                  (𝕏) name#0 | sender_name_existed#0
+        bz register_if_body@3 ; b register_after_if_else@5                              (𝕏) name#0 |
 
-    register_if_body@3:
+    register_if_body@3:                                                                 (𝕏) name#0 |
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
-        int 0                                                                           0
-        byte "counter"                                                                  0,"counter"
-        app_global_get_ex                                                               maybe_value%1#0,maybe_exists%1#0
-        assert // check self.counter exists                                             maybe_value%1#0
-        l-load maybe_value%1#0 0                                                        maybe_value%1#0
+        int 0                                                                           (𝕏) name#0 | 0
+        byte "counter"                                                                  (𝕏) name#0 | 0,"counter"
+        app_global_get_ex                                                               (𝕏) name#0 | maybe_value%1#0,maybe_exists%1#0
+        assert // check self.counter exists                                             (𝕏) name#0 | maybe_value%1#0
+        l-load maybe_value%1#0 0                                                        (𝕏) name#0 | maybe_value%1#0
         // everything/my_base.py:20
         // return UInt64(1)
-        int 1                                                                           maybe_value%1#0,1
+        int 1                                                                           (𝕏) name#0 | maybe_value%1#0,1
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
-        +                                                                               tmp%3#0
-        byte "counter"                                                                  tmp%3#0,"counter"
-        l-load tmp%3#0 1                                                                "counter",tmp%3#0
-        app_global_put
-        b register_after_if_else@5
+        +                                                                               (𝕏) name#0 | tmp%3#0
+        byte "counter"                                                                  (𝕏) name#0 | tmp%3#0,"counter"
+        l-load tmp%3#0 1                                                                (𝕏) name#0 | "counter",tmp%3#0
+        app_global_put                                                                  (𝕏) name#0 |
+        b register_after_if_else@5                                                      (𝕏) name#0 |
 
-    register_after_if_else@5:
+    register_after_if_else@5:                                                           (𝕏) name#0 |
         // everything/contract.py:54
         // self.name[0] = name
-        int 0                                                                           0
-        byte "name"                                                                     0,"name"
-        v-load name#0                                                                   0,"name",name#0
+        int 0                                                                           (𝕏) name#0 | 0
+        byte "name"                                                                     (𝕏) name#0 | 0,"name"
+        x-load name#0                                                                   0,"name",name#0
         app_local_put
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
@@ -222,13 +222,15 @@ subroutine say_hello:
         byte "name"                                                                     0,0,"name"
         app_local_get_ex                                                                name#0,exists#0
         l-store exists#0 1                                                              exists#0,name#0
-        v-store name#0                                                                  exists#0
+        x-store name#0                                                                  (𝕏) name#0 | exists#0
         // everything/contract.py:60
         // if not exists:
-        l-load exists#0 0                                                               exists#0
-        bz say_hello_if_body@2 ; b say_hello_after_if_else@3
+        l-load exists#0 0                                                               (𝕏) name#0 | exists#0
+        bz say_hello_if_body@2 ; b say_hello_after_if_else@3                            (𝕏) name#0 |
 
-    say_hello_if_body@2:
+    say_hello_if_body@2:                                                                (𝕏) name#0 |
+        x-load name#0                                                                   name#0
+        pop 1
         // everything/contract.py:61
         // return String("Howdy stranger!")
         byte 0x000f486f77647920737472616e67657221                                       tmp%0#0
@@ -237,10 +239,10 @@ subroutine say_hello:
         // @abimethod
         b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4 (𝕏) tmp%0#0 |
 
-    say_hello_after_if_else@3:
+    say_hello_after_if_else@3:                                                          (𝕏) name#0 |
         // everything/contract.py:62
         // return "Hello, " + name + "!"
-        v-load name#0                                                                   name#0
+        x-load name#0                                                                   name#0
         l-store-copy name#0 0                                                           name#0,name#0 (copy)
         extract 2 0                                                                     name#0,new_items_bytes#0
         l-load name#0 1                                                                 new_items_bytes#0,name#0

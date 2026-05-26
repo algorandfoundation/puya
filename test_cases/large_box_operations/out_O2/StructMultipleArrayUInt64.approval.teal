@@ -673,16 +673,14 @@ inc_array:
     pushint 0
 
 inc_array_for_header@1:
-    frame_dig 2
-    frame_dig 0
+    dup
+    dig 3
     <
     bz inc_array_after_for@4
-    frame_dig 1
+    swap
     dup
     extract 2 0
-    frame_dig 2
-    dup
-    cover 3
+    dig 2
     intc_1 // 8
     *
     swap
@@ -696,17 +694,15 @@ inc_array_for_header@1:
     +
     swap
     replace3 // on error: index access is out of bounds
-    frame_bury 1
+    swap
     intc_2 // 1
     +
-    frame_bury 2
     b inc_array_for_header@1
 
 inc_array_after_for@4:
-    frame_dig 1
+    pop
     frame_dig -2
-    frame_bury 1
-    frame_bury 0
+    uncover 2
     retsub
 
 
