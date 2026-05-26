@@ -1,0 +1,47 @@
+#pragma version 11
+#pragma typetrack false
+
+// examples.hello_world.scratch_gvn.ScratchGVN.approval_program() -> uint64:
+main:
+    // hello_world/scratch_gvn.py:6
+    // assert scratch_gvn_demo(Txn.num_app_args) == Txn.num_app_args + Txn.num_app_args
+    txn NumAppArgs
+    callsub scratch_gvn_demo
+    txn NumAppArgs
+    dup
+    +
+    ==
+    assert
+    // hello_world/scratch_gvn.py:7
+    // return True
+    pushint 1
+    return
+
+
+// examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
+scratch_gvn_demo:
+    // hello_world/scratch_gvn.py:13-14
+    // @subroutine(inline=False)
+    // def scratch_gvn_demo(n: UInt64) -> UInt64:
+    proto 1 1
+
+scratch_gvn_demo_while_top@1:
+    // hello_world/scratch_gvn.py:21
+    // log(op.itob(a))
+    frame_dig -1
+    itob
+    dup
+    log
+    // hello_world/scratch_gvn.py:22
+    // log(op.itob(b))
+    log
+    // hello_world/scratch_gvn.py:25
+    // if not n:
+    frame_dig -1
+    bnz scratch_gvn_demo_while_top@1
+    // hello_world/scratch_gvn.py:27
+    // return a + b
+    frame_dig -1
+    dup
+    +
+    retsub

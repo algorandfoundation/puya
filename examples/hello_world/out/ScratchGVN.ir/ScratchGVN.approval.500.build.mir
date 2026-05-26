@@ -1,0 +1,61 @@
+// Op                                                                                       Stack (out)
+// examples.hello_world.scratch_gvn.ScratchGVN.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // hello_world/scratch_gvn.py:6
+        // assert scratch_gvn_demo(Txn.num_app_args) == Txn.num_app_args + Txn.num_app_args
+        txn NumAppArgs                                                                      tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                      tmp%0#0
+        callsub scratch_gvn_demo                                                            tmp%1#0
+        v-store tmp%1#0
+        txn NumAppArgs                                                                      tmp%2#0
+        v-store tmp%2#0
+        txn NumAppArgs                                                                      tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%2#0                                                                      tmp%2#0
+        v-load tmp%3#0                                                                      tmp%2#0,tmp%3#0
+        +                                                                                   tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%1#0                                                                      tmp%1#0
+        v-load tmp%4#0                                                                      tmp%1#0,tmp%4#0
+        ==                                                                                  tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                      tmp%5#0
+        assert
+        // hello_world/scratch_gvn.py:7
+        // return True
+        int 1                                                                               1
+        return
+
+
+// examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
+subroutine scratch_gvn_demo:
+    scratch_gvn_demo_while_top@1:                                                           (𝕡) n#0 |
+        // hello_world/scratch_gvn.py:21
+        // log(op.itob(a))
+        p-load n#0                                                                          (𝕡) n#0 | n#0 (copy)
+        itob                                                                                (𝕡) n#0 | tmp%1#0
+        v-store tmp%1#0                                                                     (𝕡) n#0 |
+        v-load tmp%1#0                                                                      (𝕡) n#0 | tmp%1#0
+        log                                                                                 (𝕡) n#0 |
+        // hello_world/scratch_gvn.py:22
+        // log(op.itob(b))
+        v-load tmp%1#0                                                                      (𝕡) n#0 | tmp%1#0
+        log                                                                                 (𝕡) n#0 |
+        // hello_world/scratch_gvn.py:25
+        // if not n:
+        p-load n#0                                                                          (𝕡) n#0 | n#0 (copy)
+        bz scratch_gvn_demo_if_body@5 ; b scratch_gvn_demo_while_top@1                      (𝕡) n#0 |
+
+    scratch_gvn_demo_if_body@5:                                                             (𝕡) n#0 |
+        // hello_world/scratch_gvn.py:27
+        // return a + b
+        p-load n#0                                                                          (𝕡) n#0 | n#0 (copy)
+        p-load n#0                                                                          (𝕡) n#0 | n#0 (copy),n#0 (copy)
+        +                                                                                   (𝕡) n#0 | tmp%4#0
+        v-store tmp%4#0                                                                     (𝕡) n#0 |
+        v-load tmp%4#0                                                                      (𝕡) n#0 | tmp%4#0
+        retsub                                                                              tmp%4#0
+
+
