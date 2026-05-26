@@ -335,7 +335,14 @@ class _GVNTables:
             return self._provider_key_to_vns[key]
         except KeyError:
             pass
-        vns = self.fresh_vns(source)
+        # Mint fresh VNs directly rather than via fresh_vns: this is a
+        # structural-key lookup, so cross-iteration stability comes from the
+        # key cache itself — the same key in iteration N+1 returns the same
+        # VN. Routing through fresh_vns would entangle the ``id(source)``
+        # memo with the key cache, so if source's key shifted between
+        # iterations (e.g. via an upstream phi VN downgrade) the new key
+        # would alias to the old VN and produce false equivalences.
+        vns = tuple(self.next_vn() for _ in source.types)
         self._provider_key_to_vns[key] = vns
         if len(vns) == 1:
             (vn,) = vns
