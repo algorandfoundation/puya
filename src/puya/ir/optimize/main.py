@@ -82,7 +82,7 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(perform_subroutine_inlining, min_level=0),
         SubroutineOptimization.from_function(_split_parallel_copies, min_level=0),
         SubroutineOptimization.from_function(constant_replacer, min_level=0),
-        # SubroutineOptimization.from_function(copy_propagation),  # EXPERIMENT: disabled
+        SubroutineOptimization.from_function(copy_propagation),
         SubroutineOptimization.from_function(elide_itxn_field_calls),
         # TODO: improve this algorithm instead of looping
         SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),

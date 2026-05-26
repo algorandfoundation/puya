@@ -1303,7 +1303,7 @@ def _refine_phi_congruence(
     reveals they're equal.
     """
 
-    # Collect phis not already handled by build_replacements
+    # Collect phis not already being replaced in the current pass
     phi_register_lookup = dict[models.Register, tuple[models.BasicBlock, models.Phi]]()
     for block in subroutine.body:
         for phi in block.phis:
@@ -1311,6 +1311,13 @@ def _refine_phi_congruence(
                 phi_register_lookup[phi.register] = (block, phi)
 
     if not phi_register_lookup:
+        return False
+
+    # this prevents replacement chains being created (which MemoryReplacer doesn't support),
+    # the alternative would be to flatten those chains ourselves, but that's trickier,
+    # and since this condition will only fail if register_replacements is populated,
+    # we know there will be another optimisation pass, and we can pick these up then
+    if not phi_register_lookup.keys().isdisjoint(register_replacements.values()):
         return False
 
     # Build a directed graph where:
@@ -1325,11 +1332,8 @@ def _refine_phi_congruence(
     graph = nx.DiGraph()
     for _, phi in phi_register_lookup.values():
         for arg in phi.args:
-            # if arg.value in phi_register_lookup:
-            #     graph.add_edge(phi.register, arg.value)
-            resolved = register_replacements.get(arg.value, arg.value)
-            if resolved in phi_register_lookup:
-                graph.add_edge(phi.register, resolved)
+            if arg.value in phi_register_lookup:
+                graph.add_edge(phi.register, arg.value)
 
     modified = False
     for scc_set in nx.strongly_connected_components(graph):
@@ -1354,11 +1358,6 @@ def _refine_phi_congruence(
             if reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type:
                 block.phis.remove(phi)
                 modified = True
-                # Flatten any existing entries whose target was this SCC member, so the
-                # combined map remains chain-free for MemoryReplacer.
-                for existing_key, existing_target in register_replacements.items():
-                    if existing_target is reg:
-                        register_replacements[existing_key] = target
                 register_replacements[reg] = target
                 logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
     return modified
