@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, UInt64, log, op, public, subroutine, urange
+from algopy import ARC4Contract, UInt64, log, public, subroutine, urange
 
 
 class PhiCongruenceContract(ARC4Contract):
@@ -49,10 +49,10 @@ def test_redundant_phi(a: UInt64, b: UInt64) -> UInt64:
     val1 = a | b
     val2 = b | a
     if a > b:
-        log(op.itob(a))  # side effect to keep branch alive
+        log(a)  # side effect to keep branch alive
         result = val1
     else:
-        log(op.itob(b))
+        log(b)
         result = val2
     return result
 
