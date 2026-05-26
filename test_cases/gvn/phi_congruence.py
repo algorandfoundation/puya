@@ -14,6 +14,7 @@ class PhiCongruenceContract(Contract):
         assert test_cross_assignment(UInt64(0)) == 0
         assert test_triple_cycle(UInt64(10)) == 30
         assert test_redundant_phi(Txn.num_app_args, UInt64(5)) == Txn.num_app_args | 5
+        assert test_replacement_chain(UInt64(0)) == 0
         assert test_replacement_chain(UInt64(42)) == 84
         return True
 
@@ -104,6 +105,6 @@ def test_replacement_chain(n: UInt64) -> UInt64:
         log(b)
         b = a
         a = b
-        if not n:
+        if n % 2 == 0:
             break
     return a + b
