@@ -352,6 +352,72 @@ subroutine loop_invariant_phi_aliasing(x: uint64, y: uint64): uint64
   return z
 }
 
+contract IterationCapContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.iteration_cap.IterationCapContract.test_deep_nesting(n: uint64): uint64
+  {
+    return test_cases.gvn.iteration_cap.deep_nested_accumulator(n)
+  }
+  
+  baremethod test_cases.gvn.iteration_cap.IterationCapContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine deep_nested_accumulator(n: uint64): uint64
+{
+  x: uint64 = 0u
+  for a1 in range(0u, n, 1u) {
+    for a2 in range(0u, n, 1u) {
+      for a3 in range(0u, n, 1u) {
+        for a4 in range(0u, n, 1u) {
+          for a5 in range(0u, n, 1u) {
+            for a6 in range(0u, n, 1u) {
+              for a7 in range(0u, n, 1u) {
+                for a8 in range(0u, n, 1u) {
+                  for a9 in range(0u, n, 1u) {
+                    for a10 in range(0u, n, 1u) {
+                      for a11 in range(0u, n, 1u) {
+                        for a12 in range(0u, n, 1u) {
+                          for a13 in range(0u, n, 1u) {
+                            for a14 in range(0u, n, 1u) {
+                              x += a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return x
+}
+
 contract GetByteConstFoldContract
 {
   method_resolution_order: (
