@@ -14,9 +14,9 @@ main:
     assert
     txn ApplicationID
     assert
-    pushbytess 0x55ba48e6 0x68b563af 0x742aaa47 0x8977ab20 // method "call_test_redundant_phi(uint64,uint64)uint64", method "call_test_cross_assignment(uint64)uint64", method "call_test_triple_cycle(uint64)uint64", method "call_test_replacement_chain(uint64)uint64"
+    pushbytess 0x7264f0d9 0x41502ad7 0x59e4c4f9 0xa8ff9b6e // method "test_redundant_phi(uint64,uint64)uint64", method "test_cross_assignment(uint64)uint64", method "test_triple_cycle(uint64)uint64", method "test_replacement_chain(uint64)uint64"
     txna ApplicationArgs 0
-    match call_test_redundant_phi call_test_cross_assignment call_test_triple_cycle call_test_replacement_chain
+    match test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing] test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment[routing] test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle[routing] test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain[routing]
     err
 
 main___algopy_default_create@11:
@@ -30,36 +30,36 @@ main___algopy_default_create@11:
 
 // test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
 test_redundant_phi:
-    // gvn/phi_congruence.py:33-34
+    // gvn/phi_congruence.py:32-33
     // @subroutine(inline=False)
     // def test_redundant_phi(a: UInt64, b: UInt64) -> UInt64:
     proto 2 1
-    // gvn/phi_congruence.py:50
+    // gvn/phi_congruence.py:49
     // val1 = a | b
     frame_dig -2
     frame_dig -1
     |
-    // gvn/phi_congruence.py:52
+    // gvn/phi_congruence.py:51
     // if a > b:
     frame_dig -2
     frame_dig -1
     >
     bz test_redundant_phi_else_body@2
-    // gvn/phi_congruence.py:53
+    // gvn/phi_congruence.py:52
     // log(op.itob(a))  # side effect to keep branch alive
     frame_dig -2
     itob
     log
 
 test_redundant_phi_after_if_else@3:
-    // gvn/phi_congruence.py:58
+    // gvn/phi_congruence.py:57
     // return result
     frame_dig 0
     swap
     retsub
 
 test_redundant_phi_else_body@2:
-    // gvn/phi_congruence.py:56
+    // gvn/phi_congruence.py:55
     // log(op.itob(b))
     frame_dig -1
     itob
@@ -69,16 +69,16 @@ test_redundant_phi_else_body@2:
 
 // test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
 test_cross_assignment:
-    // gvn/phi_congruence.py:61-62
+    // gvn/phi_congruence.py:60-61
     // @subroutine(inline=False)
     // def test_cross_assignment(n: UInt64) -> UInt64:
     proto 1 1
-    // gvn/phi_congruence.py:73
+    // gvn/phi_congruence.py:72
     // for _i in urange(10):
     intc_2 // 0
 
 test_cross_assignment_for_header@1:
-    // gvn/phi_congruence.py:73
+    // gvn/phi_congruence.py:72
     // for _i in urange(10):
     frame_dig 0
     pushint 10
@@ -91,7 +91,7 @@ test_cross_assignment_for_header@1:
     b test_cross_assignment_for_header@1
 
 test_cross_assignment_after_for@4:
-    // gvn/phi_congruence.py:77-78
+    // gvn/phi_congruence.py:76-77
     // # x == y == n, so x + y == 2*n
     // return x + y
     frame_dig -1
@@ -103,16 +103,16 @@ test_cross_assignment_after_for@4:
 
 // test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
 test_triple_cycle:
-    // gvn/phi_congruence.py:81-82
+    // gvn/phi_congruence.py:80-81
     // @subroutine(inline=False)
     // def test_triple_cycle(n: UInt64) -> UInt64:
     proto 1 1
-    // gvn/phi_congruence.py:94
+    // gvn/phi_congruence.py:93
     // for _i in urange(5):
     intc_2 // 0
 
 test_triple_cycle_for_header@1:
-    // gvn/phi_congruence.py:94
+    // gvn/phi_congruence.py:93
     // for _i in urange(5):
     frame_dig 0
     pushint 5
@@ -125,7 +125,7 @@ test_triple_cycle_for_header@1:
     b test_triple_cycle_for_header@1
 
 test_triple_cycle_after_for@4:
-    // gvn/phi_congruence.py:100-101
+    // gvn/phi_congruence.py:99-100
     // # a == b == c == n, so a + b + c == 3*n
     // return a + b + c
     frame_dig -1
@@ -139,28 +139,28 @@ test_triple_cycle_after_for@4:
 
 // test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
 test_replacement_chain:
-    // gvn/phi_congruence.py:104-105
+    // gvn/phi_congruence.py:103-104
     // @subroutine(inline=False)
     // def test_replacement_chain(n: UInt64) -> UInt64:
     proto 1 1
 
 test_replacement_chain_while_top@1:
-    // gvn/phi_congruence.py:112
+    // gvn/phi_congruence.py:111
     // log(a)
     frame_dig -1
     itob
     dup
     log
-    // gvn/phi_congruence.py:113
+    // gvn/phi_congruence.py:112
     // log(b)
     log
-    // gvn/phi_congruence.py:116
+    // gvn/phi_congruence.py:115
     // if n % 2 == 0:
     frame_dig -1
     pushint 2
     %
     bnz test_replacement_chain_while_top@1
-    // gvn/phi_congruence.py:118
+    // gvn/phi_congruence.py:117
     // return a + b
     frame_dig -1
     dup
@@ -168,9 +168,9 @@ test_replacement_chain_while_top@1:
     retsub
 
 
-// test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_redundant_phi[routing]() -> void:
-call_test_redundant_phi:
-    // gvn/phi_congruence.py:16
+// test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing]() -> void:
+test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing]:
+    // gvn/phi_congruence.py:15
     // @public
     txna ApplicationArgs 1
     dup
@@ -186,10 +186,10 @@ call_test_redundant_phi:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // gvn/phi_congruence.py:18
+    // gvn/phi_congruence.py:17
     // return test_redundant_phi(a, b)
     callsub test_redundant_phi
-    // gvn/phi_congruence.py:16
+    // gvn/phi_congruence.py:15
     // @public
     itob
     bytec_0 // 0x151f7c75
@@ -200,9 +200,9 @@ call_test_redundant_phi:
     return
 
 
-// test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_cross_assignment[routing]() -> void:
-call_test_cross_assignment:
-    // gvn/phi_congruence.py:20
+// test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment[routing]() -> void:
+test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment[routing]:
+    // gvn/phi_congruence.py:19
     // @public
     txna ApplicationArgs 1
     dup
@@ -211,10 +211,10 @@ call_test_cross_assignment:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // gvn/phi_congruence.py:22
+    // gvn/phi_congruence.py:21
     // return test_cross_assignment(n)
     callsub test_cross_assignment
-    // gvn/phi_congruence.py:20
+    // gvn/phi_congruence.py:19
     // @public
     itob
     bytec_0 // 0x151f7c75
@@ -225,9 +225,9 @@ call_test_cross_assignment:
     return
 
 
-// test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_triple_cycle[routing]() -> void:
-call_test_triple_cycle:
-    // gvn/phi_congruence.py:24
+// test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle[routing]() -> void:
+test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle[routing]:
+    // gvn/phi_congruence.py:23
     // @public
     txna ApplicationArgs 1
     dup
@@ -236,10 +236,10 @@ call_test_triple_cycle:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // gvn/phi_congruence.py:26
+    // gvn/phi_congruence.py:25
     // return test_triple_cycle(n)
     callsub test_triple_cycle
-    // gvn/phi_congruence.py:24
+    // gvn/phi_congruence.py:23
     // @public
     itob
     bytec_0 // 0x151f7c75
@@ -250,9 +250,9 @@ call_test_triple_cycle:
     return
 
 
-// test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_replacement_chain[routing]() -> void:
-call_test_replacement_chain:
-    // gvn/phi_congruence.py:28
+// test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain[routing]() -> void:
+test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain[routing]:
+    // gvn/phi_congruence.py:27
     // @public
     txna ApplicationArgs 1
     dup
@@ -261,10 +261,10 @@ call_test_replacement_chain:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // gvn/phi_congruence.py:30
+    // gvn/phi_congruence.py:29
     // return test_replacement_chain(n)
     callsub test_replacement_chain
-    // gvn/phi_congruence.py:28
+    // gvn/phi_congruence.py:27
     // @public
     itob
     bytec_0 // 0x151f7c75

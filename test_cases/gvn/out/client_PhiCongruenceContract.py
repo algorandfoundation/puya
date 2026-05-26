@@ -14,32 +14,31 @@ class PhiCongruenceContract(algopy.arc4.ARC4Client, typing.Protocol):
         - SCC-based phi congruence (cross-assigned variables in loops)
         - Redundant phi elimination (different registers, same VN at join points)
 
-        Each ABI method is a thin wrapper around the matching module-level
-        @subroutine(inline=False), so the GVN-relevant IR shape is preserved
-        (algopy.public doesn't support inline= specification).
+        Each ABI method is a thin wrapper around a subroutine to make
+        the intermediate IR easier to inspect.
     
     """
     @algopy.arc4.abimethod
-    def call_test_redundant_phi(
+    def test_redundant_phi(
         self,
         a: algopy.arc4.UIntN[typing.Literal[64]],
         b: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
-    def call_test_cross_assignment(
+    def test_cross_assignment(
         self,
         n: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
-    def call_test_triple_cycle(
+    def test_triple_cycle(
         self,
         n: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
-    def call_test_replacement_chain(
+    def test_replacement_chain(
         self,
         n: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
