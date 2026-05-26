@@ -3,8 +3,8 @@
 
 // test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program() -> uint64:
 main:
-    intcblock 0 5 1 10
-    pushint 42
+    intcblock 0 5 1 42
+    intc_3 // 42
     callsub test_cross_assignment
     pushint 84
     ==
@@ -13,7 +13,7 @@ main:
     callsub test_cross_assignment
     !
     assert
-    intc_3 // 10
+    pushint 10
     callsub test_triple_cycle
     pushint 30
     ==
@@ -24,6 +24,11 @@ main:
     txn NumAppArgs
     intc_1 // 5
     |
+    ==
+    assert
+    intc_3 // 42
+    callsub test_replacement_chain
+    pushint 84
     ==
     assert
     intc_2 // 1
@@ -63,7 +68,7 @@ test_cross_assignment:
 
 test_cross_assignment_for_header@1:
     frame_dig 0
-    intc_3 // 10
+    pushint 10
     <
     bz test_cross_assignment_after_for@4
     frame_dig 0
@@ -103,4 +108,22 @@ test_triple_cycle_after_for@4:
     frame_dig -1
     +
     swap
+    retsub
+
+
+// test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
+test_replacement_chain:
+    proto 1 1
+
+test_replacement_chain_while_top@1:
+    frame_dig -1
+    itob
+    dup
+    log
+    log
+    frame_dig -1
+    bnz test_replacement_chain_while_top@1
+    frame_dig -1
+    dup
+    +
     retsub

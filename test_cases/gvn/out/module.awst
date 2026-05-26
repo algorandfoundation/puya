@@ -113,6 +113,7 @@ contract PhiCongruenceContract
     assert(test_cases.gvn.phi_congruence.test_cross_assignment(0u) == 0u)
     assert(test_cases.gvn.phi_congruence.test_triple_cycle(10u) == 30u)
     assert(test_cases.gvn.phi_congruence.test_redundant_phi(txn<NumAppArgs>(), 5u) == txn<NumAppArgs>() | 5u)
+    assert(test_cases.gvn.phi_congruence.test_replacement_chain(42u) == 84u)
     return true
   }
   
@@ -165,6 +166,26 @@ subroutine test_triple_cycle(n: uint64): uint64
     c: uint64 = tmp_b
   }
   return a + b + c
+}
+
+subroutine test_replacement_chain(n: uint64): uint64
+{
+  a: uint64 = n
+  b: uint64 = n
+  while (true) {
+    if (n == 0u) {
+      a: uint64 = n
+      b: uint64 = n
+    }
+    log(itob(a))
+    log(itob(b))
+    b: uint64 = a
+    a: uint64 = b
+    if (n == 0u) {
+      break
+    }
+  }
+  return a + b
 }
 
 contract PRE
