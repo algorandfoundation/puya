@@ -15,75 +15,78 @@ main test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program:
         let tmp%9#0: uint64 = (| tmp%8#0 5u)
         let tmp%10#0: bool = (== tmp%7#0 tmp%9#0)
         (assert tmp%10#0)
-        let tmp%11#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(42u)
-        let tmp%12#0: bool = (== tmp%11#0 84u)
+        let tmp%11#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(0u)
+        let tmp%12#0: bool = (== tmp%11#0 0u)
         (assert tmp%12#0)
+        let tmp%13#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(42u)
+        let tmp%14#0: bool = (== tmp%13#0 84u)
+        (assert tmp%14#0)
         return 1u
 
 subroutine test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
-    block@0: // L24
+    block@0: // L25
         let tmp%0#0: uint64 = (| a#0 b#0)
         let val1#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (| b#0 a#0)
         let val2#0: uint64 = tmp%1#0
         let tmp%2#0: bool = (> a#0 b#0)
         goto tmp%2#0 ? block@1 : block@2
-    block@1: // if_body_L44
+    block@1: // if_body_L45
         let tmp%3#0: bytes = (itob a#0)
         (log tmp%3#0)
         let result#0: uint64 = val1#0
         goto block@3
-    block@2: // else_body_L47
+    block@2: // else_body_L48
         let tmp%4#0: bytes = (itob b#0)
         (log tmp%4#0)
         let result#1: uint64 = val2#0
         goto block@3
-    block@3: // after_if_else_L43
+    block@3: // after_if_else_L44
         let result#2: uint64 = φ(result#0 <- block@1, result#1 <- block@2)
         return result#2
 
 subroutine test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
-    block@0: // L52
+    block@0: // L53
         let x#0: uint64 = n#0
         let y#0: uint64 = n#0
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L64
+    block@1: // for_header_L65
         let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let x#1: uint64 = φ(x#0 <- block@0, x#2 <- block@3)
         let y#1: uint64 = φ(y#0 <- block@0, y#2 <- block@3)
         let continue_looping%0#0: bool = (< value_internal%0#1 10u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L65
+    block@2: // for_body_L66
         let _i#0: uint64 = value_internal%0#1
         let tmp#0: uint64 = x#1
         let x#2: uint64 = y#1
         let y#2: uint64 = tmp#0
         goto block@3
-    block@3: // for_footer_L64
+    block@3: // for_footer_L65
         let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L64
+    block@4: // after_for_L65
         let tmp%0#0: uint64 = (+ x#1 y#1)
         return tmp%0#0
 
 subroutine test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
-    block@0: // L72
+    block@0: // L73
         let a#0: uint64 = n#0
         let b#0: uint64 = n#0
         let c#0: uint64 = n#0
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L85
+    block@1: // for_header_L86
         let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let a#1: uint64 = φ(a#0 <- block@0, a#2 <- block@3)
         let b#1: uint64 = φ(b#0 <- block@0, b#2 <- block@3)
         let c#1: uint64 = φ(c#0 <- block@0, c#2 <- block@3)
         let continue_looping%0#0: bool = (< value_internal%0#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L86
+    block@2: // for_body_L87
         let _i#0: uint64 = value_internal%0#1
         let tmp_a#0: uint64 = a#1
         let tmp_b#0: uint64 = b#1
@@ -91,31 +94,31 @@ subroutine test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
         let b#2: uint64 = tmp_a#0
         let c#2: uint64 = tmp_b#0
         goto block@3
-    block@3: // for_footer_L85
+    block@3: // for_footer_L86
         let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L85
+    block@4: // after_for_L86
         let tmp%0#0: uint64 = (+ a#1 b#1)
         let tmp%1#0: uint64 = (+ tmp%0#0 c#1)
         return tmp%1#0
 
 subroutine test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
-    block@0: // L95
+    block@0: // L96
         let a#0: uint64 = n#0
         let b#0: uint64 = n#0
         goto block@1
-    block@1: // while_top_L99
+    block@1: // while_top_L100
         let a#3: uint64 = φ(a#0 <- block@0, a#4 <- block@6)
         let b#3: uint64 = φ(b#0 <- block@0, b#4 <- block@6)
         goto 1u ? block@2 : block@7
-    block@2: // while_body_L100
+    block@2: // while_body_L101
         let tmp%0#0: bool = (== n#0 0u)
         goto tmp%0#0 ? block@3 : block@4
-    block@3: // if_body_L101
+    block@3: // if_body_L102
         let a#1: uint64 = n#0
         let b#1: uint64 = n#0
         goto block@4
-    block@4: // after_if_else_L100
+    block@4: // after_if_else_L101
         let a#2: uint64 = φ(a#3 <- block@2, a#1 <- block@3)
         let b#2: uint64 = φ(b#3 <- block@2, b#1 <- block@3)
         let tmp%1#0: bytes = (itob a#2)
@@ -124,14 +127,15 @@ subroutine test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> ui
         (log tmp%2#0)
         let b#4: uint64 = a#2
         let a#4: uint64 = b#4
-        let tmp%3#0: bool = (== n#0 0u)
-        goto tmp%3#0 ? block@5 : block@6
-    block@5: // if_body_L108
+        let tmp%3#0: uint64 = (% n#0 2u)
+        let tmp%4#0: bool = (== tmp%3#0 0u)
+        goto tmp%4#0 ? block@5 : block@6
+    block@5: // if_body_L109
         goto block@7
-    block@6: // after_if_else_L107
+    block@6: // after_if_else_L108
         goto block@1
-    block@7: // after_while_L99
+    block@7: // after_while_L100
         let a#5: uint64 = φ(a#3 <- block@1, a#4 <- block@5)
         let b#5: uint64 = φ(b#3 <- block@1, b#4 <- block@5)
-        let tmp%4#0: uint64 = (+ a#5 b#5)
-        return tmp%4#0
+        let tmp%5#0: uint64 = (+ a#5 b#5)
+        return tmp%5#0

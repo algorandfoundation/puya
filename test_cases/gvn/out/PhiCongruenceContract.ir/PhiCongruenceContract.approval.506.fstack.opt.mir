@@ -35,13 +35,19 @@ subroutine main:
         ==                                                                                tmp%10#0
         assert
         // gvn/phi_congruence.py:17
-        // assert test_replacement_chain(UInt64(42)) == 84
-        int 42                                                                            42
+        // assert test_replacement_chain(UInt64(0)) == 0
+        int 0                                                                             0
         callsub test_replacement_chain                                                    tmp%11#0
-        int 84                                                                            tmp%11#0,84
-        ==                                                                                tmp%12#0
+        !                                                                                 tmp%12#0
         assert
         // gvn/phi_congruence.py:18
+        // assert test_replacement_chain(UInt64(42)) == 84
+        int 42                                                                            42
+        callsub test_replacement_chain                                                    tmp%13#0
+        int 84                                                                            tmp%13#0,84
+        ==                                                                                tmp%14#0
+        assert
+        // gvn/phi_congruence.py:19
         // return True
         int 1                                                                             1
         return
@@ -50,13 +56,13 @@ subroutine main:
 // test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
 subroutine test_redundant_phi:
     test_redundant_phi_block@0:                                                           (𝕡) a#0,b#0 |
-        // gvn/phi_congruence.py:41
+        // gvn/phi_congruence.py:42
         // val1 = a | b
         p-load a#0                                                                        (𝕡) a#0,b#0 | a#0 (copy)
         p-load b#0                                                                        (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
         |                                                                                 (𝕡) a#0,b#0 | val1#0
         f-store val1#0                                                                    (𝕡) a#0,b#0 | (𝕗) val1#0 |
-        // gvn/phi_congruence.py:43
+        // gvn/phi_congruence.py:44
         // if a > b:
         p-load a#0                                                                        (𝕡) a#0,b#0 | (𝕗) val1#0 | a#0 (copy)
         p-load b#0                                                                        (𝕡) a#0,b#0 | (𝕗) val1#0 | a#0 (copy),b#0 (copy)
@@ -64,7 +70,7 @@ subroutine test_redundant_phi:
         bz test_redundant_phi_else_body@2 ; b test_redundant_phi_if_body@1                (𝕡) a#0,b#0 | (𝕗) val1#0 |
 
     test_redundant_phi_if_body@1:                                                         (𝕡) a#0,b#0 | (𝕗) val1#0 |
-        // gvn/phi_congruence.py:44
+        // gvn/phi_congruence.py:45
         // log(op.itob(a))  # side effect to keep branch alive
         p-load a#0                                                                        (𝕡) a#0,b#0 | (𝕗) val1#0 | a#0 (copy)
         itob                                                                              (𝕡) a#0,b#0 | (𝕗) val1#0 | tmp%3#0
@@ -72,7 +78,7 @@ subroutine test_redundant_phi:
         b test_redundant_phi_after_if_else@3                                              (𝕡) a#0,b#0 | (𝕗) val1#0 |
 
     test_redundant_phi_else_body@2:                                                       (𝕡) a#0,b#0 | (𝕗) val1#0 |
-        // gvn/phi_congruence.py:47
+        // gvn/phi_congruence.py:48
         // log(op.itob(b))
         p-load b#0                                                                        (𝕡) a#0,b#0 | (𝕗) val1#0 | b#0 (copy)
         itob                                                                              (𝕡) a#0,b#0 | (𝕗) val1#0 | tmp%4#0
@@ -80,7 +86,7 @@ subroutine test_redundant_phi:
         b test_redundant_phi_after_if_else@3                                              (𝕡) a#0,b#0 | (𝕗) val1#0 |
 
     test_redundant_phi_after_if_else@3:                                                   (𝕡) a#0,b#0 | (𝕗) val1#0 |
-        // gvn/phi_congruence.py:49
+        // gvn/phi_congruence.py:50
         // return result
         f-load val1#0                                                                     (𝕡) a#0,b#0 | (𝕗) val1#0 | val1#0
         retsub                                                                            val1#0
@@ -89,14 +95,14 @@ subroutine test_redundant_phi:
 // test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
 subroutine test_cross_assignment:
     test_cross_assignment_block@0:                                                        (𝕡) n#0 |
-        // gvn/phi_congruence.py:64
+        // gvn/phi_congruence.py:65
         // for _i in urange(10):
         int 0                                                                             (𝕡) n#0 | _i#0
         f-store _i#0                                                                      (𝕡) n#0 | (𝕗) _i#0 |
         b test_cross_assignment_for_header@1                                              (𝕡) n#0 | (𝕗) _i#0 |
 
     test_cross_assignment_for_header@1:                                                   (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:64
+        // gvn/phi_congruence.py:65
         // for _i in urange(10):
         f-load _i#0                                                                       (𝕡) n#0 | (𝕗) _i#0 | _i#0
         int 10                                                                            (𝕡) n#0 | (𝕗) _i#0 | _i#0,10
@@ -104,7 +110,7 @@ subroutine test_cross_assignment:
         bz test_cross_assignment_after_for@4 ; b test_cross_assignment_for_body@2         (𝕡) n#0 | (𝕗) _i#0 |
 
     test_cross_assignment_for_body@2:                                                     (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:64
+        // gvn/phi_congruence.py:65
         // for _i in urange(10):
         f-load _i#0                                                                       (𝕡) n#0 | (𝕗) _i#0 | _i#0
         int 1                                                                             (𝕡) n#0 | (𝕗) _i#0 | _i#0,1
@@ -113,7 +119,7 @@ subroutine test_cross_assignment:
         b test_cross_assignment_for_header@1                                              (𝕡) n#0 | (𝕗) _i#0 |
 
     test_cross_assignment_after_for@4:                                                    (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:69
+        // gvn/phi_congruence.py:70
         // return x + y
         p-load n#0                                                                        (𝕡) n#0 | (𝕗) _i#0 | n#0 (copy)
         p-load n#0                                                                        (𝕡) n#0 | (𝕗) _i#0 | n#0 (copy),n#0 (copy)
@@ -124,14 +130,14 @@ subroutine test_cross_assignment:
 // test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
 subroutine test_triple_cycle:
     test_triple_cycle_block@0:                                                            (𝕡) n#0 |
-        // gvn/phi_congruence.py:85
+        // gvn/phi_congruence.py:86
         // for _i in urange(5):
         int 0                                                                             (𝕡) n#0 | _i#0
         f-store _i#0                                                                      (𝕡) n#0 | (𝕗) _i#0 |
         b test_triple_cycle_for_header@1                                                  (𝕡) n#0 | (𝕗) _i#0 |
 
     test_triple_cycle_for_header@1:                                                       (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:85
+        // gvn/phi_congruence.py:86
         // for _i in urange(5):
         f-load _i#0                                                                       (𝕡) n#0 | (𝕗) _i#0 | _i#0
         int 5                                                                             (𝕡) n#0 | (𝕗) _i#0 | _i#0,5
@@ -139,7 +145,7 @@ subroutine test_triple_cycle:
         bz test_triple_cycle_after_for@4 ; b test_triple_cycle_for_body@2                 (𝕡) n#0 | (𝕗) _i#0 |
 
     test_triple_cycle_for_body@2:                                                         (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:85
+        // gvn/phi_congruence.py:86
         // for _i in urange(5):
         f-load _i#0                                                                       (𝕡) n#0 | (𝕗) _i#0 | _i#0
         int 1                                                                             (𝕡) n#0 | (𝕗) _i#0 | _i#0,1
@@ -148,7 +154,7 @@ subroutine test_triple_cycle:
         b test_triple_cycle_for_header@1                                                  (𝕡) n#0 | (𝕗) _i#0 |
 
     test_triple_cycle_after_for@4:                                                        (𝕡) n#0 | (𝕗) _i#0 |
-        // gvn/phi_congruence.py:92
+        // gvn/phi_congruence.py:93
         // return a + b + c
         p-load n#0                                                                        (𝕡) n#0 | (𝕗) _i#0 | n#0 (copy)
         p-load n#0                                                                        (𝕡) n#0 | (𝕗) _i#0 | n#0 (copy),n#0 (copy)
@@ -161,27 +167,29 @@ subroutine test_triple_cycle:
 // test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
 subroutine test_replacement_chain:
     test_replacement_chain_while_top@1:                                                   (𝕡) n#0 |
-        // gvn/phi_congruence.py:103
+        // gvn/phi_congruence.py:104
         // log(a)
         p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
         itob                                                                              (𝕡) n#0 | tmp%1#0
         l-load-copy tmp%1#0 0                                                             (𝕡) n#0 | tmp%1#0,tmp%1#0 (copy)
         log                                                                               (𝕡) n#0 | tmp%1#0
-        // gvn/phi_congruence.py:104
+        // gvn/phi_congruence.py:105
         // log(b)
         l-load tmp%1#0 0                                                                  (𝕡) n#0 | tmp%1#0
         log                                                                               (𝕡) n#0 |
-        // gvn/phi_congruence.py:107
-        // if not n:
+        // gvn/phi_congruence.py:108
+        // if n % 2 == 0:
         p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
+        int 2                                                                             (𝕡) n#0 | n#0 (copy),2
+        %                                                                                 (𝕡) n#0 | tmp%3#0
         bz test_replacement_chain_if_body@5 ; b test_replacement_chain_while_top@1        (𝕡) n#0 |
 
     test_replacement_chain_if_body@5:                                                     (𝕡) n#0 |
-        // gvn/phi_congruence.py:109
+        // gvn/phi_congruence.py:110
         // return a + b
         p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
         p-load n#0                                                                        (𝕡) n#0 | n#0 (copy),n#0 (copy)
-        +                                                                                 (𝕡) n#0 | tmp%4#0
-        retsub                                                                            tmp%4#0
+        +                                                                                 (𝕡) n#0 | tmp%5#0
+        retsub                                                                            tmp%5#0
 
 

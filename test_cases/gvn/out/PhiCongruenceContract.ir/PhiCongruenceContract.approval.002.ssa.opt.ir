@@ -15,72 +15,76 @@ main test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program:
         let tmp%9#0: uint64 = (| tmp%8#0 5u)
         let tmp%10#0: bool = (== tmp%7#0 tmp%9#0)
         (assert tmp%10#0)
-        let tmp%11#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(42u)
-        let tmp%12#0: bool = (== tmp%11#0 84u)
+        let tmp%11#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(0u)
+        let tmp%12#0: bool = (! tmp%11#0)
         (assert tmp%12#0)
+        let tmp%13#0: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(42u)
+        let tmp%14#0: bool = (== tmp%13#0 84u)
+        (assert tmp%14#0)
         return 1u
 
 subroutine test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
-    block@0: // L24
+    block@0: // L25
         let val1#0: uint64 = (| a#0 b#0)
         let tmp%2#0: bool = (> a#0 b#0)
         goto tmp%2#0 ? block@1 : block@2
-    block@1: // if_body_L44
+    block@1: // if_body_L45
         let tmp%3#0: bytes = (itob a#0)
         (log tmp%3#0)
         goto block@3
-    block@2: // else_body_L47
+    block@2: // else_body_L48
         let tmp%4#0: bytes = (itob b#0)
         (log tmp%4#0)
         goto block@3
-    block@3: // after_if_else_L43
+    block@3: // after_if_else_L44
         return val1#0
 
 subroutine test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
-    block@0: // L52
+    block@0: // L53
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L64
+    block@1: // for_header_L65
         let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< _i#0 10u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L65
+    block@2: // for_body_L66
         let value_internal%0#2: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L64
+    block@4: // after_for_L65
         let tmp%0#0: uint64 = (+ n#0 n#0)
         return tmp%0#0
 
 subroutine test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
-    block@0: // L72
+    block@0: // L73
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L85
+    block@1: // for_header_L86
         let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< _i#0 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L86
+    block@2: // for_body_L87
         let value_internal%0#2: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L85
+    block@4: // after_for_L86
         let tmp%0#0: uint64 = (+ n#0 n#0)
         let tmp%1#0: uint64 = (+ tmp%0#0 n#0)
         return tmp%1#0
 
 subroutine test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
-    block@0: // L95
+    block@0: // L96
         goto block@1
-    block@1: // while_top_L99
+    block@1: // while_top_L100
         goto n#0 ? block@4 : block@3
-    block@3: // if_body_L101
+    block@3: // if_body_L102
         goto block@4
-    block@4: // after_if_else_L100
+    block@4: // after_if_else_L101
         let tmp%1#0: bytes = (itob n#0)
         (log tmp%1#0)
         (log tmp%1#0)
-        goto n#0 ? block@6 : block@5
-    block@5: // if_body_L108
-        let tmp%4#0: uint64 = (+ n#0 n#0)
-        return tmp%4#0
-    block@6: // after_if_else_L107
+        let tmp%3#0: uint64 = (% n#0 2u)
+        goto tmp%3#0 ? block@6 : block@5
+    block@5: // if_body_L109
+        let tmp%5#0: uint64 = (+ n#0 n#0)
+        return tmp%5#0
+    block@6: // after_if_else_L108
         goto block@1
