@@ -5,9 +5,8 @@ import typing
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Literal
 
-from cattrs.gen import make_dict_structure_fn
 from cattrs.literals import is_literal_containing_enums
 from cattrs.preconf.json import JsonConverter, make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
@@ -15,8 +14,6 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import nodes, txn_fields, wtypes
-from puya.awst.nodes import Node
-from puya.awst.wtypes import WType
 from puya.errors import InternalError, PuyaError
 
 logger = log.get_logger(__name__)
@@ -33,6 +30,65 @@ def _unstructure_optional_enum_literal(value: object) -> object:
     return value.value
 
 
+def _resolve_json_references_inplace(obj: object) -> None:
+    definitions: dict[int, dict[str, object]] = {}
+    visited_nodes: set[int]
+
+    def gather_definitions(v: object) -> None:
+        if id(v) in visited_nodes:
+            return
+        visited_nodes.add(id(v))
+
+        if isinstance(v, dict):
+            id_key = v.get(ID_KEY)
+            if id_key is not None:
+                assert id_key not in definitions, f"{id_key} was defined multiple times"
+                definitions[id_key] = v
+                del v[ID_KEY]
+            for child in v.values():
+                gather_definitions(child)
+        if isinstance(v, list):
+            for child in v:
+                gather_definitions(child)
+
+    def replace_references(
+        v: object,
+    ) -> tuple[Literal[True], object] | tuple[Literal[False], None]:
+        already_visited = id(v) in visited_nodes
+        visited_nodes.add(id(v))
+
+        if isinstance(v, dict):
+            ref_key = v.get(REF_KEY)
+            if ref_key is not None:
+                assert ref_key in definitions, f"{ref_key} was not defined"
+                return True, definitions[ref_key]
+            if already_visited:
+                return False, None
+
+            keys = v.keys()
+            for k in keys:
+                should_update, new_field_value = replace_references(v[k])
+                if should_update:
+                    v[k] = new_field_value
+
+        if isinstance(v, list):
+            if already_visited:
+                return False, None
+
+            length = len(v)
+            for i in range(length):
+                should_update, new_field_value = replace_references(v[i])
+                if should_update:
+                    v[i] = new_field_value
+
+        return False, None
+
+    visited_nodes = set()
+    gather_definitions(obj)
+    visited_nodes = set()
+    replace_references(obj)
+
+
 @functools.cache
 def get_converter() -> JsonConverter:
     converter = make_converter(detailed_validation=False)
@@ -41,49 +97,6 @@ def get_converter() -> JsonConverter:
     converter.register_unstructure_hook_factory(
         is_literal_containing_enums, lambda _: _unstructure_optional_enum_literal
     )
-
-    known: dict[int, object] = {}
-    definitions: dict[int, dict] = {}
-    visited_nodes: set[object] = set()
-
-    def gather_definitions(v: Any) -> None:
-        if id(v) in visited_nodes:
-            return
-        visited_nodes.add(id(v))
-
-        if isinstance(v, dict):
-            if ID_KEY in v:
-                definitions[v[ID_KEY]] = v
-            for child in v.values():
-                gather_definitions(child)
-        if isinstance(v, list):
-            for child in v:
-                gather_definitions(child)
-
-    def json_references_factory[T](cl: type[T]) -> typing.Callable[[Any, type[T]], T]:
-        do_structure = make_dict_structure_fn(cl, converter)
-
-        def process_references(v: Any, _: type[T]) -> T:  # ignore[ANN401]
-            gather_definitions(v)
-
-            if isinstance(v, dict):
-                if REF_KEY in v:
-                    v_ref = v[REF_KEY]
-                    if v_ref in known:
-                        result = known[v[REF_KEY]]
-                        assert isinstance(result, cl)
-                        return result
-                    v = definitions[v_ref]
-                if ID_KEY in v:
-                    v_id = v[ID_KEY]
-                    del v[ID_KEY]
-                    result = known[v_id] = do_structure(v, cl)
-                    return result
-            return do_structure(v, cl)
-
-        return process_references
-
-    converter.register_structure_hook_factory(lambda cl: isinstance(cl, type) and issubclass(cl, WType) or issubclass(cl, Node), json_references_factory)
 
     # TxnField and PuyaLibFunction as name
     for enum_type in (txn_fields.TxnField, nodes.PuyaLibFunction, log.LogLevel):
@@ -141,6 +154,8 @@ def get_converter() -> JsonConverter:
     @functools.wraps(structure_method)
     def wrapped_structure[T](obj: object, cl: type[T]) -> T:
         try:
+            _resolve_json_references_inplace(obj)
+
             # ignore DeprecationWarning while structuring
             with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
                 return structure_method(obj, cl)
