@@ -143,6 +143,18 @@ class SubroutineParamSwapConcat(Contract):
         return True
 
 
+class CallsubScratchBarrierConcat(Contract, scratch_slots=(0,)):
+    def approval_program(self) -> bool:
+        op.Scratch.store(0, Txn.application_args(0))
+        b = _store_slot_and_itob(Txn.application_args(1))
+        a = op.Scratch.load_bytes(0)
+        log(a + b)
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+
 @subroutine
 def _chain(a: Bytes, b: Bytes) -> Bytes:
     a = a + b
@@ -155,3 +167,9 @@ def _swap_and_concat(a: Bytes, b: Bytes) -> Bytes:
         a = b
         b = Txn.application_args(2)
     return a + b + a
+
+
+@subroutine(inline=False)
+def _store_slot_and_itob(value: Bytes) -> Bytes:
+    op.Scratch.store(0, value)
+    return op.itob(Txn.num_app_args)
