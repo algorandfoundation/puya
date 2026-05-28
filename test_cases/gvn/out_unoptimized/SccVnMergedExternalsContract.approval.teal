@@ -1,0 +1,206 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // gvn/scc_vn_merged_externals.py:4
+    // class SccVnMergedExternalsContract(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // gvn/scc_vn_merged_externals.py:4
+    // class SccVnMergedExternalsContract(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xc2c1c9eb // method "test_commutative_externals(uint64,uint64,uint64)uint64"
+    uncover 1
+    match main_test_commutative_externals_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // gvn/scc_vn_merged_externals.py:4
+    // class SccVnMergedExternalsContract(ARC4Contract):
+    err
+
+main_test_commutative_externals_route@3:
+    // gvn/scc_vn_merged_externals.py:17
+    // @public
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub test_commutative_externals
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.__algopy_default_create@9
+
+main_after_inlined_test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.scc_vn_merged_externals.alternating_with_commutative_inits(a: uint64, b: uint64, n: uint64) -> uint64:
+alternating_with_commutative_inits:
+    // gvn/scc_vn_merged_externals.py:22-23
+    // @subroutine(inline=False)
+    // def alternating_with_commutative_inits(a: UInt64, b: UInt64, n: UInt64) -> UInt64:
+    proto 3 1
+    pushbytes ""
+    b alternating_with_commutative_inits_block@0
+
+alternating_with_commutative_inits_block@0:
+    // gvn/scc_vn_merged_externals.py:24
+    // e1 = a | b
+    frame_dig -3
+    frame_dig -2
+    |
+    // gvn/scc_vn_merged_externals.py:25
+    // e2 = b | a
+    frame_dig -2
+    frame_dig -3
+    |
+    // gvn/scc_vn_merged_externals.py:28
+    // s = UInt64(0)
+    intc_0 // 0
+    // gvn/scc_vn_merged_externals.py:29
+    // for i in urange(n):
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+    b alternating_with_commutative_inits_for_header@1
+
+alternating_with_commutative_inits_for_header@1:
+    // gvn/scc_vn_merged_externals.py:29
+    // for i in urange(n):
+    frame_dig 4
+    frame_dig -1
+    <
+    bz alternating_with_commutative_inits_after_for@4
+    b alternating_with_commutative_inits_for_body@2
+
+alternating_with_commutative_inits_for_body@2:
+    // gvn/scc_vn_merged_externals.py:29
+    // for i in urange(n):
+    frame_dig 4
+    // gvn/scc_vn_merged_externals.py:30
+    // x, y = y, x
+    frame_dig 2
+    frame_bury 0
+    frame_dig 1
+    frame_bury 2
+    // gvn/scc_vn_merged_externals.py:31
+    // s += i
+    frame_dig 3
+    +
+    frame_bury 3
+    b alternating_with_commutative_inits_for_footer@3
+
+alternating_with_commutative_inits_for_footer@3:
+    // gvn/scc_vn_merged_externals.py:29
+    // for i in urange(n):
+    frame_dig 4
+    intc_1 // 1
+    +
+    frame_bury 4
+    frame_dig 0
+    frame_bury 1
+    b alternating_with_commutative_inits_for_header@1
+
+alternating_with_commutative_inits_after_for@4:
+    // gvn/scc_vn_merged_externals.py:32
+    // return x + y + s
+    frame_dig 1
+    frame_dig 2
+    +
+    frame_dig 3
+    +
+    frame_bury 0
+    retsub
+
+
+// test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals[routing]() -> void:
+test_commutative_externals:
+    b test_commutative_externals_block@0
+
+test_commutative_externals_block@0:
+    // gvn/scc_vn_merged_externals.py:17
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals
+    itob
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals(a: uint64, b: uint64, n: uint64) -> uint64:
+test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals:
+    // gvn/scc_vn_merged_externals.py:17-18
+    // @public
+    // def test_commutative_externals(self, a: UInt64, b: UInt64, n: UInt64) -> UInt64:
+    proto 3 1
+    b test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals_block@0
+
+test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals_block@0:
+    // gvn/scc_vn_merged_externals.py:19
+    // return alternating_with_commutative_inits(a, b, n)
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    callsub alternating_with_commutative_inits
+    retsub

@@ -60,6 +60,94 @@ subroutine test_divmodw(): void
   assert(rl == 0u)
 }
 
+contract SccVnMergedExternalsContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.test_commutative_externals(a: uint64, b: uint64, n: uint64): uint64
+  {
+    return test_cases.gvn.scc_vn_merged_externals.alternating_with_commutative_inits(a, b, n)
+  }
+  
+  baremethod test_cases.gvn.scc_vn_merged_externals.SccVnMergedExternalsContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine alternating_with_commutative_inits(a: uint64, b: uint64, n: uint64): uint64
+{
+  e1: uint64 = a | b
+  e2: uint64 = b | a
+  x: uint64 = e1
+  y: uint64 = e2
+  s: uint64 = 0u
+  for i in range(0u, n, 1u) {
+    (x, y): tuple<uint64,uint64> = (y, x)
+    s += i
+  }
+  return x + y + s
+}
+
+contract SccTwoExternalsContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.scc_two_externals.SccTwoExternalsContract.test_alternating(a: uint64, b: uint64, n: uint64): uint64
+  {
+    return test_cases.gvn.scc_two_externals.alternating(a, b, n)
+  }
+  
+  baremethod test_cases.gvn.scc_two_externals.SccTwoExternalsContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine alternating(a: uint64, b: uint64, n: uint64): uint64
+{
+  x: uint64 = a
+  y: uint64 = b
+  s: uint64 = 0u
+  for i in range(0u, n, 1u) {
+    (x, y): tuple<uint64,uint64> = (y, x)
+    s += i
+  }
+  return x + y + s
+}
+
 contract Replace3ConstFoldContract
 {
   method_resolution_order: (
