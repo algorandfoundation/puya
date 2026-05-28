@@ -79,3 +79,7 @@ def _apply_stack_manipulations(
     defined = set[str]()
     apply_stack_manipulations(sm, stack, defined)
     return stack, defined
+
+
+def is_stack_swap(op: models.TealOp) -> bool:
+    return op.op_code == "swap" or (op.op_code in ("cover", "uncover") and op.immediates[0] == 1)
