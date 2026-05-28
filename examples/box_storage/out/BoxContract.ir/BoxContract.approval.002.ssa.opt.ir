@@ -979,12 +979,12 @@ subroutine examples.box_storage.contract.BoxContract.nested_write[routing]() -> 
         let value#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let box%offset%0#0: uint64 = 4098u
         let box%offset%1#0: uint64 = 4098u
-        (box_replace "box" 4098u tmp%2#0) // on error: index out of bounds
+        (box_replace "box" box%offset%1#0 tmp%2#0) // on error: index out of bounds
         let tmp%0#1: uint64 = (+ value#0 1u)
         let encoded_value%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
         let box%offset%2#0: uint64 = 4098u
         let box%offset%3#0: uint64 = 4110u
-        (box_replace "box" 4110u encoded_value%1#0) // on error: index out of bounds
+        (box_replace "box" box%offset%3#0 encoded_value%1#0) // on error: index out of bounds
         let tmp%1#1: uint64 = (+ value#0 2u)
         let encoded_value%2#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#1)
         let box%offset%4#0: uint64 = 4098u
@@ -1074,11 +1074,11 @@ subroutine examples.box_storage.contract.BoxContract.nested_read[routing]() -> v
         let i3#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let box%offset%0#0: uint64 = 4098u
         let box%offset%1#0: uint64 = 4098u
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "box" 4098u 8u) // on error: index out of bounds
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "box" box%offset%1#0 8u) // on error: index out of bounds
         let a#0: uint64 = decode_bytes<uint64>(box%box_extract%0#0)
         let box%offset%2#0: uint64 = 4098u
         let box%offset%3#0: uint64 = 4110u
-        let box%box_extract%1#0: Encoded(uint64) = (box_extract "box" 4110u 8u) // on error: index out of bounds
+        let box%box_extract%1#0: Encoded(uint64) = (box_extract "box" box%offset%3#0 8u) // on error: index out of bounds
         let b#0: uint64 = decode_bytes<uint64>(box%box_extract%1#0)
         let box%offset%4#0: uint64 = 4098u
         let box%offset%5#0: uint64 = 4118u

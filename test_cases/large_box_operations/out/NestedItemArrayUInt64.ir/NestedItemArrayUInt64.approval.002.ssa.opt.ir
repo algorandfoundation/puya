@@ -539,25 +539,25 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.app
         let box%offset%3#0: uint64 = 24u
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%0#0, box%mul%0#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%1#0, box%mul%0#0)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 24u, tmp%0#1, 1u, 17u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%3#0, tmp%0#1, 1u, 17u)
         exit 1u
 
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop[routing]() -> void:
     block@0: // L68
         let box%offset%2#0: uint64 = 6u
         let box%offset%3#0: uint64 = 24u
-        let box%box_extract%2#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%2#0: bytes = (box_extract "box" box%offset%3#0 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%2#0)
         let sub%0#0: uint64 = (- box%btoi%1#0 1u) // on error: cannot pop from empty array
         let box%offset%4#0: uint64 = 6u
         let box%offset%5#0: uint64 = 24u
-        let box%box_extract%3#0: bytes = box%box_extract%2#0
+        let box%box_extract%3#0: bytes = (box_extract "box" box%offset%5#0 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
         let box%index_ok%0#0: bool = (< sub%0#0 box%btoi%2#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%add%0#0: uint64 = 26u
         let box%element_offset%0#0: uint64 = (* sub%0#0 17u)
-        let box%offset%6#0: uint64 = (+ box%element_offset%0#0 26u)
+        let box%offset%6#0: uint64 = (+ box%add%0#0 box%element_offset%0#0)
         let box%box_extract%4#0: Encoded((uint64,bool1),uint64) = (box_extract "box" box%offset%6#0 17u) // on error: index out of bounds
         let box%add%1#0: uint64 = 2u
         let box%add%2#0: uint64 = 4u
@@ -565,7 +565,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop
         let box%offset%8#0: uint64 = 24u
         _puya_lib.box_arc4.box_update_offset_dec("box", box%add%1#0, 17u)
         _puya_lib.box_arc4.box_update_offset_dec("box", box%add%2#0, 17u)
-        _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", 24u, 17u)
+        _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%offset%8#0, 17u)
         let tmp%1#0: bytes = (concat 0x151f7c75 box%box_extract%4#0)
         (log tmp%1#0)
         exit 1u
@@ -579,25 +579,25 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let box%offset%2#0: uint64 = 6u
         let box%offset%3#0: uint64 = 24u
-        let box%box_extract%2#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%2#0: bytes = (box_extract "box" box%offset%3#0 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%2#0)
         let box%index_ok%0#0: bool = (< idx#0 box%btoi%1#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%5#0: uint64 = 6u
         let box%offset%6#0: uint64 = 24u
-        let box%box_extract%4#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%4#0: bytes = (box_extract "box" box%offset%6#0 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%4#0)
         let box%index_ok%1#0: bool = (< idx#0 box%btoi%2#0)
         (assert box%index_ok%1#0) // index out of bounds
         let box%offset%8#0: uint64 = 6u
         let box%offset%9#0: uint64 = 24u
-        let box%box_extract%6#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%6#0: bytes = (box_extract "box" box%offset%9#0 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%6#0)
         let box%index_ok%2#0: bool = (< idx#0 box%btoi%3#0)
         (assert box%index_ok%2#0) // index out of bounds
         let box%add%2#0: uint64 = 26u
         let box%element_offset%2#0: uint64 = (* idx#0 17u)
-        let box%offset%10#0: uint64 = (+ box%element_offset%2#0 26u)
+        let box%offset%10#0: uint64 = (+ box%add%2#0 box%element_offset%2#0)
         let box%box_extract%7#0: Encoded((uint64,bool1),uint64) = (box_extract "box" box%offset%10#0 17u) // on error: index out of bounds
         let tuple_item%3#0: Encoded(uint64) = extract_value(box%box_extract%7#0, 0, 0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tuple_item%3#0)
@@ -613,25 +613,25 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let box%offset%2#0: uint64 = 6u
         let box%offset%3#0: uint64 = 24u
-        let box%box_extract%2#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%2#0: bytes = (box_extract "box" box%offset%3#0 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%2#0)
         let box%index_ok%0#0: bool = (< idx#0 box%btoi%1#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%5#0: uint64 = 6u
         let box%offset%6#0: uint64 = 24u
-        let box%box_extract%4#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%4#0: bytes = (box_extract "box" box%offset%6#0 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%4#0)
         let box%index_ok%1#0: bool = (< idx#0 box%btoi%2#0)
         (assert box%index_ok%1#0) // index out of bounds
         let box%offset%8#0: uint64 = 6u
         let box%offset%9#0: uint64 = 24u
-        let box%box_extract%6#0: bytes = (box_extract "box" 24u 2u)
+        let box%box_extract%6#0: bytes = (box_extract "box" box%offset%9#0 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%6#0)
         let box%index_ok%2#0: bool = (< idx#0 box%btoi%3#0)
         (assert box%index_ok%2#0) // index out of bounds
         let box%add%2#0: uint64 = 26u
         let box%element_offset%2#0: uint64 = (* idx#0 17u)
-        let box%offset%10#0: uint64 = (+ box%element_offset%2#0 26u)
+        let box%offset%10#0: uint64 = (+ box%add%2#0 box%element_offset%2#0)
         let box%box_extract%7#0: Encoded((uint64,bool1),uint64) = (box_extract "box" box%offset%10#0 17u) // on error: index out of bounds
         let tuple_item%3#0: bool = extract_value(box%box_extract%7#0, 0, 1)
         let tmp%0#1: bool = decode_bytes<bool>(tuple_item%3#0)
