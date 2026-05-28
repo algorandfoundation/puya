@@ -654,15 +654,6 @@ def _make_try_simplify_triple_uint64_math_commutative(
             else:
                 other.append(arg)
         match other:
-            case []:
-                reduced = functools.reduce(reducer, constants)
-                if not valid_uint64(reduced):
-                    return None
-                return models.UInt64Constant(
-                    value=reduced,
-                    source_location=merged_loc,
-                    # TODO: types?
-                )
             case [reg]:
                 reduced = functools.reduce(reducer, constants)
                 if not valid_uint64(reduced):
@@ -701,14 +692,7 @@ def _make_try_simplify_triple_bytes_math_commutative(
                 constants.append(const_bigint)
             else:
                 other.append(arg)
-        # TODO: maybe consider overflow? we don't consider in binary simplification..
         match other:
-            case []:
-                return models.BigUIntConstant(
-                    value=functools.reduce(reducer, constants),
-                    source_location=merged_loc,
-                    # TODO: types?
-                )
             case [reg]:
                 new_big_const = models.BigUIntConstant(
                     value=functools.reduce(reducer, constants),
