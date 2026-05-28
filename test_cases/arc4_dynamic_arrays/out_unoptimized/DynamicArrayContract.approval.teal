@@ -657,7 +657,8 @@ get_uint1:
 get_uint1_block@0:
     // arc4_dynamic_arrays/contract.py:197
     // return arc4.UInt64(3)
-    pushbytes 0x0000000000000003
+    pushint 3
+    itob
     retsub
 
 
@@ -668,7 +669,8 @@ get_uint2:
 get_uint2_block@0:
     // arc4_dynamic_arrays/contract.py:202
     // return arc4.UInt64(2**42)
-    pushbytes 0x0000040000000000
+    pushint 4398046511104
+    itob
     retsub
 
 
@@ -679,7 +681,16 @@ get_byte1:
 get_byte1_block@0:
     // arc4_dynamic_arrays/contract.py:207
     // return arc4.Byte(4)
-    pushbytes 0x04
+    intc_3 // 4
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     retsub
 
 
@@ -690,7 +701,16 @@ get_byte2:
 get_byte2_block@0:
     // arc4_dynamic_arrays/contract.py:212
     // return arc4.Byte(5)
-    pushbytes 0x05
+    pushint 5
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     retsub
 
 
@@ -701,7 +721,16 @@ get_byte3:
 get_byte3_block@0:
     // arc4_dynamic_arrays/contract.py:217
     // return arc4.Byte(42)
-    pushbytes 0x2a
+    pushint 42
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     retsub
 
 
@@ -712,7 +741,16 @@ get_byte4:
 get_byte4_block@0:
     // arc4_dynamic_arrays/contract.py:222
     // return arc4.Byte(255)
-    pushbytes 0xff
+    pushint 255
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     retsub
 
 
@@ -723,14 +761,44 @@ get_u16_arr1:
 get_u16_arr1_block@0:
     // arc4_dynamic_arrays/contract.py:227
     // return arc4.DynamicArray(arc4.UInt16(2**16 - 1), arc4.UInt16(0), arc4.UInt16(42))
+    pushint 65535
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
+    pushint 42
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
     pushint 3
     itob
     extract 6 2
-    pushbytes 0xffff
+    uncover 3
     concat
-    pushbytes 0x0000
+    uncover 2
     concat
-    pushbytes 0x002a
+    uncover 1
     concat
     retsub
 
@@ -742,16 +810,56 @@ get_u16_arr2:
 get_u16_arr2_block@0:
     // arc4_dynamic_arrays/contract.py:232
     // return arc4.DynamicArray(arc4.UInt16(1), arc4.UInt16(2), arc4.UInt16(3), arc4.UInt16(4))
+    intc_2 // 1
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
+    intc_1 // 2
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
+    pushint 3
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
+    intc_3 // 4
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
     intc_3 // 4
     itob
     extract 6 2
-    pushbytes 0x0001
+    uncover 4
     concat
-    pushbytes 0x0002
+    uncover 3
     concat
-    pushbytes 0x0003
+    uncover 2
     concat
-    pushbytes 0x0004
+    uncover 1
     concat
     retsub
 
@@ -1901,8 +2009,18 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     // arc4_dynamic_arrays/contract.py:153
     // get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
     callsub get_u16_arr1
+    pushint 123
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_1 // 2
+    extract3
     bytec_0 // 0x
-    pushbytes 0x007b
+    uncover 1
     concat
     b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@1
 

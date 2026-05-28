@@ -282,9 +282,10 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
     block@9: // bool_merge_L33
         let and_result%0#2: bool = φ(and_result%0#0 <- block@7, and_result%0#1 <- block@8)
         (assert and_result%0#2) // Move must be in range
+        let tmp%6#0: Encoded(uint8) = bytes_encode<uint8>(1u)
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
-        let updated_array%0#0: Encoded(uint8[3][3]) = replace_value(maybe_value%0#0, move.1#0, move.0#0, 0x01)
+        let updated_array%0#0: Encoded(uint8[3][3]) = replace_value(maybe_value%0#0, move.1#0, move.0#0, tmp%6#0)
         (app_global_put "game" updated_array%0#0)
         (app_global_put "turns" 0u)
         exit 1u
@@ -301,16 +302,19 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -
         (assert tmp%0#1) // Host already has a challenger
         let tmp%1#1: account = (txn Sender)
         (app_global_put "challenger" tmp%1#1)
-        examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
+        let tmp%2#1: Encoded(uint8) = bytes_encode<uint8>(2u)
+        examples.tictactoe.tictactoe.TicTacToeContract.make_move(tmp%2#1, move.0#0, move.1#0)
         exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() -> void:
     block@0: // L43
+        let tmp%0#1: Encoded(uint8) = bytes_encode<uint8>(2u)
+        let tmp%1#1: Encoded(uint8) = bytes_encode<uint8>(1u)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%0#0) // check self.turns exists
-        let tmp%0#1: uint64 = (% maybe_value%0#0 2u)
-        let tmp%1#1: bool = (!= tmp%0#1 0u)
-        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%0#1)
+        let tmp%2#0: uint64 = (% maybe_value%0#0 2u)
+        let tmp%3#0: bool = (!= tmp%2#0 0u)
+        let select%0#0: Encoded(uint8) = (select tmp%0#1 tmp%1#1 tmp%2#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 select%0#0)
         (log tmp%1#0)
         exit 1u
@@ -336,16 +340,16 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> voi
         (assert maybe_exists%2#0) // check self.host exists
         let tmp%4#0: bool = (== tmp%3#0 maybe_value%1#0)
         (assert tmp%4#0) // It is the host's turn
-        let player#0: Encoded(uint8) = 0x01
+        let player#0: Encoded(uint8) = bytes_encode<uint8>(1u)
         goto block@4
     block@3: // else_body_L54
-        let tmp%5#0: account = (txn Sender)
-        let tmp%6#0: account = (global ZeroAddress)
+        let tmp%6#0: account = (txn Sender)
+        let tmp%7#0: account = (global ZeroAddress)
         let (maybe_value%2#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
-        let state_get%0#0: bytes = (select tmp%6#0 maybe_value%2#0 maybe_exists%3#0)
-        let tmp%7#0: bool = (== tmp%5#0 state_get%0#0)
-        (assert tmp%7#0) // It is the challenger's turn
-        let player#1: Encoded(uint8) = 0x02
+        let state_get%0#0: bytes = (select tmp%7#0 maybe_value%2#0 maybe_exists%3#0)
+        let tmp%8#0: bool = (== tmp%6#0 state_get%0#0)
+        (assert tmp%8#0) // It is the challenger's turn
+        let player#1: Encoded(uint8) = bytes_encode<uint8>(2u)
         goto block@4
     block@4: // after_if_else_L50
         let player#2: Encoded(uint8) = φ(player#0 <- block@2, player#1 <- block@3)
@@ -372,16 +376,17 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         (assert maybe_exists%0#0) // check self.game exists
         let array_item%0#0: Encoded(uint8[3]) = extract_value(maybe_value%0#0, move.1#0)
         let array_item%1#0: Encoded(uint8) = extract_value(maybe_value%0#0, move.1#0, move.0#0)
-        let tmp%2#0: bool = (b== array_item%1#0 0x00)
-        (assert tmp%2#0) // Square is already taken
+        let tmp%2#0: Encoded(uint8) = bytes_encode<uint8>(0u)
+        let tmp%3#0: bool = (b== array_item%1#0 tmp%2#0)
+        (assert tmp%3#0) // Square is already taken
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%1#0) // check self.game exists
         let updated_array%0#0: Encoded(uint8[3][3]) = replace_value(maybe_value%1#0, move.1#0, move.0#0, player#0)
         (app_global_put "game" updated_array%0#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
-        let tmp%3#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "turns" tmp%3#0)
+        let tmp%4#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "turns" tmp%4#0)
         let (g#0: Encoded(uint8[3][3]), maybe_exists%0#1: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#1) // check self.game exists
         let array_item%0#1: Encoded(uint8[3]) = extract_value(g#0, move.1#0)
@@ -422,15 +427,15 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
     block@18: // and_contd_L84
         let array_item%16#0: Encoded(uint8[3]) = extract_value(g#0, 2u)
         let array_item%17#0: Encoded(uint8) = extract_value(g#0, 2u, 2u)
-        let tmp%6#0: bool = (b== player#0 array_item%17#0)
-        goto tmp%6#0 ? block@19 : block@20
+        let tmp%6#1: bool = (b== player#0 array_item%17#0)
+        goto tmp%6#1 ? block@19 : block@20
     block@19: // if_body_L85
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2: bool = 1u
         goto block@25
     block@20: // after_if_else_L84
         let array_item%19#0: Encoded(uint8) = extract_value(g#0, 0u, 2u)
-        let tmp%7#0: bool = (b== array_item%19#0 player#0)
-        goto tmp%7#0 ? block@21 : block@24
+        let tmp%7#1: bool = (b== array_item%19#0 player#0)
+        goto tmp%7#1 ? block@21 : block@24
     block@21: // and_contd_L86
         let array_item%20#0: Encoded(uint8[3]) = extract_value(g#0, 2u)
         let array_item%21#0: Encoded(uint8) = extract_value(g#0, 2u, 0u)
@@ -443,18 +448,19 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#4: bool = 0u
         goto block@25
     block@25: // after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win_L63
-        let tmp%4#0: bool = φ(examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0 <- block@12, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1 <- block@15, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2 <- block@19, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#3 <- block@22, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#4 <- block@24)
-        goto tmp%4#0 ? block@5 : block@6
+        let tmp%5#0: bool = φ(examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0 <- block@12, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1 <- block@15, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2 <- block@19, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#3 <- block@22, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#4 <- block@24)
+        goto tmp%5#0 ? block@5 : block@6
     block@5: // if_body_L68
         (app_global_put "winner" player#0)
         goto block@9
     block@6: // else_body_L69
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%3#0) // check self.turns exists
-        let tmp%5#0: bool = (== maybe_value%3#0 9u)
-        goto tmp%5#0 ? block@7 : block@9
+        let tmp%6#0: bool = (== maybe_value%3#0 9u)
+        goto tmp%6#0 ? block@7 : block@9
     block@7: // if_body_L70
-        (app_global_put "winner" 0x03)
+        let tmp%7#0: Encoded(uint8) = bytes_encode<uint8>(3u)
+        (app_global_put "winner" tmp%7#0)
         goto block@9
     block@9: // after_if_else_L67
         return 

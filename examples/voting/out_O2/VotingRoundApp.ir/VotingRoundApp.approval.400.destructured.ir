@@ -88,16 +88,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let note#0: string = (concat note#0 ",")
         goto block@27
     block@27: // after_if_else_L133
-        let tmp%16#1: bool = (b> question_options#0 0x00)
-        goto tmp%16#1 ? block@28 : block@34
+        let tmp%17#0: bool = (b> question_options#0 0x00)
+        goto tmp%17#0 ? block@28 : block@34
     block@28: // if_body_L136
         let note#0: string = (concat note#0 "[")
-        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
+        let tmp%19#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let value_internal%0#0: uint64 = 0u
         let option_index#0: uint64 = value_internal%0#0
         goto block@29
     block@29: // for_header_L137
-        let continue_looping%1#0: bool = (< option_index#0 tmp%18#0)
+        let continue_looping%1#0: bool = (< option_index#0 tmp%19#0)
         goto continue_looping%1#0 ? block@30 : block@33
     block@30: // for_body_L138
         goto option_index#0 ? block@31 : block@32
@@ -107,8 +107,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@32: // after_if_else_L138
         let tmp%0#2: bytes = (box_extract "V" current_index#0 8u)
         let votes_for_option#0: uint64 = (btoi tmp%0#2)
-        let tmp%22#0: string = examples.voting.voting.itoa(votes_for_option#0)
-        let note#0: string = (concat note#0 tmp%22#0)
+        let tmp%23#1: string = examples.voting.voting.itoa(votes_for_option#0)
+        let note#0: string = (concat note#0 tmp%23#1)
         let current_index#0: uint64 = (+ current_index#0 1u)
         let value_internal%0#0: uint64 = (+ option_index#0 1u)
         let option_index#0: uint64 = value_internal%0#0
@@ -139,8 +139,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
-        let tmp%27#0: uint64 = (itxn CreatedAssetID)
-        (app_global_put "nft_asset_id" tmp%27#0)
+        let tmp%28#0: uint64 = (itxn CreatedAssetID)
+        (app_global_put "nft_asset_id" tmp%28#0)
         exit 1u
     block@7: // get_preconditions_route_L160
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
@@ -151,17 +151,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let signature#0: bytes = ((extract 2 0) tmp%0#2)
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%0#0)
         let tmp%2#2: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#2)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%2#2)
         let materialized_values%0#0: account = (txn Sender)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob maybe_exists%0#0)
         let tmp%6#2: uint64 = (global LatestTimestamp)
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#2)
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%6#2)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%1#0 aggregate%val_as_bytes%2#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%3#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%4#0)
         let tmp%3#3: bytes = (concat 0x151f7c75 aggregate%head%3#0)
         (log tmp%3#3)
         exit 1u

@@ -3,41 +3,78 @@
 
 // test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program() -> uint64:
 main:
-    bytecblock 0x0000000000000000 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x 0x00
+    intcblock 0 64 1 8
+    bytecblock 0x
     b main_block@0
 
 main_block@0:
     // arc4_types/numeric.py:127
     // assert BigUInt.from_bytes(Decimal().bytes) == 0
-    bytec_0 // 0x0000000000000000
-    bytec_2 // 0x
+    pushbytes 0x0000000000000000
+    bytec_0 // 0x
     b==
     assert
     // arc4_types/numeric.py:128
     // assert BigUInt.from_bytes(BigUFixedNxM[t.Literal[512], t.Literal[5]]().bytes) == 0
-    bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    bytec_2 // 0x
+    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    bytec_0 // 0x
     b==
     assert
     // arc4_types/numeric.py:129
     // assert Byte() == 0
-    bytec_3 // 0x00
-    bytec_3 // 0x00
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     b==
     assert
     // arc4_types/numeric.py:130
     // assert ARC4UInt64() == 0
-    bytec_0 // 0x0000000000000000
-    bytec_0 // 0x0000000000000000
+    intc_0 // 0
+    itob
+    intc_0 // 0
+    itob
     b==
     assert
     // arc4_types/numeric.py:131
     // assert UInt512() == 0
-    bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    bytec_0 // 0x
+    len
+    intc_1 // 64
+    <=
+    assert // overflow
+    intc_1 // 64
+    bzero
+    bytec_0 // 0x
+    b|
+    bytec_0 // 0x
+    len
+    intc_1 // 64
+    <=
+    assert // overflow
+    intc_1 // 64
+    bzero
+    bytec_0 // 0x
+    b|
     b==
     assert
     // arc4_types/numeric.py:133
     // return True
-    pushint 1
+    intc_2 // 1
     return

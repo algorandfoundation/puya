@@ -190,16 +190,20 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
 
 subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
     block@0: // L5
-        let a#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x00)
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(0u)
+        let a#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0)
         let a#1: Encoded(len+uint8[]) = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a#0, 1u)
-        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x00, 0x01)
-        let tmp%0#0: bool = (== a#1 encoded_array%1#0)
-        (assert tmp%0#0)
-        let a#2: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01)
+        let tmp%2#0: Encoded(uint8) = bytes_encode<uint8>(1u)
+        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0, tmp%2#0)
+        let tmp%3#0: bool = (== a#1 encoded_array%1#0)
+        (assert tmp%3#0)
+        let a#2: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0)
         let a#3: Encoded(len+uint8[]) = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a#2, 0u)
-        let encoded_array%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x2a, 0x04)
-        let tmp%1#0: bool = (== a#3 encoded_array%3#0)
-        (assert tmp%1#0)
+        let tmp%6#0: Encoded(uint8) = bytes_encode<uint8>(42u)
+        let tmp%7#0: Encoded(uint8) = bytes_encode<uint8>(4u)
+        let encoded_array%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0, tmp%6#0, tmp%7#0)
+        let tmp%8#0: bool = (== a#3 encoded_array%3#0)
+        (assert tmp%8#0)
         exit 1u
 
 subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: Encoded(len+uint8[]), assign_local: bool) -> Encoded(len+uint8[]):
@@ -207,21 +211,26 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let a%is_original#0: bool = 1u
         goto assign_local#0 ? block@1 : block@10
     block@1: // if_body_L18
-        let tmp%0#0: Encoded(uint8[]) = bytes_encode<uint8[]>(0x01)
-        let a#1: Encoded(len+uint8[]) = array_concat(a#0, tmp%0#0, 1u)
-        let a#5: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x02, 0x04)
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(1u)
+        let tmp%1#0: Encoded(uint8[]) = bytes_encode<uint8[]>(tmp%0#0)
+        let a#1: Encoded(len+uint8[]) = array_concat(a#0, tmp%1#0, 1u)
+        let tmp%4#0: Encoded(uint8) = bytes_encode<uint8>(2u)
+        let tmp%6#0: Encoded(uint8) = bytes_encode<uint8>(4u)
+        let a#5: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0, tmp%4#0, tmp%6#0)
         let a%is_original#3: bool = 0u
         goto block@13
     block@10: // else_body_L23
-        let tmp%4#0: Encoded(uint8[]) = bytes_encode<uint8[]>(0x2a)
-        let a#6: Encoded(len+uint8[]) = array_concat(a#0, tmp%4#0, 1u)
+        let tmp%12#0: Encoded(uint8) = bytes_encode<uint8>(42u)
+        let tmp%13#0: Encoded(uint8[]) = bytes_encode<uint8[]>(tmp%12#0)
+        let a#6: Encoded(len+uint8[]) = array_concat(a#0, tmp%13#0, 1u)
         goto block@13
     block@13: // after_if_else_L17
         let a#7: Encoded(len+uint8[]) = φ(a#5 <- block@1, a#6 <- block@10)
         let a%is_original#4: bool = φ(a%is_original#3 <- block@1, a%is_original#0 <- block@10)
         let a%out#8: Encoded(len+uint8[]) = φ(a#1 <- block@1, a#6 <- block@10)
-        let tmp%6#0: Encoded(uint8[]) = bytes_encode<uint8[]>(0x04)
-        let a#10: Encoded(len+uint8[]) = array_concat(a#7, tmp%6#0, 1u)
+        let tmp%15#0: Encoded(uint8) = bytes_encode<uint8>(4u)
+        let tmp%16#0: Encoded(uint8[]) = bytes_encode<uint8[]>(tmp%15#0)
+        let a#10: Encoded(len+uint8[]) = array_concat(a#7, tmp%16#0, 1u)
         goto a%is_original#4 ? block@14 : block@15
     block@14: // if_body_L1
         goto block@15

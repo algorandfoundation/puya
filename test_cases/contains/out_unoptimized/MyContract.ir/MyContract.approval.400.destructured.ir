@@ -32,7 +32,10 @@ subroutine test_cases.contains.contract.one_u64() -> uint64:
 
 subroutine test_cases.contains.contract.one_arc4u64() -> Encoded(uint64):
     block@0: // L142
-        return 0x0000000000000001
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.two_u64() -> uint64:
     block@0: // L147
@@ -40,11 +43,25 @@ subroutine test_cases.contains.contract.two_u64() -> uint64:
 
 subroutine test_cases.contains.contract.two_u8() -> Encoded(uint8):
     block@0: // L152
-        return 0x02
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
+        let aggregate%bitlen%0#0: uint64 = (bitlen aggregate%val_as_bytes%0#0)
+        let aggregate%no_overflow%0#0: bool = (<= aggregate%bitlen%0#0 8u)
+        (assert aggregate%no_overflow%0#0) // overflow
+        let aggregate%uint8%0#0: bytes = (extract3 aggregate%val_as_bytes%0#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
+        let tmp%0#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.three_u512() -> Encoded(uint512):
     block@0: // L157
-        return 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+        let aggregate%value_len%0#0: uint64 = (len 3b)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 3b aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.four_biguint() -> biguint:
     block@0: // L162
@@ -791,13 +808,27 @@ subroutine test_cases.contains.contract.MyContract.test_numeric_types() -> void:
         let tmp%146#0: bool = (b== awst_tmp%24#0 tmp%145#0)
         let tmp%147#0: bool = (! tmp%146#0)
         (assert tmp%147#0) // 3 not in (5, foo)
-        let tmp%148#0: biguint = (itob 64u)
-        let tmp%149#0: bool = (b== 0x41 tmp%148#0)
-        goto tmp%149#0 ? block@104 : block@103
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 65u)
+        let aggregate%bitlen%0#0: uint64 = (bitlen aggregate%val_as_bytes%0#0)
+        let aggregate%no_overflow%0#0: bool = (<= aggregate%bitlen%0#0 8u)
+        (assert aggregate%no_overflow%0#0) // overflow
+        let aggregate%uint8%0#0: bytes = (extract3 aggregate%val_as_bytes%0#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
+        let tmp%148#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        let tmp%149#0: biguint = (itob 64u)
+        let tmp%150#0: bool = (b== tmp%148#0 tmp%149#0)
+        goto tmp%150#0 ? block@104 : block@103
     block@103: // or_contd_L130
-        let tmp%150#0: biguint = (itob 66u)
-        let tmp%151#0: bool = (b== 0x41 tmp%150#0)
-        goto tmp%151#0 ? block@104 : block@105
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 65u)
+        let aggregate%bitlen%1#0: uint64 = (bitlen aggregate%val_as_bytes%1#0)
+        let aggregate%no_overflow%1#0: bool = (<= aggregate%bitlen%1#0 8u)
+        (assert aggregate%no_overflow%1#0) // overflow
+        let aggregate%uint8%1#0: bytes = (extract3 aggregate%val_as_bytes%1#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
+        let tmp%151#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
+        let tmp%152#0: biguint = (itob 66u)
+        let tmp%153#0: bool = (b== tmp%151#0 tmp%152#0)
+        goto tmp%153#0 ? block@104 : block@105
     block@104: // bool_true_L130
         let or_result%24#0: bool = 1u
         goto block@106
@@ -805,6 +836,6 @@ subroutine test_cases.contains.contract.MyContract.test_numeric_types() -> void:
         let or_result%24#0: bool = 0u
         goto block@106
     block@106: // bool_merge_L130
-        let tmp%152#0: bool = (! or_result%24#0)
-        (assert tmp%152#0) // 65 not in (b'A', 64, 66)
+        let tmp%154#0: bool = (! or_result%24#0)
+        (assert tmp%154#0) // 65 not in (b'A', 64, 66)
         return 

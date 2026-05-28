@@ -4,14 +4,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
         (app_global_put "tup" 0x000a000000000000000000010000000000000000)
-        let aggregate%val_as_bytes%1#0: bytes[8] = 0x0000000000000000
+        let aggregate%val_as_bytes%2#0: bytes[8] = 0x0000000000000000
         let aggregate%head%4#0: bytes = 0x000a0000000000000000
         let aggregate%concat%1#0: bytes = 0x000a000000000000000000010000000000000000
         (app_global_put "glob" 0x000a000000000000000000010000000000000000)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
-        let aggregate%val_as_bytes%2#0: bytes[8] = ((extract 2 8) maybe_value%1#0)
-        let aggregate%head%6#0: bytes = (concat 0x000a aggregate%val_as_bytes%2#0)
+        let aggregate%val_as_bytes%3#0: bytes[8] = ((extract 2 8) maybe_value%1#0)
+        let aggregate%head%6#0: bytes = (concat 0x000a aggregate%val_as_bytes%3#0)
         let aggregate%concat%2#0: bytes = (concat aggregate%head%6#0 0x00010000000000000000)
         (app_global_put "tup" aggregate%concat%2#0)
         goto block@2
@@ -64,13 +64,13 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[
     block@0: // L23
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
-        let aggregate%val_as_bytes%0#0: bytes[8] = ((extract 2 8) maybe_value%0#0)
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%val_as_bytes%0#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = ((extract 2 8) maybe_value%0#0)
+        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%val_as_bytes%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 0x00010000000000000000)
         (box_del "box")
         (box_put "box" aggregate%concat%0#0)
-        let tmp%0#0: account = (txn Sender)
-        (app_local_put tmp%0#0 "loc" aggregate%concat%0#0)
+        let tmp%2#0: account = (txn Sender)
+        (app_local_put tmp%2#0 "loc" aggregate%concat%0#0)
         exit 1u
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]() -> void:

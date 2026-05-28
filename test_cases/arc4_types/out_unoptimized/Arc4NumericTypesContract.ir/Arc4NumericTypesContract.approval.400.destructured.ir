@@ -47,111 +47,194 @@ main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
         let tmp%16#0: uint64 = (btoi tmp%15#0)
         let tmp%17#0: bool = (== tmp%16#0 9223372036854775807u)
         (assert tmp%17#0)
-        let tmp%18#0: uint64 = (txn NumAppArgs)
-        let tmp%19#0: bool = (!= tmp%18#0 0u)
-        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%19#0)
-        let tmp%20#0: bool = (b== select%0#0 0x02)
-        (assert tmp%20#0)
-        let tmp%21#0: uint64 = (txn NumAppArgs)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        let select%1#0: Encoded(uint512) = (select 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 tmp%22#0)
-        let tmp%23#0: bool = (b== select%1#0 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%bitlen%1#0: uint64 = (bitlen aggregate%val_as_bytes%1#0)
+        let aggregate%no_overflow%1#0: bool = (<= aggregate%bitlen%1#0 8u)
+        (assert aggregate%no_overflow%1#0) // overflow
+        let aggregate%uint8%1#0: bytes = (extract3 aggregate%val_as_bytes%1#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
+        let tmp%18#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
+        let aggregate%bitlen%2#0: uint64 = (bitlen aggregate%val_as_bytes%2#0)
+        let aggregate%no_overflow%2#0: bool = (<= aggregate%bitlen%2#0 8u)
+        (assert aggregate%no_overflow%2#0) // overflow
+        let aggregate%uint8%2#0: bytes = (extract3 aggregate%val_as_bytes%2#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = aggregate%uint8%2#0
+        let tmp%19#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%2#0
+        let tmp%20#0: uint64 = (txn NumAppArgs)
+        let tmp%21#0: bool = (!= tmp%20#0 0u)
+        let select%0#0: Encoded(uint8) = (select tmp%18#0 tmp%19#0 tmp%21#0)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 2u)
+        let aggregate%bitlen%3#0: uint64 = (bitlen aggregate%val_as_bytes%3#0)
+        let aggregate%no_overflow%3#0: bool = (<= aggregate%bitlen%3#0 8u)
+        (assert aggregate%no_overflow%3#0) // overflow
+        let aggregate%uint8%3#0: bytes = (extract3 aggregate%val_as_bytes%3#0 7u 1u)
+        let aggregate%as_Encoded(uint8)%3#0: Encoded(uint8) = aggregate%uint8%3#0
+        let tmp%22#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%3#0
+        let tmp%23#0: bool = (b== select%0#0 tmp%22#0)
         (assert tmp%23#0)
-        let tmp%24#0: uint64 = (txn NumAppArgs)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%24#0)
-        let aggregate%bzero%0#0: bytes = (bzero 64u)
-        let aggregate%arc4_encoded%0#0: bytes[64] = (b| aggregate%val_as_bytes%1#0 aggregate%bzero%0#0)
-        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
-        let tmp%25#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
-        let tmp%26#0: bool = (b== tmp%25#0 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
-        (assert tmp%26#0)
-        let tmp%27#0: bytes = (itob 1456853943940u)
-        let tmp%28#0: bool = (== 0x0000015333430684 tmp%27#0)
-        (assert tmp%28#0)
-        let tmp%29#0: bytes = (itob 1450000000000u)
-        let tmp%30#0: bool = (== 0x000001519abc2400 tmp%29#0)
-        (assert tmp%30#0)
-        let tmp%31#0: uint64 = (len 0x000009184e72a000)
-        let tmp%32#0: bool = (== tmp%31#0 8u)
-        (assert tmp%32#0)
-        let tmp%33#0: bytes = (itob 10000000000000u)
-        let tmp%34#0: bool = (== 0x000009184e72a000 tmp%33#0)
-        (assert tmp%34#0)
-        let tmp%35#0: bytes = (itob 10000000000u)
-        let tmp%36#0: bool = (== 0x00000002540be400 tmp%35#0)
-        (assert tmp%36#0)
-        let tmp%37#0: bytes = (itob 0u)
-        let tmp%38#0: bool = (== 0x0000000000000000 tmp%37#0)
-        (assert tmp%38#0)
-        let tmp%39#0: bytes = (itob 100u)
-        let tmp%40#0: bool = (== 0x0000000000000064 tmp%39#0)
-        (assert tmp%40#0)
-        let tmp%41#0: bytes = (itob 10u)
-        let tmp%42#0: bool = (== 0x000000000000000a tmp%41#0)
-        (assert tmp%42#0)
-        let tmp%43#0: bytes = (itob 1u)
-        let tmp%44#0: bool = (== 0x0000000000000001 tmp%43#0)
-        (assert tmp%44#0)
-        let tmp%45#0: bytes = (itob 18446744073709551615u)
-        let tmp%46#0: bool = (== 0xffffffffffffffff tmp%45#0)
-        (assert tmp%46#0)
-        let tmp%47#0: bool = (b== 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-        (assert tmp%47#0)
-        let tmp%48#0: uint64 = (txn NumAppArgs)
-        let tmp%49#0: bool = (!= tmp%48#0 0u)
-        let select%2#0: Encoded(uint64) = (select 0x0000000000000000 0xffffffffffffffff tmp%49#0)
-        let tmp%50#0: bool = (== select%2#0 0x0000000000000000)
-        (assert tmp%50#0)
-        let tmp%51#0: biguint = (b+ 1b 1b)
-        let aggregate%value_len%0#0: uint64 = (len tmp%51#0)
+        let aggregate%value_len%0#0: uint64 = (len 2b)
         let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
         (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 2b aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
+        let tmp%24#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
+        let aggregate%value_len%1#0: uint64 = (len 1b)
+        let aggregate%len_ok%1#0: bool = (<= aggregate%value_len%1#0 64u)
+        (assert aggregate%len_ok%1#0) // overflow
         let aggregate%bzero%1#0: bytes = (bzero 64u)
-        let aggregate%arc4_encoded%1#0: bytes[64] = (b| tmp%51#0 aggregate%bzero%1#0)
+        let aggregate%arc4_encoded%1#0: bytes[64] = (b| 1b aggregate%bzero%1#0)
         let aggregate%as_Encoded(uint512)%1#0: Encoded(uint512) = aggregate%arc4_encoded%1#0
-        let tmp%52#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%1#0
-        let arc4_biguint_dynamic#0: Encoded(uint512) = tmp%52#0
-        let tmp%54#0: bool = (b== 1b 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
-        (assert tmp%54#0)
-        let aggregate%bitlen%1#0: uint64 = (bitlen 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
-        let aggregate%lte%0#0: bool = (<= aggregate%bitlen%1#0 64u)
+        let tmp%25#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%1#0
+        let tmp%26#0: uint64 = (txn NumAppArgs)
+        let tmp%27#0: bool = (!= tmp%26#0 0u)
+        let select%1#0: Encoded(uint512) = (select tmp%24#0 tmp%25#0 tmp%27#0)
+        let aggregate%value_len%2#0: uint64 = (len 2b)
+        let aggregate%len_ok%2#0: bool = (<= aggregate%value_len%2#0 64u)
+        (assert aggregate%len_ok%2#0) // overflow
+        let aggregate%bzero%2#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%2#0: bytes[64] = (b| 2b aggregate%bzero%2#0)
+        let aggregate%as_Encoded(uint512)%2#0: Encoded(uint512) = aggregate%arc4_encoded%2#0
+        let tmp%28#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%2#0
+        let tmp%29#0: bool = (b== select%1#0 tmp%28#0)
+        (assert tmp%29#0)
+        let tmp%30#0: uint64 = (txn NumAppArgs)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%30#0)
+        let aggregate%bzero%3#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%3#0: bytes[64] = (b| aggregate%val_as_bytes%4#0 aggregate%bzero%3#0)
+        let aggregate%as_Encoded(uint512)%3#0: Encoded(uint512) = aggregate%arc4_encoded%3#0
+        let tmp%31#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%3#0
+        let aggregate%value_len%3#0: uint64 = (len 0b)
+        let aggregate%len_ok%3#0: bool = (<= aggregate%value_len%3#0 64u)
+        (assert aggregate%len_ok%3#0) // overflow
+        let aggregate%bzero%4#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%4#0: bytes[64] = (b| 0b aggregate%bzero%4#0)
+        let aggregate%as_Encoded(uint512)%4#0: Encoded(uint512) = aggregate%arc4_encoded%4#0
+        let tmp%32#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%4#0
+        let tmp%33#0: bool = (b== tmp%31#0 tmp%32#0)
+        (assert tmp%33#0)
+        let tmp%34#0: bytes = (itob 1456853943940u)
+        let tmp%35#0: bool = (== 0x0000015333430684 tmp%34#0)
+        (assert tmp%35#0)
+        let tmp%36#0: bytes = (itob 1450000000000u)
+        let tmp%37#0: bool = (== 0x000001519abc2400 tmp%36#0)
+        (assert tmp%37#0)
+        let tmp%38#0: uint64 = (len 0x000009184e72a000)
+        let tmp%39#0: bool = (== tmp%38#0 8u)
+        (assert tmp%39#0)
+        let tmp%40#0: bytes = (itob 10000000000000u)
+        let tmp%41#0: bool = (== 0x000009184e72a000 tmp%40#0)
+        (assert tmp%41#0)
+        let tmp%42#0: bytes = (itob 10000000000u)
+        let tmp%43#0: bool = (== 0x00000002540be400 tmp%42#0)
+        (assert tmp%43#0)
+        let tmp%44#0: bytes = (itob 0u)
+        let tmp%45#0: bool = (== 0x0000000000000000 tmp%44#0)
+        (assert tmp%45#0)
+        let tmp%46#0: bytes = (itob 100u)
+        let tmp%47#0: bool = (== 0x0000000000000064 tmp%46#0)
+        (assert tmp%47#0)
+        let tmp%48#0: bytes = (itob 10u)
+        let tmp%49#0: bool = (== 0x000000000000000a tmp%48#0)
+        (assert tmp%49#0)
+        let tmp%50#0: bytes = (itob 1u)
+        let tmp%51#0: bool = (== 0x0000000000000001 tmp%50#0)
+        (assert tmp%51#0)
+        let tmp%52#0: bytes = (itob 18446744073709551615u)
+        let tmp%53#0: bool = (== 0xffffffffffffffff tmp%52#0)
+        (assert tmp%53#0)
+        let aggregate%value_len%4#0: uint64 = (len 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        let aggregate%len_ok%4#0: bool = (<= aggregate%value_len%4#0 64u)
+        (assert aggregate%len_ok%4#0) // overflow
+        let aggregate%bzero%5#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%5#0: bytes[64] = (b| 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b aggregate%bzero%5#0)
+        let aggregate%as_Encoded(uint512)%5#0: Encoded(uint512) = aggregate%arc4_encoded%5#0
+        let tmp%54#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%5#0
+        let really_big_int#0: Encoded(uint512) = tmp%54#0
+        let tmp%55#0: bool = (b== really_big_int#0 really_big_int#0)
+        (assert tmp%55#0)
+        let tmp%56#0: uint64 = (txn NumAppArgs)
+        let tmp%57#0: bool = (!= tmp%56#0 0u)
+        let select%2#0: Encoded(uint64) = (select 0x0000000000000000 0xffffffffffffffff tmp%57#0)
+        let tmp%58#0: bool = (== select%2#0 0x0000000000000000)
+        (assert tmp%58#0)
+        let aggregate%value_len%5#0: uint64 = (len 1b)
+        let aggregate%len_ok%5#0: bool = (<= aggregate%value_len%5#0 64u)
+        (assert aggregate%len_ok%5#0) // overflow
+        let aggregate%bzero%6#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%6#0: bytes[64] = (b| 1b aggregate%bzero%6#0)
+        let aggregate%as_Encoded(uint512)%6#0: Encoded(uint512) = aggregate%arc4_encoded%6#0
+        let tmp%59#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%6#0
+        let arc4_biguint_const#0: Encoded(uint512) = tmp%59#0
+        let tmp%60#0: biguint = (b+ 1b 1b)
+        let aggregate%value_len%6#0: uint64 = (len tmp%60#0)
+        let aggregate%len_ok%6#0: bool = (<= aggregate%value_len%6#0 64u)
+        (assert aggregate%len_ok%6#0) // overflow
+        let aggregate%bzero%7#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%7#0: bytes[64] = (b| tmp%60#0 aggregate%bzero%7#0)
+        let aggregate%as_Encoded(uint512)%7#0: Encoded(uint512) = aggregate%arc4_encoded%7#0
+        let tmp%61#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%7#0
+        let arc4_biguint_dynamic#0: Encoded(uint512) = tmp%61#0
+        let tmp%62#0: biguint = arc4_biguint_const#0
+        let tmp%63#0: bool = (b== 1b tmp%62#0)
+        (assert tmp%63#0)
+        let aggregate%bitlen%4#0: uint64 = (bitlen arc4_biguint_const#0)
+        let aggregate%lte%0#0: bool = (<= aggregate%bitlen%4#0 64u)
         (assert aggregate%lte%0#0) // overflow
-        let aggregate%len%0#0: uint64 = (len 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001)
+        let aggregate%len%0#0: uint64 = (len arc4_biguint_const#0)
         let aggregate%sub%0#0: uint64 = (- aggregate%len%0#0 8u)
-        let aggregate%extract_uint64%0#0: uint64 = (extract_uint64 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 aggregate%sub%0#0)
-        let tmp%55#0: uint64 = aggregate%extract_uint64%0#0
-        let tmp%56#0: biguint = (itob tmp%55#0)
-        let tmp%57#0: bool = (b== 1b tmp%56#0)
-        (assert tmp%57#0)
-        let tmp%58#0: uint64 = (len arc4_biguint_dynamic#0)
-        let tmp%59#0: bool = (== tmp%58#0 64u)
-        (assert tmp%59#0)
-        let tmp%60#0: uint64 = (len 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
-        let tmp%61#0: bool = (== tmp%60#0 64u)
-        (assert tmp%61#0)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob ClearState)
-        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
-        let tmp%62#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
-        let aggregate%head%0#0: bytes = (concat 0x tmp%62#0)
+        let aggregate%extract_uint64%0#0: uint64 = (extract_uint64 arc4_biguint_const#0 aggregate%sub%0#0)
+        let tmp%64#0: uint64 = aggregate%extract_uint64%0#0
+        let tmp%65#0: biguint = (itob tmp%64#0)
+        let tmp%66#0: bool = (b== 1b tmp%65#0)
+        (assert tmp%66#0)
+        let tmp%67#0: uint64 = (len arc4_biguint_dynamic#0)
+        let tmp%68#0: bool = (== tmp%67#0 64u)
+        (assert tmp%68#0)
+        let tmp%69#0: uint64 = (len 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        let tmp%70#0: bool = (== tmp%69#0 64u)
+        (assert tmp%70#0)
+        let aggregate%val_as_bytes%5#0: bytes[8] = (itob ClearState)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%5#0
+        let tmp%71#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let aggregate%head%0#0: bytes = (concat 0x tmp%71#0)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%head%0#0
-        let tmp%63#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
-        let tup#0: Encoded(uint64) = tmp%63#0
+        let tmp%72#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
+        let tup#0: Encoded(uint64) = tmp%72#0
         let aggregate%extract%0#0: bytes = (extract3 tup#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
-        let tmp%64#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%65#0: bool = (== tmp%64#0 ClearState)
-        (assert tmp%65#0)
-        let tmp%67#0: bool = (b== 0x00000001 1b)
-        (assert tmp%67#0)
-        let tmp%68#0: uint64 = (btoi int8_encoded#0)
-        let tmp%69#0: bool = (== tmp%68#0 255u)
-        (assert tmp%69#0)
-        let tmp%70#0: biguint = int8_encoded#0
-        let tmp%71#0: bool = (b== tmp%70#0 255b)
-        (assert tmp%71#0)
-        let tmp%73#0: bool = (b== 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff 18446744073709551615b)
-        (assert tmp%73#0)
-        let tmp%74#0: biguint = (itob 18446744073709551615u)
-        let tmp%75#0: bool = (b== 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff tmp%74#0)
-        (assert tmp%75#0)
+        let tmp%73#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%74#0: bool = (== tmp%73#0 ClearState)
+        (assert tmp%74#0)
+        let aggregate%val_as_bytes%6#0: bytes[8] = (itob 1u)
+        let aggregate%bitlen%5#0: uint64 = (bitlen aggregate%val_as_bytes%6#0)
+        let aggregate%no_overflow%4#0: bool = (<= aggregate%bitlen%5#0 32u)
+        (assert aggregate%no_overflow%4#0) // overflow
+        let aggregate%uint32%0#0: bytes = (extract3 aggregate%val_as_bytes%6#0 4u 4u)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%uint32%0#0
+        let tmp%75#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
+        let tmp%76#0: biguint = tmp%75#0
+        let tmp%77#0: bool = (b== tmp%76#0 1b)
+        (assert tmp%77#0)
+        let tmp%78#0: uint64 = (btoi int8_encoded#0)
+        let tmp%79#0: bool = (== tmp%78#0 255u)
+        (assert tmp%79#0)
+        let tmp%80#0: biguint = int8_encoded#0
+        let tmp%81#0: bool = (b== tmp%80#0 255b)
+        (assert tmp%81#0)
+        let aggregate%value_len%7#0: uint64 = (len 18446744073709551615b)
+        let aggregate%len_ok%7#0: bool = (<= aggregate%value_len%7#0 64u)
+        (assert aggregate%len_ok%7#0) // overflow
+        let aggregate%bzero%8#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%8#0: bytes[64] = (b| 18446744073709551615b aggregate%bzero%8#0)
+        let aggregate%as_Encoded(uint512)%8#0: Encoded(uint512) = aggregate%arc4_encoded%8#0
+        let tmp%82#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%8#0
+        let uint64_encoded_as_biguint#0: Encoded(uint512) = tmp%82#0
+        let tmp%83#0: biguint = uint64_encoded_as_biguint#0
+        let tmp%84#0: bool = (b== tmp%83#0 18446744073709551615b)
+        (assert tmp%84#0)
+        let tmp%85#0: biguint = (itob 18446744073709551615u)
+        let tmp%86#0: bool = (b== uint64_encoded_as_biguint#0 tmp%85#0)
+        (assert tmp%86#0)
         return 1u

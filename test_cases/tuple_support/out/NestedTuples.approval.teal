@@ -3,14 +3,14 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 1 0 2 8
     bytecblock 0x151f7c75 "box" "twm" "build_nested_call_count" "pwl" 0x0004
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/nested_tuples.py:50
     // self.build_nested_call_count = UInt64(0)
     bytec_3 // "build_nested_call_count"
-    intc_0 // 0
+    intc_1 // 0
     app_global_put
     // tuple_support/nested_tuples.py:52
     // self.twm = TupleWithMutable(
@@ -104,14 +104,14 @@ test_nested_singles:
     proto 2 0
     // tuple_support/nested_tuples.py:250
     // (UInt64(0),),
-    intc_0 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:252
     // (UInt64(2),),
     intc_2 // 2
     // tuple_support/nested_tuples.py:256
     // assert s[1][0] == 1
     frame_dig -2
-    intc_1 // 1
+    intc_0 // 1
     ==
     assert
     // tuple_support/nested_tuples.py:261
@@ -150,7 +150,7 @@ test_nested_singles_after_if_else@2:
     assert
     // tuple_support/nested_tuples.py:275
     // assert s[1][0] == (4 if reassign else 1)
-    intc_1 // 1
+    intc_0 // 1
     pushint 4
     frame_dig -1
     select
@@ -193,7 +193,7 @@ store_tuple:
     dup
     uncover 2
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4
@@ -227,7 +227,7 @@ store_tuple:
     swap
     dig 2
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14
     +
@@ -242,7 +242,7 @@ store_tuple:
     swap
     uncover 3
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
@@ -261,7 +261,7 @@ store_tuple:
     uncover 2
     substring3
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     dup
     cover 2
@@ -269,7 +269,7 @@ store_tuple:
     *
     swap
     extract 2 0
-    intc_0 // 0
+    intc_1 // 0
 
 store_tuple_for_header@1:
     // tuple_support/nested_tuples.py:61
@@ -307,7 +307,7 @@ store_tuple_for_header@1:
     swap
     dig 2
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14
     +
@@ -322,14 +322,14 @@ store_tuple_for_header@1:
     swap
     uncover 3
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
     +
     +
     bury 4
-    intc_1 // 1
+    intc_0 // 1
     +
     bury 1
     b store_tuple_for_header@1
@@ -352,7 +352,7 @@ store_tuple_after_for@4:
     app_global_put
     // tuple_support/nested_tuples.py:61
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -360,7 +360,7 @@ store_tuple_after_for@4:
 load_tuple:
     // tuple_support/nested_tuples.py:67
     // return self.pwl
-    intc_0 // 0
+    intc_1 // 0
     bytec 4 // "pwl"
     app_global_get_ex
     assert // check self.pwl exists
@@ -370,7 +370,7 @@ load_tuple:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -389,7 +389,7 @@ store_tuple_in_box:
     extract_uint64
     // tuple_support/nested_tuples.py:71
     // self.box[key] = key._replace(b=key.b + 1)
-    intc_1 // 1
+    intc_0 // 1
     +
     bytec_1 // "box"
     dig 2
@@ -402,7 +402,7 @@ store_tuple_in_box:
     box_put
     // tuple_support/nested_tuples.py:69
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -426,14 +426,14 @@ is_tuple_in_box:
     // tuple_support/nested_tuples.py:73
     // @arc4.abimethod()
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -460,7 +460,7 @@ load_tuple_from_box:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -485,7 +485,7 @@ maybe_load_tuple_from_box:
     swap
     bz maybe_load_tuple_from_box_ternary_false@3
     dupn 2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint64
     swap
     intc_3 // 8
@@ -500,7 +500,7 @@ maybe_load_tuple_from_box_ternary_merge@4:
     itob
     concat
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     dig 4
     setbit
     concat
@@ -508,7 +508,7 @@ maybe_load_tuple_from_box_ternary_merge@4:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 maybe_load_tuple_from_box_ternary_false@3:
@@ -542,7 +542,7 @@ load_tuple_from_box_or_default:
     box_get
     bz load_tuple_from_box_or_default_ternary_false@3
     dupn 2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint64
     swap
     intc_3 // 8
@@ -560,7 +560,7 @@ load_tuple_from_box_or_default_ternary_merge@4:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 load_tuple_from_box_or_default_ternary_false@3:
@@ -575,7 +575,7 @@ load_tuple_from_local_state_or_default:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
@@ -595,12 +595,12 @@ load_tuple_from_local_state_or_default:
     callsub simple_tup
     cover 3
     cover 2
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     app_local_get_ex
     bz load_tuple_from_local_state_or_default_ternary_false@3
     dupn 2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint64
     swap
     intc_3 // 8
@@ -618,7 +618,7 @@ load_tuple_from_local_state_or_default_ternary_merge@4:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 load_tuple_from_local_state_or_default_ternary_false@3:
@@ -631,7 +631,7 @@ load_tuple_from_local_state_or_default_ternary_false@3:
 mutate_local_tuple:
     // tuple_support/nested_tuples.py:107
     // for i in urange(3):
-    intc_0 // 0
+    intc_1 // 0
 
 mutate_local_tuple_for_header@2:
     // tuple_support/nested_tuples.py:107
@@ -655,7 +655,7 @@ mutate_local_tuple_for_header@2:
     assert
     // tuple_support/nested_tuples.py:107
     // for i in urange(3):
-    intc_1 // 1
+    intc_0 // 1
     +
     bury 1
     b mutate_local_tuple_for_header@2
@@ -665,7 +665,7 @@ mutate_local_tuple_after_for@5:
     // @arc4.abimethod()
     pushbytes 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -673,12 +673,12 @@ mutate_local_tuple_after_for@5:
 mutate_tuple_in_storage_currently_supported_method:
     // tuple_support/nested_tuples.py:116
     // arr2 = self.twm.arr.copy()
-    intc_0 // 0
+    intc_1 // 0
     bytec_2 // "twm"
     app_global_get_ex
     assert // check self.twm exists
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     dig 1
     intc_2 // 2
@@ -687,19 +687,23 @@ mutate_tuple_in_storage_currently_supported_method:
     uncover 2
     dig 2
     substring3
-    dup
-    intc_0 // 0
+    // tuple_support/nested_tuples.py:117
+    // arr2.append(arc4.UInt64(1))
+    intc_0 // 1
+    itob
+    dig 1
+    intc_1 // 0
     extract_uint16
     // tuple_support/nested_tuples.py:117
     // arr2.append(arc4.UInt64(1))
-    intc_1 // 1
+    intc_0 // 1
     +
     itob
     extract 6 0
+    uncover 2
+    swap
     replace2 0
-    // tuple_support/nested_tuples.py:117
-    // arr2.append(arc4.UInt64(1))
-    pushbytes 0x0000000000000001
+    swap
     concat
     // tuple_support/nested_tuples.py:118
     // self.twm = self.twm._replace(arr=arr2.copy())
@@ -777,7 +781,7 @@ mutate_tuple_in_storage_currently_supported_method:
     app_global_put
     // tuple_support/nested_tuples.py:114
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -786,24 +790,24 @@ run_tests:
     pushbytes ""
     // tuple_support/nested_tuples.py:138
     // test_nested_singles(UInt64(1), reassign=True)
-    intc_1 // 1
+    intc_0 // 1
     dup
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:139
     // test_nested_singles(UInt64(1), reassign=False)
-    intc_1 // 1
-    intc_0 // 0
+    intc_0 // 1
+    intc_1 // 0
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:295
     // total = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
     intc_2 // 2
-    intc_0 // 0
+    intc_1 // 0
 
 run_tests_for_body@12:
     // tuple_support/nested_tuples.py:299
@@ -817,10 +821,10 @@ run_tests_for_body@12:
     // tuple_support/nested_tuples.py:297
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     switch run_tests_for_header_1@13 run_tests_for_header_2@14 run_tests_for_header_3@15
-    intc_0 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     bury 4
@@ -854,13 +858,13 @@ run_tests_for_body@17:
     // tuple_support/nested_tuples.py:168
     // self.build_nested_call_count += 1
     bytec_3 // "build_nested_call_count"
-    intc_1 // 1
+    intc_0 // 1
     app_global_put
     // tuple_support/nested_tuples.py:120
     // @arc4.abimethod()
     pushbytes 0x151f7c7580
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 run_tests_for_header_3@20:
@@ -883,20 +887,20 @@ run_tests_for_header_2@19:
     intc_2 // 2
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     bury 4
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     swap
     b run_tests_for_body@17
 
 run_tests_for_header_1@18:
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
     intc_2 // 2
@@ -905,7 +909,7 @@ run_tests_for_header_1@18:
     bury 4
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     swap
@@ -931,20 +935,20 @@ run_tests_for_header_2@14:
     intc_2 // 2
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:297
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     bury 2
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:297
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     swap
     b run_tests_for_body@12
 
 run_tests_for_header_1@13:
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
     intc_2 // 2
@@ -953,7 +957,7 @@ run_tests_for_header_1@13:
     bury 2
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/nested_tuples.py:297
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     swap
@@ -968,7 +972,7 @@ nested_tuple_params:
     dup
     len
     dig 1
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4
@@ -978,7 +982,7 @@ nested_tuple_params:
     dig 1
     dig 3
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 6
     +
@@ -996,7 +1000,7 @@ nested_tuple_params:
     dup
     len
     dig 1
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 10
@@ -1007,7 +1011,7 @@ nested_tuple_params:
     uncover 2
     substring3
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 12
     +
@@ -1061,7 +1065,7 @@ nested_tuple_params:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -1083,7 +1087,7 @@ named_tuple:
     swap
     dig 2
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14
     +
@@ -1098,7 +1102,7 @@ named_tuple:
     swap
     dig 3
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
@@ -1109,7 +1113,7 @@ named_tuple:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -1144,7 +1148,7 @@ nested_named_tuple_params:
     swap
     dig 2
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14
     +
@@ -1159,7 +1163,7 @@ nested_named_tuple_params:
     swap
     uncover 3
     substring3
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
@@ -1172,5 +1176,5 @@ nested_named_tuple_params:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
