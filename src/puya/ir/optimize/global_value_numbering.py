@@ -1300,10 +1300,17 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
         # Assign a VN to a phi node's register, under optimistic phi numbering:
-        #   1. Args whose source register has not been numbered yet (back-edge args
-        #      on iteration 1; not-yet-revisited registers on later iterations) are
-        #      filtered from the "all args agree" check, so the phi can match a
-        #      single forward-edge VN even before the cycle has been resolved.
+        #   0. Self-args (``arg.value == phi.register``) are filtered out before
+        #      any of the steps below. At convergence a self-arg's VN equals the
+        #      phi's own VN, so it can never disprove redundancy, and including
+        #      its per-phi Register identity in the hash key would over-
+        #      distinguish sibling phis that are otherwise structurally
+        #      congruent.
+        #   1. Args whose source register has not been numbered yet (non-self
+        #      back-edge args on iteration 1; not-yet-revisited registers on
+        #      later iterations) are filtered from the "all args agree" check,
+        #      so the phi can match a single forward-edge VN even before the
+        #      cycle has been resolved.
         #   2. If all remaining (non-top) args share a single VN, the phi is
         #      redundant and inherits that VN.
         #   3. Otherwise, the phi is hashed (using the source register as a
@@ -1323,12 +1330,14 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         real_vns = list[VN]()
         phi_key_entries = list[tuple[models.BasicBlock, VN | models.Register]]()
         any_top = False
-        for arg in phi.args:
+        for arg in phi.non_self_args:
             existing_vn = self.tables.register_vn.get(arg.value)
             if existing_vn is None:
                 # Optimistic top: the source register isn't numbered yet in this
-                # walk. Use the register itself as the hash-table placeholder so
-                # different un-numbered sources stay distinguishable.
+                # walk. Only non-self args reach this branch — self-args are
+                # filtered out by the ``non_self_args`` iteration above. Use
+                # the register itself as the hash-table placeholder so different
+                # un-numbered back-edge sources stay distinguishable.
                 any_top = True
                 phi_key_entries.append((arg.through, arg.value))
             else:
@@ -1348,9 +1357,11 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         # cohorts onto distinct stable VNs, because `stable_phi_vn` is keyed
         # per-Phi — each cohort member has its own.
         # For phis the SCC pre-pass marked ``_PESSIMISTIC``, the redundancy
-        # branch additionally requires that every arg was already numbered —
-        # without iteration, an un-numbered back-edge can't be optimistically
-        # equated with the forward args.
+        # branch additionally requires that every non-self arg was already
+        # numbered — without iteration, an un-numbered back-edge can't be
+        # optimistically equated with the forward args. (Self-args don't
+        # contribute to ``any_top`` because they're filtered upstream; the
+        # gate fires only on genuine non-self back-edges.)
         candidate: VN | None = None
         can_be_redundant = real_vns and len(set(real_vns)) == 1
         if self.phi_treatment.get(phi) == _PESSIMISTIC and any_top:
@@ -1469,11 +1480,14 @@ def _number_values(
     """Number every SSA definition via optimistic iteration to a fixed point.
 
     The dominator-tree walk is repeated until ``register_vn`` stops changing
-    between iterations. On iteration 1 every back-edge phi argument is treated
-    as the lattice top (filtered from the redundancy check); on later
-    iterations those args take their previous-iteration VN, letting cyclic
-    phi congruences surface naturally. Non-redundant phis pin a stable VN
-    (see :meth:`_GVNTables.stable_phi_vn`) so the partition stops moving.
+    between iterations. On iteration 1 every non-self back-edge phi argument
+    is treated as the lattice top (filtered from the redundancy check); on
+    later iterations those args take their previous-iteration VN, letting
+    cyclic phi congruences surface naturally. Self-args are filtered out
+    entirely (see :meth:`GVNBlockVisitor.visit_phi`) — they're tautological
+    and would only delay convergence without affecting outcomes. Non-redundant
+    phis pin a stable VN (see :meth:`_GVNTables.stable_phi_vn`) so the
+    partition stops moving.
 
     ``_classify_phi_sccs`` runs first against an all-pessimistic seed walk,
     so external-arg VNs reflect structural CSE / commutative canonicalisation;
