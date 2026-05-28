@@ -25,6 +25,7 @@ from collections.abc import Collection, Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
+import networkx as nx  # type: ignore[import-untyped]
 
 from puya import algo_constants, log
 from puya.avm import AVMType
@@ -83,6 +84,13 @@ from puya.utils import (
 logger = log.get_logger(__name__)
 
 VN: typing.TypeAlias = int
+
+# Phi treatment classification produced by ``_classify_phi_sccs`` and consulted
+# by ``GVNBlockVisitor.visit_phi``. Phis absent from the treatment map default
+# to the standard optimistic redundancy claim; phis mapped to ``_PESSIMISTIC``
+# have that claim gated on every arg already being numbered.
+_PhiTreatment: typing.TypeAlias = typing.Literal["pessimistic"]
+_PESSIMISTIC: _PhiTreatment = "pessimistic"
 
 # Commutative AVM ops: sorting operand VNs lets us recognise a+b == b+a.
 _COMMUTATIVE_OPS: typing.Final[Set[AVMOp]] = frozenset(
@@ -1261,12 +1269,20 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
 
 class GVNBlockVisitor(NoOpIRVisitor[None]):
-    def __init__(self, tables: _GVNTables, *, pessimistic_phi: bool = False):
+    def __init__(
+        self,
+        tables: _GVNTables,
+        *,
+        phi_treatment: Mapping[models.Phi, _PhiTreatment],
+    ):
         self.tables = tables
-        # Pessimistic mode: any un-numbered phi arg blocks the redundancy
-        # branch. Used by the cap-out fallback (single sound pass without
-        # optimistic claims that would normally need iteration to validate).
-        self.pessimistic_phi = pessimistic_phi
+        # ``phi_treatment`` marks the phis whose redundancy claim is gated
+        # on every arg already being numbered, matching the algorithm used
+        # before optimistic iteration was introduced. Populated by the SCC
+        # pre-pass (``_classify_phi_sccs``) for phis that demonstrably
+        # cannot benefit from iteration; the cap-out fallback passes a map
+        # of every phi → ``_PESSIMISTIC`` to apply the gate everywhere.
+        self.phi_treatment = phi_treatment
         # phi table is per block because the through->block relationship is
         # effectively part of the identity
         self.phi_table = dict[frozenset[tuple[models.BasicBlock, VN | models.Register]], VN]()
@@ -1331,12 +1347,13 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         # the sibling-congruence branch would split block-local-congruent
         # cohorts onto distinct stable VNs, because `stable_phi_vn` is keyed
         # per-Phi — each cohort member has its own.
-        # In pessimistic mode the redundancy branch additionally requires that
-        # every arg was already numbered — without iteration, an un-numbered
-        # back-edge can't be optimistically equated with the forward args.
+        # For phis the SCC pre-pass marked ``_PESSIMISTIC``, the redundancy
+        # branch additionally requires that every arg was already numbered —
+        # without iteration, an un-numbered back-edge can't be optimistically
+        # equated with the forward args.
         candidate: VN | None = None
         can_be_redundant = real_vns and len(set(real_vns)) == 1
-        if self.pessimistic_phi and any_top:
+        if self.phi_treatment.get(phi) == _PESSIMISTIC and any_top:
             can_be_redundant = False
         if can_be_redundant:
             candidate = real_vns[0]
@@ -1357,14 +1374,14 @@ def _process_blocks_pre_order(
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
     *,
-    pessimistic_phi: bool = False,
+    phi_treatment: Mapping[models.Phi, _PhiTreatment],
 ) -> None:
-    visitor = GVNBlockVisitor(tables, pessimistic_phi=pessimistic_phi)
+    visitor = GVNBlockVisitor(tables, phi_treatment=phi_treatment)
     for op in block.all_ops:
         op.accept(visitor)
 
     for child in dom_tree.get(block, []):
-        _process_blocks_pre_order(tables, dom_tree, child, pessimistic_phi=pessimistic_phi)
+        _process_blocks_pre_order(tables, dom_tree, child, phi_treatment=phi_treatment)
 
 
 # Safety bound on optimistic iterations. The fixed point is reached when every
@@ -1372,7 +1389,74 @@ def _process_blocks_pre_order(
 # downgrade a phi's classification (redundant -> non-redundant pins the stable VN
 # permanently), so termination is guaranteed within a bounded number of iterations
 # in practice — this cap exists only to protect against pathological cases.
-_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 16
+# With the SCC pre-pass (``_classify_phi_sccs``) eliminating the chain-ratchet
+# shape (a multi-member phi SCC with ≥ 2 distinct external-arg Registers, where
+# convergence count was ``depth + 3``), the residual iteration count is bounded
+# by SCC convergence depth, empirically ≤ 3 across the corpus.
+_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 5
+
+
+def _classify_phi_sccs(
+    subroutine: models.Subroutine,
+    provisional_vn: Mapping[models.Register, VN],
+) -> Mapping[models.Phi, _PhiTreatment]:
+    """Classify phis whose SCC cannot collapse, so iteration is skipped on them.
+
+    Builds the phi-only dependency graph (nodes = ``Phi`` instances, edges
+    consumer → producer iff some arg of consumer has ``.value`` equal to the
+    producer's register, with self-edges skipped) and finds SCCs. A
+    multi-member SCC with ≥ 2 distinct external-arg VNs cannot reduce to a
+    single VN — its members can only mint per-phi stable VNs, which the
+    pessimistic guard produces in one walk instead of taking ``depth + 3``
+    walks for the disagreement signal to propagate outward through the SCC.
+
+    External-arg cardinality is counted by VN identity using ``provisional_vn``
+    (the numbering produced by an all-pessimistic seed walk). Counting by VN
+    rather than Register identity lets the criterion see through commutative
+    canonicalisation, constant folding, and structural CSE — distinct
+    Registers that GVN proves equivalent share a provisional VN and do not
+    block their SCC's collapse.
+
+    ``Phi`` uses identity hashing (``@attrs.define(eq=False)`` on
+    ``src/puya/ir/models.py``), so the returned mapping is keyed by ``Phi``
+    object identity.
+    """
+    reg_to_phi = {phi.register: phi for block in subroutine.body for phi in block.phis}
+    if not reg_to_phi:
+        return {}
+
+    graph = nx.DiGraph()
+    for phi in reg_to_phi.values():
+        graph.add_node(phi)
+        for arg in phi.args:
+            if arg.value == phi.register:
+                continue
+            producer = reg_to_phi.get(arg.value)
+            if producer is not None:
+                graph.add_edge(phi, producer)
+
+    result = dict[models.Phi, _PhiTreatment]()
+    for scc in nx.strongly_connected_components(graph):
+        if len(scc) <= 1:
+            continue
+        external_vns = set[VN]()
+        for phi in scc:
+            for arg in phi.args:
+                if arg.value == phi.register:
+                    continue
+                producer = reg_to_phi.get(arg.value)
+                if producer is None or producer not in scc:
+                    vn = provisional_vn.get(arg.value)
+                    if vn is not None:
+                        external_vns.add(vn)
+                    if len(external_vns) >= 2:
+                        break
+            if len(external_vns) >= 2:
+                break
+        if len(external_vns) >= 2:
+            for phi in scc:
+                result[phi] = _PESSIMISTIC
+    return result
 
 
 def _number_values(
@@ -1388,14 +1472,27 @@ def _number_values(
     iterations those args take their previous-iteration VN, letting cyclic
     phi congruences surface naturally. Non-redundant phis pin a stable VN
     (see :meth:`_GVNTables.stable_phi_vn`) so the partition stops moving.
+
+    ``_classify_phi_sccs`` runs first against an all-pessimistic seed walk,
+    so external-arg VNs reflect structural CSE / commutative canonicalisation;
+    multi-member phi SCCs whose externals have ≥ 2 distinct seed VNs use the
+    pessimistic redundancy guard so iteration doesn't waste walks ratcheting
+    through chain-shaped SCCs that can't collapse anyway.
     """
+    seed_tables = _GVNTables()
+    for param in subroutine.parameters:
+        seed_tables.assign_register_fresh_vn(param)
+    seed_treatment = {phi: _PESSIMISTIC for block in subroutine.body for phi in block.phis}
+    _process_blocks_pre_order(seed_tables, dom_tree, start, phi_treatment=seed_treatment)
+
+    phi_treatment = _classify_phi_sccs(subroutine, seed_tables.register_vn)
     tables = _GVNTables()
     for param in subroutine.parameters:
         tables.assign_register_fresh_vn(param)
 
     for iteration in range(_MAX_OPTIMISTIC_ITERATIONS):
         prev_register_vn = dict(tables.register_vn)
-        _process_blocks_pre_order(tables, dom_tree, start)
+        _process_blocks_pre_order(tables, dom_tree, start, phi_treatment=phi_treatment)
         if tables.register_vn == prev_register_vn:
             logger.debug(f"GVN: {subroutine.id} converged after {iteration + 1} iteration(s)")
             return tables
@@ -1411,10 +1508,11 @@ def _number_values(
         f" {_MAX_OPTIMISTIC_ITERATIONS} iterations;"
         f" falling back to pessimistic single-pass"
     )
+    fallback_treatment = {phi: _PESSIMISTIC for block in subroutine.body for phi in block.phis}
     tables = _GVNTables()
     for param in subroutine.parameters:
         tables.assign_register_fresh_vn(param)
-    _process_blocks_pre_order(tables, dom_tree, start, pessimistic_phi=True)
+    _process_blocks_pre_order(tables, dom_tree, start, phi_treatment=fallback_treatment)
     return tables
 
 
