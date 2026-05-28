@@ -74,6 +74,7 @@ from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import (
     Address,
     biguint_bytes_eval,
+    is_list_of,
     lazy_setdefault,
     method_selector_hash,
     set_add,
@@ -443,7 +444,7 @@ def _try_fold_constants(
                     ir_type=source_type,
                     source_location=op.source.source_location,
                 )
-    elif _is_list_of(target_defns, _UInt64ConstKey):
+    elif is_list_of(target_defns, _UInt64ConstKey):
         return models.ValueTuple(
             values=[
                 models.UInt64Constant(
@@ -457,10 +458,6 @@ def _try_fold_constants(
         )
 
     return None
-
-
-def _is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
-    return all(isinstance(x, typ) for x in lst)
 
 
 def _intrinsic_dead_cost(

@@ -55,6 +55,9 @@ PURE_AVM_OPS = frozenset(
         "sqrt",
         "shl",
         "shr",
+        "b&",
+        "b|",
+        "b~",
         # group: fail if an input is zero
         "%",
         "/",
@@ -109,16 +112,12 @@ PURE_AVM_OPS = frozenset(
         "b/",
         "b^",
         "btoi",
-        # group: might fail on input too large? TODO: verify these
         "b!=",
         "b<",
         "b<=",
         "b==",
         "b>",
         "b>=",
-        "b&",
-        "b|",
-        "b~",
         "bsqrt",
         # group: fail on output too large
         "concat",

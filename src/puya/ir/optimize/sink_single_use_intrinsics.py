@@ -1,12 +1,12 @@
+import itertools
 import typing
-from collections.abc import Set
 
-from puya import log
+from puya import algo_constants, log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import SSAReadTracker
-from puya.ir.register_read_collector import RegisterReadCollector
+from puya.utils import is_list_of
 
 logger = log.get_logger(__name__)
 
@@ -21,17 +21,38 @@ logger = log.get_logger(__name__)
 # assertion past observable side effects.
 _NEVER_FAIL_UNARY_OPS: typing.Final = frozenset(
     {
-        AVMOp.itob,
-        AVMOp.not_,
-        AVMOp.bitwise_not,
-        AVMOp.bitwise_not_bytes,
-        AVMOp.len_,
-        AVMOp.bitlen,
-        AVMOp.sha256,
-        AVMOp.sha512_256,
-        AVMOp.sha3_256,
-        AVMOp.keccak256,
-        AVMOp.sqrt,
+        # group: ops that can't fail at runtime
+        # `txn FirstValidTime` technically could fail, but shouldn't happen on mainnet?
+        "txn",
+        "sha256",
+        "keccak256",
+        "sha3_256",
+        "sha512_256",
+        "bitlen",
+        # group: could only fail on a type error
+        "!",
+        "!=",
+        "&",
+        "&&",
+        "<",
+        "<=",
+        "==",
+        ">",
+        ">=",
+        "|",
+        "||",
+        "~",
+        "addw",
+        "mulw",
+        "itob",
+        "len",
+        "select",
+        "sqrt",
+        "shl",
+        "shr",
+        "b&",
+        "b|",
+        "b~",
     }
 )
 
@@ -57,72 +78,55 @@ def sink_single_use_intrinsics(_context: CompileContext, subroutine: models.Subr
             ssa_reads.add(op)
 
     modified = False
+    moving_assignment = {}
     for block in subroutine.body:
-        modified |= _sink_in_block(block, ssa_reads)
+        ops = []
+        for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
+            ops.append(op)
+            match op:
+                case models.Assignment(
+                    targets=[target],
+                    source=models.Intrinsic(op=intrinsic_op, args=[*args]),
+                ) if (
+                    (
+                        intrinsic_op.code in _NEVER_FAIL_UNARY_OPS
+                        or (
+                            intrinsic_op is AVMOp.bzero
+                            and len(args) == 1
+                            and isinstance((bzero_arg := args[0]), models.UInt64Constant)
+                            and bzero_arg.value <= algo_constants.MAX_BYTES_LENGTH
+                        )
+                    )
+                    and len(readers := list(ssa_reads.get(target))) == 1
+                    and is_list_of(args, models.Constant)  # type: ignore[type-abstract]
+                ):
+                    (reader,) = readers
+                    if reader is next_op:
+                        continue
+                    match reader:
+                        case models.Intrinsic(args=[single_arg]):
+                            pass
+                        case models.Assignment(source=models.Intrinsic(args=[single_arg])):
+                            pass
+                        case _:
+                            continue
+                    assert single_arg == target
+                    moving_assignment[reader] = op
+                    ops.pop()
+                    logger.debug(f"moving {op} to be co-located with sole usage {reader}")
+                    modified = True
+        block.ops[:] = ops
+    if moving_assignment:
+        for block in subroutine.body:
+            ops = []
+            for op in block.ops:
+                try:
+                    moved = moving_assignment.pop(op)  # type: ignore[call-overload]
+                except KeyError:
+                    pass
+                else:
+                    ops.append(moved)
+                ops.append(op)
+            block.ops[:] = ops
+
     return modified
-
-
-def _sink_in_block(block: models.BasicBlock, ssa_reads: SSAReadTracker) -> bool:
-    modified = False
-    ops = block.ops
-    i = 0
-    while i < len(ops):
-        op = ops[i]
-        target = _candidate_target(op)
-        if target is None or ssa_reads.count(target) != 1:
-            i += 1
-            continue
-        consumer_idx = _find_consumer_in_ops(ops, target, start=i + 1)
-        if consumer_idx is not None:
-            consumer: models.Op | models.ControlOp = ops[consumer_idx]
-        elif block.terminator is not None and target in _reads_of(block.terminator):
-            consumer = block.terminator
-        else:
-            # consumer is in a phi or a successor block; skip
-            i += 1
-            continue
-        if _reads_of(consumer) != {target}:
-            i += 1
-            continue
-        if consumer_idx is None:
-            new_idx = len(ops) - 1  # position of the last op after pop
-        else:
-            new_idx = consumer_idx - 1
-        if new_idx == i:
-            # already adjacent; nothing to do
-            i += 1
-            continue
-        moved = ops.pop(i)
-        ops.insert(new_idx, moved)
-        logger.debug(
-            f"sunk {moved} to immediately before sole consumer",
-            location=moved.source_location,
-        )
-        modified = True
-        # do not advance i: the slot at i now holds a different op.
-    return modified
-
-
-def _candidate_target(op: models.Op) -> models.Register | None:
-    match op:
-        case models.Assignment(
-            targets=[target],
-            source=models.Intrinsic(op=intr_op, args=[models.Constant()]),
-        ) if intr_op in _NEVER_FAIL_UNARY_OPS:
-            return target
-    return None
-
-
-def _find_consumer_in_ops(
-    ops: list[models.Op], target: models.Register, *, start: int
-) -> int | None:
-    for j in range(start, len(ops)):
-        if target in _reads_of(ops[j]):
-            return j
-    return None
-
-
-def _reads_of(visitable: models.IRVisitable) -> Set[models.Register]:
-    collector = RegisterReadCollector()
-    visitable.accept(collector)
-    return collector.used_registers

@@ -398,3 +398,7 @@ def read_text_from_maybe_compressed_file(path: Path) -> str:
 def symmetric_mapping[T](*pairs: tuple[T, T]) -> Mapping[T, T]:
     """Generate a symmetric mapping from a sequence of key-value pairs."""
     return {k: v for a, b in pairs for k, v in ((a, b), (b, a))}
+
+
+def is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
+    return all(isinstance(x, typ) for x in lst)
