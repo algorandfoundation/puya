@@ -1448,14 +1448,15 @@ def _has_multiple_external_vns(
 ) -> bool:
     if len(scc) <= 1:
         return False
-    external_vns = set[VN]()
+    external_vn: VN | None = None
     for phi in scc:
         for arg in phi.non_self_args:
             producer = reg_to_phi.get(arg.value)
             if producer not in scc:
                 vn = provisional_vn[arg.value]
-                external_vns.add(vn)
-                if len(external_vns) >= 2:
+                if external_vn is None:
+                    external_vn = vn
+                elif vn != external_vn:
                     return True
     return False
 
