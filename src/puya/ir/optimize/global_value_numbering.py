@@ -1428,35 +1428,36 @@ def _classify_phi_sccs(
     graph = nx.DiGraph()
     for phi in reg_to_phi.values():
         graph.add_node(phi)
-        for arg in phi.args:
-            if arg.value == phi.register:
-                continue
+        for arg in phi.non_self_args:
             producer = reg_to_phi.get(arg.value)
             if producer is not None:
                 graph.add_edge(phi, producer)
 
     result = dict[models.Phi, _PhiTreatment]()
     for scc in nx.strongly_connected_components(graph):
-        if len(scc) <= 1:
-            continue
-        external_vns = set[VN]()
-        for phi in scc:
-            for arg in phi.args:
-                if arg.value == phi.register:
-                    continue
-                producer = reg_to_phi.get(arg.value)
-                if producer is None or producer not in scc:
-                    vn = provisional_vn.get(arg.value)
-                    if vn is not None:
-                        external_vns.add(vn)
-                    if len(external_vns) >= 2:
-                        break
-            if len(external_vns) >= 2:
-                break
-        if len(external_vns) >= 2:
+        if _has_multiple_external_vns(scc, reg_to_phi, provisional_vn):
             for phi in scc:
                 result[phi] = _PESSIMISTIC
     return result
+
+
+def _has_multiple_external_vns(
+    scc: Set[models.Phi],
+    reg_to_phi: Mapping[models.Register, models.Phi],
+    provisional_vn: Mapping[models.Register, VN],
+) -> bool:
+    if len(scc) <= 1:
+        return False
+    external_vns = set[VN]()
+    for phi in scc:
+        for arg in phi.non_self_args:
+            producer = reg_to_phi.get(arg.value)
+            if producer not in scc:
+                vn = provisional_vn[arg.value]
+                external_vns.add(vn)
+                if len(external_vns) >= 2:
+                    return True
+    return False
 
 
 def _number_values(
