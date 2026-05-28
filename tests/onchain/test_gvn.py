@@ -66,5 +66,45 @@ def test_replace3_const_fold(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "replace3_const_fold.py")
 
 
+def test_scc_two_externals(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "scc_two_externals.py").client
+
+    def call(a: int, b: int, n: int) -> object:
+        return client.send.call(
+            au.AppClientMethodCallParams(
+                method="test_alternating", args=[a, b, n], note=random.randbytes(8)
+            )
+        ).abi_return
+
+    # alternating(a, b, n) returns (a + b) + n*(n-1)/2
+    # (x and y swap each iteration so x+y is invariant; s accumulates 0..n-1)
+    for a, b, n in [(0, 0, 0), (10, 20, 0), (10, 20, 1), (10, 20, 2), (10, 20, 3), (7, 13, 5)]:
+        expected = a + b + n * (n - 1) // 2
+        actual = call(a, b, n)
+        assert actual == expected, f"alternating({a}, {b}, {n}) gave {actual}, expected {expected}"
+
+
+def test_scc_vn_merged_externals(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "scc_vn_merged_externals.py").client
+
+    def call(a: int, b: int, n: int) -> object:
+        return client.send.call(
+            au.AppClientMethodCallParams(
+                method="test_commutative_externals", args=[a, b, n], note=random.randbytes(8)
+            )
+        ).abi_return
+
+    # alternating_with_commutative_inits(a, b, n) returns 2*(a|b) + n*(n-1)/2
+    # (x and y both start as a|b — distinct Registers, same VN — so the SCC
+    # collapses and the swap is a no-op; s accumulates 0..n-1)
+    for a, b, n in [(0, 0, 0), (10, 20, 0), (10, 20, 1), (10, 20, 2), (10, 20, 3), (7, 13, 5)]:
+        expected = 2 * (a | b) + n * (n - 1) // 2
+        actual = call(a, b, n)
+        assert actual == expected, (
+            f"alternating_with_commutative_inits({a}, {b}, {n})"
+            f" gave {actual}, expected {expected}"
+        )
+
+
 def test_wide_math_const_fold(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "wide_math_const_fold.py")
