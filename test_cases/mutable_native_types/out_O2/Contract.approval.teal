@@ -10,6 +10,7 @@ main:
     pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
+    pushbytes "dyn"
     txn NumAppArgs
     itob
     dup
@@ -29,16 +30,13 @@ main:
     app_global_put
     pushbytes 0x00160018001a000000000000
     concat
-    pushbytes "dyn"
-    swap
     app_global_put
     bytec_2 // "num_payments"
     intc_0 // 0
     app_global_put
+    bytec_3 // "payments"
     pushint 96
     bzero
-    bytec_3 // "payments"
-    swap
     app_global_put
 
 main_after_if_else@2:
@@ -55,14 +53,13 @@ main_after_if_else@2:
     err
 
 main_test_match_struct_route@18:
+    pushbytes 0x00000000000000010000000000000002
     txna ApplicationArgs 1
     dup
     len
     intc_3 // 16
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
-    pushbytes 0x00000000000000010000000000000002
-    swap
     match main_switch_case_0@26
     intc_0 // 0
 
@@ -331,26 +328,24 @@ main_after_if_else@39:
     return
 
 main_tup_return_route@15:
+    bytec_1 // 0x151f7c75
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
     extract 32 16
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
     return
 
 main_struct_return_route@14:
+    bytec_1 // 0x151f7c75
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
     extract 0 16
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
@@ -415,6 +410,7 @@ main_struct_arg_route@13:
     return
 
 main_delete_storage_route@12:
+    bytec 7 // "box_map"
     txna ApplicationArgs 1
     dup
     len
@@ -431,8 +427,6 @@ main_delete_storage_route@12:
     box_del
     pop
     itob
-    bytec 7 // "box_map"
-    swap
     concat
     box_del
     pop
@@ -440,6 +434,7 @@ main_delete_storage_route@12:
     return
 
 main_local_struct_route@11:
+    bytec_1 // 0x151f7c75
     txn Sender
     pushint 1234
     itob
@@ -463,8 +458,6 @@ main_local_struct_route@11:
     assert // use bar
     assert // use baz
     callsub do_something
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
@@ -478,12 +471,11 @@ main_create_storage_route@10:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    bytec 4 // 0x70
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
-    bytec 4 // 0x70
-    swap
     app_global_put
     intc_0 // 0
     bytec_0 // "nested"
@@ -510,6 +502,7 @@ main_create_storage_route@10:
     return
 
 main_increment_payment_route@9:
+    bytec_3 // "payments"
     txna ApplicationArgs 1
     dup
     len
@@ -549,13 +542,12 @@ main_increment_payment_route@9:
     itob
     replace2 40
     replace3 // on error: index access is out of bounds
-    bytec_3 // "payments"
-    swap
     app_global_put
     intc_1 // 1
     return
 
 main_add_payment_route@8:
+    bytec_3 // "payments"
     txna ApplicationArgs 1
     dup
     len
@@ -579,17 +571,14 @@ main_add_payment_route@8:
     *
     uncover 2
     replace3 // on error: index access is out of bounds
-    bytec_3 // "payments"
-    swap
     app_global_put
+    bytec_2 // "num_payments"
     intc_0 // 0
     bytec_2 // "num_payments"
     app_global_get_ex
     assert // check self.num_payments exists
     intc_1 // 1
     +
-    bytec_2 // "num_payments"
-    swap
     app_global_put
     intc_1 // 1
     return

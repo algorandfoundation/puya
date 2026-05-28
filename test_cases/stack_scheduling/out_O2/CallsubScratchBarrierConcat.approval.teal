@@ -1,0 +1,25 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.CallsubScratchBarrierConcat.approval_program() -> uint64:
+main:
+    txna ApplicationArgs 0
+    store 0
+    txna ApplicationArgs 1
+    callsub _store_slot_and_itob
+    load 0
+    swap
+    concat
+    log
+    pushint 1
+    return
+
+
+// test_cases.stack_scheduling.contract._store_slot_and_itob(value: bytes) -> bytes:
+_store_slot_and_itob:
+    proto 1 1
+    frame_dig -1
+    store 0
+    txn NumAppArgs
+    itob
+    retsub
