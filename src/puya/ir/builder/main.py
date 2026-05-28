@@ -1581,36 +1581,37 @@ class FunctionIRBuilder(
     ) -> ir.ValueProvider | None:
         # - explicit SingleEvaluation nodes already handle multi-eval (as the name implies)
         # -constants and var expresions have no side effects and cannot contain nested expressions
-        if isinstance(
+        double_eval_safe = isinstance(
             expr,
             awst_nodes.SingleEvaluation
             | awst_nodes.CompileTimeConstantExpression
             | awst_nodes.VarExpression,
-        ):
-            return expr.accept(self)
-        # include the expression in the key to ensure the lifetime of the
-        # expression is as long as the cache.
-        # Temporary nodes may end up with the same id if nothing is referencing them
-        # e.g. such as used in _update_implicit_out_var
-        expr_id = id(expr), expr
-        try:
-            result = self._visited_exprs[expr_id]
-        except KeyError:
-            pass
-        else:
-            if isinstance(result, ir.ValueProvider) and not isinstance(
-                result, ir.ValueTuple | ir.Value
-            ):
-                raise InternalError(
-                    "double evaluation of expression without materialization", expr.source_location
+        )
+        if not double_eval_safe:
+            # include the expression in the key to ensure the lifetime of the
+            # expression is as long as the cache.
+            # Temporary nodes may end up with the same id if nothing is referencing them
+            # e.g. such as used in _update_implicit_out_var
+            expr_id = id(expr), expr
+            try:
+                result = self._visited_exprs[expr_id]
+            except KeyError:
+                pass
+            else:
+                if isinstance(result, ir.ValueProvider) and not isinstance(
+                    result, ir.ValueTuple | ir.Value
+                ):
+                    raise InternalError(
+                        "double evaluation of expression without materialization",
+                        expr.source_location,
+                    )
+                expr_str = expr.accept(ToCodeVisitor())
+                logger.debug(
+                    f"encountered already materialized expression ({expr_str}),"
+                    f" reusing result: {result!s}",
+                    location=expr.source_location,
                 )
-            expr_str = expr.accept(ToCodeVisitor())
-            logger.debug(
-                f"encountered already materialized expression ({expr_str}),"
-                f" reusing result: {result!s}",
-                location=expr.source_location,
-            )
-            return result
+                return result
         source = expr.accept(self)
         if materialise_as is None or not (source and source.types):
             result = source
@@ -1618,7 +1619,8 @@ class FunctionIRBuilder(
             result = self.materialise_value_provider_as_value_or_tuple(
                 source, description=materialise_as
             )
-        self._visited_exprs[expr_id] = result
+        if not double_eval_safe:
+            self._visited_exprs[expr_id] = result
         return result
 
     def materialise_value_provider_as_value_or_tuple(
