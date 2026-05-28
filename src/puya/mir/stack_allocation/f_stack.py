@@ -8,7 +8,6 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import ProgramMIRContext
-from puya.mir.models import FStackPreAllocation
 from puya.mir.stack import Stack
 from puya.mir.visitor import DefaultMIRVisitor
 from puya.utils import attrs_extend
@@ -58,10 +57,6 @@ def _get_pre_alloc(
 
 def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -> None:
     all_variables = _VariableCollector.collect(subroutine)
-    if not all_variables:
-        subroutine.pre_alloc = FStackPreAllocation.empty()
-        return
-
     entry_block = subroutine.body[0]
     first_store_ops = _get_lazy_fstack(entry_block)
     unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
@@ -105,6 +100,7 @@ def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine
                         frame_index=stack.fxl_height - depth - 1,
                     )
             op.accept(stack)
+        # always calculate fx_height even when f-stack is empty
         match block.terminator:
             case mir.RetSub() as retsub:
                 block.terminator = attrs.evolve(

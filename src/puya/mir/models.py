@@ -457,6 +457,9 @@ class Assert(Op):
 
 @attrs.frozen(eq=False)
 class ControlOp(BaseOp, abc.ABC):
+    # True when this op's lowering disposes/ignores any residual stack
+    consumes_stack: typing.ClassVar[bool] = False
+
     @abc.abstractmethod
     def targets(self) -> Sequence[str]: ...
 
@@ -470,9 +473,11 @@ class ControlOp(BaseOp, abc.ABC):
 
 @attrs.frozen(eq=False)
 class RetSub(ControlOp):
+    # lowering ensures return values are at base of frame, AVM discards anything above that
+    consumes_stack: typing.ClassVar[bool] = True
+
     returns: int
     fx_height: int = 0
-    # l-stack is discarded after this op
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
@@ -491,6 +496,9 @@ class RetSub(ControlOp):
 
 @attrs.frozen(eq=False)
 class ProgramExit(ControlOp):
+    # AVM reads top-of-stack as exit code and discards the rest
+    consumes_stack: typing.ClassVar[bool] = True
+
     consumes: int = attrs.field(default=1, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
@@ -509,6 +517,9 @@ class ProgramExit(ControlOp):
 
 @attrs.frozen(eq=False, kw_only=True)
 class Err(ControlOp):
+    # AVM `err` halts execution and the stack is discarded
+    consumes_stack: typing.ClassVar[bool] = True
+
     error_message: str | None
     explicit: bool
     consumes: int = attrs.field(default=0, init=False)
