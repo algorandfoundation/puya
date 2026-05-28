@@ -32,6 +32,7 @@ from puya.ir.optimize.repeated_aggregate_reads_merge import merge_chained_aggreg
 from puya.ir.optimize.repeated_loads_elimination import (
     constant_reads_and_unobserved_writes_elimination,
 )
+from puya.ir.optimize.sink_single_use_intrinsics import sink_single_use_intrinsics
 from puya.ir.to_text_visitor import render_program
 from puya.options import PuyaOptions
 from puya.utils import attrs_extend
@@ -95,6 +96,7 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(remove_linear_jumps),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
         SubroutineOptimization.from_function(global_value_numbering),
+        SubroutineOptimization.from_function(sink_single_use_intrinsics),
         SubroutineOptimization.from_function(encode_decode_pair_elimination),
         SubroutineOptimization.from_function(merge_chained_aggregate_reads, min_level=0),
         SubroutineOptimization.from_function(replace_aggregate_box_ops, min_level=0),
