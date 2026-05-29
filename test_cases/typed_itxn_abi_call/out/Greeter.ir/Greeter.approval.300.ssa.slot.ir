@@ -325,9 +325,11 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arg_conversion[
         let tmp%4#0: bool = (== txn.LastLog#1 aggregate%val_as_bytes%0#0)
         (assert tmp%4#0)
         itxn_begin
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 3b aggregate%bzero%0#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(uint512)void")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -745,9 +747,11 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 2b aggregate%bzero%0#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -764,7 +768,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -781,7 +785,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -798,7 +802,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -839,13 +843,16 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 2u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| aggregate%as_bytes%0#0 aggregate%bzero%0#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -889,7 +896,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -922,7 +929,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -955,7 +962,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1004,12 +1011,14 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 2b aggregate%bzero%0#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1053,7 +1062,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1097,7 +1106,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1141,7 +1150,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

@@ -566,12 +566,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array[
         let aggregate%value_len%3#0: uint64 = 64u
         let aggregate%len_ok%3#0: bool = 1u
         let aggregate%arc4_encoded%3#0: bytes[64] = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        let new_items_bytes#1: bytes = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        let new_items_bytes#1: bytes = aggregate%arc4_encoded%3#0
         let new_array_length#1: uint64 = (+ array_length#1 1u)
         let tmp%0#5: bytes = (itob new_array_length#1)
         let new_len_u16#1: bytes = ((extract 6 0) tmp%0#5)
         let result#1: bytes = ((replace2 0) arr#3 new_len_u16#1)
-        let arr#4: Encoded(len+uint512[]) = (concat result#1 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+        let arr#4: Encoded(len+uint512[]) = (concat result#1 aggregate%arc4_encoded%3#0)
         let aggregate%array_length%4#0: uint64 = (extract_uint16 arr#4 0u) // on error: invalid array length header
         let tmp%36#0: bool = (== aggregate%array_length%4#0 8u)
         (assert tmp%36#0)
