@@ -8,7 +8,7 @@ from puya.errors import InternalError
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
-from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
+from puya.ir.optimize.assignments import encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import merge_blocks, remove_linear_jumps
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
@@ -83,7 +83,6 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(perform_subroutine_inlining, min_level=0),
         SubroutineOptimization.from_function(_split_parallel_copies, min_level=0),
         SubroutineOptimization.from_function(constant_replacer, min_level=0),
-        SubroutineOptimization.from_function(copy_propagation),
         SubroutineOptimization.from_function(elide_itxn_field_calls),
         # TODO: improve this algorithm instead of looping
         SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),
