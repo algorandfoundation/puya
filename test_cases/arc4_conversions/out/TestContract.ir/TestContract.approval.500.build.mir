@@ -206,10 +206,10 @@ subroutine test_literal_encoding:
         itxn_field ApplicationID
         method check_string(string,byte[])void                                                       Method(check_string(string,byte[])void)
         itxn_field ApplicationArgs
-        byte 0x000b48656c6c6f20576f726c64                                                            0x000b48656c6c6f20576f726c64
-        itxn_field ApplicationArgs
         // arc4_conversions/contract.py:32
         // CheckApp.check_dynamic_bytes, b"Hello World", b"\x00\x0bHello World", app_id=app
+        byte 0x000b48656c6c6f20576f726c64                                                            0x000b48656c6c6f20576f726c64
+        itxn_field ApplicationArgs
         byte 0x000d000b48656c6c6f20576f726c64                                                        0x000d000b48656c6c6f20576f726c64
         itxn_field ApplicationArgs
         // arc4_conversions/contract.py:36
@@ -851,10 +851,6 @@ subroutine test_array_static_encoding:
         v-store app#0
         // arc4_conversions/contract.py:203
         // return MyStruct(value, Txn.sender)
-        txn Sender                                                                                   tmp%0#0
-        v-store tmp%0#0
-        txn Sender                                                                                   tmp%0#1
-        v-store tmp%0#1
         txn Sender                                                                                   tmp%0#2
         v-store tmp%0#2
         // arc4_conversions/contract.py:130
@@ -866,7 +862,7 @@ subroutine test_array_static_encoding:
         itob                                                                                         aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
-        v-load tmp%0#0                                                                               aggregate%val_as_bytes%0#0,tmp%0#0
+        v-load tmp%0#2                                                                               aggregate%val_as_bytes%0#0,tmp%0#2
         concat                                                                                       aggregate%head%1#0
         v-store aggregate%head%1#0
         byte 0x0003                                                                                  0x0003
@@ -877,7 +873,7 @@ subroutine test_array_static_encoding:
         itob                                                                                         aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%1#0                                                            aggregate%val_as_bytes%1#0
-        v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#0,tmp%0#1
+        v-load tmp%0#2                                                                               aggregate%val_as_bytes%1#0,tmp%0#2
         concat                                                                                       aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%2#0                                                                    aggregate%head%2#0
@@ -1110,14 +1106,10 @@ subroutine test_array_dynamic_encoding:
         v-store app#0
         // arc4_conversions/contract.py:220
         // return MyDynStruct(value, Txn.sender, Txn.sender.bytes)
-        txn Sender                                                                                   tmp%0#0
-        v-store tmp%0#0
         txn Sender                                                                                   tmp%1#1
         v-store tmp%1#1
-        txn Sender                                                                                   tmp%0#1
-        v-store tmp%0#1
-        txn Sender                                                                                   tmp%0#2
-        v-store tmp%0#2
+        txn Sender                                                                                   tmp%1#3
+        v-store tmp%1#3
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
@@ -1135,7 +1127,7 @@ subroutine test_array_dynamic_encoding:
         itob                                                                                         aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
-        v-load tmp%0#0                                                                               aggregate%val_as_bytes%0#0,tmp%0#0
+        v-load tmp%1#3                                                                               aggregate%val_as_bytes%0#0,tmp%1#3
         concat                                                                                       aggregate%head%1#0
         v-store aggregate%head%1#0
         byte 0x0020                                                                                  0x0020
@@ -1167,7 +1159,7 @@ subroutine test_array_dynamic_encoding:
         itob                                                                                         aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%1#0                                                            aggregate%val_as_bytes%1#0
-        v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#0,tmp%0#1
+        v-load tmp%1#3                                                                               aggregate%val_as_bytes%1#0,tmp%1#3
         concat                                                                                       aggregate%head%5#0
         v-store aggregate%head%5#0
         v-load aggregate%head%5#0                                                                    aggregate%head%5#0
@@ -1196,7 +1188,7 @@ subroutine test_array_dynamic_encoding:
         +                                                                                            aggregate%current_tail_offset%3#0
         v-store aggregate%current_tail_offset%3#0
         v-load aggregate%as_bytes%0#0                                                                aggregate%as_bytes%0#0
-        v-load tmp%0#2                                                                               aggregate%as_bytes%0#0,tmp%0#2
+        v-load tmp%1#3                                                                               aggregate%as_bytes%0#0,tmp%1#3
         concat                                                                                       aggregate%head%9#0
         v-store aggregate%head%9#0
         v-load aggregate%head%9#0                                                                    aggregate%head%9#0

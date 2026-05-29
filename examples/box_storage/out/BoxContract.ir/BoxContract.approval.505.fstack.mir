@@ -405,7 +405,7 @@ subroutine box_dynamic_array_pop_fixed_size:
         byte 0x                                                                                                                        (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_key#0 (copy),popped_item_offset#0,fixed_byte_size#0 (copy),0x
         box_splice                                                                                                                     (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 |
         p-load box_key#0                                                                                                               (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_key#0 (copy)
-        box_len                                                                                                                        (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0,_exists#0
+        box_len                                                                                                                        (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0,tmp%7#0
         pop 1                                                                                                                          (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
         l-store box_size#0 0                                                                                                           (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
         l-load box_size#0 0                                                                                                            (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
@@ -426,7 +426,7 @@ subroutine box_dynamic_array_concat_fixed:
         box_extract                                                                                                                    (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len_bytes#0
         btoi                                                                                                                           (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0
         p-load box_key#0                                                                                                               (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_key#0 (copy)
-        box_len                                                                                                                        (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,_exists#0
+        box_len                                                                                                                        (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,tmp%2#0
         pop 1                                                                                                                          (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0
         l-store box_size#0 0                                                                                                           (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0
         p-load new_items_count#0                                                                                                       (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,new_items_count#0 (copy)
@@ -1332,11 +1332,19 @@ subroutine delete_boxes:
         // assert self.box_c.get(default=arc4.String("42")) == "42"
         byte 0x424f585f43                                                                                                              a_exists#0,a#0,0x424f585f43
         box_get                                                                                                                        a_exists#0,a#0,maybe_value%2#0,maybe_exists%2#0
+        // box_storage/contract.py:178
+        // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
         byte 0x00023432                                                                                                                a_exists#0,a#0,maybe_value%2#0,maybe_exists%2#0,0x00023432
+        // box_storage/contract.py:179
+        // assert self.box_c.get(default=arc4.String("42")) == "42"
         l-load maybe_value%2#0 2                                                                                                       a_exists#0,a#0,maybe_exists%2#0,0x00023432,maybe_value%2#0
         l-load maybe_exists%2#0 2                                                                                                      a_exists#0,a#0,0x00023432,maybe_value%2#0,maybe_exists%2#0
         select                                                                                                                         a_exists#0,a#0,state_get%2#0
+        // box_storage/contract.py:178
+        // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
         byte 0x00023432                                                                                                                a_exists#0,a#0,state_get%2#0,0x00023432
+        // box_storage/contract.py:179
+        // assert self.box_c.get(default=arc4.String("42")) == "42"
         ==                                                                                                                             a_exists#0,a#0,tmp%6#0
         assert                                                                                                                         a_exists#0,a#0
         // box_storage/contract.py:181
@@ -1674,69 +1682,69 @@ subroutine pop_dynamic_arr_struct:
         f-store times#0                                                                                                                (𝕗) times#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        int 0                                                                                                                          (𝕗) times#0 | value_internal%0#0
-        f-store _pop#0                                                                                                                 (𝕗) times#0,_pop#0 |
-        b pop_dynamic_arr_struct_for_header@2                                                                                          (𝕗) times#0,_pop#0 |
+        int 0                                                                                                                          (𝕗) times#0 | 0
+        f-store value_internal%0#0                                                                                                     (𝕗) times#0,value_internal%0#0 |
+        b pop_dynamic_arr_struct_for_header@2                                                                                          (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_arr_struct_for_header@2:                                                                                               (𝕗) times#0,_pop#0 |
+    pop_dynamic_arr_struct_for_header@2:                                                                                               (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        f-load _pop#0                                                                                                                  (𝕗) times#0,_pop#0 | _pop#0
-        f-load times#0                                                                                                                 (𝕗) times#0,_pop#0 | _pop#0,times#0
-        <                                                                                                                              (𝕗) times#0,_pop#0 | continue_looping%0#0
-        bz pop_dynamic_arr_struct_after_for@5 ; b pop_dynamic_arr_struct_for_body@3                                                    (𝕗) times#0,_pop#0 |
+        f-load value_internal%0#0                                                                                                      (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        f-load times#0                                                                                                                 (𝕗) times#0,value_internal%0#0 | value_internal%0#0,times#0
+        <                                                                                                                              (𝕗) times#0,value_internal%0#0 | continue_looping%0#0
+        bz pop_dynamic_arr_struct_after_for@5 ; b pop_dynamic_arr_struct_for_body@3                                                    (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_arr_struct_for_body@3:                                                                                                 (𝕗) times#0,_pop#0 |
+    pop_dynamic_arr_struct_for_body@3:                                                                                                 (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,_pop#0 | "dynamic_arr_struct"
-        int 18                                                                                                                         (𝕗) times#0,_pop#0 | "dynamic_arr_struct",18
-        int 2                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_arr_struct",18,2
-        box_extract                                                                                                                    (𝕗) times#0,_pop#0 | arr_len_bytes#0
-        btoi                                                                                                                           (𝕗) times#0,_pop#0 | offset_value#0
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct"
+        int 18                                                                                                                         (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",18
+        int 2                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",18,2
+        box_extract                                                                                                                    (𝕗) times#0,value_internal%0#0 | arr_len_bytes#0
+        btoi                                                                                                                           (𝕗) times#0,value_internal%0#0 | offset_value#0
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        int 8                                                                                                                          (𝕗) times#0,_pop#0 | offset_value#0,8
-        -                                                                                                                              (𝕗) times#0,_pop#0 | new_offset_value#0
-        itob                                                                                                                           (𝕗) times#0,_pop#0 | value_bytes#0
-        extract 6 2                                                                                                                    (𝕗) times#0,_pop#0 | new_offset_value_u16#0
+        int 8                                                                                                                          (𝕗) times#0,value_internal%0#0 | offset_value#0,8
+        -                                                                                                                              (𝕗) times#0,value_internal%0#0 | new_offset_value#0
+        itob                                                                                                                           (𝕗) times#0,value_internal%0#0 | value_bytes#0
+        extract 6 2                                                                                                                    (𝕗) times#0,value_internal%0#0 | new_offset_value_u16#0
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,_pop#0 | new_offset_value_u16#0,"dynamic_arr_struct"
-        int 18                                                                                                                         (𝕗) times#0,_pop#0 | new_offset_value_u16#0,"dynamic_arr_struct",18
-        l-load new_offset_value_u16#0 2                                                                                                (𝕗) times#0,_pop#0 | "dynamic_arr_struct",18,new_offset_value_u16#0
-        box_replace                                                                                                                    (𝕗) times#0,_pop#0 |
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,value_internal%0#0 | new_offset_value_u16#0,"dynamic_arr_struct"
+        int 18                                                                                                                         (𝕗) times#0,value_internal%0#0 | new_offset_value_u16#0,"dynamic_arr_struct",18
+        l-load new_offset_value_u16#0 2                                                                                                (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",18,new_offset_value_u16#0
+        box_replace                                                                                                                    (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,_pop#0 | "dynamic_arr_struct"
-        int 20                                                                                                                         (𝕗) times#0,_pop#0 | "dynamic_arr_struct",20
-        int 8                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_arr_struct",20,8
-        callsub box_dynamic_array_pop_fixed_size                                                                                       (𝕗) times#0,_pop#0 |
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct"
+        int 20                                                                                                                         (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",20
+        int 8                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",20,8
+        callsub box_dynamic_array_pop_fixed_size                                                                                       (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        f-load _pop#0                                                                                                                  (𝕗) times#0,_pop#0 | _pop#0
-        int 1                                                                                                                          (𝕗) times#0,_pop#0 | _pop#0,1
-        +                                                                                                                              (𝕗) times#0,_pop#0 | value_internal%0#0
-        f-store _pop#0                                                                                                                 (𝕗) times#0,_pop#0 |
-        b pop_dynamic_arr_struct_for_header@2                                                                                          (𝕗) times#0,_pop#0 |
+        f-load value_internal%0#0                                                                                                      (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        int 1                                                                                                                          (𝕗) times#0,value_internal%0#0 | value_internal%0#0,1
+        +                                                                                                                              (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        f-store value_internal%0#0                                                                                                     (𝕗) times#0,value_internal%0#0 |
+        b pop_dynamic_arr_struct_for_header@2                                                                                          (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_arr_struct_after_for@5:                                                                                                (𝕗) times#0,_pop#0 |
+    pop_dynamic_arr_struct_after_for@5:                                                                                                (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:228
         // return self.dynamic_arr_struct.value.arr.length
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,_pop#0 | "dynamic_arr_struct"
-        int 20                                                                                                                         (𝕗) times#0,_pop#0 | "dynamic_arr_struct",20
-        int 2                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_arr_struct",20,2
-        box_extract                                                                                                                    (𝕗) times#0,_pop#0 | box%box_extract%4#0
-        btoi                                                                                                                           (𝕗) times#0,_pop#0 | box%btoi%2#0
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct"
+        int 20                                                                                                                         (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",20
+        int 2                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_arr_struct",20,2
+        box_extract                                                                                                                    (𝕗) times#0,value_internal%0#0 | box%box_extract%4#0
+        btoi                                                                                                                           (𝕗) times#0,value_internal%0#0 | box%btoi%2#0
         // box_storage/contract.py:223
         // @arc4.abimethod
-        itob                                                                                                                           (𝕗) times#0,_pop#0 | aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                                                                (𝕗) times#0,_pop#0 | aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                                                            (𝕗) times#0,_pop#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                                                         (𝕗) times#0,_pop#0 | tmp%4#0
-        log                                                                                                                            (𝕗) times#0,_pop#0 |
-        int 1                                                                                                                          (𝕗) times#0,_pop#0 | 1
-        return                                                                                                                         (𝕗) times#0,_pop#0 |
+        itob                                                                                                                           (𝕗) times#0,value_internal%0#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                                                                (𝕗) times#0,value_internal%0#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                                                            (𝕗) times#0,value_internal%0#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                                                         (𝕗) times#0,value_internal%0#0 | tmp%4#0
+        log                                                                                                                            (𝕗) times#0,value_internal%0#0 |
+        int 1                                                                                                                          (𝕗) times#0,value_internal%0#0 | 1
+        return                                                                                                                         (𝕗) times#0,value_internal%0#0 |
 
 
 // examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
@@ -2977,50 +2985,50 @@ subroutine pop_dynamic_box:
         f-store times#0                                                                                                                (𝕗) times#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        int 0                                                                                                                          (𝕗) times#0 | value_internal%0#0
-        f-store _pop#0                                                                                                                 (𝕗) times#0,_pop#0 |
-        b pop_dynamic_box_for_header@2                                                                                                 (𝕗) times#0,_pop#0 |
+        int 0                                                                                                                          (𝕗) times#0 | 0
+        f-store value_internal%0#0                                                                                                     (𝕗) times#0,value_internal%0#0 |
+        b pop_dynamic_box_for_header@2                                                                                                 (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_box_for_header@2:                                                                                                      (𝕗) times#0,_pop#0 |
+    pop_dynamic_box_for_header@2:                                                                                                      (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        f-load _pop#0                                                                                                                  (𝕗) times#0,_pop#0 | _pop#0
-        f-load times#0                                                                                                                 (𝕗) times#0,_pop#0 | _pop#0,times#0
-        <                                                                                                                              (𝕗) times#0,_pop#0 | continue_looping%0#0
-        bz pop_dynamic_box_after_for@5 ; b pop_dynamic_box_for_body@3                                                                  (𝕗) times#0,_pop#0 |
+        f-load value_internal%0#0                                                                                                      (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        f-load times#0                                                                                                                 (𝕗) times#0,value_internal%0#0 | value_internal%0#0,times#0
+        <                                                                                                                              (𝕗) times#0,value_internal%0#0 | continue_looping%0#0
+        bz pop_dynamic_box_after_for@5 ; b pop_dynamic_box_for_body@3                                                                  (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_box_for_body@3:                                                                                                        (𝕗) times#0,_pop#0 |
+    pop_dynamic_box_for_body@3:                                                                                                        (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:312
         // self.dynamic_box.value.pop()
-        byte "dynamic_box"                                                                                                             (𝕗) times#0,_pop#0 | "dynamic_box"
-        int 0                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_box",0
-        int 8                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_box",0,8
-        callsub box_dynamic_array_pop_fixed_size                                                                                       (𝕗) times#0,_pop#0 |
+        byte "dynamic_box"                                                                                                             (𝕗) times#0,value_internal%0#0 | "dynamic_box"
+        int 0                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_box",0
+        int 8                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_box",0,8
+        callsub box_dynamic_array_pop_fixed_size                                                                                       (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        f-load _pop#0                                                                                                                  (𝕗) times#0,_pop#0 | _pop#0
-        int 1                                                                                                                          (𝕗) times#0,_pop#0 | _pop#0,1
-        +                                                                                                                              (𝕗) times#0,_pop#0 | value_internal%0#0
-        f-store _pop#0                                                                                                                 (𝕗) times#0,_pop#0 |
-        b pop_dynamic_box_for_header@2                                                                                                 (𝕗) times#0,_pop#0 |
+        f-load value_internal%0#0                                                                                                      (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        int 1                                                                                                                          (𝕗) times#0,value_internal%0#0 | value_internal%0#0,1
+        +                                                                                                                              (𝕗) times#0,value_internal%0#0 | value_internal%0#0
+        f-store value_internal%0#0                                                                                                     (𝕗) times#0,value_internal%0#0 |
+        b pop_dynamic_box_for_header@2                                                                                                 (𝕗) times#0,value_internal%0#0 |
 
-    pop_dynamic_box_after_for@5:                                                                                                       (𝕗) times#0,_pop#0 |
+    pop_dynamic_box_after_for@5:                                                                                                       (𝕗) times#0,value_internal%0#0 |
         // box_storage/contract.py:314
         // return self.dynamic_box.value.length
-        byte "dynamic_box"                                                                                                             (𝕗) times#0,_pop#0 | "dynamic_box"
-        int 0                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_box",0
-        int 2                                                                                                                          (𝕗) times#0,_pop#0 | "dynamic_box",0,2
-        box_extract                                                                                                                    (𝕗) times#0,_pop#0 | box%box_extract%0#0
-        btoi                                                                                                                           (𝕗) times#0,_pop#0 | box%btoi%0#0
+        byte "dynamic_box"                                                                                                             (𝕗) times#0,value_internal%0#0 | "dynamic_box"
+        int 0                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_box",0
+        int 2                                                                                                                          (𝕗) times#0,value_internal%0#0 | "dynamic_box",0,2
+        box_extract                                                                                                                    (𝕗) times#0,value_internal%0#0 | box%box_extract%0#0
+        btoi                                                                                                                           (𝕗) times#0,value_internal%0#0 | box%btoi%0#0
         // box_storage/contract.py:309
         // @arc4.abimethod
-        itob                                                                                                                           (𝕗) times#0,_pop#0 | aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                                                                (𝕗) times#0,_pop#0 | aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                                                            (𝕗) times#0,_pop#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                                                         (𝕗) times#0,_pop#0 | tmp%4#0
-        log                                                                                                                            (𝕗) times#0,_pop#0 |
-        int 1                                                                                                                          (𝕗) times#0,_pop#0 | 1
-        return                                                                                                                         (𝕗) times#0,_pop#0 |
+        itob                                                                                                                           (𝕗) times#0,value_internal%0#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                                                                (𝕗) times#0,value_internal%0#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                                                            (𝕗) times#0,value_internal%0#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                                                         (𝕗) times#0,value_internal%0#0 | tmp%4#0
+        log                                                                                                                            (𝕗) times#0,value_internal%0#0 |
+        int 1                                                                                                                          (𝕗) times#0,value_internal%0#0 | 1
+        return                                                                                                                         (𝕗) times#0,value_internal%0#0 |
 
 
 // examples.box_storage.contract.BoxContract.sum_dynamic_box[routing]() -> void:
@@ -3429,8 +3437,8 @@ subroutine box_map_test:
         // box_storage/contract.py:411
         // value, exists = self.box_map.maybe(key_1)
         l-load-copy encoded_value%5#0 0                                                                                                encoded_value%5#0,encoded_value%5#0 (copy)
-        box_len                                                                                                                        encoded_value%5#0,value#1,exists#0
-        l-store exists#0 1                                                                                                             encoded_value%5#0,exists#0,value#1
+        box_len                                                                                                                        encoded_value%5#0,maybe_value%1#0,exists#0
+        l-store exists#0 1                                                                                                             encoded_value%5#0,exists#0,maybe_value%1#0
         pop 1                                                                                                                          encoded_value%5#0,exists#0
         // box_storage/contract.py:412
         // assert not exists

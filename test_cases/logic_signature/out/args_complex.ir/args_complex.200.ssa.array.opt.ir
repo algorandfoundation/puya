@@ -139,12 +139,18 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%71#0: bool = 1u
         let tmp%72#0: bool = 1u
         let _raw17#0: Encoded(uint64,(len+uint8[])) = (arg 17)
-        let tmp%75#0: bool = 1u
+        let tmp%74#0: uint64 = (btoi aggregate%extract%2#0)
+        let tmp%75#0: bool = (== arg17.0#0 tmp%74#0)
+        (assert tmp%75#0)
         let tmp%77#0: bool = 1u
         let _raw18#0: Encoded(uint64,((len+uint8[]),uint64)) = (arg 18)
-        let tmp%80#0: bool = 1u
+        let tmp%79#0: uint64 = (btoi aggregate%extract%3#0)
+        let tmp%80#0: bool = (== arg18.0#0 tmp%79#0)
+        (assert tmp%80#0)
         let tmp%82#0: bool = 1u
-        let tmp%84#0: bool = 1u
+        let tmp%83#0: uint64 = (btoi aggregate%extract%4#0)
+        let tmp%84#0: bool = (== arg18.1.1#0 tmp%83#0)
+        (assert tmp%84#0)
         let arg0#1: uint64 = (+ arg0#0 1u)
         let arg1#1: bytes = (concat arg1#0 0x21)
         let arg2#1: biguint = (b+ arg2#0 1b)
@@ -178,16 +184,18 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let aggregate%bitlen%1#0: uint64 = 8u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0xff
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0xff
+        let new_items_bytes#0: bytes = aggregate%as_Encoded(uint8)%1#0
         let aggregate%write_offset%0#0: uint64 = 0u
-        let arg12#1: Encoded(uint8[4]) = (replace3 arg12#0 aggregate%write_offset%0#0 0xff) // on error: index access is out of bounds
+        let arg12#1: Encoded(uint8[4]) = (replace3 arg12#0 aggregate%write_offset%0#0 new_items_bytes#0) // on error: index access is out of bounds
         let aggregate%extract%10#0: bytes = ((extract 0 8) arg13#0)
-        let tmp%114#0: uint64 = (extract_uint64 arg13#0 0u)
+        let tmp%114#0: uint64 = (btoi aggregate%extract%10#0)
         let tmp%115#0: uint64 = (+ tmp%114#0 1u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%115#0)
         let aggregate%extract%11#0: bytes = ((extract 8 8) arg13#0)
         let arg13#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#0 aggregate%extract%11#0)
         let aggregate%extract%12#0: bytes = ((extract 0 1) arg14#0)
-        let tmp%118#0: uint64 = (getbyte arg14#0 0u)
+        let tmp%118#0: uint64 = (btoi aggregate%extract%12#0)
         let tmp%119#0: uint64 = (+ tmp%118#0 1u)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%119#0)
         let aggregate%bitlen%2#0: uint64 = (bitlen aggregate%val_as_bytes%3#0)
@@ -197,7 +205,7 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let aggregate%extract%13#0: bytes = ((extract 1 16) arg14#0)
         let arg14#1: Encoded(uint8,(uint64,uint64)) = (concat aggregate%uint8%2#0 aggregate%extract%13#0)
         let aggregate%extract%14#0: bytes = ((extract 0 1) arg15#0)
-        let tmp%122#0: uint64 = (getbyte arg15#0 0u)
+        let tmp%122#0: uint64 = (btoi aggregate%extract%14#0)
         let tmp%123#0: uint64 = (+ tmp%122#0 1u)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%123#0)
         let aggregate%bitlen%3#0: uint64 = (bitlen aggregate%val_as_bytes%4#0)
@@ -205,18 +213,18 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         (assert aggregate%no_overflow%3#0) // overflow
         let aggregate%uint8%3#0: bytes = ((extract 7 1) aggregate%val_as_bytes%4#0)
         let aggregate%extract%15#0: bytes = ((extract 1 8) arg15#0)
-        let tmp%125#0: uint64 = (extract_uint64 arg15#0 1u)
+        let tmp%125#0: uint64 = (btoi aggregate%extract%15#0)
         let tmp%126#0: uint64 = (+ tmp%125#0 1u)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%126#0)
         let arg15#1: Encoded(uint8,uint64) = (concat aggregate%uint8%3#0 aggregate%val_as_bytes%5#0)
-        let tmp%129#0: uint64 = (getbyte tmp%21#0 0u)
+        let tmp%129#0: uint64 = (btoi arg16.a#0)
         let tmp%130#0: uint64 = (+ tmp%129#0 1u)
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%130#0)
         let aggregate%bitlen%4#0: uint64 = (bitlen aggregate%val_as_bytes%6#0)
         let aggregate%no_overflow%4#0: bool = (<= aggregate%bitlen%4#0 8u)
         (assert aggregate%no_overflow%4#0) // overflow
         let arg16.a#1: Encoded(uint8) = ((extract 7 1) aggregate%val_as_bytes%6#0)
-        let tmp%132#0: uint64 = (extract_uint64 tmp%21#0 1u)
+        let tmp%132#0: uint64 = (btoi arg16.b#0)
         let tmp%133#0: uint64 = (+ tmp%132#0 1u)
         let arg17.0#1: uint64 = (+ arg17.0#0 1u)
         let arg17.1#1: bytes = (concat arg17.1#0 0x21)
@@ -224,7 +232,7 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let arg18.1.0#1: bytes = (concat arg18.1.0#0 0x21)
         let arg18.1.1#1: uint64 = (+ arg18.1.1#0 1u)
         let aggregate%extract%16#0: bytes = ((extract 0 1) arg19#0)
-        let tmp%140#0: uint64 = (getbyte arg19#0 0u)
+        let tmp%140#0: uint64 = (btoi aggregate%extract%16#0)
         let tmp%141#0: uint64 = (+ tmp%140#0 1u)
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob tmp%141#0)
         let aggregate%bitlen%5#0: uint64 = (bitlen aggregate%val_as_bytes%7#0)
@@ -237,12 +245,11 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%145#0: bool = (! aggregate%get_bit%3#0)
         let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u tmp%145#0)
         let arg19#1: Encoded(uint8,bool1) = (concat aggregate%uint8%5#0 aggregate%encoded_bool%1#0)
-        let new_items_bytes#0: bytes = 0xff
         let new_array_length#0: uint64 = (+ array_length#0 1u)
         let tmp%0#2: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#2)
         let result#0: bytes = ((replace2 0) arg20#0 new_len_u16#0)
-        let arg20#1: Encoded(len+uint8[]) = (concat result#0 0xff)
+        let arg20#1: Encoded(len+uint8[]) = (concat result#0 new_items_bytes#0)
         (assert arg0#1)
         let tmp%152#0: uint64 = (len arg1#1)
         (assert tmp%152#0)
@@ -250,7 +257,7 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         (assert tmp%154#0)
         let tmp%155#0: uint64 = (len arg3#1)
         (assert tmp%155#0)
-        let tmp%157#0: uint64 = (getbyte aggregate%val_as_bytes%0#0 7u)
+        let tmp%157#0: uint64 = (btoi arg5#1)
         (assert tmp%157#0)
         (assert tmp%98#0)
         let tmp%162#0: bool = (b> arg7#1 0b)
@@ -261,18 +268,18 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         (assert aggregate%array_length%7#0)
         let aggregate%bytes_offset%0#0: uint64 = 0u
         let aggregate%encoded_element%0#0: bytes = (extract3 arg12#1 aggregate%bytes_offset%0#0 1u) // on error: index access is out of bounds
-        let tmp%171#0: bool = (b== aggregate%encoded_element%0#0 0xff)
+        let tmp%171#0: bool = (b== aggregate%encoded_element%0#0 new_items_bytes#0)
         (assert tmp%171#0)
         let aggregate%extract%17#0: bytes = ((extract 0 8) arg13#1)
-        let tmp%172#0: uint64 = (extract_uint64 arg13#1 0u)
+        let tmp%172#0: uint64 = (btoi aggregate%extract%17#0)
         (assert tmp%172#0)
         let aggregate%extract%18#0: bytes = ((extract 0 1) arg14#1)
-        let tmp%174#0: uint64 = (getbyte arg14#1 0u)
+        let tmp%174#0: uint64 = (btoi aggregate%extract%18#0)
         (assert tmp%174#0)
         let aggregate%extract%19#0: bytes = ((extract 0 1) arg15#1)
-        let tmp%176#0: uint64 = (getbyte arg15#1 0u)
+        let tmp%176#0: uint64 = (btoi aggregate%extract%19#0)
         (assert tmp%176#0)
-        let tmp%178#0: uint64 = (getbyte aggregate%val_as_bytes%6#0 7u)
+        let tmp%178#0: uint64 = (btoi arg16.a#1)
         (assert tmp%178#0)
         (assert arg17.0#1)
         let tmp%181#0: uint64 = (len arg17.1#1)
@@ -282,14 +289,14 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         (assert tmp%184#0)
         (assert arg18.1.1#1)
         let aggregate%extract%20#0: bytes = ((extract 0 1) arg19#1)
-        let tmp%187#0: uint64 = (getbyte arg19#1 0u)
+        let tmp%187#0: uint64 = (btoi aggregate%extract%20#0)
         (assert tmp%187#0)
         let aggregate%array_length%8#0: uint64 = (extract_uint16 arg20#1 0u) // on error: invalid array length header
         (assert aggregate%array_length%8#0)
         let tmp%192#0: uint64 = (+ arg0#1 tmp%157#0)
         let tmp%194#0: uint64 = (+ tmp%192#0 tmp%98#0)
         let aggregate%extract%21#0: bytes = ((extract 1 8) arg15#1)
-        let tmp%195#0: uint64 = (extract_uint64 arg15#1 1u)
+        let tmp%195#0: uint64 = (btoi aggregate%extract%21#0)
         let total#0: uint64 = (+ tmp%194#0 tmp%195#0)
         let tmp%198#0: uint64 = (+ tmp%133#0 arg17.0#1)
         let tmp%199#0: uint64 = (+ tmp%198#0 arg18.0#1)

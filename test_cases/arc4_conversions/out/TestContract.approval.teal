@@ -124,10 +124,10 @@ test_literal_encoding:
     itxn_field ApplicationID
     bytec 9 // method "check_string(string,byte[])void"
     itxn_field ApplicationArgs
-    bytec 4 // 0x000b48656c6c6f20576f726c64
-    itxn_field ApplicationArgs
     // arc4_conversions/contract.py:32
     // CheckApp.check_dynamic_bytes, b"Hello World", b"\x00\x0bHello World", app_id=app
+    bytec 4 // 0x000b48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
     bytec 5 // 0x000d000b48656c6c6f20576f726c64
     itxn_field ApplicationArgs
     // arc4_conversions/contract.py:35-36
@@ -693,21 +693,20 @@ test_array_static_encoding:
     // arc4_conversions/contract.py:203
     // return MyStruct(value, Txn.sender)
     txn Sender
-    dupn 2
     // arc4_conversions/contract.py:130
     // arr = ImmutableArray((my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3))))
     pushint 3
     itob
     intc_2 // 1
     itob
-    uncover 4
+    dig 2
     concat
     bytec 16 // 0x0003
     dig 1
     concat
     pushint 2
     itob
-    uncover 5
+    dig 4
     concat
     swap
     dig 1
@@ -886,7 +885,7 @@ test_array_dynamic_encoding:
     // arc4_conversions/contract.py:220
     // return MyDynStruct(value, Txn.sender, Txn.sender.bytes)
     txn Sender
-    dupn 3
+    dup
     // arc4_conversions/contract.py:154-156
     // arr = ImmutableArray(
     //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
@@ -901,10 +900,10 @@ test_array_dynamic_encoding:
     //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
     // )
     itob
-    uncover 5
+    dig 2
     concat
     bytec 14 // 0x0020
-    uncover 5
+    uncover 4
     concat
     swap
     bytec_3 // 0x002a
@@ -923,7 +922,7 @@ test_array_dynamic_encoding:
     //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
     // )
     itob
-    uncover 6
+    dig 5
     concat
     bytec_3 // 0x002a
     concat

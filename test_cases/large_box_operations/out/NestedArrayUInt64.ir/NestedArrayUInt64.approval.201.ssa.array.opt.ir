@@ -46,7 +46,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -72,6 +72,12 @@ subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint
 
 subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.bootstrap[routing]() -> void:
     block@0: // L35
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%1#0: bytes = 0x00000000000000010012
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%2#0: bytes = 0x000000000000000100120000000000000002
+        let aggregate%concat%0#0: bytes = 0x0000000000000001001200000000000000020000
+        let aggregate%concat%1#0: bytes = 0x000400180000000000000001001200000000000000020000
         let aggregate%concat%2#0: bytes = 0x0004001800000000000000010012000000000000000200000000
         (box_del "box")
         (box_put "box" 0x0004001800000000000000010012000000000000000200000000)
@@ -131,7 +137,7 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.pop[routing]
         let tmp%4#0: uint64 = (* new_arr_len#0 32u)
         let popped_item_offset#0: uint64 = (+ 24u tmp%4#0)
         (box_splice "box" popped_item_offset#0 32u 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len "box")
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len "box")
         let new_size#0: uint64 = (- box_size#0 32u)
         (box_resize "box" new_size#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 box%box_extract%4#0)

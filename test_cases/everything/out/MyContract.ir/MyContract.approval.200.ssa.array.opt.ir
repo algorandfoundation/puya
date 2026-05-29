@@ -68,7 +68,7 @@ subroutine test_cases.everything.contract.Everything.register[routing]() -> void
         let tmp%1#0: bool = (== tmp%0#1 OptIn)
         goto tmp%1#0 ? block@2 : block@5
     block@2: // if_body_L51
-        let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
+        let (maybe_value%0#0: bytes, sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
         goto sender_name_existed#0 ? block@5 : block@3
     block@3: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
@@ -92,12 +92,14 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x000f
         let aggregate%encoded_value%0#0: bytes = 0x000f486f77647920737472616e67657221
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         goto block@4
     block@3: // after_if_else_L60
         let aggregate%length%1#0: uint64 = 7u
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = 0x0007
-        let array#0: bytes = 0x000748656c6c6f2c20
+        let aggregate%encoded_value%1#0: bytes = 0x000748656c6c6f2c20
+        let array#0: bytes = aggregate%encoded_value%1#0
         let new_items_bytes#0: bytes = ((extract 2 0) name#0)
         let new_items_count#0: uint64 = (extract_uint16 name#0 0u) // on error: invalid array length header
         let array_length#0: uint64 = 7u
@@ -110,8 +112,11 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x000121
-        let new_items_bytes#1: bytes = "!"
-        let new_items_count#1: uint64 = 1u
+        let aggregate%as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = aggregate%encoded_value%2#0
+        let extract_to_end%1#0: bytes = "!"
+        let aggregate%array_length%1#0: uint64 = 1u
+        let new_items_count#1: uint64 = aggregate%array_length%1#0
+        let new_items_bytes#1: bytes = extract_to_end%1#0
         let array_length#1: uint64 = (extract_uint16 array#1 0u)
         let new_array_length#1: uint64 = (+ array_length#1 new_items_count#1)
         let tmp%0#6: bytes = (itob new_array_length#1)
@@ -120,7 +125,7 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let tmp%4#2: bytes = (concat result#1 new_items_bytes#1)
         goto block@4
     block@4: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
-        let tmp%0#0: Encoded(len+utf8[]) = φ(aggregate%encoded_value%0#0 <- block@2, tmp%4#2 <- block@3)
+        let tmp%0#0: Encoded(len+utf8[]) = φ(aggregate%as_Encoded(len+utf8[])%0#0 <- block@2, tmp%4#2 <- block@3)
         let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
         (log tmp%1#0)
         exit 1u

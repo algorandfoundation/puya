@@ -530,36 +530,6 @@ bytes_backed_ops/contract.py:36:9 debug: inlining call to test_cases.bytes_backe
 bytes_backed_ops/contract.py:37:9 debug: inlining call to test_cases.bytes_backed_ops.contract.test_bytes_backed_state_keys in test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%0#0, acct#0
-debug: selected acct#0 from equivalence set
-debug: Found equivalence set: awst_tmp%0#1, acct#1
-debug: selected acct#1 from equivalence set
-debug: Found equivalence set: tmp%2#1, result#0
-debug: selected result#0 from equivalence set
-debug: Found equivalence set: tmp%53#1, modified#0
-debug: selected modified#0 from equivalence set
-debug: Found equivalence set: tmp%55#1, replaced#0
-debug: selected replaced#0 from equivalence set
-debug: Found equivalence set: tmp%58#1, replaced2#0
-debug: selected replaced2#0 from equivalence set
-debug: Found equivalence set: tmp%7#2, decoded#0
-debug: selected decoded#0 from equivalence set
-debug: Found equivalence set: awst_tmp%0#2, acct#2
-debug: selected acct#2 from equivalence set
-debug: Found equivalence set: tmp%34#2, bit#0
-debug: selected bit#0 from equivalence set
-debug: Found equivalence set: tmp%36#2, result#1
-debug: selected result#1 from equivalence set
-debug: Found equivalence set: tmp%38#2, bit2#0
-debug: selected bit2#0 from equivalence set
-debug: Found equivalence set: tmp%40#2, result2#0
-debug: selected result2#0 from equivalence set
-debug: Found equivalence set: tmp%42#2, arc4_bool#0
-debug: selected arc4_bool#0 from equivalence set
-debug: Found equivalence set: tmp%43#2, toggled#0
-debug: selected toggled#0 from equivalence set
-debug: Copy propagation made 17 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
@@ -579,7 +549,7 @@ debug: Simplified (substring3 tmp%42#1 0u 4u) to ((substring 0 4) tmp%42#1)
 debug: Simplified (replace3 256b 0u 0x00) to ((replace2 0) 256b 0x00)
 debug: Simplified (replace3 acct#1 0u 0x00) to ((replace2 0) acct#1 0x00)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len acct#0) to 32u
+debug: Simplified (len awst_tmp%0#0) to 32u
 debug: Simplified (len tmp%2#0) to 32u
 debug: Simplified (len tmp%5#0) to 32u
 debug: Simplified (len tmp%8#0) to 32u
@@ -616,21 +586,18 @@ debug: Simplified (len tmp%125#0) to 32u
 debug: Simplified (len tmp%128#0) to 32u
 debug: Simplified (len tmp%134#0) to 32u
 debug: Simplified (len tmp%137#0) to 32u
-debug: Simplified (len acct#1) to 32u
+debug: Simplified (len awst_tmp%0#1) to 32u
 debug: Simplified (concat 0x68656c6c6f "hello") to 0x68656c6c6f68656c6c6f
-debug: Simplified (len 0x68656c6c6f68656c6c6f) to 10u
 debug: Simplified (concat 1000b 1000b) to 0x03e803e8
 debug: Simplified (len 0x03e803e8) to 4u
 debug: Simplified ((extract 1 3) "hello") to 0x656c6c
-debug: Simplified (len tmp%33#1) to 4u
 debug: Simplified ((substring 1 4) 0x68656c6c6f) to 0x656c6c
 debug: Simplified (getbyte 1000b 0u) to 3u
 debug: Simplified (getbyte "hello" 0u) to 104u
 debug: Simplified (setbyte 0x68656c6c6f 0u 72u) to 0x48656c6c6f
 debug: Simplified ((replace2 0) 256b 0x00) to 0x0000
-debug: Simplified (len 0x0000) to 2u
 debug: Simplified (extract_uint64 0x000000000000002a 0u) to 42u
-debug: Simplified (len acct#2) to 32u
+debug: Simplified (len awst_tmp%0#2) to 32u
 debug: Simplified (getbit "test" 0u) to 0u
 debug: Simplified (getbit 0x74657374 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
@@ -673,11 +640,12 @@ debug: removing redundant assert of tmp%1#3
 debug: removing redundant assert of tmp%4#3
 debug: removing redundant assert of tmp%37#2
 debug: removing redundant assert of tmp%41#2
+debug: GVN found equivalence set: (awst_tmp%0#0, acct#0), selected replacement: acct#0
 debug: GVN found equivalence set: (tmp%2#0, tmp%5#0), selected replacement: tmp%2#0
 debug: GVN found equivalence set: (tmp%8#0, tmp%43#0), selected replacement: tmp%8#0
 debug: GVN found equivalence set: (tmp%14#0, tmp%73#0, tmp%115#0, tmp%19#1, tmp%42#1, tmp%46#1, tmp%10#2, tmp%24#2, tmp%47#2), selected replacement: tmp%14#0
 debug: GVN found equivalence set: (tmp%34#0, tmp%111#0), selected replacement: tmp%34#0
-debug: GVN found equivalence set: (tmp%38#0, arc4_bool#0), selected replacement: arc4_bool#0
+debug: GVN found equivalence set: (tmp%38#0, tmp%42#2, arc4_bool#0), selected replacement: arc4_bool#0
 debug: GVN found equivalence set: (tmp%46#0, tmp%15#1, tmp%16#2), selected replacement: tmp%46#0
 debug: GVN found equivalence set: (tmp%56#0, tmp%62#0, tmp%67#0, tmp%99#0, tmp%131#0, tmp%19#2), selected replacement: tmp%56#0
 debug: GVN found equivalence set: (tmp%57#0, tmp%63#0, tmp%100#0, tmp%132#0), selected replacement: tmp%57#0
@@ -692,8 +660,14 @@ debug: GVN found equivalence set: (encoded_array%2#0, encoded_array%0#2), select
 debug: GVN found equivalence set: (encoded_array%3#0, encoded_array%7#0, encoded_array%0#1), selected replacement: encoded_array%3#0
 debug: GVN found equivalence set: (tmp%85#0, tmp%104#0, tmp%27#1, tmp%31#2), selected replacement: tmp%85#0
 debug: GVN found equivalence set: (tmp%122#0, tmp%125#0), selected replacement: tmp%122#0
+debug: GVN found equivalence set: (awst_tmp%0#1, acct#1), selected replacement: acct#1
+debug: GVN found equivalence set: (tmp%58#1, replaced2#0), selected replacement: replaced2#0
 debug: GVN found equivalence set: (tmp%63#1, tmp%66#1), selected replacement: tmp%63#1
-debug: GVN: 40 replacement(s) in test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
+debug: GVN found equivalence set: (tmp%7#2, decoded#0), selected replacement: decoded#0
+debug: GVN found equivalence set: (awst_tmp%0#2, acct#2), selected replacement: acct#2
+debug: GVN found equivalence set: (result#1, result2#0), selected replacement: result#1
+debug: GVN found equivalence set: (tmp%43#2, toggled#0), selected replacement: toggled#0
+debug: GVN: 48 replacement(s) in test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -704,10 +678,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.test_hash_ops
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%0#0, acct#0
-debug: selected acct#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
@@ -715,7 +685,7 @@ debug: Removing unused variable s#0
 debug: Removing unused variable big#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len acct#0) to 32u
+debug: Simplified (len awst_tmp%0#0) to 32u
 debug: Simplified (len tmp%2#0) to 32u
 debug: Simplified (len tmp%5#0) to 32u
 debug: Simplified (len tmp%8#0) to 32u
@@ -760,6 +730,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.bytes_backed_ops.contract.test_hash_ops converged after 2 iteration(s)
+debug: GVN found equivalence set: (awst_tmp%0#0, acct#0), selected replacement: acct#0
 debug: GVN found equivalence set: (tmp%2#0, tmp%5#0), selected replacement: tmp%2#0
 debug: GVN found equivalence set: (tmp%8#0, tmp%43#0), selected replacement: tmp%8#0
 debug: GVN found equivalence set: (tmp%14#0, tmp%73#0, tmp%115#0), selected replacement: tmp%14#0
@@ -772,7 +743,7 @@ debug: GVN found equivalence set: (encoded_array%1#0, encoded_array%4#0), select
 debug: GVN found equivalence set: (encoded_array%3#0, encoded_array%7#0), selected replacement: encoded_array%3#0
 debug: GVN found equivalence set: (tmp%85#0, tmp%104#0), selected replacement: tmp%85#0
 debug: GVN found equivalence set: (tmp%122#0, tmp%125#0), selected replacement: tmp%122#0
-debug: GVN: 18 replacement(s) in test_cases.bytes_backed_ops.contract.test_hash_ops
+debug: GVN: 19 replacement(s) in test_cases.bytes_backed_ops.contract.test_hash_ops
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -783,18 +754,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.test_byte_mani
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%0#0, acct#0
-debug: selected acct#0 from equivalence set
-debug: Found equivalence set: tmp%2#0, result#0
-debug: selected result#0 from equivalence set
-debug: Found equivalence set: tmp%53#0, modified#0
-debug: selected modified#0 from equivalence set
-debug: Found equivalence set: tmp%55#0, replaced#0
-debug: selected replaced#0 from equivalence set
-debug: Found equivalence set: tmp%58#0, replaced2#0
-debug: selected replaced2#0 from equivalence set
-debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
@@ -806,19 +765,16 @@ debug: Simplified (substring3 tmp%42#0 0u 4u) to ((substring 0 4) tmp%42#0)
 debug: Simplified (replace3 256b 0u 0x00) to ((replace2 0) 256b 0x00)
 debug: Simplified (replace3 acct#0 0u 0x00) to ((replace2 0) acct#0 0x00)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len acct#0) to 32u
+debug: Simplified (len awst_tmp%0#0) to 32u
 debug: Simplified (concat 0x68656c6c6f "hello") to 0x68656c6c6f68656c6c6f
-debug: Simplified (len 0x68656c6c6f68656c6c6f) to 10u
 debug: Simplified (concat 1000b 1000b) to 0x03e803e8
 debug: Simplified (len 0x03e803e8) to 4u
 debug: Simplified ((extract 1 3) "hello") to 0x656c6c
-debug: Simplified (len tmp%33#0) to 4u
 debug: Simplified ((substring 1 4) 0x68656c6c6f) to 0x656c6c
 debug: Simplified (getbyte 1000b 0u) to 3u
 debug: Simplified (getbyte "hello" 0u) to 104u
 debug: Simplified (setbyte 0x68656c6c6f 0u 72u) to 0x48656c6c6f
 debug: Simplified ((replace2 0) 256b 0x00) to 0x0000
-debug: Simplified (len 0x0000) to 2u
 debug: Simplified (extract_uint64 0x000000000000002a 0u) to 42u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -834,10 +790,12 @@ debug: removing redundant assert of tmp%41#0
 debug: removing redundant assert of tmp%52#0
 debug: removing redundant assert of tmp%54#0
 debug: removing redundant assert of tmp%62#0
+debug: GVN found equivalence set: (awst_tmp%0#0, acct#0), selected replacement: acct#0
 debug: GVN found equivalence set: (tmp%5#0, tmp%36#0), selected replacement: tmp%5#0
 debug: GVN found equivalence set: (tmp%19#0, tmp%42#0, tmp%46#0), selected replacement: tmp%19#0
+debug: GVN found equivalence set: (tmp%58#0, replaced2#0), selected replacement: replaced2#0
 debug: GVN found equivalence set: (tmp%63#0, tmp%66#0), selected replacement: tmp%63#0
-debug: GVN: 4 replacement(s) in test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops
+debug: GVN: 6 replacement(s) in test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -848,10 +806,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.test_conversio
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%7#0, decoded#0
-debug: selected decoded#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
@@ -867,6 +821,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.bytes_backed_ops.contract.test_conversion_ops converged after 2 iteration(s)
 debug: removing redundant assert of tmp%6#0
+debug: GVN found equivalence set: (tmp%7#0, decoded#0), selected replacement: decoded#0
+debug: GVN: 1 replacement(s) in test_cases.bytes_backed_ops.contract.test_conversion_ops
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -877,29 +833,13 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.test_bitwise_o
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%0#0, acct#0
-debug: selected acct#0 from equivalence set
-debug: Found equivalence set: tmp%34#0, bit#0
-debug: selected bit#0 from equivalence set
-debug: Found equivalence set: tmp%36#0, result#0
-debug: selected result#0 from equivalence set
-debug: Found equivalence set: tmp%38#0, bit2#0
-debug: selected bit2#0 from equivalence set
-debug: Found equivalence set: tmp%40#0, result2#0
-debug: selected result2#0 from equivalence set
-debug: Found equivalence set: tmp%42#0, arc4_bool#0
-debug: selected arc4_bool#0 from equivalence set
-debug: Found equivalence set: tmp%43#0, toggled#0
-debug: selected toggled#0 from equivalence set
-debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
 debug: Removing unused variable s#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len acct#0) to 32u
+debug: Simplified (len awst_tmp%0#0) to 32u
 debug: Simplified (getbit "test" 0u) to 0u
 debug: Simplified (getbit 0x74657374 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
@@ -913,9 +853,13 @@ debug: GVN: test_cases.bytes_backed_ops.contract.test_bitwise_ops converged afte
 debug: removing redundant assert of tmp%4#0
 debug: removing redundant assert of tmp%37#0
 debug: removing redundant assert of tmp%41#0
+debug: GVN found equivalence set: (awst_tmp%0#0, acct#0), selected replacement: acct#0
 debug: GVN found equivalence set: (tmp%10#0, tmp%24#0, tmp%47#0), selected replacement: tmp%10#0
 debug: GVN found equivalence set: (tmp%13#0, tmp%20#0), selected replacement: tmp%13#0
-debug: GVN: 3 replacement(s) in test_cases.bytes_backed_ops.contract.test_bitwise_ops
+debug: GVN found equivalence set: (result#0, result2#0), selected replacement: result#0
+debug: GVN found equivalence set: (tmp%42#0, arc4_bool#0), selected replacement: arc4_bool#0
+debug: GVN found equivalence set: (tmp%43#0, toggled#0), selected replacement: toggled#0
+debug: GVN: 7 replacement(s) in test_cases.bytes_backed_ops.contract.test_bitwise_ops
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -926,7 +870,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.test_bytes_bac
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable fb#0
@@ -958,7 +901,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
@@ -1071,6 +1013,7 @@ debug: Removing unused variable tmp%138#0
 debug: Removing unused variable tmp%139#0
 debug: Removing unused variable tmp%0#1
 debug: Removing unused variable tmp%1#1
+debug: Removing unused variable tmp%2#1
 debug: Removing unused variable result#0
 debug: Removing unused variable tmp%3#1
 debug: Removing unused variable tmp%4#1
@@ -1085,8 +1028,6 @@ debug: Removing unused variable tmp%26#1
 debug: Removing unused variable tmp%30#1
 debug: Removing unused variable tmp%31#1
 debug: Removing unused variable tmp%32#1
-debug: Removing unused variable tmp%33#1
-debug: Removing unused variable tmp%34#1
 debug: Removing unused variable tmp%35#1
 debug: Removing unused variable tmp%39#1
 debug: Removing unused variable tmp%40#1
@@ -1096,8 +1037,10 @@ debug: Removing unused variable tmp%49#1
 debug: Removing unused variable tmp%50#1
 debug: Removing unused variable tmp%51#1
 debug: Removing unused variable tmp%52#1
+debug: Removing unused variable tmp%53#1
 debug: Removing unused variable modified#0
 debug: Removing unused variable tmp%54#1
+debug: Removing unused variable tmp%55#1
 debug: Removing unused variable replaced#0
 debug: Removing unused variable tmp%56#1
 debug: Removing unused variable tmp%57#1
@@ -1128,13 +1071,16 @@ debug: Removing unused variable tmp%23#2
 debug: Removing unused variable tmp%28#2
 debug: Removing unused variable tmp%30#2
 debug: Removing unused variable tmp%33#2
+debug: Removing unused variable tmp%34#2
 debug: Removing unused variable bit#0
 debug: Removing unused variable tmp%35#2
+debug: Removing unused variable tmp%36#2
 debug: Removing unused variable result#1
 debug: Removing unused variable tmp%37#2
+debug: Removing unused variable tmp%38#2
 debug: Removing unused variable bit2#0
 debug: Removing unused variable tmp%39#2
-debug: Removing unused variable result2#0
+debug: Removing unused variable tmp%40#2
 debug: Removing unused variable tmp%41#2
 debug: Removing unused variable tmp%45#2
 debug: Removing unused variable tmp%46#2
@@ -1155,6 +1101,7 @@ debug: Removing unused variable tmp%57#0
 debug: Removing unused variable tmp%58#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (len tmp%33#1) to 4u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1175,7 +1122,32 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%33#1
+debug: Removing unused variable tmp%34#1
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program converged after 2 iteration(s)
+debug: Optimizer: Sink Single Use Intrinsics
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Output IR to bytes_backed_ops/out/BytesBackedOpsContract.ir/BytesBackedOpsContract.approval.003.ssa.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
@@ -1194,14 +1166,13 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.bytes_backed_ops.contract.BytesBackedOpsContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.clear_state_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
@@ -1231,52 +1202,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%14#0
-debug: selected aggregate%val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_bool%0#0, aggregate%as_Encoded(bool8)%0#0, arc4_bool#0
-debug: selected arc4_bool#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%46#0
-debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Found equivalence set: aggregate%uint8%0#0, aggregate%as_Encoded(uint8)%0#0, tmp%56#0
-debug: selected aggregate%uint8%0#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%68#0
-debug: selected aggregate%encoded_value%1#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(uint8,(len+utf8[]))%0#0, tmp%69#0
-debug: selected aggregate%concat%0#0 from equivalence set
-debug: Found equivalence set: aggregate%uint8%1#0, aggregate%as_Encoded(uint8)%1#0, tmp%74#0
-debug: selected aggregate%uint8%1#0 from equivalence set
-debug: Found equivalence set: aggregate%head%3#0, aggregate%as_Encoded(uint64,uint8)%0#0, tmp%75#0
-debug: selected aggregate%head%3#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%3#0, aggregate%as_Encoded(uint64)%1#0
-debug: selected aggregate%val_as_bytes%3#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%4#0, aggregate%as_Encoded(uint64)%2#0
-debug: selected aggregate%val_as_bytes%4#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%5#0, aggregate%as_Encoded(uint64)%3#0
-debug: selected aggregate%val_as_bytes%5#0 from equivalence set
-debug: Found equivalence set: aggregate%head%6#0, aggregate%as_Encoded(len+uint64[])%0#0, encoded_array%2#0
-debug: selected aggregate%head%6#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%6#0, aggregate%as_Encoded(uint64)%4#0
-debug: selected aggregate%val_as_bytes%6#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%7#0, aggregate%as_Encoded(uint64)%5#0
-debug: selected aggregate%val_as_bytes%7#0 from equivalence set
-debug: Found equivalence set: aggregate%head%8#0, aggregate%as_Encoded(len+uint64[])%1#0, encoded_array%3#0
-debug: selected aggregate%head%8#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%8#0, aggregate%as_Encoded(uint64)%6#0
-debug: selected aggregate%val_as_bytes%8#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%9#0, aggregate%as_Encoded(uint64)%7#0
-debug: selected aggregate%val_as_bytes%9#0 from equivalence set
-debug: Found equivalence set: aggregate%head%10#0, aggregate%as_Encoded(uint64,uint64)%0#0, tmp%85#0
-debug: selected aggregate%head%10#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%10#0, aggregate%as_Encoded(uint64)%8#0, tmp%20#1
-debug: selected aggregate%val_as_bytes%10#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%11#0, aggregate%as_Encoded(uint64)%9#0
-debug: selected aggregate%val_as_bytes%11#0 from equivalence set
-debug: Found equivalence set: aggregate%head%11#0, aggregate%as_Encoded(len+uint64[])%2#0, encoded_array%1#1
-debug: selected aggregate%head%11#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%12#0, aggregate%as_Encoded(uint64)%10#0, tmp%2#2
-debug: selected aggregate%val_as_bytes%12#0 from equivalence set
-debug: Copy propagation made 32 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%0#0
@@ -1290,35 +1215,14 @@ debug: Simplified (len 0x00026869) to 4u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0004
 debug: Simplified (concat 0x0004 0x00026869) to 0x000400026869
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
-debug: Simplified (concat 0x 0x01) to 0x01
+debug: Simplified (concat 0x tmp%56#0) to tmp%56#0
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0003
-debug: Simplified (concat 0x01 0x0003) to 0x010003
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x07
-debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
-debug: Simplified (concat aggregate%val_as_bytes%0#0 0x07) to 0x000000000000002a07
+debug: Simplified (concat 0x tmp%14#0) to tmp%14#0
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
-debug: Simplified (concat 0x0003 aggregate%val_as_bytes%3#0) to 0x00030000000000000001
-debug: Simplified (concat 0x00030000000000000001 aggregate%val_as_bytes%4#0) to 0x000300000000000000010000000000000002
-debug: Simplified (concat 0x000300000000000000010000000000000002 aggregate%val_as_bytes%5#0) to 0x0003000000000000000100000000000000020000000000000003
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0002
-debug: Simplified (concat 0x0002 aggregate%val_as_bytes%6#0) to 0x0002000000000000000a
-debug: Simplified (concat 0x0002000000000000000a aggregate%val_as_bytes%7#0) to 0x0002000000000000000a0000000000000014
-debug: Simplified (concat 0x aggregate%val_as_bytes%8#0) to aggregate%val_as_bytes%8#0
-debug: Simplified (concat aggregate%val_as_bytes%8#0 aggregate%val_as_bytes%9#0) to 0x00000000000000010000000000000002
-debug: Simplified (concat 0x000400026869 0x68656c6c6f) to 0x00040002686968656c6c6f
-debug: Simplified (len 0x00040002686968656c6c6f) to 11u
-debug: Simplified (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%10#0) to 0x000000000000002a000000000000002b
-debug: Simplified (len 0x000000000000002a000000000000002b) to 16u
-debug: Simplified (concat 0x0002000000000000000a0000000000000014 0x68656c6c6f) to 0x0002000000000000000a000000000000001468656c6c6f
-debug: Simplified (len 0x0002000000000000000a000000000000001468656c6c6f) to 23u
+debug: Simplified (concat 0x aggregate%as_Encoded(uint64)%6#0) to aggregate%as_Encoded(uint64)%6#0
 debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0001
-debug: Simplified (concat 0x0001 aggregate%val_as_bytes%11#0) to 0x00010000000000000001
-debug: Simplified (concat 0x00010000000000000001 0x00000000000000010000000000000002) to 0x0001000000000000000100000000000000010000000000000002
-debug: Simplified (len 0x0001000000000000000100000000000000010000000000000002) to 26u
-debug: Simplified ((substring 0 4) aggregate%val_as_bytes%0#0) to 0x00000000
-debug: Simplified (len 0x00000000) to 4u
-debug: Simplified (getbyte aggregate%val_as_bytes%0#0 7u) to 42u
-debug: Simplified (setbit 0x80 0u 0u) to 0x00
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1331,11 +1235,23 @@ debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of tmp%48#1
 debug: removing redundant assert of tmp%4#2
 debug: removing redundant assert of tmp%44#2
-debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, aggregate%head%2#0), selected replacement: aggregate%val_as_bytes%0#0
-debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%val_as_bytes%3#0, aggregate%val_as_bytes%8#0, aggregate%head%9#0, aggregate%as_bytes%5#0, aggregate%val_as_bytes%11#0), selected replacement: aggregate%val_as_bytes%1#0
-debug: GVN found equivalence set: (aggregate%as_bytes%2#0, aggregate%as_bytes%3#0, aggregate%val_as_bytes%5#0), selected replacement: aggregate%as_bytes%2#0
-debug: GVN found equivalence set: (aggregate%val_as_bytes%4#0, aggregate%as_bytes%4#0, aggregate%val_as_bytes%9#0), selected replacement: aggregate%val_as_bytes%4#0
-debug: GVN: 10 replacement(s) in test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
+debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%14#0, aggregate%head%2#0), selected replacement: aggregate%val_as_bytes%0#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%val_as_bytes%3#0, aggregate%as_Encoded(uint64)%1#0, aggregate%val_as_bytes%8#0, aggregate%as_Encoded(uint64)%6#0, aggregate%head%9#0, aggregate%as_bytes%5#0, aggregate%val_as_bytes%11#0, aggregate%as_Encoded(uint64)%9#0), selected replacement: aggregate%val_as_bytes%1#0
+debug: GVN found equivalence set: (tmp%56#0, aggregate%head%0#0), selected replacement: tmp%56#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%0#0, tmp%68#0), selected replacement: aggregate%as_Encoded(len+utf8[])%0#0
+debug: GVN found equivalence set: (aggregate%as_bytes%2#0, aggregate%as_bytes%3#0, aggregate%val_as_bytes%5#0, aggregate%as_Encoded(uint64)%3#0), selected replacement: aggregate%as_bytes%2#0
+debug: GVN found equivalence set: (aggregate%concat%0#0, aggregate%as_Encoded(uint8,(len+utf8[]))%0#0, tmp%69#0), selected replacement: aggregate%concat%0#0
+debug: GVN found equivalence set: (aggregate%head%3#0, aggregate%as_Encoded(uint64,uint8)%0#0, tmp%75#0), selected replacement: aggregate%head%3#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%4#0, aggregate%as_Encoded(uint64)%2#0, aggregate%as_bytes%4#0, aggregate%val_as_bytes%9#0, aggregate%as_Encoded(uint64)%7#0), selected replacement: aggregate%val_as_bytes%4#0
+debug: GVN found equivalence set: (aggregate%head%6#0, aggregate%as_Encoded(len+uint64[])%0#0, encoded_array%2#0), selected replacement: aggregate%head%6#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%6#0, aggregate%as_Encoded(uint64)%4#0), selected replacement: aggregate%val_as_bytes%6#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%7#0, aggregate%as_Encoded(uint64)%5#0), selected replacement: aggregate%val_as_bytes%7#0
+debug: GVN found equivalence set: (aggregate%head%8#0, aggregate%as_Encoded(len+uint64[])%1#0, encoded_array%3#0), selected replacement: aggregate%head%8#0
+debug: GVN found equivalence set: (aggregate%head%10#0, aggregate%as_Encoded(uint64,uint64)%0#0, tmp%85#0), selected replacement: aggregate%head%10#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%10#0, aggregate%as_Encoded(uint64)%8#0, tmp%20#1), selected replacement: aggregate%val_as_bytes%10#0
+debug: GVN found equivalence set: (aggregate%head%11#0, aggregate%as_Encoded(len+uint64[])%2#0, encoded_array%1#1), selected replacement: aggregate%head%11#0
+debug: GVN found equivalence set: (aggregate%val_as_bytes%12#0, aggregate%as_Encoded(uint64)%10#0, tmp%2#2), selected replacement: aggregate%val_as_bytes%12#0
+debug: GVN: 38 replacement(s) in test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1348,25 +1264,27 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable aggregate%val_as_bytes%0#0
+debug: Removing unused variable aggregate%encoded_bool%0#0
+debug: Removing unused variable aggregate%as_Encoded(bool8)%0#0
 debug: Removing unused variable arc4_bool#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
 debug: Removing unused variable aggregate%encoded_value%0#0
-debug: Removing unused variable aggregate%val_as_bytes%1#0
+debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%0#0
+debug: Removing unused variable tmp%46#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
+debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
+debug: Removing unused variable tmp%56#0
 debug: Removing unused variable aggregate%length%1#0
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%length_uint16%1#0
 debug: Removing unused variable aggregate%encoded_value%1#0
-debug: Removing unused variable aggregate%head%0#0
-debug: Removing unused variable aggregate%as_bytes%2#0
+debug: Removing unused variable aggregate%as_Encoded(len+utf8[])%0#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
 debug: Removing unused variable aggregate%head%1#0
 debug: Removing unused variable aggregate%concat%0#0
@@ -1374,27 +1292,19 @@ debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
+debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
+debug: Removing unused variable tmp%74#0
 debug: Removing unused variable aggregate%head%3#0
 debug: Removing unused variable aggregate%len_u16%0#0
-debug: Removing unused variable aggregate%head%4#0
-debug: Removing unused variable aggregate%val_as_bytes%4#0
-debug: Removing unused variable aggregate%head%5#0
 debug: Removing unused variable aggregate%head%6#0
 debug: Removing unused variable aggregate%len_u16%1#0
-debug: Removing unused variable aggregate%val_as_bytes%6#0
-debug: Removing unused variable aggregate%head%7#0
-debug: Removing unused variable aggregate%val_as_bytes%7#0
-debug: Removing unused variable aggregate%head%8#0
-debug: Removing unused variable aggregate%head%10#0
 debug: Removing unused variable tmp%16#1
 debug: Removing unused variable tmp%17#1
-debug: Removing unused variable aggregate%val_as_bytes%10#0
 debug: Removing unused variable tmp%21#1
 debug: Removing unused variable tmp%22#1
 debug: Removing unused variable tmp%24#1
 debug: Removing unused variable tmp%25#1
 debug: Removing unused variable aggregate%len_u16%2#0
-debug: Removing unused variable aggregate%head%11#0
 debug: Removing unused variable tmp%28#1
 debug: Removing unused variable tmp%29#1
 debug: Removing unused variable tmp%37#1
@@ -1415,6 +1325,19 @@ debug: Removing unused variable tmp%29#2
 debug: Removing unused variable tmp%32#2
 debug: Removing unused variable toggled#0
 debug: Removing unused variable tmp%44#2
+debug: Removing unused variable aggregate%val_as_bytes%0#0
+debug: Removing unused variable aggregate%as_bytes%2#0
+debug: Removing unused variable aggregate%head%5#0
+debug: Removing unused variable aggregate%head%8#0
+debug: Removing unused variable aggregate%head%10#0
+debug: Removing unused variable aggregate%val_as_bytes%10#0
+debug: Removing unused variable aggregate%head%11#0
+debug: Removing unused variable aggregate%head%4#0
+debug: Removing unused variable aggregate%val_as_bytes%4#0
+debug: Removing unused variable aggregate%head%7#0
+debug: Removing unused variable aggregate%val_as_bytes%7#0
+debug: Removing unused variable aggregate%val_as_bytes%1#0
+debug: Removing unused variable aggregate%val_as_bytes%6#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -1437,7 +1360,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
@@ -1463,7 +1385,6 @@ debug: Optimizing subroutine test_cases.bytes_backed_ops.contract.BytesBackedOps
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates

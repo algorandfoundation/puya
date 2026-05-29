@@ -6,7 +6,7 @@ main:
     intcblock 1 0 4 3
     bytecblock 0x 0xabcd1234 0xabcdef 0xcd12 "local" "box"
     intc_1 // 0
-    dupn 3
+    dupn 2
     bytec_0 // ""
     dup
     // fixed_bytes_ops/contract.py:27
@@ -227,11 +227,6 @@ main_else_body@33:
     //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
     // )
     callsub test_sequence_ops
-    // fixed_bytes_ops/contract.py:518
-    // empty_1 = FixedBytes[typing.Literal[4]]()
-    intc_2 // 4
-    bzero
-    bury 5
     // fixed_bytes_ops/contract.py:524
     // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
     txn ApplicationID
@@ -338,7 +333,7 @@ main_after_for@65:
     // arr = zero_bytes(FixedArray[FixedBytes[typing.Literal[4]], typing.Literal[8]])
     pushint 32
     bzero
-    bury 6
+    bury 5
     intc_1 // 0
     bury 1
 
@@ -352,13 +347,15 @@ main_for_header@68:
     dupn 2
     intc_2 // 4
     *
-    dig 7
+    dig 6
     swap
     intc_2 // 4
     extract3 // on error: index access is out of bounds
+    // fixed_bytes_ops/contract.py:321
+    // val2 &= other
+    pushbytes 0x00000000
     // fixed_bytes_ops/contract.py:580
     // assert v == FixedBytes[typing.Literal[4]]()
-    dig 6
     ==
     assert
     intc_0 // 1

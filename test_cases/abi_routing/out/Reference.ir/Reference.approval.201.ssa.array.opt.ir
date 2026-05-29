@@ -5,6 +5,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // call __init___L1
         (app_global_put "asa" 123u)
         (app_global_put "an_int" 2u)
+        let aggregate%head%1#0: bytes = 0x0708
+        let aggregate%head%2#0: bytes = 0x070809
         (app_global_put "some_bytes" 0x070809)
         let tmp%3#1: account = (txn Sender)
         (app_global_put "creator" tmp%3#1)
@@ -239,16 +241,22 @@ subroutine test_cases.abi_routing.contract.Reference.compare_assets[routing]() -
 
 subroutine test_cases.abi_routing.contract.Reference.get_asset[routing]() -> void:
     block@0: // L130
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 456u)
+        let tmp%1#0: bytes = 0x151f7c7500000000000001c8
         (log 0x151f7c7500000000000001c8)
         exit 1u
 
 subroutine test_cases.abi_routing.contract.Reference.get_app[routing]() -> void:
     block@0: // L134
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 456u)
+        let tmp%1#0: bytes = 0x151f7c7500000000000001c8
         (log 0x151f7c7500000000000001c8)
         exit 1u
 
 subroutine test_cases.abi_routing.contract.Reference.get_a_int[routing]() -> void:
     block@0: // L138
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 3u)
+        let tmp%1#0: bytes = 0x151f7c750000000000000003
         (log 0x151f7c750000000000000003)
         exit 1u
 
@@ -539,16 +547,22 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_more_than_15_ar
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let eq%16#0: bool = (== tuple_len%0#0 add%3#0)
         (assert eq%16#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+        let n#0: Encoded(uint64) = ((extract 0 8) tmp%17#0)
         let tmp%18#0: bytes = (txna ApplicationArgs 15)
+        let o#0: Encoded(uint64) = ((extract 8 8) tmp%18#0)
         let tmp%19#0: bytes = (txna ApplicationArgs 15)
+        let aggregate%extract%2#0: bytes = ((extract 16 8) tmp%19#0)
         let p#0: uint64 = (extract_uint64 tmp%19#0 16u)
         let tmp%21#0: bytes = (txna ApplicationArgs 15)
+        let q#0: Encoded(uint64) = ((extract 24 8) tmp%21#0)
         let tmp%22#0: bytes = (txna ApplicationArgs 15)
+        let r#0: Encoded(uint64) = ((extract 32 8) tmp%22#0)
         let tmp%23#0: bytes = (txna ApplicationArgs 15)
         let aggregate%substring3%0#0: bytes = (substring3 tmp%23#0 extract_uint16%0#0 extract_uint16%1#0)
         let s#0: bytes = ((extract 2 0) aggregate%substring3%0#0)
         let t#0: bytes = ((extract 2 0) substring3%1#0)
         let tmp%27#0: bytes = (txna ApplicationArgs 15)
+        let aggregate%extract%5#0: bytes = ((extract 44 8) tmp%27#0)
         let asset2#0: uint64 = (extract_uint64 tmp%27#0 44u)
         let tmp%29#0: uint64 = (txn GroupIndex)
         let pay2#0: uint64 = (- tmp%29#0 1u)
@@ -556,7 +570,9 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_more_than_15_ar
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
         let tmp%30#0: bytes = (txna ApplicationArgs 15)
+        let u#0: Encoded(uint64) = ((extract 52 8) tmp%30#0)
         let tmp%31#0: bytes = (txna ApplicationArgs 15)
+        let v#0: Encoded(uint64) = ((extract 60 8) tmp%31#0)
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#1: bool = (== tmp%0#1 16u)
         (assert tmp%1#1)

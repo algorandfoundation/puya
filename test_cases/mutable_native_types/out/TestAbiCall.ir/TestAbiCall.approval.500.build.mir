@@ -837,7 +837,23 @@ subroutine test_dynamic_struct:
         concat                                                                                         aggregate%concat%3#0
         v-store aggregate%concat%3#0
         v-load aggregate%concat%3#0                                                                    aggregate%concat%3#0
+        // mutable_native_types/abi_call.py:157-163
+        // dynamic_struct = DynamicStruct(
+        //     a=Txn.num_app_args + 1,
+        //     b=Txn.num_app_args + 2,
+        //     c=op.itob(Txn.num_app_args + 3),
+        //     d=String("Hello"),
+        //     e=NativeArray((fixed_struct,)),
+        // )
         byte 0x000548656c6c6f                                                                          aggregate%concat%3#0,0x000548656c6c6f
+        // mutable_native_types/abi_call.py:169-175
+        // dynamic_struct = DynamicStruct(
+        //     a=Txn.num_app_args + 2,
+        //     b=Txn.num_app_args + 3,
+        //     c=op.itob(Txn.num_app_args + 4),
+        //     d=String("Hello"),
+        //     e=NativeArray((fixed_struct,)),
+        // )
         concat                                                                                         aggregate%concat%4#0
         v-store aggregate%concat%4#0
         v-load aggregate%concat%4#0                                                                    aggregate%concat%4#0
@@ -1638,8 +1654,7 @@ subroutine test_log:
         len                                                                                            tmp%15#0
         v-store tmp%15#0
         v-load tmp%15#0                                                                                tmp%15#0
-        // mutable_native_types/abi_call.py:274-275
-        // dynamic_struct_len += 2 * 3  # head for c, d, e
+        // mutable_native_types/abi_call.py:275
         // dynamic_struct_len += 2 * 3  # tail for c, d, e
         int 28                                                                                         tmp%15#0,28
         // mutable_native_types/abi_call.py:276
@@ -1663,10 +1678,8 @@ subroutine test_log:
         itxna Logs 4                                                                                   tmp%20#0
         v-store tmp%20#0
         v-load tmp%20#0                                                                                tmp%20#0
-        // mutable_native_types/abi_call.py:256-258
-        // dynamic_struct = DynamicStruct(
-        //     a=UInt64(), b=UInt64(), c=Bytes(), d=String(), e=NativeArray[FixedStruct]()
-        // )
+        // mutable_native_types/abi_call.py:257
+        // a=UInt64(), b=UInt64(), c=Bytes(), d=String(), e=NativeArray[FixedStruct]()
         byte 0x0000                                                                                    tmp%20#0,0x0000
         // mutable_native_types/abi_call.py:278
         // assert txn.logs(4) == op.bzero(2), "expected fixed array"

@@ -38,21 +38,21 @@ loop_invariant_phi_aliasing:
     // @subroutine(inline=False)
     // def loop_invariant_phi_aliasing(x: UInt64, y: UInt64) -> UInt64:
     proto 2 1
-    frame_dig -2
     // gvn/loop_invariant_phi_aliasing.py:37
     // for _i in urange(10):
     pushint 0
+    frame_dig -2
 
 loop_invariant_phi_aliasing_for_header@1:
     // gvn/loop_invariant_phi_aliasing.py:37
     // for _i in urange(10):
-    frame_dig 1
+    frame_dig 0
     pushint 10
     <
     bz loop_invariant_phi_aliasing_after_for@4
     // gvn/loop_invariant_phi_aliasing.py:38
     // a = z + y
-    frame_dig 0
+    frame_dig 1
     frame_dig -1
     +
     // gvn/loop_invariant_phi_aliasing.py:39
@@ -63,18 +63,20 @@ loop_invariant_phi_aliasing_for_header@1:
     // gvn/loop_invariant_phi_aliasing.py:40
     // z = a + b
     +
-    frame_bury 0
+    frame_bury 1
     // gvn/loop_invariant_phi_aliasing.py:37
     // for _i in urange(10):
-    frame_dig 1
+    frame_dig 0
     intc_0 // 1
     +
-    frame_bury 1
+    frame_bury 0
     b loop_invariant_phi_aliasing_for_header@1
 
 loop_invariant_phi_aliasing_after_for@4:
     // gvn/loop_invariant_phi_aliasing.py:41
     // return z
+    frame_dig 1
+    frame_bury 0
     retsub
 
 

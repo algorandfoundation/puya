@@ -433,8 +433,8 @@ subroutine box_dynamic_array_pop_fixed_size:
         byte 0x                                                                                 (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_key#0 (copy),popped_item_offset#0,fixed_byte_size#0 (copy),0x
         box_splice                                                                              (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 |
         p-load box_key#0                                                                        (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_key#0 (copy)
-        box_len                                                                                 (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0,_exists#0
-        v-store _exists#0                                                                       (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
+        box_len                                                                                 (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0,tmp%7#0
+        v-store tmp%7#0                                                                         (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
         v-store box_size#0                                                                      (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 |
         v-load box_size#0                                                                       (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0
         p-load fixed_byte_size#0                                                                (𝕡) box_key#0,array_offset#0,fixed_byte_size#0 | box_size#0,fixed_byte_size#0 (copy)
@@ -458,8 +458,8 @@ subroutine box_dynamic_array_concat_fixed:
         btoi                                                                                    (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0
         v-store arr_len#0                                                                       (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 |
         p-load box_key#0                                                                        (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | box_key#0 (copy)
-        box_len                                                                                 (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | box_size#0,_exists#0
-        v-store _exists#0                                                                       (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | box_size#0
+        box_len                                                                                 (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | box_size#0,tmp%2#0
+        v-store tmp%2#0                                                                         (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | box_size#0
         v-store box_size#0                                                                      (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 |
         p-load new_items_count#0                                                                (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | new_items_count#0 (copy)
         p-load fixed_element_size#0                                                             (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | new_items_count#0 (copy),fixed_element_size#0 (copy)
@@ -1661,13 +1661,21 @@ subroutine delete_boxes:
         box_get                                                                                 maybe_value%2#0,maybe_exists%2#0
         v-store maybe_exists%2#0                                                                maybe_value%2#0
         v-store maybe_value%2#0
+        // box_storage/contract.py:178
+        // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
         byte 0x00023432                                                                         0x00023432
+        // box_storage/contract.py:179
+        // assert self.box_c.get(default=arc4.String("42")) == "42"
         v-load maybe_value%2#0                                                                  0x00023432,maybe_value%2#0
         v-load maybe_exists%2#0                                                                 0x00023432,maybe_value%2#0,maybe_exists%2#0
         select                                                                                  state_get%2#0
         v-store state_get%2#0
         v-load state_get%2#0                                                                    state_get%2#0
+        // box_storage/contract.py:178
+        // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
         byte 0x00023432                                                                         state_get%2#0,0x00023432
+        // box_storage/contract.py:179
+        // assert self.box_c.get(default=arc4.String("42")) == "42"
         ==                                                                                      tmp%6#0
         v-store tmp%6#0
         v-load tmp%6#0                                                                          tmp%6#0
@@ -2115,15 +2123,13 @@ subroutine pop_dynamic_arr_struct:
         // for _pop in urange(times):
         int 0                                                                                   0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                               value_internal%0#0
-        v-store _pop#0
         b pop_dynamic_arr_struct_for_header@2
 
     pop_dynamic_arr_struct_for_header@2:
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        v-load times#0                                                                          _pop#0,times#0
+        v-load value_internal%0#0                                                               value_internal%0#0
+        v-load times#0                                                                          value_internal%0#0,times#0
         <                                                                                       continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                             continue_looping%0#0
@@ -2166,12 +2172,10 @@ subroutine pop_dynamic_arr_struct:
         callsub box_dynamic_array_pop_fixed_size
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        int 1                                                                                   _pop#0,1
+        v-load value_internal%0#0                                                               value_internal%0#0
+        int 1                                                                                   value_internal%0#0,1
         +                                                                                       value_internal%0#0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                               value_internal%0#0
-        v-store _pop#0
         b pop_dynamic_arr_struct_for_header@2
 
     pop_dynamic_arr_struct_after_for@5:
@@ -3772,15 +3776,13 @@ subroutine pop_dynamic_box:
         // for _pop in urange(times):
         int 0                                                                                   0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                               value_internal%0#0
-        v-store _pop#0
         b pop_dynamic_box_for_header@2
 
     pop_dynamic_box_for_header@2:
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        v-load times#0                                                                          _pop#0,times#0
+        v-load value_internal%0#0                                                               value_internal%0#0
+        v-load times#0                                                                          value_internal%0#0,times#0
         <                                                                                       continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                             continue_looping%0#0
@@ -3795,12 +3797,10 @@ subroutine pop_dynamic_box:
         callsub box_dynamic_array_pop_fixed_size
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        int 1                                                                                   _pop#0,1
+        v-load value_internal%0#0                                                               value_internal%0#0
+        int 1                                                                                   value_internal%0#0,1
         +                                                                                       value_internal%0#0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                               value_internal%0#0
-        v-store _pop#0
         b pop_dynamic_box_for_header@2
 
     pop_dynamic_box_after_for@5:
@@ -4320,9 +4320,9 @@ subroutine box_map_test:
         // box_storage/contract.py:411
         // value, exists = self.box_map.maybe(key_1)
         v-load encoded_value%5#0                                                                encoded_value%5#0
-        box_len                                                                                 value#1,exists#0
-        v-store exists#0                                                                        value#1
-        v-store value#1
+        box_len                                                                                 maybe_value%1#0,exists#0
+        v-store exists#0                                                                        maybe_value%1#0
+        v-store maybe_value%1#0
         // box_storage/contract.py:412
         // assert not exists
         v-load exists#0                                                                         exists#0

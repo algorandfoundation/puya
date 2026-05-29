@@ -165,7 +165,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, a
         let tmp%4#0: uint64 = (* new_arr_len#0 fixed_byte_size#0)
         let popped_item_offset#0: uint64 = (+ tmp%3#0 tmp%4#0)
         (box_splice box_key#0 popped_item_offset#0 fixed_byte_size#0 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len box_key#0)
         let new_size#0: uint64 = (- box_size#0 fixed_byte_size#0)
         (box_resize box_key#0 new_size#0)
         return 
@@ -174,7 +174,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -802,9 +802,11 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[r
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L220
         let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(i#0)
-        let value#0: uint64 = 8u
-        let offset#0: uint64 = 18u
+        let box%mul%0#0: uint64 = 8u
+        let box%add%0#0: uint64 = 18u
         let box%offset%1#0: uint64 = 20u
+        let offset#0: uint64 = box%add%0#0
+        let value#0: uint64 = box%mul%0#0
         let arr_len_bytes#0: bytes = (box_extract "dynamic_arr_struct" offset#0 2u)
         let offset_value#0: uint64 = (btoi arr_len_bytes#0)
         let new_offset_value#0: uint64 = (+ offset_value#0 value#0)
@@ -833,12 +835,13 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L225
-        let _pop#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< _pop#0 times#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 times#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L226
-        let offset#0: uint64 = 18u
+        let box%add%0#0: uint64 = 18u
         let box%offset%1#0: uint64 = 20u
+        let offset#0: uint64 = box%add%0#0
         let arr_len_bytes#0: bytes = (box_extract "dynamic_arr_struct" offset#0 2u)
         let offset_value#0: uint64 = (btoi arr_len_bytes#0)
         let new_offset_value#0: uint64 = (- offset_value#0 8u)
@@ -846,7 +849,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let new_offset_value_u16#0: bytes = ((extract 6 2) value_bytes#0)
         (box_replace "dynamic_arr_struct" offset#0 new_offset_value_u16#0)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("dynamic_arr_struct", box%offset%1#0, 8u)
-        let value_internal%0#2: uint64 = (+ _pop#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@2
     block@5: // after_for_L225
         let box%offset%3#0: uint64 = 20u
@@ -1361,12 +1364,12 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]() 
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L311
-        let _pop#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< _pop#0 times#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 times#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L312
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("dynamic_box", 0u, 8u)
-        let value_internal%0#2: uint64 = (+ _pop#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@2
     block@5: // after_for_L311
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
@@ -1566,7 +1569,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> 
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%7#0: bool = (== state_get%0#0 "default")
         (assert tmp%7#0)
-        let (value#1: uint64, exists#0: bool) = (box_len encoded_value%5#0)
+        let (maybe_value%1#0: uint64, exists#0: bool) = (box_len encoded_value%5#0)
         let tmp%8#0: bool = (! exists#0)
         (assert tmp%8#0)
         box_write(encoded_value%5#0, "hello")

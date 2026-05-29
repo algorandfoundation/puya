@@ -46,7 +46,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -162,7 +162,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let tmp%4#0: uint64 = (* new_arr_len#0 8u)
         let popped_item_offset#0: uint64 = (+ tmp%3#1 tmp%4#0)
         (box_splice "box" popped_item_offset#0 8u 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len "box")
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len "box")
         let new_size#0: uint64 = (- box_size#0 8u)
         (box_resize "box" new_size#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 box%box_extract%7#0)

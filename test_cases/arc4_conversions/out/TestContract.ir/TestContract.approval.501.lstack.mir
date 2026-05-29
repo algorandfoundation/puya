@@ -187,10 +187,10 @@ subroutine test_literal_encoding:
         itxn_field ApplicationID                                                                     app#0
         method check_string(string,byte[])void                                                       app#0,Method(check_string(string,byte[])void)
         itxn_field ApplicationArgs                                                                   app#0
-        byte 0x000b48656c6c6f20576f726c64                                                            app#0,0x000b48656c6c6f20576f726c64
-        itxn_field ApplicationArgs                                                                   app#0
         // arc4_conversions/contract.py:32
         // CheckApp.check_dynamic_bytes, b"Hello World", b"\x00\x0bHello World", app_id=app
+        byte 0x000b48656c6c6f20576f726c64                                                            app#0,0x000b48656c6c6f20576f726c64
+        itxn_field ApplicationArgs                                                                   app#0
         byte 0x000d000b48656c6c6f20576f726c64                                                        app#0,0x000d000b48656c6c6f20576f726c64
         itxn_field ApplicationArgs                                                                   app#0
         // arc4_conversions/contract.py:36
@@ -780,25 +780,23 @@ subroutine test_array_static_encoding:
         itxn CreatedApplicationID                                                                    app#0
         // arc4_conversions/contract.py:203
         // return MyStruct(value, Txn.sender)
-        txn Sender                                                                                   app#0,tmp%0#0
-        txn Sender                                                                                   app#0,tmp%0#0,tmp%0#1
-        txn Sender                                                                                   app#0,tmp%0#0,tmp%0#1,tmp%0#2
+        txn Sender                                                                                   app#0,tmp%0#2
         // arc4_conversions/contract.py:130
         // arr = ImmutableArray((my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3))))
-        int 3                                                                                        app#0,tmp%0#0,tmp%0#1,tmp%0#2,3
-        itob                                                                                         app#0,tmp%0#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0
-        int 1                                                                                        app#0,tmp%0#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,1
-        itob                                                                                         app#0,tmp%0#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%0#0 0                                                          app#0,tmp%0#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
-        l-load tmp%0#0 4                                                                             app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0,tmp%0#0
-        concat                                                                                       app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0
-        byte 0x0003                                                                                  app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0003
-        l-load-copy aggregate%head%1#0 1                                                             app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0003,aggregate%head%1#0 (copy)
-        concat                                                                                       app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0
-        int 2                                                                                        app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,2
-        itob                                                                                         app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%1#0 0                                                          app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
-        l-load tmp%0#1 5                                                                             app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0,tmp%0#1
+        int 3                                                                                        app#0,tmp%0#2,3
+        itob                                                                                         app#0,tmp%0#2,aggregate%as_bytes%0#0
+        int 1                                                                                        app#0,tmp%0#2,aggregate%as_bytes%0#0,1
+        itob                                                                                         app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%0#0 0                                                          app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
+        l-load-copy tmp%0#2 2                                                                        app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0,tmp%0#2 (copy)
+        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0
+        byte 0x0003                                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0003
+        l-load-copy aggregate%head%1#0 1                                                             app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0003,aggregate%head%1#0 (copy)
+        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0
+        int 2                                                                                        app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,2
+        itob                                                                                         app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%1#0 0                                                          app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
+        l-load-copy tmp%0#2 4                                                                        app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0,tmp%0#2 (copy)
         concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%2#0,aggregate%head%4#0
         l-load aggregate%head%2#0 1                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%4#0,aggregate%head%2#0
         l-load-copy aggregate%head%4#0 1                                                             app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%head%4#0,aggregate%head%2#0,aggregate%head%4#0 (copy)
@@ -1005,72 +1003,70 @@ subroutine test_array_dynamic_encoding:
         itxn CreatedApplicationID                                                                    app#0
         // arc4_conversions/contract.py:220
         // return MyDynStruct(value, Txn.sender, Txn.sender.bytes)
-        txn Sender                                                                                   app#0,tmp%0#0
-        txn Sender                                                                                   app#0,tmp%0#0,tmp%1#1
-        txn Sender                                                                                   app#0,tmp%0#0,tmp%1#1,tmp%0#1
-        txn Sender                                                                                   app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2
+        txn Sender                                                                                   app#0,tmp%1#1
+        txn Sender                                                                                   app#0,tmp%1#1,tmp%1#3
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
         // )
-        int 3                                                                                        app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2,3
-        itob                                                                                         app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0
+        int 3                                                                                        app#0,tmp%1#1,tmp%1#3,3
+        itob                                                                                         app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0
         // arc4_conversions/contract.py:155
         // (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
-        int 1                                                                                        app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,1
+        int 1                                                                                        app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,1
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
         // )
-        itob                                                                                         app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%0#0 0                                                          app#0,tmp%0#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
-        l-load tmp%0#0 5                                                                             app#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0,tmp%0#0
-        concat                                                                                       app#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0
-        byte 0x0020                                                                                  app#0,tmp%1#1,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0020
-        l-load tmp%1#1 5                                                                             app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0020,tmp%1#1
-        concat                                                                                       app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%encoded_value%0#0
-        l-load aggregate%head%1#0 1                                                                  app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0
-        byte 0x002a                                                                                  app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,0x002a
-        concat                                                                                       app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0
-        l-load aggregate%head%2#0 0                                                                  app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0
-        l-load-copy aggregate%encoded_value%0#0 1                                                    app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%encoded_value%0#0 (copy)
-        concat                                                                                       app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0
-        l-load-copy aggregate%concat%0#0 0                                                           app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%0#0 (copy)
-        len                                                                                          app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%data_length%1#0
-        int 6                                                                                        app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%data_length%1#0,6
-        l-load aggregate%data_length%1#0 1                                                           app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,6,aggregate%data_length%1#0
-        +                                                                                            app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0
+        itob                                                                                         app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%0#0 0                                                          app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0
+        l-load-copy tmp%1#3 2                                                                        app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,aggregate%val_as_bytes%0#0,tmp%1#3 (copy)
+        concat                                                                                       app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,aggregate%head%1#0
+        byte 0x0020                                                                                  app#0,tmp%1#1,tmp%1#3,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0020
+        l-load tmp%1#1 4                                                                             app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%head%1#0,0x0020,tmp%1#1
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%head%1#0,aggregate%encoded_value%0#0
+        l-load aggregate%head%1#0 1                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0
+        byte 0x002a                                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,0x002a
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0
+        l-load aggregate%head%2#0 0                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0
+        l-load-copy aggregate%encoded_value%0#0 1                                                    app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%encoded_value%0#0 (copy)
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0
+        l-load-copy aggregate%concat%0#0 0                                                           app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%0#0 (copy)
+        len                                                                                          app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%data_length%1#0
+        int 6                                                                                        app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%data_length%1#0,6
+        l-load aggregate%data_length%1#0 1                                                           app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,6,aggregate%data_length%1#0
+        +                                                                                            app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0
         // arc4_conversions/contract.py:155
         // (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
-        int 2                                                                                        app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,2
+        int 2                                                                                        app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,2
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
         // )
-        itob                                                                                         app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%1#0 0                                                          app#0,tmp%0#1,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0
-        l-load tmp%0#1 6                                                                             app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0,tmp%0#1
-        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0
-        byte 0x002a                                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0,0x002a
-        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0
-        l-load-copy aggregate%encoded_value%0#0 3                                                    app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0,aggregate%encoded_value%0#0 (copy)
-        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0
-        l-load-copy aggregate%current_tail_offset%1#0 1                                              app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%current_tail_offset%1#0 (copy)
-        itob                                                                                         app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%as_bytes%6#0
-        l-load aggregate%as_bytes%6#0 0                                                              app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%as_bytes%6#0
-        extract 6 2                                                                                  app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0
-        byte 0x00030006                                                                              app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,0x00030006
-        l-load-copy aggregate%offset_as_uint16%3#0 1                                                 app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,0x00030006,aggregate%offset_as_uint16%3#0 (copy)
-        concat                                                                                       app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0
-        l-load-copy aggregate%concat%1#0 2                                                           app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%concat%1#0 (copy)
-        len                                                                                          app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%data_length%3#0
-        l-load aggregate%current_tail_offset%1#0 4                                                   app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%data_length%3#0,aggregate%current_tail_offset%1#0
-        l-load aggregate%data_length%3#0 1                                                           app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%1#0,aggregate%data_length%3#0
-        +                                                                                            app#0,tmp%0#2,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0
-        l-load aggregate%as_bytes%0#0 6                                                              app#0,tmp%0#2,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%as_bytes%0#0
-        l-load tmp%0#2 7                                                                             app#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%as_bytes%0#0,tmp%0#2
+        itob                                                                                         app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%1#0 0                                                          app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0
+        l-load-copy tmp%1#3 5                                                                        app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%val_as_bytes%1#0,tmp%1#3 (copy)
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0
+        l-load aggregate%head%5#0 0                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0
+        byte 0x002a                                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%5#0,0x002a
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0
+        l-load aggregate%head%6#0 0                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0
+        l-load-copy aggregate%encoded_value%0#0 3                                                    app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%head%6#0,aggregate%encoded_value%0#0 (copy)
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0
+        l-load-copy aggregate%current_tail_offset%1#0 1                                              app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%current_tail_offset%1#0 (copy)
+        itob                                                                                         app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%as_bytes%6#0
+        l-load aggregate%as_bytes%6#0 0                                                              app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%as_bytes%6#0
+        extract 6 2                                                                                  app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0
+        byte 0x00030006                                                                              app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,0x00030006
+        l-load-copy aggregate%offset_as_uint16%3#0 1                                                 app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,0x00030006,aggregate%offset_as_uint16%3#0 (copy)
+        concat                                                                                       app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0
+        l-load-copy aggregate%concat%1#0 2                                                           app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%concat%1#0 (copy)
+        len                                                                                          app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%current_tail_offset%1#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%data_length%3#0
+        l-load aggregate%current_tail_offset%1#0 4                                                   app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%data_length%3#0,aggregate%current_tail_offset%1#0
+        l-load aggregate%data_length%3#0 1                                                           app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%1#0,aggregate%data_length%3#0
+        +                                                                                            app#0,tmp%1#3,aggregate%as_bytes%0#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0
+        l-load aggregate%as_bytes%0#0 6                                                              app#0,tmp%1#3,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%as_bytes%0#0
+        l-load tmp%1#3 7                                                                             app#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%as_bytes%0#0,tmp%1#3
         concat                                                                                       app#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%head%9#0
         l-load aggregate%head%9#0 0                                                                  app#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%head%9#0
         byte 0x002a                                                                                  app#0,aggregate%encoded_value%0#0,aggregate%concat%0#0,aggregate%concat%1#0,aggregate%offset_as_uint16%3#0,aggregate%head%7#0,aggregate%current_tail_offset%3#0,aggregate%head%9#0,0x002a

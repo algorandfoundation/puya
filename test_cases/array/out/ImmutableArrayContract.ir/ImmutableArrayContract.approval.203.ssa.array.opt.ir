@@ -303,13 +303,13 @@ subroutine test_cases.array.immutable.times(n: uint64) -> string:
         let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L491
-        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let result#1: string = φ(result#0 <- block@0, result#2 <- block@2)
-        let continue_looping%0#0: bool = (< _i#0 n#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 n#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L492
         let result#2: string = (concat result#1 " ")
-        let value_internal%0#2: uint64 = (+ _i#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L491
         return result#1
@@ -369,13 +369,13 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[r
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L505
-        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let arr#9: Encoded(len+uint64[]) = φ(arr#3 <- block@0, arr#10 <- block@3)
-        let continue_looping%0#0: bool = (< _i#0 3u)
+        let continue_looping%0#0: bool = (< value_internal%0#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L506
         let arr#10: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#9, 8u)
-        let value_internal%0#2: uint64 = (+ _i#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@2
     block@4: // after_for_L505
         let aggregate%array_length%4#0: uint64 = (extract_uint16 arr#9 0u) // on error: invalid array length header
@@ -1006,17 +1006,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples[routing]() -> void:
     block@0: // L276
         let arr2#0: Encoded(len+(bool1,bool1)[]) = 0x0000
-        let arr7#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
-        let arr8#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
-        let arr9#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L287
         let i#0: uint64 = φ(value_internal%0#0 <- block@0, tmp%12#0 <- block@3)
         let arr2#1: Encoded(len+(bool1,bool1)[]) = φ(arr2#0 <- block@0, arr2#2 <- block@3)
-        let arr7#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr7#0 <- block@0, arr7#2 <- block@3)
-        let arr8#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr8#0 <- block@0, arr8#2 <- block@3)
-        let arr9#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr9#0 <- block@0, arr9#2 <- block@3)
+        let arr7#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr2#0 <- block@0, arr7#2 <- block@3)
+        let arr8#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr2#0 <- block@0, arr8#2 <- block@3)
+        let arr9#1: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = φ(arr2#0 <- block@0, arr9#2 <- block@3)
         let continue_looping%0#0: bool = (< i#0 5u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L288

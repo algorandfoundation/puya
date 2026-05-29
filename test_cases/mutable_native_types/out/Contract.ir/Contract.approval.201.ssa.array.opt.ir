@@ -99,8 +99,10 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let aggregate%extract%0#0: bytes = ((extract 0 8) aggregate%encoded_element%0#0)
         let tmp%0#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 0u)
         let total#2: uint64 = (+ total#1 tmp%0#0)
+        let aggregate%extract%1#0: bytes = ((extract 8 8) aggregate%encoded_element%0#0)
         let tmp%2#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 8u)
         let total#3: uint64 = (+ total#2 tmp%2#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -110,7 +112,9 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
 
 subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
     block@0: // L279
+        let aggregate%extract%0#0: bytes = ((extract 0 8) val#0)
         let tmp%0#0: uint64 = (extract_uint64 val#0 0u)
+        let aggregate%extract%1#0: bytes = ((extract 8 8) val#0)
         let tmp%1#0: uint64 = (extract_uint64 val#0 8u)
         let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
         return tmp%2#0
@@ -164,6 +168,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[r
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 48u)
         let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#0 48u) // on error: index access is out of bounds
+        let aggregate%extract%0#0: bytes = ((extract 40 8) aggregate%encoded_element%0#0)
         let tmp%1#1: uint64 = (extract_uint64 aggregate%encoded_element%0#0 40u)
         let tmp%2#1: uint64 = (+ tmp%1#1 amt#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#1)
@@ -202,7 +207,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routin
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 567u)
         let a#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
         let foo#0: account = ((extract 0 32) a#0)
+        let aggregate%extract%1#0: bytes = ((extract 32 8) a#0)
         let bar#0: uint64 = (extract_uint64 a#0 32u)
+        let aggregate%extract%2#0: bytes = ((extract 40 8) a#0)
         let baz#0: uint64 = (extract_uint64 a#0 40u)
         let tmp%5#0: account = (global ZeroAddress)
         let tmp%6#0: bool = (!= foo#0 tmp%5#0)
@@ -363,9 +370,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let value_internal%0#0: uint64 = 0u
         goto block@4
     block@4: // for_header_L236
-        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let arr2#3: Encoded(len+(uint64,uint64)[]) = φ(arr8#0 <- block@0, arr2#4 <- block@5)
-        let continue_looping%0#0: bool = (< _i#0 3u)
+        let continue_looping%0#0: bool = (< value_internal%0#1 3u)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L237
         let array_length#2: uint64 = (extract_uint16 arr2#3 0u)
@@ -374,7 +381,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let new_len_u16#1: bytes = ((extract 6 0) tmp%0#6)
         let result#2: bytes = ((replace2 0) arr2#3 new_len_u16#1)
         let arr2#4: Encoded(len+(uint64,uint64)[]) = (concat result#2 fixed_struct#0)
-        let value_internal%0#2: uint64 = (+ _i#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@4
     block@7: // after_for_L236
         let aggregate%array_length%2#0: uint64 = (extract_uint16 arr2#3 0u) // on error: invalid array length header
@@ -428,6 +435,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[r
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%1#0: bytes = 0x00000000000000010000000000000002
         switch arg#0 {0x00000000000000010000000000000002 => block@2, * => block@3}
     block@2: // switch_case_0_L265
         let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0: bool = 1u

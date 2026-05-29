@@ -5,27 +5,33 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x01
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x01
+        let tmp%0#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%bitlen%1#0: uint64 = 2u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x02
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x02
+        let tmp%1#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
         let aggregate%len_u16%0#0: bytes = 0x0002
         let aggregate%head%0#0: bytes = 0x000201
-        let dynamic_uint8_array#0: Encoded(len+uint8[]) = 0x00020102
+        let aggregate%head%1#0: bytes = 0x00020102
+        let dynamic_uint8_array#0: Encoded(len+uint8[]) = aggregate%head%1#0
         let total#0: uint64 = 0u
         let aggregate%array_length%0#0: uint64 = 2u
+        let array_length%0#0: uint64 = aggregate%array_length%0#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L27
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@2)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 2u)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L28
         let aggregate%total_length%0#0: uint64 = 4u
         let aggregate%array_trimmed%0#0: bytes = 0x0102
-        let uint8_item#0: Encoded(uint8) = (extract3 0x0102 item_index_internal%0#1 1u) // on error: index access is out of bounds
-        let tmp%2#0: uint64 = (getbyte 0x0102 item_index_internal%0#1)
+        let uint8_item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 item_index_internal%0#1 1u) // on error: index access is out of bounds
+        let tmp%2#0: uint64 = (btoi uint8_item#0)
         let total#2: uint64 = (+ total#1 tmp%2#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
@@ -35,22 +41,25 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%bitlen%2#0: uint64 = 1u
         let aggregate%no_overflow%2#0: bool = 1u
         let aggregate%uint16%0#0: bytes = 0x0001
+        let aggregate%as_Encoded(uint16)%0#0: Encoded(uint16) = 0x0001
+        let tmp%5#0: Encoded(uint16) = aggregate%as_Encoded(uint16)%0#0
         let aggregate%len_u16%1#0: bytes = 0x0001
-        let aliased_dynamic#0: Encoded(len+uint16[]) = 0x00010001
+        let aliased_dynamic#0: Encoded(len+uint16[]) = (concat 0x0001 tmp%5#0)
         let aggregate%array_length%1#0: uint64 = 1u
+        let array_length%1#0: uint64 = aggregate%array_length%1#0
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
     block@5: // for_header_L32
         let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@4, item_index_internal%1#2 <- block@6)
         let total#3: uint64 = φ(total#1 <- block@4, total#4 <- block@6)
-        let continue_looping%1#0: bool = (< item_index_internal%1#1 1u)
+        let continue_looping%1#0: bool = (< item_index_internal%1#1 array_length%1#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L33
         let aggregate%total_length%1#0: uint64 = 4u
         let aggregate%array_trimmed%1#0: bytes = 0x0001
         let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%1#1 2u)
-        let uint16_item#0: Encoded(uint16) = (extract3 0x0001 aggregate%bytes_offset%1#0 2u) // on error: index access is out of bounds
-        let tmp%6#0: uint64 = (extract_uint16 0x0001 aggregate%bytes_offset%1#0)
+        let uint16_item#0: Encoded(uint16) = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 2u) // on error: index access is out of bounds
+        let tmp%6#0: uint64 = (btoi uint16_item#0)
         let total#4: uint64 = (+ total#3 tmp%6#0)
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
@@ -61,9 +70,11 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0005
         let aggregate%encoded_value%0#0: bytes = 0x000548656c6c6f
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let aggregate%length%1#0: uint64 = 5u
         let aggregate%length_uint16%1#0: bytes = 0x0005
         let aggregate%encoded_value%1#0: bytes = 0x0005576f726c64
+        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = aggregate%encoded_value%1#0
         let aggregate%len_u16%2#0: bytes = 0x0002
         let aggregate%as_bytes%5#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0004
@@ -73,15 +84,15 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000b
         let aggregate%head%4#0: bytes = 0x00020004000b
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 aggregate%encoded_value%0#0)
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%concat%0#0 aggregate%encoded_value%1#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 aggregate%as_Encoded(len+utf8[])%0#0)
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+utf8[])%1#0)
         let aggregate%array_length%2#0: uint64 = 2u
         let tmp%12#0: bool = 1u
         let length#0: uint64 = 2u
         let tmp%1#1: bool = 1u
         (assert length#0) // index out of bounds
         let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(dynamic_string_array#0, 0u)
-        let tmp%14#0: bool = (== aggregate%item%0#0 aggregate%encoded_value%0#0)
+        let tmp%14#0: bool = (== aggregate%item%0#0 aggregate%as_Encoded(len+utf8[])%0#0)
         (assert tmp%14#0)
         let result#0: string = ""
         let item_index_internal%2#0: uint64 = 0u
@@ -89,7 +100,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@9: // for_header_L39
         let index#0: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@13)
         let result#2: string = φ(result#0 <- block@8, result#4 <- block@13)
-        let continue_looping%2#0: bool = (< index#0 aggregate%array_length%2#0)
+        let continue_looping%2#0: bool = (< index#0 array_length%0#0)
         goto continue_looping%2#0 ? block@10 : block@15
     block@10: // for_body_L40
         let string_item#0: Encoded(len+utf8[]) = _puya_lib.arc4.dynamic_array_read_byte_length_element(dynamic_string_array#0, index#0)
@@ -112,22 +123,29 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%bitlen%3#0: uint64 = 1u
         let aggregate%no_overflow%3#0: bool = 1u
         let aggregate%uint32%0#0: bytes = 0x00000001
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = 0x00000001
+        let tmp%21#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob 10u)
         let aggregate%bitlen%4#0: uint64 = 4u
         let aggregate%no_overflow%4#0: bool = 1u
         let aggregate%uint32%1#0: bytes = 0x0000000a
+        let aggregate%as_Encoded(uint32)%1#0: Encoded(uint32) = 0x0000000a
+        let tmp%22#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%1#0
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob 255u)
         let aggregate%bitlen%5#0: uint64 = 8u
         let aggregate%no_overflow%5#0: bool = 1u
         let aggregate%uint32%2#0: bytes = 0x000000ff
+        let aggregate%as_Encoded(uint32)%2#0: Encoded(uint32) = 0x000000ff
+        let tmp%23#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%2#0
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob 128u)
         let aggregate%bitlen%6#0: uint64 = 8u
         let aggregate%no_overflow%6#0: bool = 1u
         let aggregate%uint32%3#0: bytes = 0x00000080
-        let aggregate%head%5#0: bytes = 0x00000001
-        let aggregate%head%6#0: bytes = 0x000000010000000a
-        let aggregate%head%7#0: bytes = 0x000000010000000a000000ff
-        let static_uint32_array#0: Encoded(uint32[4]) = 0x000000010000000a000000ff00000080
+        let aggregate%as_Encoded(uint32)%3#0: Encoded(uint32) = 0x00000080
+        let tmp%24#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%3#0
+        let aggregate%head%6#0: bytes = (concat tmp%21#0 tmp%22#0)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 tmp%23#0)
+        let static_uint32_array#0: Encoded(uint32[4]) = (concat aggregate%head%7#0 tmp%24#0)
         let item_index_internal%3#0: uint64 = 0u
         goto block@16
     block@16: // for_header_L49
@@ -137,8 +155,8 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         goto continue_looping%3#0 ? block@17 : block@19
     block@17: // for_body_L50
         let aggregate%bytes_offset%2#0: uint64 = (* item_index_internal%3#1 4u)
-        let uint32_item#0: Encoded(uint32) = (extract3 0x000000010000000a000000ff00000080 aggregate%bytes_offset%2#0 4u) // on error: index access is out of bounds
-        let tmp%25#0: uint64 = (extract_uint32 0x000000010000000a000000ff00000080 aggregate%bytes_offset%2#0)
+        let uint32_item#0: Encoded(uint32) = (extract3 static_uint32_array#0 aggregate%bytes_offset%2#0 4u) // on error: index access is out of bounds
+        let tmp%25#0: uint64 = (btoi uint32_item#0)
         let total#6: uint64 = (+ total#5 tmp%25#0)
         let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
         goto block@16
@@ -155,7 +173,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         goto continue_looping%4#0 ? block@21 : block@23
     block@21: // for_body_L59
         let uint8_item#1: Encoded(uint8) = (extract3 0x010203040506 count#1 1u) // on error: index access is out of bounds
-        let tmp%28#0: uint64 = (getbyte 0x010203040506 count#1)
+        let tmp%28#0: uint64 = (btoi uint8_item#1)
         let uint8_total#2: uint64 = (+ uint8_total#1 tmp%28#0)
         let count#2: uint64 = (+ count#1 1u)
         goto block@20
@@ -168,7 +186,8 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%bitlen%7#0: uint64 = 7u
         let aggregate%no_overflow%7#0: bool = 1u
         let aggregate%uint8%2#0: bytes = 0x65
-        let aliased_static#0: Encoded(uint8[1]) = 0x65
+        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = 0x65
+        let aliased_static#0: Encoded(uint8[1]) = aggregate%as_Encoded(uint8)%2#0
         let aggregate%bytes_offset%4#0: uint64 = 0u
         let aggregate%encoded_element%4#0: bytes = 0x65
         let tmp%34#0: uint64 = 101u
@@ -176,10 +195,12 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%37#0: bool = 1u
         let aggregate%length%2#0: uint64 = 4u
         let aggregate%length_uint16%2#0: bytes = 0x0004
-        let new_item#0: bytes = 0x000450696e67
+        let aggregate%encoded_value%2#0: bytes = 0x000450696e67
+        let new_item#0: bytes = aggregate%encoded_value%2#0
         let aggregate%length%3#0: uint64 = 4u
         let aggregate%length_uint16%3#0: bytes = 0x0004
         let aggregate%encoded_value%3#0: bytes = 0x0004506f6e67
+        let aggregate%as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = aggregate%encoded_value%3#0
         let aggregate%offset_as_uint16%2#0: bytes = 0x0004
         let aggregate%head%10#0: bytes = 0x0004
         let aggregate%data_length%2#0: uint64 = 6u
@@ -187,7 +208,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%offset_as_uint16%3#0: bytes = 0x000a
         let aggregate%head%11#0: bytes = 0x0004000a
         let aggregate%concat%2#0: bytes = (concat aggregate%head%11#0 new_item#0)
-        let static_string_array#0: Encoded((len+utf8[])[2]) = (concat aggregate%concat%2#0 aggregate%encoded_value%3#0)
+        let static_string_array#0: Encoded((len+utf8[])[2]) = (concat aggregate%concat%2#0 aggregate%as_Encoded(len+utf8[])%3#0)
         let result#5: string = ""
         let item_index_internal%5#0: uint64 = 0u
         goto block@24

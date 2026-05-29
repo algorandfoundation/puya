@@ -41,8 +41,8 @@ subroutine main:
         // tuple_support/tuple_support.py:34
         // log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
         log
-        // tuple_support/tuple_support.py:154
-        // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
+        // tuple_support/tuple_support.py:12
+        // (did_overflow, self.state) = op.addw(a, b)
         int 0                                                                         0
         // tuple_support/tuple_support.py:37
         // log(hi)
@@ -59,8 +59,8 @@ subroutine main:
         v-store tmp%30#0
         v-load tmp%30#0                                                               tmp%30#0
         log
-        // tuple_support/tuple_support.py:151
-        // lo_carry, c_lo = op.addw(a_lo, b_lo)
+        // tuple_support/tuple_support.py:36
+        // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
         int 1                                                                         1
         // tuple_support/tuple_support.py:39
         // log(lo)
@@ -76,17 +76,15 @@ subroutine main:
         // for _i in urange(count):
         int 0                                                                         0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                     value_internal%0#0
-        v-store _i#0
         b main_for_header@24
 
     main_for_header@24:
         // tuple_support/tuple_support.py:133
         // for _i in urange(count):
-        v-load _i#0                                                                   _i#0
+        v-load value_internal%0#0                                                     value_internal%0#0
         // tuple_support/tuple_support.py:40
         // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
-        int 5                                                                         _i#0,5
+        int 5                                                                         value_internal%0#0,5
         // tuple_support/tuple_support.py:133
         // for _i in urange(count):
         <                                                                             continue_looping%0#0
@@ -107,12 +105,10 @@ subroutine main:
         v-store result#1
         // tuple_support/tuple_support.py:133
         // for _i in urange(count):
-        v-load _i#0                                                                   _i#0
-        int 1                                                                         _i#0,1
+        v-load value_internal%0#0                                                     value_internal%0#0
+        int 1                                                                         value_internal%0#0,1
         +                                                                             value_internal%0#0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                                     value_internal%0#0
-        v-store _i#0
         b main_for_header@24
 
     main_after_for@27:

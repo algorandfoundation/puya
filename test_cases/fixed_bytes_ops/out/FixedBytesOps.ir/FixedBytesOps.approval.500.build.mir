@@ -322,11 +322,6 @@ subroutine main:
         //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
         // )
         callsub test_sequence_ops
-        // fixed_bytes_ops/contract.py:518
-        // empty_1 = FixedBytes[typing.Literal[4]]()
-        int 4                                                                                   4
-        bzero                                                                                   empty_1#0
-        v-store empty_1#0
         // fixed_bytes_ops/contract.py:524
         // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
         txn ApplicationID                                                                       tmp%12#6
@@ -494,7 +489,11 @@ subroutine main:
         // fixed_bytes_ops/contract.py:580
         // assert v == FixedBytes[typing.Literal[4]]()
         v-load v#0                                                                              v#0
-        v-load empty_1#0                                                                        v#0,empty_1#0
+        // fixed_bytes_ops/contract.py:321
+        // val2 &= other
+        byte 0x00000000                                                                         v#0,0x00000000
+        // fixed_bytes_ops/contract.py:580
+        // assert v == FixedBytes[typing.Literal[4]]()
         ==                                                                                      tmp%16#1
         v-store tmp%16#1
         v-load tmp%16#1                                                                         tmp%16#1

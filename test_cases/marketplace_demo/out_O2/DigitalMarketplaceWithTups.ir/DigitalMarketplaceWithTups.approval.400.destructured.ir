@@ -31,8 +31,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let asset#0: uint64 = (btoi tmp%1#2)
         let tmp%0#9: account = (global CurrentApplicationAddress)
-        let (tmp%1#3: uint64, tmp%2#9: bool) = ((asset_holding_get AssetBalance) tmp%0#9 asset#0)
-        let tmp%3#0: bool = (! tmp%2#9)
+        let (tmp%1#3: uint64, tmp%2#11: bool) = ((asset_holding_get AssetBalance) tmp%0#9 asset#0)
+        let tmp%3#0: bool = (! tmp%2#11)
         (assert tmp%3#0)
         let tmp%4#6: account = ((gtxns Receiver) mbr_pay#0)
         let tmp%5#2: account = (global CurrentApplicationAddress)
@@ -74,8 +74,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let nonce#0: uint64 = (btoi tmp%4#1)
         let tmp%0#9: account = ((gtxns Sender) mbr_pay#0)
         let tmp%1#4: account = (txn Sender)
-        let tmp%2#9: bool = (== tmp%0#9 tmp%1#4)
-        (assert tmp%2#9)
+        let tmp%2#11: bool = (== tmp%0#9 tmp%1#4)
+        (assert tmp%2#11)
         let tmp%3#1: account = ((gtxns Receiver) mbr_pay#0)
         let tmp%4#6: account = (global CurrentApplicationAddress)
         let tmp%5#5: bool = (== tmp%3#1 tmp%4#6)
@@ -124,11 +124,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let nonce#0: uint64 = (btoi tmp%1#2)
-        let key.owner#0: account = (txn Sender)
         let key.asset#0: uint64 = ((gtxns XferAsset) xfer#0)
-        let tmp%2#7: account = ((gtxns Sender) xfer#0)
+        let tmp%2#9: account = ((gtxns Sender) xfer#0)
         let tmp%3#1: account = (txn Sender)
-        let tmp%4#4: bool = (== tmp%2#7 tmp%3#1)
+        let tmp%4#4: bool = (== tmp%2#9 tmp%3#1)
         (assert tmp%4#4)
         let tmp%5#2: account = ((gtxns AssetReceiver) xfer#0)
         let tmp%6#1: account = (global CurrentApplicationAddress)
@@ -137,7 +136,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#4: uint64 = ((gtxns AssetAmount) xfer#0)
         (assert tmp%8#4)
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob key.asset#0)
-        let aggregate%head%9#0: bytes = (concat key.owner#0 aggregate%val_as_bytes%7#0)
+        let aggregate%head%9#0: bytes = (concat tmp%3#1 aggregate%val_as_bytes%7#0)
         let aggregate%val_as_bytes%8#0: bytes[8] = (itob nonce#0)
         let aggregate%head%10#0: bytes = (concat aggregate%head%9#0 aggregate%val_as_bytes%8#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 aggregate%head%10#0)
@@ -224,13 +223,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get map_prefixed_key%0#0)
         (assert aggregate%box_get%5#0) // check self.listings entry exists
         let listing.deposited#0: uint64 = (extract_uint64 aggregate%box_get%4#0 0u)
-        let listing.unitaryPrice#3: uint64 = (extract_uint64 aggregate%box_get%4#0 8u)
+        let listing.unitaryPrice#2: uint64 = (extract_uint64 aggregate%box_get%4#0 8u)
         let listing.bidder#0: account = ((extract 16 32) aggregate%box_get%4#0)
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
-        let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.unitaryPrice#3 quantity#0)
+        let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.unitaryPrice#2 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         let tmp%6#1: account = ((gtxns Sender) buy_pay#0)
@@ -245,7 +244,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%12#0)
         let tmp%13#1: uint64 = (- listing.deposited#0 quantity#0)
         let aggregate%val_as_bytes%21#0: bytes[8] = (itob tmp%13#1)
-        let aggregate%val_as_bytes%22#0: bytes[8] = (itob listing.unitaryPrice#3)
+        let aggregate%val_as_bytes%22#0: bytes[8] = (itob listing.unitaryPrice#2)
         let aggregate%head%28#0: bytes = (concat aggregate%val_as_bytes%21#0 aggregate%val_as_bytes%22#0)
         let aggregate%head%29#0: bytes = (concat aggregate%head%28#0 listing.bidder#0)
         let aggregate%val_as_bytes%23#0: bytes[8] = ((extract 48 8) aggregate%box_get%4#0)
@@ -293,7 +292,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 listing.bid#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
@@ -371,7 +370,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 listing.bid#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
@@ -386,7 +385,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert check%1#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw unitary_price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         let tmp%10#3: account = ((gtxns Sender) bid_pay#0)
@@ -450,7 +449,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 min_quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin

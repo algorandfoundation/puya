@@ -52,7 +52,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -189,10 +189,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tmp%0#1: bytes = (itob new_length#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
         let tail_offset#0: uint64 = (* new_length#0 2u)
-        let tmp%5#1: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
-        let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
+        let head_offset#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
         let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
@@ -333,7 +333,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         box_write("a", converted_array%0#0)
         let slot_contents%0#1: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let array_item%0#1: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%0#1, 0u)
-        let (last_point.x#0: Encoded(uint64), last_point.y#0: uint64, last_point.other.a#0: uint64, last_point.other.b#0: uint64, last_point.other.c#0: account, last_point.other.d#0: Encoded(uint64,uint64), last_point.other.e#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%0#1)
+        let (last_point.x#0: Encoded(uint64), last_point.y#0: uint64, tmp%2#2: uint64, tmp%3#2: uint64, tmp%4#2: account, tmp%5#2: Encoded(uint64,uint64), tmp%6#2: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%0#1)
         let length#0: uint64 = 0u
         let tmp%7#2: uint64 = array_len(path#0)
         let value_internal%0#1: uint64 = 1u
@@ -346,7 +346,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
     block@8: // for_body_L172
         let slot_contents%1#1: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let array_item%1#1: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#1, point_idx#0)
-        let (point.x#0: Encoded(uint64), point.y#0: uint64, point.other.a#0: uint64, point.other.b#0: uint64, point.other.c#0: account, point.other.d#0: Encoded(uint64,uint64), point.other.e#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%1#1)
+        let (point.x#0: Encoded(uint64), point.y#0: uint64, tmp%10#1: uint64, tmp%11#1: uint64, tmp%12#1: account, tmp%13#1: Encoded(uint64,uint64), tmp%14#1: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%1#1)
         let tmp%15#1: bool = (b< point.x#0 last_point.x#0)
         goto tmp%15#1 ? block@9 : block@10
     block@9: // if_body_L174

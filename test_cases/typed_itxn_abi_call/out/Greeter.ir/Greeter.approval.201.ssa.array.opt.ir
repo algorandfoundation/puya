@@ -366,6 +366,14 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_15plus_args[rou
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
+        let aggregate%head%1#0: bytes = 0xdead
+        let aggregate%head%2#0: bytes = 0xdeadbe
+        let aggregate%head%3#0: bytes = 0xdeadbeef
+        let aggregate%head%5#0: bytes = 0x0f10
+        let aggregate%head%6#0: bytes = 0x0f1011
+        let aggregate%head%7#0: bytes = 0x0f101112
+        let aggregate%head%8#0: bytes = 0x0f101112deadbeef
+        let aggregate%head%9#0: bytes = 0x0f101112deadbeef14
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]")
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
@@ -878,6 +886,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
         (assert eq%2#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
         let s#0: Encoded(len+utf8[]) = (substring3 result1#0 extract_uint16%0#0 extract_uint16%1#0)
+        let u#0: Encoded(uint64) = ((extract 8 8) awst_tmp%0#0)
         let bu#0: Encoded(uint512) = ((extract 16 64) awst_tmp%0#0)
         let tmp%11#0: string = ((extract 2 0) s#0)
         let tmp%12#0: bool = (== tmp%11#0 "echo: s1")
@@ -1198,6 +1207,15 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 2u)
+        let aggregate%concat%0#0: bytes = 0x0004000800027331
+        let aggregate%concat%1#0: bytes = 0x000400080002733100027332
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
+        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020012
+        let aggregate%concat%2#0: bytes = 0x000000000000000100000000000000020012000133
+        let aggregate%concat%3#0: bytes = 0x00040010000400080002733100027332
+        let aggregate%concat%4#0: bytes = 0x00040010000400080002733100027332000000000000000100000000000000020012000133
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
         ((itxn_field ApplicationArgs) 0x00040010000400080002733100027332000000000000000100000000000000020012000133)
@@ -1331,6 +1349,15 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         let tmp%35#0: bool = (== result.1.2#1 0x6563686f3a2033)
         (assert tmp%35#0)
         itxn_begin
+        let aggregate%concat%5#0: bytes = 0x000400090003733162
+        let aggregate%concat%6#0: bytes = 0x0004000900037331620003733262
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 11u)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob 21u)
+        let aggregate%head%10#0: bytes = 0x000000000000000b0000000000000015
+        let aggregate%head%11#0: bytes = 0x000000000000000b00000000000000150012
+        let aggregate%concat%7#0: bytes = 0x000000000000000b0000000000000015001200023362
+        let aggregate%concat%8#0: bytes = 0x000400120004000900037331620003733262
+        let aggregate%concat%9#0: bytes = 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
         ((itxn_field ApplicationArgs) 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362)
@@ -1466,6 +1493,9 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples[ro
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%1#0: bytes = 0x0000000000000001000a
+        let aggregate%concat%0#0: bytes = 0x0000000000000001000a00056c6f672031
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
         ((itxn_field ApplicationArgs) 0x0000000000000001000a00056c6f672031)
@@ -1484,6 +1514,9 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples[ro
         let result#0: bool = (getbit tmp%4#0 0u)
         (assert result#0)
         itxn_begin
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 2u)
+        let aggregate%head%5#0: bytes = 0x0000000000000002000a
+        let aggregate%concat%2#0: bytes = 0x0000000000000002000a00056c6f672032
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
         ((itxn_field ApplicationArgs) 0x0000000000000002000a00056c6f672032)
@@ -1511,6 +1544,9 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[rou
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%1#0: bytes = 0x0000000000000001000a
+        let log#0: Encoded(uint64,(len+utf8[])) = 0x0000000000000001000a00056c6f672031
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_log_struct((uint64,string))(uint64,string)")

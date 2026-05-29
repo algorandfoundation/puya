@@ -372,9 +372,10 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let tmp%10#0: bytes = 0x0003000000000000000100000000000000
         let tmp%11#0: bytes = 0x000300000000000000010000000000000002
         let tmp%13#0: bytes = 0x00030000000000000001000000000000000200000000000000
+        let tmp%14#0: bytes = 0x0003000000000000000100000000000000020000000000000003
         let expected_bytes#0: bytes = 0x0003000000000000000100000000000000020000000000000003
         itxn_begin
-        let tmp%15#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x0003000000000000000100000000000000020000000000000003)
+        let tmp%15#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(expected_bytes#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
         ((itxn_field ApplicationArgs) arr#0)
@@ -401,7 +402,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let length%0#0: uint64 = 26u
         let is_out_of_bounds%0#0: bool = 0u
         let bounded_index%0#0: uint64 = 2u
-        let tmp%29#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let tmp%29#0: bytes = (substring3 expected_bytes#0 bounded_index%0#0 length%0#0)
         let tmp%30#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%29#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_static_array_uin64_3(uint64[3],byte[])void")
