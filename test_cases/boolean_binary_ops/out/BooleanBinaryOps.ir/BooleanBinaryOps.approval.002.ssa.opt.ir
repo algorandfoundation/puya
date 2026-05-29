@@ -70,14 +70,43 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let lhs#7: bool = 0u
         goto block@4
     block@19: // after_for_L42
+        let ternary_result%1#1: string = "right"
+        goto block@55
+    block@55: // ternary_merge_L83
+        let sequence#0: bytes = ternary_result%1#1
+        let tmp%29#0: uint64 = 5u
+        let tmp%30#0: bool = 0u
+        goto tmp%30#0 ? block@56 : block@57
+    block@56: // ternary_true_L83
+        let ternary_result%0#3: bool = 0u
+        goto block@58
+    block@57: // ternary_false_L83
+        let tmp%31#0: string = "ri"
         let ternary_result%0#4: bool = 1u
         goto block@58
     block@58: // ternary_merge_L83
-        let ternary_result%0#5: bool = ternary_result%0#4
+        let ternary_result%0#5: bool = φ(ternary_result%0#3 <- block@56, ternary_result%0#4 <- block@57)
         (assert ternary_result%0#5)
+        let ternary_result%3#1: string = "ri"
+        goto block@61
+    block@61: // ternary_merge_L84
+        let ternary_result%3#2: string = ternary_result%3#1
+        let tmp%34#0: uint64 = 2u
+        let tmp%36#0: bool = 0u
+        goto tmp%36#0 ? block@62 : block@63
+    block@62: // ternary_true_L84
+        let ternary_result%2#0: bool = 0u
+        goto block@67
+    block@63: // ternary_false_L84
+        let tmp%37#0: string = "ri"
+        let ternary_result%4#1: string = "ri"
+        goto block@66
+    block@66: // ternary_merge_L84
         let ternary_result%2#1: bool = 1u
         goto block@67
     block@67: // ternary_merge_L84
+        let ternary_result%2#2: bool = φ(ternary_result%2#0 <- block@62, ternary_result%2#1 <- block@66)
+        (assert ternary_result%2#2)
         let item_index_internal%0#0: uint64 = 0u
         goto block@68
     block@68: // for_header_L87
@@ -88,17 +117,20 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let item_index_internal%0#2: uint64 = (+ idx#0 1u)
         goto block@68
     block@71: // after_for_L87
+        let ternary_result%5#1: string = "right"
+        goto block@74
+    block@74: // ternary_merge_L91
         let start#0: uint64 = 0u
         goto block@118
     block@118: // while_top_L13
-        let start#1: uint64 = φ(start#0 <- block@71, start#2 <- block@121)
+        let start#1: uint64 = φ(start#0 <- block@74, start#2 <- block@121)
         let tmp%0#8: uint64 = 4u
-        let tmp%1#8: uint64 = (+ start#1 4u)
+        let tmp%1#8: uint64 = (+ start#1 tmp%0#8)
         let tmp%2#8: uint64 = 5u
-        let tmp%3#8: bool = (<= tmp%1#8 5u)
+        let tmp%3#8: bool = (<= tmp%1#8 tmp%2#8)
         goto tmp%3#8 ? block@119 : block@122
     block@119: // while_body_L14
-        let tmp%6#6: bytes = (substring3 "right" start#1 tmp%1#8)
+        let tmp%6#6: bytes = (substring3 sequence#0 start#1 tmp%1#8)
         let tmp%7#5: bool = (== "ight" tmp%6#6)
         goto tmp%7#5 ? block@120 : block@121
     block@120: // if_body_L15
@@ -116,6 +148,8 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let and_result%0#6: bool = 1u
         goto block@90
     block@90: // bool_merge_L108
+        let and_result%0#8: bool = and_result%0#6
+        (assert and_result%0#8)
         let r#0: uint64 = (global Round)
         (assert r#0)
         return 1u

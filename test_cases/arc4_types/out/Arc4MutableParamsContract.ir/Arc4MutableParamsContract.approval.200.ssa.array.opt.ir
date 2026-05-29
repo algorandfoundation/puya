@@ -3,12 +3,11 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%bitlen%0#0: uint64 = 1u
         let aggregate%no_overflow%0#0: bool = 1u
-        (assert 8u) // overflow
+        (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x01
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%bitlen%1#0: uint64 = 2u
         let aggregate%no_overflow%1#0: bool = 1u
-        (assert aggregate%no_overflow%1#0) // overflow
         let aggregate%uint8%1#0: bytes = 0x02
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 3u)
         let aggregate%bitlen%2#0: uint64 = 2u
@@ -28,7 +27,7 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%no_overflow%4#0: bool = 1u
         let aggregate%uint8%4#0: bytes = 0x32
         let aggregate%length%0#0: uint64 = 5u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 5u)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0005
         let aggregate%encoded_value%0#0: bytes = 0x00054861707079
         let aggregate%length%1#0: uint64 = 4u
@@ -44,8 +43,8 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000d
         let aggregate%head%7#0: bytes = 0x80320006000d
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%7#0 0x00054861707079)
-        let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%head%7#0 0x00054861707079000444617973)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%7#0 aggregate%encoded_value%0#0)
+        let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%concat%0#0 aggregate%encoded_value%1#0)
         let aggregate%bitlen%5#0: uint64 = 3u
         let aggregate%no_overflow%5#0: bool = 1u
         let aggregate%uint8%5#0: bytes = 0x05
@@ -69,10 +68,10 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 my_struct#1 4u)
         let aggregate%substring3%0#0: bytes = (substring3 my_struct#1 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let aggregate%length%2#0: uint64 = 7u
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 7u)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = 0x0007
         let aggregate%encoded_value%2#0: bytes = 0x000741415252474821
-        let tmp%18#0: bool = (== aggregate%substring3%0#0 0x000741415252474821)
+        let tmp%18#0: bool = (== aggregate%substring3%0#0 aggregate%encoded_value%2#0)
         (assert tmp%18#0) // my_struct has been mutated by the subroutine
         let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, my_struct#0)
         let aggregate%bytes_offset%3#0: uint64 = 1u
@@ -234,19 +233,19 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let aggregate%write_offset%0#0: uint64 = 1u
         let array#1: Encoded(uint8[4]) = (replace3 array#0 aggregate%write_offset%0#0 0x05) // on error: index access is out of bounds
         let aggregate%length%0#0: uint64 = 7u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 7u)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0007
         let aggregate%encoded_value%0#0: bytes = 0x000741415252474821
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
         let aggregate%data_up_to_item%0#0: bytes = (extract3 struct#0 0u aggregate%item_offset%0#0)
-        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 0x000741415252474821)
+        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 aggregate%encoded_value%0#0)
         let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 struct#0 4u)
         let aggregate%total_length%0#0: uint64 = (len struct#0)
         let aggregate%data_beyond_item%0#0: bytes = (substring3 struct#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
         let aggregate%updated_data%1#0: bytes = (concat aggregate%updated_data%0#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = (- aggregate%next_item_offset%0#0 aggregate%item_offset%0#0)
         let aggregate%new_value_length%0#0: uint64 = 9u
-        let aggregate%tail_offset%1#0: uint64 = (+ aggregate%next_item_offset%0#0 9u)
+        let aggregate%tail_offset%1#0: uint64 = (+ aggregate%next_item_offset%0#0 aggregate%new_value_length%0#0)
         let aggregate%tail_offset%2#0: uint64 = (- aggregate%tail_offset%1#0 aggregate%old_value_length%0#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%tail_offset%2#0)
         let aggregate%tail_offset_bytes%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)

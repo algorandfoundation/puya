@@ -7528,30 +7528,16 @@ debug: Simplified (extract3 my_tuple#0 0u 1u) to ((extract 0 1) my_tuple#0)
 debug: Simplified (extract3 my_tuple#0 6u 1u) to ((extract 6 1) my_tuple#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%5#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%5#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified (len "hello") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0005
-debug: Simplified (concat 0x0005 "hello") to 0x000568656c6c6f
-debug: Simplified (len "world") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0005
-debug: Simplified (concat 0x0005 "world") to 0x0005776f726c64
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0xff
 debug: Simplified (concat 0x 0x01) to 0x01
 debug: Simplified (concat 0x01 0x02) to 0x0102
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0007
 debug: Simplified (concat 0x0102 0x0007) to 0x01020007
-debug: Simplified (len 0x000568656c6c6f) to 7u
-debug: Simplified (concat aggregate%head%4#0 0x000568656c6c6f) to (concat aggregate%head%3#0 0xff000568656c6c6f)
-debug: Simplified (concat aggregate%concat%0#0 0x0005776f726c64) to (concat aggregate%head%3#0 0xff000568656c6c6f0005776f726c64)
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 5u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x10
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Simplified (getbit 0x00 0u) to 0u
@@ -7592,8 +7578,6 @@ debug: Simplified (getbit 0x04bd8010 16u) to 1u
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified ((extract 3 1) 0x04bd8010) to 0x10
 debug: Simplified ((extract 3 1) 0x04bd8010) to 0x10
-debug: Simplified (btoi 0x04) to 4u
-debug: Simplified (btoi 0x10) to 16u
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Simplified (getbit 0x00 0u) to 0u
 debug: Simplified (setbit 0x80 1u 0u) to 0x80
@@ -7612,10 +7596,6 @@ debug: Simplified (setbit 0xbc 7u 1u) to 0xbd
 debug: Simplified (concat 0x04 0xbd) to 0x04bd
 debug: Simplified (concat 0x04bd 0x80) to 0x04bd80
 debug: Simplified (concat 0x04bd80 0x10) to 0x04bd8010
-debug: Simplified (btoi 0x01) to 1u
-debug: Simplified (btoi 0x02) to 2u
-debug: Simplified (btoi 0xff) to 255u
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 0u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x00
 debug: Simplified (len 0x) to 0u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0000
@@ -7644,6 +7624,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program converged after 2 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%6#0
 debug: removing redundant assert of aggregate%no_overflow%3#0
@@ -7657,6 +7638,7 @@ debug: removing redundant assert of tmp%5#1
 debug: removing redundant assert of tmp%6#1
 debug: removing redundant assert of tmp%7#1
 debug: removing redundant assert of tmp%72#0
+debug: removing redundant assert of aggregate%no_overflow%5#0
 debug: removing redundant assert of tmp%7#2
 debug: removing redundant assert of tmp%9#2
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, tmp%0#4, aggregate%as_bytes%6#0), selected replacement: aggregate%val_as_bytes%0#0
@@ -10877,9 +10859,7 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x000000083cfbf217) to 0x000000083cfbf217
 debug: Simplified (concat 0x000000083cfbf217 0x000000230384b842) to 0x000000083cfbf217000000230384b842
 debug: Simplified ((extract 0 8) 0x000000083cfbf217000000230384b842) to 0x000000083cfbf217
-debug: Simplified (btoi 0x000000083cfbf217) to 35382882839u
 debug: Simplified ((extract 8 8) 0x000000083cfbf217000000230384b842) to 0x000000230384b842
-debug: Simplified (btoi 0x000000230384b842) to 150382884930u
 debug: Simplified (concat 0x tmp%3#3) to tmp%3#3
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
@@ -10919,7 +10899,6 @@ debug: Simplified (concat 0x0002 0x0000) to 0x00020000
 debug: Simplified (extract_uint16 0x00020000 0u) to 2u
 debug: Simplified (len 0x00020000) to 4u
 debug: Simplified (substring3 0x00020000 2u 4u) to 0x0000
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 6u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x2a
 debug: Simplified (concat 0x 0x2a) to 0x2a
 debug: Simplified (extract_uint16 0x0000 0u) to 0u
@@ -12754,75 +12733,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len 0x48656c6c6f20576f726c6421) to 12u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x000c
-debug: Simplified (concat 0x000c 0x48656c6c6f20576f726c6421) to 0x000c48656c6c6f20576f726c6421
-debug: Simplified (!= 0x000c48656c6c6f20576f726c6421 0x48656c6c6f20576f726c6421) to 1u
-debug: Simplified (len 0x000c48656c6c6f20576f726c6421) to 14u
-debug: Simplified (len "Hello") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0005
-debug: Simplified (concat 0x0005 "Hello") to 0x000548656c6c6f
-debug: Simplified (len " ") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
-debug: Simplified (concat 0x0001 " ") to 0x000120
-debug: Simplified (len "World!") to 6u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0006
-debug: Simplified (concat 0x0006 "World!") to 0x0006576f726c6421
-debug: Simplified ((extract 2 0) 0x000120) to 0x20
-debug: Simplified (extract_uint16 0x000120 0u) // on error: invalid array length header to 1u
-debug: Simplified (extract_uint16 0x000548656c6c6f 0u) to 5u
-debug: Simplified ((extract 2 0) 0x0006576f726c6421) to 0x576f726c6421
-debug: Simplified (extract_uint16 0x0006576f726c6421 0u) // on error: invalid array length header to 6u
-debug: Simplified (len "hi") to 2u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0002
-debug: Simplified (concat 0x0002 "hi") to 0x00026869
-debug: Simplified ((extract 2 0) 0x00026869) to 0x6869
-debug: Simplified (extract_uint16 0x00026869 0u) // on error: invalid array length header to 2u
-debug: Simplified (extract_uint16 0x00026869 0u) to 2u
-debug: Simplified (len "hihi") to 4u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0004
-debug: Simplified (concat 0x0004 "hihi") to 0x000468696869
-debug: Simplified (len "a") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0001
-debug: Simplified (concat 0x0001 "a") to 0x000161
-debug: Simplified (len "b") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%7#0) to 0x0001
-debug: Simplified (concat 0x0001 "b") to 0x000162
-debug: Simplified ((extract 2 0) 0x000162) to 0x62
-debug: Simplified (extract_uint16 0x000162 0u) // on error: invalid array length header to 1u
-debug: Simplified (extract_uint16 0x000161 0u) to 1u
-debug: Simplified (len "cd") to 2u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%8#0) to 0x0002
-debug: Simplified (concat 0x0002 "cd") to 0x00026364
-debug: Simplified ((extract 2 0) 0x00026364) to 0x6364
-debug: Simplified (extract_uint16 0x00026364 0u) // on error: invalid array length header to 2u
-debug: Simplified (len "e") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%9#0) to 0x0001
-debug: Simplified (concat 0x0001 "e") to 0x000165
-debug: Simplified ((extract 2 0) 0x000165) to 0x65
-debug: Simplified (extract_uint16 0x000165 0u) // on error: invalid array length header to 1u
-debug: Simplified (len "f") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%10#0) to 0x0001
-debug: Simplified (concat 0x0001 "f") to 0x000166
-debug: Simplified ((extract 2 0) 0x000166) to 0x66
-debug: Simplified (extract_uint16 0x000166 0u) // on error: invalid array length header to 1u
-debug: Simplified (len "g") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%11#0) to 0x0001
-debug: Simplified (concat 0x0001 "g") to 0x000167
-debug: Simplified ((extract 2 0) 0x000167) to 0x67
-debug: Simplified (extract_uint16 0x000167 0u) // on error: invalid array length header to 1u
-debug: Simplified (len "abcdefg") to 7u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%12#0) to 0x0007
-debug: Simplified (concat 0x0007 "abcdefg") to 0x000761626364656667
-debug: Simplified (len "aye") to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%13#0) to 0x0003
-debug: Simplified (concat 0x0003 "aye") to 0x0003617965
-debug: Simplified (len "bee") to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%14#0) to 0x0003
-debug: Simplified (concat 0x0003 "bee") to 0x0003626565
-debug: Simplified (len "bee") to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%15#0) to 0x0003
-debug: Simplified (concat 0x0003 "bee") to 0x0003626565
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -12864,6 +12774,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.string.Arc4StringTypesContract.approval_program converged after 2 iteration(s)
+debug: removing redundant assert of tmp%4#0
 debug: removing redundant assert of tmp%14#0
 debug: removing redundant assert of tmp%19#0
 debug: removing redundant assert of tmp%37#0
@@ -14239,17 +14150,8 @@ debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 tup#0 0u 8u) to ((extract 0 8) tup#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%5#0 4u 4u) to ((extract 4 4) aggregate%val_as_bytes%5#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0xff
-debug: Simplified (btoi 0xff) to 255u
-debug: Simplified (btoi 0x7f) to 127u
-debug: Simplified (btoi 0x7fffff) to 8388607u
-debug: Simplified (btoi 0x7fff) to 32767u
-debug: Simplified (btoi 0x7fffffff) to 2147483647u
-debug: Simplified (btoi 0x7fffffffffffffff) to 9223372036854775807u
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x01
 debug: Simplified (len 2b) to 1u
 debug: Simplified (len 1b) to 1u
@@ -14257,8 +14159,6 @@ debug: Simplified (len 0b) to 0u
 debug: Simplified (itob aggregate%extract_uint64%0#0) to (extract3 arc4_biguint_const#0 aggregate%sub%0#0 8u)
 debug: Simplified (concat 0x aggregate%val_as_bytes%4#0) to aggregate%val_as_bytes%4#0
 debug: Simplified ((extract 0 8) aggregate%val_as_bytes%4#0) to 0x0000000000000003
-debug: Simplified (btoi 0x0000000000000003) to 3u
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 1u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x00000001
 debug: Simplified (len 18446744073709551615b) to 8u
 debug: Optimizer: Inner Txn Field Replacer
@@ -14276,11 +14176,13 @@ debug: removing redundant assert of tmp%11#0
 debug: removing redundant assert of tmp%14#0
 debug: removing redundant assert of tmp%17#0
 debug: removing redundant assert of aggregate%no_overflow%1#0
+debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%63#0
 debug: removing redundant assert of aggregate%lte%0#0
 debug: removing redundant assert of tmp%66#0
 debug: removing redundant assert of tmp%68#0
 debug: removing redundant assert of tmp%74#0
+debug: removing redundant assert of aggregate%no_overflow%3#0
 debug: removing redundant assert of tmp%77#0
 debug: removing redundant assert of tmp%81#0
 debug: removing redundant assert of aggregate%len_ok%3#0
@@ -17765,14 +17667,11 @@ debug: Simplified (replace3 aggregate%updated_data%3#0 4u aggregate%tail_offset_
 debug: Simplified (extract3 aggregate%val_as_bytes%14#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%14#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%15#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%15#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0002
 debug: Simplified (concat 0x0002 0x01) to 0x000201
 debug: Simplified (concat 0x000201 0x02) to 0x00020102
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 6u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x32
 debug: Simplified (concat 0x 0x32) to 0x32
 debug: Simplified (extract_uint16 0x00020102 0u) to 2u
@@ -17787,9 +17686,7 @@ debug: Simplified (concat 0x00060102 0x32) to 0x0006010232
 debug: Simplified (concat 0x0006010232 0x01) to 0x000601023201
 debug: Simplified (concat 0x000601023201 0x02) to 0x00060102320102
 debug: Simplified (concat 0x00060102320102 0x32) to 0x0006010232010232
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x5a
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Simplified (concat 0x04 0x5a) to 0x045a
@@ -17876,98 +17773,37 @@ debug: Simplified (setbit 0xa8 5u 0u) to 0xa8
 debug: Simplified (getbit 0x80 0u) to 1u
 debug: Simplified (setbit 0xa8 6u 1u) to 0xaa
 debug: Simplified (concat 0x0007 0xaa) to 0x0007aa
-debug: Simplified (len "Hello") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%10#0) to 0x0005
-debug: Simplified (concat 0x0005 "Hello") to 0x000548656c6c6f
-debug: Simplified (len "World") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%11#0) to 0x0005
-debug: Simplified (concat 0x0005 "World") to 0x0005576f726c64
-debug: Simplified (len "Foo") to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%12#0) to 0x0003
-debug: Simplified (concat 0x0003 "Foo") to 0x0003466f6f
-debug: Simplified (len "Bar") to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%13#0) to 0x0003
-debug: Simplified (concat 0x0003 "Bar") to 0x0003426172
 debug: Simplified ((extract 6 2) aggregate%as_bytes%14#0) to 0x0002
 debug: Simplified ((extract 6 2) aggregate%as_bytes%15#0) to 0x0004
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (concat aggregate%concat%0#0 0x0005576f726c64) to (concat aggregate%head%38#0 0x000548656c6c6f0005576f726c64)
-debug: Simplified (concat 0x0003466f6f 0x0003426172) to 0x0003466f6f0003426172
 debug: Simplified ((extract 6 2) aggregate%as_bytes%17#0) to 0x0008
 debug: Simplified ((extract 6 2) aggregate%as_bytes%18#0) to 0x0010
 debug: Simplified (concat 0x0008 0x0010) to 0x00080010
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x0005576f726c64) to 7u
-debug: Simplified (len 0x0003466f6f) to 5u
-debug: Simplified (len 0x0003426172) to 5u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x0005576f726c64) to 7u
-debug: Simplified (len 0x0003466f6f) to 5u
-debug: Simplified (concat aggregate%concat%2#0 0x0005576f726c64) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c64)
-debug: Simplified (concat aggregate%concat%3#0 0x0003466f6f) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f)
-debug: Simplified (concat aggregate%concat%4#0 0x0003426172) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172)
-debug: Simplified (concat aggregate%concat%5#0 0x000548656c6c6f) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f)
-debug: Simplified (concat aggregate%concat%6#0 0x0005576f726c64) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c64)
-debug: Simplified (concat aggregate%concat%7#0 0x0003466f6f) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f)
-debug: Simplified (concat aggregate%concat%8#0 0x0003426172) to (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%26#0) to 0x0008
 debug: Simplified ((extract 6 2) aggregate%as_bytes%27#0) to 0x0010
 debug: Simplified (concat 0x0008 0x0010) to 0x00080010
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x0005576f726c64) to 7u
-debug: Simplified (len 0x0003466f6f) to 5u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x0003466f6f) to 5u
-debug: Simplified (concat aggregate%concat%10#0 0x0005576f726c64) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c64)
-debug: Simplified (concat aggregate%concat%11#0 0x0003466f6f) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f)
-debug: Simplified (concat aggregate%concat%12#0 0x000548656c6c6f) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f)
-debug: Simplified (concat aggregate%concat%13#0 0x000548656c6c6f) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f)
-debug: Simplified (concat aggregate%concat%14#0 0x000548656c6c6f) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
-debug: Simplified (concat aggregate%concat%15#0 0x0003466f6f) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f)
-debug: Simplified (concat aggregate%concat%16#0 0x0003426172) to (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%35#0) to 0x0006
 debug: Simplified ((extract 6 2) aggregate%as_bytes%36#0) to 0x000c
 debug: Simplified (concat 0x0006 0x000c) to 0x0006000c
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x0005576f726c64) to 7u
-debug: Simplified (len 0x0003466f6f) to 5u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (concat aggregate%concat%18#0 0x0005576f726c64) to (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c64)
-debug: Simplified (concat aggregate%concat%19#0 0x0003466f6f) to (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f)
-debug: Simplified (concat aggregate%concat%20#0 0x000548656c6c6f) to (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f)
-debug: Simplified (concat aggregate%concat%21#0 0x000548656c6c6f) to (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f)
-debug: Simplified (concat aggregate%concat%22#0 0x000548656c6c6f) to (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%42#0) to 0x0000
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 4u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x0a
 debug: Simplified ((extract 6 2) aggregate%as_bytes%43#0) to 0x0001
 debug: Simplified (concat 0x0001 0x0a) to 0x00010a
-debug: Simplified (bitlen aggregate%val_as_bytes%6#0) to 5u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0x10
 debug: Simplified ((extract 6 2) aggregate%as_bytes%44#0) to 0x0001
 debug: Simplified (concat 0x0001 0x10) to 0x000110
-debug: Simplified (bitlen aggregate%val_as_bytes%7#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0xff
 debug: Simplified (concat 0x 0xff) to 0xff
-debug: Simplified (bitlen aggregate%val_as_bytes%8#0) to 0u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0x00
-debug: Simplified (bitlen aggregate%val_as_bytes%9#0) to 4u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%9#0) to 0x09
 debug: Simplified (concat 0x 0x0a) to 0x0a
 debug: Simplified (concat 0x0a 0x09) to 0x0a09
-debug: Simplified (bitlen aggregate%val_as_bytes%10#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%10#0) to 0x40
-debug: Simplified (bitlen aggregate%val_as_bytes%11#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%11#0) to 0x80
 debug: Simplified (concat 0x 0x40) to 0x40
 debug: Simplified (concat 0x40 0x80) to 0x4080
 debug: Simplified (concat 0x 0x0a09) to 0x0a09
 debug: Simplified (concat 0x0a09 0x4080) to 0x0a094080
-debug: Simplified (bitlen aggregate%val_as_bytes%12#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%12#0) to 0xfe
 debug: Simplified (concat 0x 0xff) to 0xff
 debug: Simplified (concat 0xff 0xfe) to 0xfffe
@@ -17978,40 +17814,19 @@ debug: Simplified (getbit 0x80 0u) to 1u
 debug: Simplified (setbit 0x80 1u 1u) to 0xc0
 debug: Simplified (concat 0x 0xc0) to 0xc0
 debug: Simplified (setbit 0xc0 1u 0u) to 0x80
-debug: Simplified (len "Happy") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%45#0) to 0x0005
-debug: Simplified (concat 0x0005 "Happy") to 0x00054861707079
-debug: Simplified (len "Days") to 4u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%46#0) to 0x0004
-debug: Simplified (concat 0x0004 "Days") to 0x000444617973
 debug: Simplified (concat 0x 0x80) to 0x80
 debug: Simplified (concat 0x80 0x32) to 0x8032
 debug: Simplified ((extract 6 2) aggregate%as_bytes%47#0) to 0x0006
 debug: Simplified (concat 0x8032 0x0006) to 0x80320006
-debug: Simplified (len 0x00054861707079) to 7u
-debug: Simplified (concat aggregate%concat%24#0 0x000444617973) to (concat aggregate%head%78#0 0x00054861707079000444617973)
-debug: Simplified (bitlen aggregate%val_as_bytes%13#0) to 4u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%13#0) to 0x0c
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (concat 0x00 0x0c) to 0x000c
 debug: Simplified ((extract 6 2) aggregate%as_bytes%49#0) to 0x0006
 debug: Simplified (concat 0x000c 0x0006) to 0x000c0006
-debug: Simplified (len 0x00054861707079) to 7u
-debug: Simplified (concat aggregate%concat%26#0 0x000444617973) to (concat aggregate%head%82#0 0x00054861707079000444617973)
-debug: Simplified (len "Hmmmm") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%51#0) to 0x0005
-debug: Simplified (concat 0x0005 "Hmmmm") to 0x0005486d6d6d6d
-debug: Simplified (len 0x0005486d6d6d6d) to 7u
-debug: Simplified (len "Oh well") to 7u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%53#0) to 0x0007
-debug: Simplified (concat 0x0007 "Oh well") to 0x00074f682077656c6c
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (concat 0x00 0x0c) to 0x000c
 debug: Simplified ((extract 6 2) aggregate%as_bytes%54#0) to 0x0006
 debug: Simplified (concat 0x000c 0x0006) to 0x000c0006
-debug: Simplified (len 0x0005486d6d6d6d) to 7u
-debug: Simplified (concat aggregate%concat%28#0 0x00074f682077656c6c) to (concat aggregate%head%86#0 0x0005486d6d6d6d00074f682077656c6c)
-debug: Simplified (bitlen aggregate%val_as_bytes%14#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%14#0) to 0x03
 debug: Simplified (concat 0x 0x03) to 0x03
 debug: Simplified (concat 0x03 0x04) to 0x0304
@@ -18021,7 +17836,6 @@ debug: Simplified (concat 0x0004 0x01) to 0x000401
 debug: Simplified (concat 0x000401 0x02) to 0x00040102
 debug: Simplified (concat 0x00040102 0x03) to 0x0004010203
 debug: Simplified (concat 0x0004010203 0x04) to 0x000401020304
-debug: Simplified (bitlen aggregate%val_as_bytes%15#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%15#0) to 0x05
 debug: Simplified (concat 0x 0x05) to 0x05
 debug: Simplified ((extract 6 2) aggregate%as_bytes%57#0) to 0x0005
@@ -18033,14 +17847,9 @@ debug: Simplified (concat 0x000501020304 0x05) to 0x00050102030405
 debug: Simplified ((extract 6 2) aggregate%as_bytes%58#0) to 0x0001
 debug: Simplified ((extract 6 2) aggregate%as_bytes%59#0) to 0x0002
 debug: Simplified (concat 0x0001 0x0002) to 0x00010002
-debug: Simplified (concat 0x00010002 0x000548656c6c6f) to 0x00010002000548656c6c6f
 debug: Simplified ((extract 6 2) aggregate%as_bytes%60#0) to 0x0001
 debug: Simplified ((extract 6 2) aggregate%as_bytes%61#0) to 0x0002
 debug: Simplified (concat 0x0001 0x0002) to 0x00010002
-debug: Simplified (concat 0x00010002 0x0005576f726c64) to 0x000100020005576f726c64
-debug: Simplified ((extract 2 0) 0x000100020005576f726c64) to 0x00020005576f726c64
-debug: Simplified (extract_uint16 0x000100020005576f726c64 0u) // on error: invalid array length header to 1u
-debug: Simplified (len 0x00020005576f726c64) to 9u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -18076,6 +17885,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutation.Arc4MutationContract.approval_program converged after 2 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%8#0
 debug: removing redundant assert of tmp%17#0
@@ -18091,6 +17901,7 @@ debug: removing redundant assert of tmp%0#3
 debug: removing redundant assert of aggregate%no_overflow%5#0
 debug: removing redundant assert of aggregate%no_overflow%6#0
 debug: removing redundant assert of aggregate%no_overflow%7#0
+debug: removing redundant assert of aggregate%no_overflow%8#0
 debug: removing redundant assert of aggregate%no_overflow%9#0
 debug: removing redundant assert of aggregate%no_overflow%10#0
 debug: removing redundant assert of aggregate%no_overflow%11#0
@@ -18127,8 +17938,11 @@ debug: GVN found equivalence set: (aggregate%as_bytes%21#0, aggregate%as_bytes%3
 debug: GVN found equivalence set: (aggregate%as_bytes%36#0, aggregate%val_as_bytes%13#0), selected replacement: aggregate%as_bytes%36#0
 debug: GVN found equivalence set: (aggregate%as_bytes%42#0, aggregate%val_as_bytes%8#0), selected replacement: aggregate%as_bytes%42#0
 debug: GVN found equivalence set: (aggregate%as_bytes%48#0, aggregate%as_bytes%50#0, aggregate%as_bytes%52#0, aggregate%as_bytes%55#0), selected replacement: aggregate%as_bytes%48#0
+debug: GVN found equivalence set: (test_struct#2, aggregate%concat%27#0), selected replacement: test_struct#2
 debug: GVN found equivalence set: (aggregate%updated_data%2#0, aggregate%concat%28#0), selected replacement: aggregate%updated_data%2#0
-debug: GVN: 49 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
+debug: GVN found equivalence set: (aggregate%updated_data%3#0, test_struct#3), selected replacement: test_struct#3
+debug: GVN found equivalence set: (test_struct#4, aggregate%concat%29#0), selected replacement: test_struct#4
+debug: GVN: 52 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -18886,9 +18700,7 @@ debug: Removing unused variable aggregate%current_tail_offset%0#0
 debug: Removing unused variable aggregate%as_bytes%16#0
 debug: Removing unused variable aggregate%offset_as_uint16%1#0
 debug: Removing unused variable aggregate%head%38#0
-debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable tmp%4#2
-debug: Removing unused variable concat%1#0
 debug: Removing unused variable aggregate%len_u16%11#0
 debug: Removing unused variable aggregate%as_bytes%18#0
 debug: Removing unused variable aggregate%offset_as_uint16%2#0
@@ -18928,13 +18740,6 @@ debug: Removing unused variable aggregate%current_tail_offset%8#0
 debug: Removing unused variable aggregate%as_bytes%25#0
 debug: Removing unused variable aggregate%offset_as_uint16%9#0
 debug: Removing unused variable aggregate%head%46#0
-debug: Removing unused variable aggregate%concat%2#0
-debug: Removing unused variable aggregate%concat%3#0
-debug: Removing unused variable aggregate%concat%4#0
-debug: Removing unused variable aggregate%concat%5#0
-debug: Removing unused variable aggregate%concat%6#0
-debug: Removing unused variable aggregate%concat%7#0
-debug: Removing unused variable aggregate%concat%8#0
 debug: Removing unused variable index#0
 debug: Removing unused variable index#1
 debug: Removing unused variable aggregate%len_u16%12#0
@@ -18972,13 +18777,6 @@ debug: Removing unused variable aggregate%current_tail_offset%16#0
 debug: Removing unused variable aggregate%as_bytes%34#0
 debug: Removing unused variable aggregate%offset_as_uint16%17#0
 debug: Removing unused variable aggregate%head%54#0
-debug: Removing unused variable aggregate%concat%10#0
-debug: Removing unused variable aggregate%concat%11#0
-debug: Removing unused variable aggregate%concat%12#0
-debug: Removing unused variable aggregate%concat%13#0
-debug: Removing unused variable aggregate%concat%14#0
-debug: Removing unused variable aggregate%concat%15#0
-debug: Removing unused variable aggregate%concat%16#0
 debug: Removing unused variable aggregate%len_u16%13#0
 debug: Removing unused variable aggregate%as_bytes%36#0
 debug: Removing unused variable aggregate%offset_as_uint16%18#0
@@ -19008,11 +18806,6 @@ debug: Removing unused variable aggregate%current_tail_offset%22#0
 debug: Removing unused variable aggregate%as_bytes%41#0
 debug: Removing unused variable aggregate%offset_as_uint16%23#0
 debug: Removing unused variable aggregate%head%60#0
-debug: Removing unused variable aggregate%concat%18#0
-debug: Removing unused variable aggregate%concat%19#0
-debug: Removing unused variable aggregate%concat%20#0
-debug: Removing unused variable aggregate%concat%21#0
-debug: Removing unused variable aggregate%concat%22#0
 debug: Removing unused variable aggregate%as_bytes%42#0
 debug: Removing unused variable array_of_array#0
 debug: Removing unused variable tmp%0#3
@@ -19111,12 +18904,9 @@ debug: Removing unused variable aggregate%current_tail_offset%24#0
 debug: Removing unused variable aggregate%as_bytes%48#0
 debug: Removing unused variable aggregate%offset_as_uint16%25#0
 debug: Removing unused variable aggregate%head%78#0
-debug: Removing unused variable aggregate%concat%24#0
-debug: Removing unused variable test_struct#1
 debug: Removing unused variable aggregate%bitlen%13#0
 debug: Removing unused variable aggregate%no_overflow%13#0
 debug: Removing unused variable aggregate%uint8%13#0
-debug: Removing unused variable test_struct#2
 debug: Removing unused variable aggregate%head%79#0
 debug: Removing unused variable aggregate%head%80#0
 debug: Removing unused variable aggregate%offset_as_uint16%26#0
@@ -19126,7 +18916,6 @@ debug: Removing unused variable aggregate%current_tail_offset%26#0
 debug: Removing unused variable aggregate%offset_as_uint16%27#0
 debug: Removing unused variable aggregate%head%82#0
 debug: Removing unused variable aggregate%concat%26#0
-debug: Removing unused variable aggregate%concat%27#0
 debug: Removing unused variable tmp%12#5
 debug: Removing unused variable aggregate%length%6#0
 debug: Removing unused variable aggregate%length_uint16%6#0
@@ -19134,14 +18923,13 @@ debug: Removing unused variable aggregate%encoded_value%6#0
 debug: Removing unused variable aggregate%item_offset%0#0
 debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%total_length%1#0
-debug: Removing unused variable aggregate%updated_data%3#0
+debug: Removing unused variable test_struct#3
 debug: Removing unused variable aggregate%old_value_length%0#0
 debug: Removing unused variable aggregate%new_value_length%0#0
 debug: Removing unused variable aggregate%tail_offset%0#0
 debug: Removing unused variable aggregate%tail_offset%1#0
 debug: Removing unused variable aggregate%tail_offset%2#0
 debug: Removing unused variable aggregate%tail_offset_bytes%0#0
-debug: Removing unused variable test_struct#3
 debug: Removing unused variable aggregate%length%7#0
 debug: Removing unused variable aggregate%length_uint16%7#0
 debug: Removing unused variable aggregate%encoded_value%7#0
@@ -19156,7 +18944,6 @@ debug: Removing unused variable aggregate%data_length%28#0
 debug: Removing unused variable aggregate%current_tail_offset%28#0
 debug: Removing unused variable aggregate%offset_as_uint16%29#0
 debug: Removing unused variable aggregate%head%86#0
-debug: Removing unused variable aggregate%concat%29#0
 debug: Removing unused variable tmp%20#2
 debug: Removing unused variable aggregate%bitlen%14#0
 debug: Removing unused variable aggregate%no_overflow%14#0
@@ -19193,30 +18980,54 @@ debug: Removing unused variable tmp%19#4
 debug: Removing unused variable aggregate%len_u16%19#0
 debug: Removing unused variable aggregate%offset_as_uint16%30#0
 debug: Removing unused variable aggregate%head%99#0
-debug: Removing unused variable aggregate%concat%30#0
 debug: Removing unused variable aggregate%len_u16%20#0
 debug: Removing unused variable aggregate%offset_as_uint16%31#0
 debug: Removing unused variable aggregate%head%100#0
-debug: Removing unused variable aggregate%concat%31#0
 debug: Removing unused variable extract_to_end%0#3
 debug: Removing unused variable aggregate%array_length%8#0
 debug: Removing unused variable start_of_tail%0#1
 debug: Removing unused variable total_length%1#1
 debug: Removing unused variable data%0#1
 debug: Removing unused variable result#3
-debug: Removing unused variable test_struct#0
 debug: Removing unused variable aggregate%updated_data%2#0
 debug: Removing unused variable aggregate%data_beyond_item%0#0
+debug: Removing unused variable aggregate%concat%31#0
 debug: Removing unused variable aggregate%data_up_to_item%0#0
+debug: Removing unused variable test_struct#2
+debug: Removing unused variable test_struct#1
+debug: Removing unused variable test_struct#0
+debug: Removing unused variable aggregate%concat%24#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (replace3 aggregate%item%3#0 3u 0x00) // on error: index access is out of bounds to ((replace2 3) aggregate%item%3#0 0x00) // on error: index access is out of bounds
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x00020004000b 0x000548656c6c6f0005576f726c64) to 0x00020004000b000548656c6c6f0005576f726c64
-debug: Simplified (concat 0x000800100017001e00230028002f0036003b 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
+debug: Simplified (concat 0x00020004000b 0x000548656c6c6f) to 0x00020004000b000548656c6c6f
+debug: Simplified (concat 0x00020004000b000548656c6c6f 0x0005576f726c64) to 0x00020004000b000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x0003466f6f 0x0003426172) to 0x0003466f6f0003426172
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b 0x000548656c6c6f) to 0x000800100017001e00230028002f0036003b000548656c6c6f
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f 0x0005576f726c64) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c64 0x0003466f6f) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f 0x0003426172) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172 0x000548656c6c6f) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f 0x0005576f726c64) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c64 0x0003466f6f) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f 0x0003426172) to 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
 debug: Simplified (extract_uint16 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 0u) to 8u
-debug: Simplified (concat 0x000800100017001e0023002a00310038003d 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
-debug: Simplified (concat 0x0006000c0013001a001f0026002d 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d 0x000548656c6c6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f 0x0005576f726c64) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c64 0x0003466f6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f 0x000548656c6c6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f 0x000548656c6c6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f 0x000548656c6c6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f 0x0003466f6f) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f 0x0003426172) to 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
+debug: Simplified (concat 0x0006000c0013001a001f0026002d 0x000548656c6c6f) to 0x0006000c0013001a001f0026002d000548656c6c6f
+debug: Simplified (concat 0x0006000c0013001a001f0026002d000548656c6c6f 0x0005576f726c64) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c64 0x0003466f6f) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f
+debug: Simplified (concat 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f 0x000548656c6c6f) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f
+debug: Simplified (concat 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f 0x000548656c6c6f) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f
+debug: Simplified (concat 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f 0x000548656c6c6f) to 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
 debug: Simplified (extract_uint16 0x000280 0u) to 2u
+debug: Simplified (concat 0x00010002 0x000548656c6c6f) to 0x00010002000548656c6c6f
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -19460,16 +19271,38 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable dynamic_string_array#0
+debug: Removing unused variable concat%1#0
+debug: Removing unused variable aggregate%concat%2#0
+debug: Removing unused variable aggregate%concat%3#0
+debug: Removing unused variable aggregate%concat%4#0
+debug: Removing unused variable aggregate%concat%5#0
+debug: Removing unused variable aggregate%concat%6#0
+debug: Removing unused variable aggregate%concat%7#0
+debug: Removing unused variable aggregate%concat%8#0
 debug: Removing unused variable dynamic_string_array#3
 debug: Removing unused variable length#0
 debug: Removing unused variable tmp%1#8
+debug: Removing unused variable aggregate%concat%10#0
+debug: Removing unused variable aggregate%concat%11#0
+debug: Removing unused variable aggregate%concat%12#0
+debug: Removing unused variable aggregate%concat%13#0
+debug: Removing unused variable aggregate%concat%14#0
+debug: Removing unused variable aggregate%concat%15#0
+debug: Removing unused variable aggregate%concat%16#0
 debug: Removing unused variable aggregate%concat%17#0
+debug: Removing unused variable aggregate%concat%18#0
+debug: Removing unused variable aggregate%concat%19#0
+debug: Removing unused variable aggregate%concat%20#0
+debug: Removing unused variable aggregate%concat%21#0
+debug: Removing unused variable aggregate%concat%22#0
 debug: Removing unused variable aggregate%concat%23#0
 debug: Removing unused variable tmp%1#10
 debug: Removing unused variable tmp%1#12
 debug: Removing unused variable length#6
 debug: Removing unused variable tmp%1#14
+debug: Removing unused variable aggregate%concat%30#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -21865,20 +21698,16 @@ debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%3#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%3#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 0u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x00
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
 debug: Simplified (concat 0x0001 0x00) to 0x000100
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0002
 debug: Simplified (concat 0x0002 0x00) to 0x000200
 debug: Simplified (concat 0x000200 0x01) to 0x00020001
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
 debug: Simplified (concat 0x0001 0x01) to 0x000101
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 6u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x2a
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
 debug: Simplified (concat 0x0003 0x01) to 0x000301
@@ -21892,6 +21721,8 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing] converged after 2 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
+debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of aggregate%no_overflow%3#0
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%val_as_bytes%1#0, aggregate%as_bytes%2#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN: 2 replacement(s) in test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]
@@ -21950,21 +21781,16 @@ debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%3#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%3#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%4#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%4#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
 debug: Simplified (concat 0x 0x01) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x04
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0003
 debug: Simplified (concat 0x0003 0x01) to 0x000301
 debug: Simplified (concat 0x000301 0x02) to 0x00030102
 debug: Simplified (concat 0x00030102 0x04) to 0x0003010204
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 6u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x2a
 debug: Simplified (concat 0x 0x2a) to 0x2a
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x04
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Optimizer: Inner Txn Field Replacer
@@ -21989,6 +21815,7 @@ debug: Not removing empty block block@14 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array converged after 2 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
@@ -24131,69 +23958,36 @@ debug: Simplified (extract3 aggregate%val_as_bytes%20#0 7u 1u) to ((extract 7 1)
 debug: Simplified (extract3 aggregate%val_as_bytes%21#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%21#0)
 debug: Simplified (extract3 nested#0 0u 4u) to ((extract 0 4) nested#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x03
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
 debug: Simplified (concat 0x 0x01) to 0x01
 debug: Simplified (concat 0x01 0x02) to 0x0102
 debug: Simplified (concat 0x0102 0x03) to 0x010203
 debug: Simplified (concat 0x010203 0x04) to 0x01020304
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 6u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x32
-debug: Simplified (len "Happy") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0005
-debug: Simplified (concat 0x0005 "Happy") to 0x00054861707079
-debug: Simplified (len "Days") to 4u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0004
-debug: Simplified (concat 0x0004 "Days") to 0x000444617973
 debug: Simplified (concat 0x 0x80) to 0x80
 debug: Simplified (concat 0x80 0x32) to 0x8032
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0006
 debug: Simplified (concat 0x8032 0x0006) to 0x80320006
-debug: Simplified (len 0x00054861707079) to 7u
-debug: Simplified (concat aggregate%concat%0#0 0x000444617973) to (concat aggregate%head%7#0 0x00054861707079000444617973)
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x05
-debug: Simplified (len "AARRGH!") to 7u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0007
-debug: Simplified (concat 0x0007 "AARRGH!") to 0x000741415252474821
-debug: Simplified (bitlen aggregate%val_as_bytes%6#0) to 4u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0x0a
-debug: Simplified (bitlen aggregate%val_as_bytes%7#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0x64
-debug: Simplified (bitlen aggregate%val_as_bytes%8#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0x65
-debug: Simplified (bitlen aggregate%val_as_bytes%9#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%9#0) to 0x66
-debug: Simplified (bitlen aggregate%val_as_bytes%10#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%10#0) to 0x67
-debug: Simplified (bitlen aggregate%val_as_bytes%11#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%11#0) to 0x68
-debug: Simplified (bitlen aggregate%val_as_bytes%12#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%12#0) to 0x69
-debug: Simplified (bitlen aggregate%val_as_bytes%13#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%13#0) to 0xc8
-debug: Simplified (bitlen aggregate%val_as_bytes%14#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%14#0) to 0xc9
-debug: Simplified (bitlen aggregate%val_as_bytes%15#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%15#0) to 0xca
-debug: Simplified (bitlen aggregate%val_as_bytes%16#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%16#0) to 0xce
-debug: Simplified (bitlen aggregate%val_as_bytes%17#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%17#0) to 0xcf
-debug: Simplified (bitlen aggregate%val_as_bytes%18#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%18#0) to 0xd0
-debug: Simplified (bitlen aggregate%val_as_bytes%19#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%19#0) to 0xe4
-debug: Simplified (bitlen aggregate%val_as_bytes%20#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%20#0) to 0xe5
-debug: Simplified (bitlen aggregate%val_as_bytes%21#0) to 8u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%21#0) to 0xe6
 debug: Simplified (concat 0x my_array#4) to my_array#4
 debug: Optimizer: Inner Txn Field Replacer
@@ -24204,6 +23998,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program converged after 2 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of aggregate%no_overflow%3#0
 debug: removing redundant assert of aggregate%no_overflow%4#0
@@ -24465,12 +24260,7 @@ debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%0#0)
 debug: Simplified (replace3 aggregate%updated_data%1#0 4u aggregate%tail_offset_bytes%0#0) to ((replace2 4) aggregate%updated_data%1#0 aggregate%tail_offset_bytes%0#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 3u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x05
-debug: Simplified (len "AARRGH!") to 7u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0007
-debug: Simplified (concat 0x0007 "AARRGH!") to 0x000741415252474821
-debug: Simplified (len 0x000741415252474821) to 9u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -24502,7 +24292,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%0#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 4u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x0a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -24670,7 +24459,6 @@ debug: Removing unused variable aggregate%current_tail_offset%0#0
 debug: Removing unused variable aggregate%as_bytes%3#0
 debug: Removing unused variable aggregate%offset_as_uint16%1#0
 debug: Removing unused variable aggregate%head%7#0
-debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint8%5#0
@@ -24801,7 +24589,8 @@ debug: Simplified (extract3 foo.0#1 1u 1u) // on error: index access is out of b
 debug: Simplified (extract3 foo.1#1 1u 1u) // on error: index access is out of bounds to ((extract 1 1) foo.1#1) // on error: index access is out of bounds
 debug: Simplified (extract3 foo.2#1 1u 1u) // on error: index access is out of bounds to ((extract 1 1) foo.2#1) // on error: index access is out of bounds
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x80320006000d 0x00054861707079000444617973) to 0x80320006000d00054861707079000444617973
+debug: Simplified (concat 0x80320006000d 0x00054861707079) to 0x80320006000d00054861707079
+debug: Simplified (concat 0x80320006000d00054861707079 0x000444617973) to 0x80320006000d00054861707079000444617973
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -24957,6 +24746,7 @@ debug: selected array#5 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable my_struct#0
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
 debug: Removing unused variable array#0
@@ -26117,22 +25907,9 @@ debug: Removing unused variable aggregate%current_tail_offset%2#0
 debug: Removing unused variable aggregate%data_length%2#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len "X") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
-debug: Simplified (concat 0x0001 "X") to 0x000158
-debug: Simplified (len "Y") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
-debug: Simplified (concat 0x0001 "Y") to 0x000159
-debug: Simplified (len "Z") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
-debug: Simplified (concat 0x0001 "Z") to 0x00015a
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0006
 debug: Simplified (concat 0x0003 0x0006) to 0x00030006
-debug: Simplified (len 0x000158) to 3u
-debug: Simplified (len 0x000159) to 3u
-debug: Simplified (concat aggregate%concat%0#0 0x000159) to (concat aggregate%head%2#0 0x000158000159)
-debug: Simplified (concat aggregate%concat%1#0 0x00015a) to (concat aggregate%head%2#0 0x00015800015900015a)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -26178,15 +25955,12 @@ debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%1#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x58
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
 debug: Simplified (concat 0x0001 0x58) to 0x000158
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x59
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
 debug: Simplified (concat 0x0001 0x59) to 0x000159
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x5a
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
 debug: Simplified (concat 0x0001 0x5a) to 0x00015a
@@ -26274,10 +26048,10 @@ debug: Removing unused variable aggregate%offset_as_uint16%2#0
 debug: Removing unused variable aggregate%head%2#0
 debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable aggregate%concat%1#0
+debug: Removing unused variable aggregate%concat%2#0
+debug: Removing unused variable tmp%1#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x000300060009000c 0x00015800015900015a) to 0x000300060009000c00015800015900015a
-debug: Simplified (concat 0x151f7c75 0x000300060009000c00015800015900015a) to 0x151f7c75000300060009000c00015800015900015a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -26285,7 +26059,7 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
-debug: GVN: test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] converged after 2 iteration(s)
+debug: GVN: test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] converged after 1 iteration(s)
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -26355,8 +26129,10 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to arc4_types/out/Arc4DynamicStringArrayContract.ir/Arc4DynamicStringArrayContract.approval.201.ssa.array.opt.ir
 debug: Begin optimization pass 3/100
+debug: marking trivial method test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] as inlineable
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
+arc4_types/dynamic_string_array.py:5:6 debug: inlining call to test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -26368,7 +26144,10 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
+debug: Merged linear block@10 into block@4
 debug: Optimizer: Remove Linear Jumps
+debug: Removing jump block block@11
+debug: branching to block@11 will be replaced with block@8
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: algopy.arc4.ARC4Contract.approval_program converged after 2 iteration(s)
@@ -26385,8 +26164,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable aggregate%concat%2#0
-debug: Removing unused variable tmp%1#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -26428,14 +26205,14 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: removing unused subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]
+debug: Unused subroutines removed
 debug: Output IR to arc4_types/out/Arc4DynamicStringArrayContract.ir/Arc4DynamicStringArrayContract.approval.202.ssa.array.opt.ir
 debug: Begin optimization pass 4/100
-debug: marking trivial method test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] as inlineable
 debug: marking trivial method test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing] as inlineable
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 arc4_types/dynamic_string_array.py:13:6 debug: inlining call to test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing] in algopy.arc4.ARC4Contract.approval_program
-arc4_types/dynamic_string_array.py:5:6 debug: inlining call to test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -26447,39 +26224,13 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
-debug: Merged linear block@12 into block@4
 debug: Merged linear block@10 into block@5
 debug: Optimizer: Remove Linear Jumps
-debug: Removing jump block block@13
 debug: Removing jump block block@11
-debug: branching to block@13 will be replaced with block@8
 debug: branching to block@11 will be replaced with block@8
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: algopy.arc4.ARC4Contract.approval_program converged after 2 iteration(s)
-debug: Optimizer: Sink Single Use Intrinsics
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Convert Stack Args To Immediates
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Global Value Numbering
-debug: GVN: test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing] converged after 1 iteration(s)
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -26509,7 +26260,6 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]
 debug: removing unused subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]
 debug: Unused subroutines removed
 debug: Output IR to arc4_types/out/Arc4DynamicStringArrayContract.ir/Arc4DynamicStringArrayContract.approval.203.ssa.array.opt.ir
@@ -28297,11 +28047,8 @@ debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%1#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x02
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x03
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x01
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0003
 debug: Simplified (concat 0x0003 0x02) to 0x000302
@@ -28350,6 +28097,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program converged after 3 iteration(s)
 debug: removing redundant assert of aggregate%no_overflow%1#0
+debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%4#0
 debug: removing redundant assert of tmp%5#0
 debug: removing redundant assert of tmp%12#0
@@ -29849,24 +29597,12 @@ debug: Simplified (extract3 aggregate%val_as_bytes%9#0 5u 3u) to ((extract 5 3) 
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
-debug: Simplified (len "") to 0u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0000
-debug: Simplified (concat 0x0000 "") to 0x0000
-debug: Simplified (len ".") to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
-debug: Simplified (concat 0x0001 ".") to 0x00012e
-debug: Simplified (!= 0x00012e 0x0000) to 1u
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 0u
+debug: Simplified (concat aggregate%length_uint16%0#0 "") to aggregate%length_uint16%0#0
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x00
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 0u
 debug: Simplified ((extract 6 2) aggregate%val_as_bytes%2#0) to 0x0000
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 1u
 debug: Simplified ((extract 6 2) aggregate%val_as_bytes%3#0) to 0x0001
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 0u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%4#0) to 0x00000000
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 1u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x00000001
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
@@ -29874,9 +29610,7 @@ debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
-debug: Simplified (bitlen aggregate%val_as_bytes%8#0) to 0u
 debug: Simplified ((extract 5 3) aggregate%val_as_bytes%8#0) to 0x000000
-debug: Simplified (bitlen aggregate%val_as_bytes%9#0) to 1u
 debug: Simplified ((extract 5 3) aggregate%val_as_bytes%9#0) to 0x000001
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
@@ -29894,11 +29628,18 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program converged after 2 iteration(s)
+debug: removing redundant assert of tmp%11#0
+debug: removing redundant assert of aggregate%no_overflow%0#0
 debug: removing redundant assert of tmp%19#0
+debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of tmp%21#0
+debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%23#0
+debug: removing redundant assert of aggregate%no_overflow%3#0
 debug: removing redundant assert of tmp%25#0
+debug: removing redundant assert of aggregate%no_overflow%4#0
 debug: removing redundant assert of tmp%27#0
+debug: removing redundant assert of aggregate%no_overflow%5#0
 debug: removing redundant assert of tmp%29#0
 debug: removing redundant assert of tmp%31#0
 debug: removing redundant assert of tmp%33#0
@@ -29908,7 +29649,9 @@ debug: removing redundant assert of tmp%39#0
 debug: removing redundant assert of tmp%41#0
 debug: removing redundant assert of tmp%43#0
 debug: removing redundant assert of tmp%45#0
+debug: removing redundant assert of aggregate%no_overflow%6#0
 debug: removing redundant assert of tmp%47#0
+debug: removing redundant assert of aggregate%no_overflow%7#0
 debug: removing redundant assert of tmp%49#0
 debug: removing redundant assert of tmp%51#0
 debug: removing redundant assert of tmp%53#0
@@ -34011,9 +33754,7 @@ debug: Simplified (extract3 aggregate%val_as_bytes%5#0 4u 4u) to ((extract 4 4) 
 debug: Simplified (extract3 aggregate%val_as_bytes%6#0 4u 4u) to ((extract 4 4) aggregate%val_as_bytes%6#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%7#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%7#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 2u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0002
 debug: Simplified (concat 0x0002 0x01) to 0x000201
@@ -34022,7 +33763,6 @@ debug: Simplified (extract_uint16 0x00020102 0u) // on error: invalid array leng
 debug: Simplified (len 0x00020102) to 4u
 debug: Simplified (substring3 0x00020102 2u 4u) to 0x0102
 debug: Simplified (btoi uint8_item#0) to (getbyte 0x0102 aggregate%bytes_offset%0#0)
-debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 1u
 debug: Simplified ((extract 6 2) aggregate%val_as_bytes%2#0) to 0x0001
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
 debug: Simplified (concat 0x0001 0x0001) to 0x00010001
@@ -34030,24 +33770,12 @@ debug: Simplified (extract_uint16 0x00010001 0u) // on error: invalid array leng
 debug: Simplified (len 0x00010001) to 4u
 debug: Simplified (substring3 0x00010001 2u 4u) to 0x0001
 debug: Simplified (btoi uint16_item#0) to (extract_uint16 0x0001 aggregate%bytes_offset%1#0)
-debug: Simplified (len "Hello") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0005
-debug: Simplified (concat 0x0005 "Hello") to 0x000548656c6c6f
-debug: Simplified (len "World") to 5u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0005
-debug: Simplified (concat 0x0005 "World") to 0x0005576f726c64
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0002
 debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0004
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
-debug: Simplified (len 0x000548656c6c6f) to 7u
-debug: Simplified (concat aggregate%concat%0#0 0x0005576f726c64) to (concat aggregate%head%4#0 0x000548656c6c6f0005576f726c64)
-debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 1u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%3#0) to 0x00000001
-debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 4u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%4#0) to 0x0000000a
-debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 8u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x000000ff
-debug: Simplified (bitlen aggregate%val_as_bytes%6#0) to 8u
 debug: Simplified ((extract 4 4) aggregate%val_as_bytes%6#0) to 0x00000080
 debug: Simplified (concat 0x 0x00000001) to 0x00000001
 debug: Simplified (concat 0x00000001 0x0000000a) to 0x000000010000000a
@@ -34055,20 +33783,11 @@ debug: Simplified (concat 0x000000010000000a 0x000000ff) to 0x000000010000000a00
 debug: Simplified (concat 0x000000010000000a000000ff 0x00000080) to 0x000000010000000a000000ff00000080
 debug: Simplified (btoi uint32_item#0) to (extract_uint32 0x000000010000000a000000ff00000080 aggregate%bytes_offset%2#0)
 debug: Simplified (btoi uint8_item#1) to (getbyte 0x010203040506 aggregate%bytes_offset%3#0)
-debug: Simplified (bitlen aggregate%val_as_bytes%7#0) to 7u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0x65
 debug: Simplified (concat 0x 0x65) to 0x65
 debug: Simplified (btoi aggregate%encoded_element%4#0) to (getbyte 0x65 aggregate%bytes_offset%4#0)
-debug: Simplified (len "Ping") to 4u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%7#0) to 0x0004
-debug: Simplified (concat 0x0004 "Ping") to 0x000450696e67
-debug: Simplified (len "Pong") to 4u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%8#0) to 0x0004
-debug: Simplified (concat 0x0004 "Pong") to 0x0004506f6e67
 debug: Simplified ((extract 6 2) aggregate%as_bytes%9#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
-debug: Simplified (len 0x000450696e67) to 6u
-debug: Simplified (concat aggregate%concat%2#0 0x0004506f6e67) to (concat aggregate%head%11#0 0x000450696e670004506f6e67)
 debug: Simplified (select tmp%0#2 tmp%2#2 1u) to tmp%2#2
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -34086,7 +33805,10 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.array.Arc4ArraysContract.approval_program converged after 4 iteration(s)
+debug: removing redundant assert of aggregate%no_overflow%1#0
+debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of tmp%12#0
+debug: removing redundant assert of aggregate%no_overflow%3#0
 debug: removing redundant assert of aggregate%no_overflow%4#0
 debug: removing redundant assert of aggregate%no_overflow%5#0
 debug: removing redundant assert of aggregate%no_overflow%6#0
@@ -34373,7 +34095,6 @@ debug: Removing unused variable aggregate%current_tail_offset%0#0
 debug: Removing unused variable aggregate%as_bytes%6#0
 debug: Removing unused variable aggregate%offset_as_uint16%1#0
 debug: Removing unused variable aggregate%head%4#0
-debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable aggregate%array_length%2#0
 debug: Removing unused variable tmp%12#0
 debug: Removing unused variable length#0
@@ -34432,9 +34153,10 @@ debug: Removing unused variable tmp%0#2
 debug: Removing unused variable tmp%2#2
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x00020004000b 0x000548656c6c6f0005576f726c64) to 0x00020004000b000548656c6c6f0005576f726c64
+debug: Simplified (concat 0x00020004000b 0x000548656c6c6f) to 0x00020004000b000548656c6c6f
+debug: Simplified (concat 0x00020004000b000548656c6c6f 0x0005576f726c64) to 0x00020004000b000548656c6c6f0005576f726c64
 debug: Simplified (concat 0x0004000a 0x000450696e67) to 0x0004000a000450696e67
-debug: Simplified (concat 0x0004000a 0x000450696e670004506f6e67) to 0x0004000a000450696e670004506f6e67
+debug: Simplified (concat 0x0004000a000450696e67 0x0004506f6e67) to 0x0004000a000450696e670004506f6e67
 debug: Simplified (concat 0x0004000a000450696e67 0x000450696e67) to 0x0004000a000450696e67000450696e67
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -34505,6 +34227,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%concat%0#0
 debug: Removing unused variable dynamic_string_array#0
 debug: Removing unused variable aggregate%concat%2#0
 debug: Removing unused variable static_string_array#0

@@ -138,44 +138,60 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let tmp%26#0: uint64 = 2u
         let tmp%27#0: uint64 = 4u
         let tmp%28#0: bool = 0u
+        goto tmp%27#0 ? block@54 : block@53
+    block@53: // ternary_true_L83
+        let ternary_result%1#0: string = "left"
+        goto block@55
+    block@54: // ternary_false_L83
         let ternary_result%1#1: string = "right"
         goto block@55
     block@55: // ternary_merge_L83
-        let ternary_result%1#2: string = ternary_result%1#1
-        let tmp%29#0: uint64 = 5u
-        let tmp%30#0: bool = 0u
+        let ternary_result%1#2: string = φ(ternary_result%1#0 <- block@53, ternary_result%1#1 <- block@54)
+        let tmp%29#0: uint64 = (len ternary_result%1#2)
+        let tmp%30#0: bool = (> tmp%26#0 tmp%29#0)
         goto tmp%30#0 ? block@56 : block@57
     block@56: // ternary_true_L83
         let ternary_result%0#3: bool = 0u
         goto block@58
     block@57: // ternary_false_L83
-        let tmp%31#0: string = "ri"
-        let ternary_result%0#4: bool = 1u
+        let tmp%31#0: string = (extract3 ternary_result%1#2 0u tmp%26#0)
+        let ternary_result%0#4: bool = (== tmp%31#0 "ri")
         goto block@58
     block@58: // ternary_merge_L83
         let ternary_result%0#5: bool = φ(ternary_result%0#3 <- block@56, ternary_result%0#4 <- block@57)
         (assert ternary_result%0#5)
         let tmp%32#0: uint64 = 2u
         let tmp%33#0: bool = 0u
+        goto tmp%32#0 ? block@60 : block@59
+    block@59: // ternary_true_L84
+        let ternary_result%3#0: string = "le"
+        goto block@61
+    block@60: // ternary_false_L84
         let ternary_result%3#1: string = "ri"
         goto block@61
     block@61: // ternary_merge_L84
-        let ternary_result%3#2: string = ternary_result%3#1
-        let tmp%34#0: uint64 = 2u
+        let ternary_result%3#2: string = φ(ternary_result%3#0 <- block@59, ternary_result%3#1 <- block@60)
+        let tmp%34#0: uint64 = (len ternary_result%3#2)
         let tmp%35#0: uint64 = 5u
-        let tmp%36#0: bool = 0u
+        let tmp%36#0: bool = (> tmp%34#0 tmp%35#0)
         goto tmp%36#0 ? block@62 : block@63
     block@62: // ternary_true_L84
         let ternary_result%2#0: bool = 0u
         goto block@67
     block@63: // ternary_false_L84
-        let tmp%37#0: string = "ri"
+        let tmp%37#0: string = (extract3 "right" 0u tmp%34#0)
         let tmp%38#0: uint64 = 2u
         let tmp%39#0: bool = 0u
+        goto tmp%38#0 ? block@65 : block@64
+    block@64: // ternary_true_L84
+        let ternary_result%4#0: string = "le"
+        goto block@66
+    block@65: // ternary_false_L84
         let ternary_result%4#1: string = "ri"
         goto block@66
     block@66: // ternary_merge_L84
-        let ternary_result%2#1: bool = 1u
+        let ternary_result%4#2: string = φ(ternary_result%4#0 <- block@64, ternary_result%4#1 <- block@65)
+        let ternary_result%2#1: bool = (== tmp%37#0 ternary_result%4#2)
         goto block@67
     block@67: // ternary_merge_L84
         let ternary_result%2#2: bool = φ(ternary_result%2#0 <- block@62, ternary_result%2#1 <- block@66)
@@ -209,14 +225,20 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let bounded_index%0#0: uint64 = 0u
         let is_out_of_bounds%1#0: bool = 0u
         let bounded_index%1#0: uint64 = 2u
-        let tmp%48#0: bytes = 0x6c65
+        let tmp%48#0: bytes = "le"
         let tmp%49#0: bool = 1u
         let tmp%50#0: uint64 = 4u
         let tmp%51#0: bool = 0u
+        goto tmp%50#0 ? block@73 : block@72
+    block@72: // ternary_true_L91
+        let ternary_result%5#0: string = "left"
+        goto block@74
+    block@73: // ternary_false_L91
         let ternary_result%5#1: string = "right"
         goto block@74
     block@74: // ternary_merge_L91
-        let tmp%52#0: bool = _puya_lib.bytes_.is_substring("ight", ternary_result%1#2)
+        let ternary_result%5#2: string = φ(ternary_result%5#0 <- block@72, ternary_result%5#1 <- block@73)
+        let tmp%52#0: bool = _puya_lib.bytes_.is_substring("ight", ternary_result%5#2)
         (assert tmp%52#0)
         let tmp%53#0: bool = 0u
         let select%3#0: uint64 = 2u
@@ -265,7 +287,7 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let select%1#2: bytes = 0x68656c6c6f
         let tmp%17#2: uint64 = 39u
         let tmp%18#2: bool = 1u
-        (assert 39u)
+        (assert tmp%17#2)
         let select%0#3: bool = 0u
         let tmp%0#5: bool = 1u
         (assert 1u)

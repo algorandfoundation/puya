@@ -166,6 +166,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         (assert and_result%2#2) // assert target is match for conditions
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 10u)
         let arr#11: Encoded(len+uint64[]) = ((replace2 10) arr#8 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 12u)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 13u)
         let new_items_bytes#7: bytes = ((extract 2 0) arr#11)
         let new_items_count#7: uint64 = (extract_uint16 arr#11 0u) // on error: invalid array length header
         let new_array_length#7: uint64 = (+ new_items_count#7 new_items_count#7)
@@ -180,6 +182,9 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let new_len_u16#8: bytes = ((extract 6 0) tmp%0#17)
         let result#8: bytes = ((replace2 0) array#8 new_len_u16#8)
         let array#9: bytes = (concat result#8 new_items_bytes#8)
+        let aggregate%head%4#0: bytes = 0x0002000000000000000c
+        let aggregate%head%5#0: bytes = 0x0002000000000000000c000000000000000d
+        let new_items_bytes#9: bytes = 0x000000000000000c000000000000000d
         let array_length#9: uint64 = (extract_uint16 array#9 0u)
         let new_array_length#9: uint64 = (+ array_length#9 2u)
         let tmp%0#19: bytes = (itob new_array_length#9)

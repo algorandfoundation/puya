@@ -536,8 +536,8 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes[routing]() -> 
         let aggregate%length_uint16%1#0: bytes = 0x0002
         let aggregate%encoded_value%1#0: bytes = 0x00023432
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get 0x424f585f43)
-        let state_get%2#0: bytes = (select 0x00023432 maybe_value%2#0 maybe_exists%2#0)
-        let tmp%6#0: bool = (== state_get%2#0 0x00023432)
+        let state_get%2#0: bytes = (select aggregate%encoded_value%1#0 maybe_value%2#0 maybe_exists%2#0)
+        let tmp%6#0: bool = (== state_get%2#0 aggregate%encoded_value%1#0)
         (assert tmp%6#0)
         let (maybe_value%3#0: bytes, a_exists#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         let a#0: uint64 = (btoi maybe_value%3#0)
@@ -1248,12 +1248,12 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
         let tmp%1#0: bool = (== box%box_extract%0#0 0x54657374696e67)
         (assert tmp%1#0)
         let aggregate%length%0#0: uint64 = 5u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 5u)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0005
         let aggregate%encoded_value%0#0: bytes = 0x000548656c6c6f
         (box_del 0x424f585f43)
-        (box_put 0x424f585f43 0x000548656c6c6f)
-        let (box%box_len%1#0: uint64, box%exists%1#0: bool) = (7u, 1u)
+        (box_put 0x424f585f43 aggregate%encoded_value%0#0)
+        let (box%box_len%1#0: uint64, box%exists%1#0: bool) = (box_len 0x424f585f43)
         let is_out_of_bounds%2#0: bool = (>= 2u box%box_len%1#0)
         let bounded_index%2#0: uint64 = (select 2u box%box_len%1#0 is_out_of_bounds%2#0)
         let is_out_of_bounds%3#0: bool = (>= 10u box%box_len%1#0)
@@ -1269,17 +1269,15 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%bitlen%0#0: uint64 = 0u
         let aggregate%no_overflow%0#0: bool = 1u
-        (assert 1u) // overflow
+        (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x00
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
         let aggregate%bitlen%1#0: uint64 = 1u
         let aggregate%no_overflow%1#0: bool = 1u
-        (assert 8u) // overflow
         let aggregate%uint8%1#0: bytes = 0x01
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 2u)
         let aggregate%bitlen%2#0: uint64 = 2u
         let aggregate%no_overflow%2#0: bool = 1u
-        (assert aggregate%no_overflow%2#0) // overflow
         let aggregate%uint8%2#0: bytes = 0x02
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob 3u)
         let aggregate%bitlen%3#0: uint64 = 2u
