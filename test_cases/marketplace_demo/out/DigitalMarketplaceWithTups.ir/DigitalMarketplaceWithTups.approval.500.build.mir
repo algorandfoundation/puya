@@ -1010,12 +1010,12 @@ subroutine buy:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         // ).submit()
         itxn_begin
+        v-load quantity#0                                                                             quantity#0
+        itxn_field AssetAmount
         // marketplace_demo/marketplace_with_tups.py:179
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         txn Sender                                                                                    inner_txn_params%0%%param_AssetReceiver_idx_0#0
         v-store inner_txn_params%0%%param_AssetReceiver_idx_0#0
-        v-load quantity#0                                                                             quantity#0
-        itxn_field AssetAmount
         v-load inner_txn_params%0%%param_AssetReceiver_idx_0#0                                        inner_txn_params%0%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
@@ -1192,8 +1192,6 @@ subroutine withdraw:
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
-        v-store inner_txn_params%1%%param_Receiver_idx_0#0
         // marketplace_demo/marketplace_with_tups.py:45-66
         // return UInt64(
         //     2_500
@@ -1219,10 +1217,12 @@ subroutine withdraw:
         // )
         int 50500                                                                                     50500
         itxn_field Amount
-        v-load inner_txn_params%1%%param_Receiver_idx_0#0                                             inner_txn_params%1%%param_Receiver_idx_0#0
-        itxn_field Receiver
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
+        v-store inner_txn_params%1%%param_Receiver_idx_0#0
+        v-load inner_txn_params%1%%param_Receiver_idx_0#0                                             inner_txn_params%1%%param_Receiver_idx_0#0
+        itxn_field Receiver
         int pay                                                                                       pay
         itxn_field TypeEnum
         int 0                                                                                         0
@@ -1233,12 +1233,12 @@ subroutine withdraw:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         // ).submit()
         itxn_begin
+        v-load listing.deposited#0                                                                    listing.deposited#0
+        itxn_field AssetAmount
         // marketplace_demo/marketplace_with_tups.py:198
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         txn Sender                                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0
         v-store inner_txn_params%2%%param_AssetReceiver_idx_0#0
-        v-load listing.deposited#0                                                                    listing.deposited#0
-        itxn_field AssetAmount
         v-load inner_txn_params%2%%param_AssetReceiver_idx_0#0                                        inner_txn_params%2%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
@@ -1747,10 +1747,10 @@ subroutine accept_bid:
         // marketplace_demo/marketplace_with_tups.py:250
         // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%0%%param_Receiver_idx_0#0
-        v-store inner_txn_params%0%%param_Receiver_idx_0#0
         v-load amount_to_be_paid#0                                                                    amount_to_be_paid#0
         itxn_field Amount
+        txn Sender                                                                                    inner_txn_params%0%%param_Receiver_idx_0#0
+        v-store inner_txn_params%0%%param_Receiver_idx_0#0
         v-load inner_txn_params%0%%param_Receiver_idx_0#0                                             inner_txn_params%0%%param_Receiver_idx_0#0
         itxn_field Receiver
         int pay                                                                                       pay
