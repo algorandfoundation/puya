@@ -86,8 +86,8 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         goto block@4
     block@19: // after_for_L42
         let tmp%0#2: bool = 0u
-        let select%0#0: uint64 = OptIn
-        let b#0: uint64 = OptIn
+        let select%0#0: uint64 = 1u
+        let b#0: uint64 = select%0#0
         let tmp%1#2: bool = 1u
         let tmp%2#2: bool = 1u
         let ternary_result%0#0: uint64 = appl
@@ -101,7 +101,6 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let or_result%0#3: bool = 1u
         goto block@30
     block@30: // bool_merge_L72
-        let ok#0: bool = or_result%0#3
         let tmp%3#3: bool = 0u
         let tmp%4#3: uint64 = 1u
         let tmp%5#2: bool = 1u
@@ -219,7 +218,7 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let tmp%45#0: bool = 1u
         let tmp%46#0: uint64 = 4u
         let tmp%47#0: bool = 1u
-        let select%2#0: bytes = 0x6c656674
+        let select%2#0: bytes = "left"
         let length%0#0: uint64 = 4u
         let is_out_of_bounds%0#0: bool = 0u
         let bounded_index%0#0: uint64 = 0u
@@ -264,9 +263,9 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let or_result%1#3: bool = 1u
         goto block@84
     block@84: // bool_merge_L107
-        goto ok#0 ? block@87 : block@89
+        goto b#0 ? block@87 : block@89
     block@87: // and_contd_L108
-        goto ok#0 ? block@88 : block@89
+        goto b#0 ? block@88 : block@89
     block@88: // bool_true_L108
         let and_result%0#6: bool = 1u
         goto block@90
@@ -307,17 +306,22 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         (assert 1u)
         let select%4#1: uint64 = 0u
         let tmp%2#5: bool = 0u
+        goto select%4#1 ? block@111 : block@112
+    block@111: // ternary_true_L148
+        let ternary_result%0#6: uint64 = select%4#1
+        goto block@113
+    block@112: // ternary_false_L148
         let ternary_result%0#7: uint64 = 4u
         goto block@113
     block@113: // ternary_merge_L148
-        let y#1: uint64 = ternary_result%0#7
-        let tmp%3#5: bool = 1u
+        let y#1: uint64 = φ(ternary_result%0#6 <- block@111, ternary_result%0#7 <- block@112)
+        let tmp%3#5: bool = (== y#1 4u)
+        (assert tmp%3#5)
         let tmp%4#5: bool = 0u
         let select%5#0: uint64 = 3u
-        let ternary_result%1#4: uint64 = 3u
+        let z#1: uint64 = select%5#0
         goto block@116
     block@116: // ternary_merge_L150
-        let z#1: uint64 = ternary_result%1#4
         let tmp%5#4: bool = 1u
         let r#0: uint64 = (global Round)
         let tmp%1#6: bool = 0u

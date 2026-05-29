@@ -1232,19 +1232,14 @@ debug: Simplified (select 0u 1u 0u) to 0u
 debug: Simplified (select 0u 1u 1u) to 1u
 debug: Simplified (select 0u 1u 1u) to 1u
 debug: Simplified (select 0u 1u 0u) to 0u
-debug: Simplified (select 0u 3u 0u) to 0u
-debug: Simplified (select 0u 3u 1u) to 3u
+debug: Simplified (select 0u 3u 0u) to (* 0u 3u)
+debug: Simplified (select 0u 3u 1u) to (* 1u 3u)
 debug: Simplified (|| tmp%1#6 tmp%2#6) to (|| 0u r#0)
 debug: Simplified (|| tmp%4#6 tmp%5#5) to (|| r#0 0u)
 debug: Simplified (== 0u 0u) to (! 0u)
 debug: Simplified (== 0u 0u) to (! 0u)
-debug: Simplified (select OptIn 0u 0u) to OptIn
-debug: Simplified (select OptIn 0u 0u) to OptIn
-debug: Simplified (select 0x7269676874 0x6c656674 4u) to 0x6c656674
-debug: Simplified (select 2u 1u 1u) to 1u
-debug: Simplified (select 0x68656c6c6f 0x 0u) to 0x68656c6c6f
-debug: Simplified (len 0x6c656674) to 4u
-debug: Simplified (select 0u 4u is_out_of_bounds%0#0) to (* is_out_of_bounds%0#0 4u)
+debug: Simplified (select OptIn 0u 0u) to (! 0u)
+debug: Simplified (select OptIn 0u 0u) to (! 0u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1320,8 +1315,6 @@ debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@106 from goto 1u ? block@108 : block@107 to goto block@108
 debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@107 from goto 1u ? block@108 : block@109 to goto block@108
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@110 from goto 0u ? block@111 : block@112 to goto block@112
 debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@113 from goto 0u ? block@114 : block@115 to goto block@115
 debug: Optimizer: Merge Blocks
@@ -1404,8 +1397,6 @@ debug: Replaced predecessor block@103 with block@90 in block@104
 debug: Merged linear block@103 into block@90
 debug: Replaced predecessor block@104 with block@90 in block@106
 debug: Merged linear block@104 into block@90
-debug: Replaced predecessor block@112 with block@110 in block@113
-debug: Merged linear block@112 into block@110
 debug: Replaced predecessor block@115 with block@113 in block@116
 debug: Merged linear block@115 into block@113
 debug: Replaced predecessor block@117 with block@116 in block@118
@@ -1438,7 +1429,6 @@ debug: Removing unreachable block: block@99
 debug: Removing unreachable block: block@105
 debug: Removing unreachable block: block@107
 debug: Removing unreachable block: block@109
-debug: Removing unreachable block: block@111
 debug: Removing unreachable block: block@114
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program converged after 3 iteration(s)
@@ -1464,7 +1454,6 @@ debug: removing redundant assert of tmp%11#3
 debug: removing redundant assert of tmp%14#2
 debug: removing redundant assert of or_result%0#11
 debug: removing redundant assert of or_result%1#8
-debug: removing redundant assert of tmp%3#5
 debug: removing redundant assert of tmp%5#4
 debug: removing redundant assert of r#0
 debug: removing redundant assert of tmp%0#7
@@ -1475,16 +1464,16 @@ debug: GVN found equivalence set: (tmp%4#1, and_msg#0), selected replacement: an
 debug: GVN found equivalence set: (and_result%0#2, and_result#0), selected replacement: and_result#0
 debug: GVN found equivalence set: (tmp%15#0, or_msg#0), selected replacement: or_msg#0
 debug: GVN found equivalence set: (or_result%0#2, or_result#0), selected replacement: or_result#0
+debug: GVN found equivalence set: (b#0, or_result%0#5, ok#0, or_result%1#2, and_result%0#5, or_result%2#2, or_result%3#2, or_result%0#8, c#1, or_result%1#5, d#0, or_result%0#11, or_result%1#8), selected replacement: b#0
 debug: GVN found equivalence set: (ternary_result%0#2, c#0), selected replacement: c#0
-debug: GVN found equivalence set: (or_result%0#5, ok#0, or_result%1#2, and_result%0#5, or_result%2#2, or_result%3#2, or_result%0#8, c#1, or_result%1#5, d#0, or_result%0#11, or_result%1#8), selected replacement: ok#0
 debug: GVN found equivalence set: (item_index_internal%0#1, idx#0), selected replacement: idx#0
 debug: GVN found equivalence set: (b#1, extract%0#0), selected replacement: b#1
 debug: GVN found equivalence set: (ternary_result%0#8, y#1), selected replacement: y#1
-debug: GVN found equivalence set: (ternary_result%1#5, z#1), selected replacement: z#1
+debug: GVN found equivalence set: (ternary_result%1#4, ternary_result%1#5, z#1), selected replacement: z#1
 debug: GVN found equivalence set: (tmp%0#6, r#0), selected replacement: r#0
 debug: GVN found equivalence set: (tmp%2#6, tmp%4#6), selected replacement: tmp%2#6
 debug: GVN found equivalence set: (tmp%3#6, tmp%6#4), selected replacement: tmp%3#6
-debug: GVN: 23 replacement(s) in test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program
+debug: GVN: 25 replacement(s) in test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1666,8 +1655,8 @@ debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (select OptIn 0u tmp%0#0) to (select OptIn 0u 0u)
 debug: Simplified (select OptIn 0u tmp%3#0) to (select OptIn 0u 0u)
-debug: Simplified (select OptIn 0u 0u) to OptIn
-debug: Simplified (select OptIn 0u 0u) to OptIn
+debug: Simplified (select OptIn 0u 0u) to (! 0u)
+debug: Simplified (select OptIn 0u 0u) to (! 0u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1725,10 +1714,6 @@ debug: Simplified (select 0x7269676874 0x6c656674 tmp%47#0) to (select 0x7269676
 debug: Simplified (== tmp%50#0 0u) to (! tmp%50#0)
 debug: Simplified (== 1u 0u) to (! 1u)
 debug: Simplified (select 2u 1u tmp%56#0) to (select 2u 1u 1u)
-debug: Simplified (select 0x7269676874 0x6c656674 4u) to 0x6c656674
-debug: Simplified (select 2u 1u 1u) to 1u
-debug: Simplified (len 0x6c656674) to 4u
-debug: Simplified (select 0u 4u is_out_of_bounds%0#0) to (* is_out_of_bounds%0#0 4u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1842,7 +1827,6 @@ debug: Simplified (len 0x) to 0u
 debug: Simplified (== 1u 0u) to (! 1u)
 debug: Simplified (len 0x) to 0u
 debug: Simplified (select 0x68656c6c6f 0x tmp%16#0) to (select 0x68656c6c6f 0x 0u)
-debug: Simplified (select 0x68656c6c6f 0x 0u) to 0x68656c6c6f
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2073,7 +2057,6 @@ debug: Removing unused variable tmp%0#3
 debug: Removing unused variable tmp%1#3
 debug: Removing unused variable tmp%2#3
 debug: Removing unused variable or_result%0#3
-debug: Removing unused variable ok#0
 debug: Removing unused variable tmp%3#3
 debug: Removing unused variable tmp%4#3
 debug: Removing unused variable tmp%5#2
@@ -2166,12 +2149,8 @@ debug: Removing unused variable select%3#1
 debug: Removing unused variable tmp%1#5
 debug: Removing unused variable select%4#1
 debug: Removing unused variable tmp%2#5
-debug: Removing unused variable ternary_result%0#7
-debug: Removing unused variable y#1
-debug: Removing unused variable tmp%3#5
 debug: Removing unused variable tmp%4#5
 debug: Removing unused variable select%5#0
-debug: Removing unused variable ternary_result%1#4
 debug: Removing unused variable z#1
 debug: Removing unused variable tmp%5#4
 debug: Removing unused variable tmp%1#6
@@ -2205,6 +2184,8 @@ debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@84 from goto 1u ? block@87 : block@89 to goto block@87
 debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@87 from goto 1u ? block@88 : block@89 to goto block@88
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@110 from goto 0u ? block@111 : block@112 to goto block@112
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@130 with block@5 in block@131
 debug: Merged linear block@130 into block@5
@@ -2266,11 +2247,11 @@ debug: Replaced predecessor block@106 with block@90 in block@108
 debug: Merged linear block@106 into block@90
 debug: Replaced predecessor block@108 with block@90 in block@110
 debug: Merged linear block@108 into block@90
-debug: Replaced predecessor block@110 with block@90 in block@113
+debug: Replaced predecessor block@110 with block@90 in block@112
 debug: Merged linear block@110 into block@90
-debug: Replaced predecessor block@113 with block@90 in block@116
-debug: Merged linear block@113 into block@90
-debug: Merged linear block@116 into block@90
+debug: Replaced predecessor block@112 with block@90 in block@113
+debug: Merged linear block@112 into block@90
+debug: Merged linear block@116 into block@113
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Removing unreachable block: block@53
@@ -2278,8 +2259,10 @@ debug: Removing unreachable block: block@59
 debug: Removing unreachable block: block@64
 debug: Removing unreachable block: block@72
 debug: Removing unreachable block: block@89
+debug: Removing unreachable block: block@111
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program converged after 3 iteration(s)
+debug: removing redundant assert of tmp%3#5
 debug: GVN found equivalence set: (lhs#6, x#3, tmp%6#1, x#1, tmp%17#0), selected replacement: lhs#6
 debug: GVN found equivalence set: (rhs#1, x#2, tmp%8#1, x#0, tmp%19#0), selected replacement: rhs#1
 debug: GVN found equivalence set: (tmp%5#1, msg#3), selected replacement: msg#3
@@ -2393,6 +2376,9 @@ debug: Removing unused variable tmp%0#8
 debug: Removing unused variable tmp%2#8
 debug: Removing unused variable and_result%0#6
 debug: Removing unused variable and_result%0#8
+debug: Removing unused variable ternary_result%0#7
+debug: Removing unused variable y#1
+debug: Removing unused variable tmp%3#5
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -2433,7 +2419,9 @@ debug: Replaced predecessor block@66 with block@58 in block@67
 debug: Merged linear block@66 into block@58
 debug: Replaced predecessor block@74 with block@71 in block@118
 debug: Merged linear block@74 into block@71
+debug: Replaced predecessor block@90 with block@123 in block@113
 debug: Merged linear block@90 into block@123
+debug: Merged linear block@113 into block@123
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Removing unreachable block: block@56
