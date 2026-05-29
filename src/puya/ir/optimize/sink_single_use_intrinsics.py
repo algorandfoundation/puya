@@ -11,48 +11,13 @@ from puya.utils import is_list_of
 logger = log.get_logger(__name__)
 
 
-# Single-input, single-output AVM ops that cannot fail on any input the IR's
-# type system already considers valid. Excluded on purpose:
-#   - btoi              panics if the input is > 8 bytes
-#   - extract/substring panics on out-of-bounds indices
-#   - bzero             panics if the requested length > 4096
-#   - bsqrt             panics on inputs encoding > 2^512
 # Keep this list conservative -- a "may fail" op here can re-order an implicit
 # assertion past observable side effects.
 _NEVER_FAIL_UNARY_OPS: typing.Final = frozenset(
     {
-        # group: ops that can't fail at runtime
-        # `txn FirstValidTime` technically could fail, but shouldn't happen on mainnet?
+        # `txn FirstValidTime` technically could fail, but shouldn't happen on mainnet
         "txn",
-        "sha256",
-        "keccak256",
-        "sha3_256",
-        "sha512_256",
-        "bitlen",
-        # group: could only fail on a type error
-        "!",
-        "!=",
-        "&",
-        "&&",
-        "<",
-        "<=",
-        "==",
-        ">",
-        ">=",
-        "|",
-        "||",
-        "~",
-        "addw",
-        "mulw",
         "itob",
-        "len",
-        "select",
-        "sqrt",
-        "shl",
-        "shr",
-        "b&",
-        "b|",
-        "b~",
     }
 )
 
