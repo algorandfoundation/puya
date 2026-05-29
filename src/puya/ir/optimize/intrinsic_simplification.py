@@ -55,11 +55,9 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
                     if visited is not None:
                         new_ops.append(visited)
                 case models.Assert() as assert_:
-                    asserted = _simplify_assert(assert_, register_assignments)
-                    if asserted is not assert_:
+                    if _simplify_assert(assert_, register_assignments):
                         modified += 1
-                    if asserted is not None:
-                        new_ops.append(asserted)
+                    new_ops.append(assert_)
                 case (
                     models.Assignment(
                         targets=[*targets], source=models.Intrinsic() as source
@@ -111,16 +109,13 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
     return modified > 0
 
 
-def _simplify_assert(
-    assert_: models.Assert, register_assignments: _RegisterAssignments
-) -> models.Assert | None:
-    result = assert_
-    cond = assert_.condition
-    if cond_defn := register_assignments.get(cond):
+def _simplify_assert(assert_: models.Assert, register_assignments: _RegisterAssignments) -> bool:
+    if cond_defn := register_assignments.get(assert_.condition):
         assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
         if assert_cond_maybe_simplified is not None:
-            result = attrs.evolve(assert_, condition=assert_cond_maybe_simplified)
-    return result
+            assert_.condition = assert_cond_maybe_simplified
+            return True
+    return False
 
 
 def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
