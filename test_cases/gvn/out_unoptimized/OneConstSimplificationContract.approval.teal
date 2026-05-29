@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 32 1 0 8
-    bytecblock 0x151f7c75 0x
+    intcblock 1 0 32 8
+    bytecblock 0x151f7c75 0x00 0x
     b main_block@0
 
 main_block@0:
@@ -14,22 +14,22 @@ main_block@1:
     // gvn/one_const_simplification.py:4
     // class OneConstSimplificationContract(ARC4Contract):
     txn NumAppArgs
-    intc_2 // 0
+    intc_1 // 0
     !=
-    bz main___algopy_default_create@16
+    bz main___algopy_default_create@30
     b main_abi_routing@2
 
 main_abi_routing@2:
     // gvn/one_const_simplification.py:4
     // class OneConstSimplificationContract(ARC4Contract):
     txn OnCompletion
-    intc_2 // NoOp
+    intc_1 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_2 // 0
+    intc_1 // 0
     !=
-    bz main_create_NoOp@14
+    bz main_create_NoOp@28
     b main_call_NoOp@3
 
 main_call_NoOp@3:
@@ -45,94 +45,192 @@ main_call_NoOp@3:
     pushbytes 0x61c6ca60 // method "badd_zero_right(uint256)uint256"
     pushbytes 0xcdf2abec // method "bsub_zero(uint256)uint256"
     pushbytes 0x31d4c60a // method "bdiv_one(uint256)uint256"
-    uncover 9
-    match main_mul_zero_route@4 main_gt_zero_route@5 main_lte_one_route@6 main_or_false_route@7 main_bmul_zero_route@8 main_badd_zero_left_route@9 main_badd_zero_right_route@10 main_bsub_zero_route@11 main_bdiv_one_route@12
-    b main_switch_case_next@13
+    pushbytes 0x624a6573 // method "cond_mul_one_l(uint64)uint64"
+    pushbytes 0x1f5792eb // method "cond_mul_one_r(uint64)uint64"
+    pushbytes 0x79ebb27e // method "cond_mul_zero(uint64)uint64"
+    pushbytes 0x61762ac7 // method "cond_div_one(uint64)uint64"
+    pushbytes 0xcb38b712 // method "cond_mod_one(uint64)uint64"
+    pushbytes 0x9b59a379 // method "cond_add_zero_l(uint64)uint64"
+    pushbytes 0x4c0417c8 // method "cond_add_zero_r(uint64)uint64"
+    pushbytes 0x1b31a57e // method "cond_sub_zero(uint64)uint64"
+    pushbytes 0x9d9895cd // method "cond_gt_zero(uint64)uint64"
+    pushbytes 0x0058a9f4 // method "cond_and_false(bool)uint64"
+    pushbytes 0x17e2bc23 // method "val_gte_one(bool)bool"
+    pushbytes 0xb5e994cf // method "val_lte_one(bool)bool"
+    pushbytes 0x0bb5a8e4 // method "val_lt_zero(bool)bool"
+    pushbytes 0xd53d047a // method "val_gt_zero(bool)bool"
+    uncover 23
+    match main_mul_zero_route@4 main_gt_zero_route@5 main_lte_one_route@6 main_or_false_route@7 main_bmul_zero_route@8 main_badd_zero_left_route@9 main_badd_zero_right_route@10 main_bsub_zero_route@11 main_bdiv_one_route@12 main_cond_mul_one_l_route@13 main_cond_mul_one_r_route@14 main_cond_mul_zero_route@15 main_cond_div_one_route@16 main_cond_mod_one_route@17 main_cond_add_zero_l_route@18 main_cond_add_zero_r_route@19 main_cond_sub_zero_route@20 main_cond_gt_zero_route@21 main_cond_and_false_route@22 main_val_gte_one_route@23 main_val_lte_one_route@24 main_val_lt_zero_route@25 main_val_gt_zero_route@26
+    b main_switch_case_next@27
 
-main_switch_case_next@13:
-    b main_after_if_else@15
+main_switch_case_next@27:
+    b main_after_if_else@29
 
-main_after_if_else@15:
-    b main_after_if_else@17
+main_after_if_else@29:
+    b main_after_if_else@31
 
-main_after_if_else@17:
+main_after_if_else@31:
     // gvn/one_const_simplification.py:4
     // class OneConstSimplificationContract(ARC4Contract):
     err
+
+main_val_gt_zero_route@26:
+    // gvn/one_const_simplification.py:160
+    // @public
+    callsub val_gt_zero
+    b main_switch_case_next@27
+
+main_val_lt_zero_route@25:
+    // gvn/one_const_simplification.py:154
+    // @public
+    callsub val_lt_zero
+    b main_switch_case_next@27
+
+main_val_lte_one_route@24:
+    // gvn/one_const_simplification.py:148
+    // @public
+    callsub val_lte_one
+    b main_switch_case_next@27
+
+main_val_gte_one_route@23:
+    // gvn/one_const_simplification.py:142
+    // @public
+    callsub val_gte_one
+    b main_switch_case_next@27
+
+main_cond_and_false_route@22:
+    // gvn/one_const_simplification.py:131
+    // @public
+    callsub cond_and_false
+    b main_switch_case_next@27
+
+main_cond_gt_zero_route@21:
+    // gvn/one_const_simplification.py:124
+    // @public
+    callsub cond_gt_zero
+    b main_switch_case_next@27
+
+main_cond_sub_zero_route@20:
+    // gvn/one_const_simplification.py:117
+    // @public
+    callsub cond_sub_zero
+    b main_switch_case_next@27
+
+main_cond_add_zero_r_route@19:
+    // gvn/one_const_simplification.py:110
+    // @public
+    callsub cond_add_zero_r
+    b main_switch_case_next@27
+
+main_cond_add_zero_l_route@18:
+    // gvn/one_const_simplification.py:103
+    // @public
+    callsub cond_add_zero_l
+    b main_switch_case_next@27
+
+main_cond_mod_one_route@17:
+    // gvn/one_const_simplification.py:96
+    // @public
+    callsub cond_mod_one
+    b main_switch_case_next@27
+
+main_cond_div_one_route@16:
+    // gvn/one_const_simplification.py:89
+    // @public
+    callsub cond_div_one
+    b main_switch_case_next@27
+
+main_cond_mul_zero_route@15:
+    // gvn/one_const_simplification.py:82
+    // @public
+    callsub cond_mul_zero
+    b main_switch_case_next@27
+
+main_cond_mul_one_r_route@14:
+    // gvn/one_const_simplification.py:75
+    // @public
+    callsub cond_mul_one_r
+    b main_switch_case_next@27
+
+main_cond_mul_one_l_route@13:
+    // gvn/one_const_simplification.py:68
+    // @public
+    callsub cond_mul_one_l
+    b main_switch_case_next@27
 
 main_bdiv_one_route@12:
     // gvn/one_const_simplification.py:59
     // @public
     callsub bdiv_one
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_bsub_zero_route@11:
     // gvn/one_const_simplification.py:54
     // @public
     callsub bsub_zero
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_badd_zero_right_route@10:
     // gvn/one_const_simplification.py:49
     // @public
     callsub badd_zero_right
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_badd_zero_left_route@9:
     // gvn/one_const_simplification.py:44
     // @public
     callsub badd_zero_left
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_bmul_zero_route@8:
     // gvn/one_const_simplification.py:39
     // @public
     callsub bmul_zero
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_or_false_route@7:
     // gvn/one_const_simplification.py:30
     // @public
     callsub or_false
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_lte_one_route@6:
     // gvn/one_const_simplification.py:23
     // @public
     callsub lte_one
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_gt_zero_route@5:
     // gvn/one_const_simplification.py:18
     // @public
     callsub gt_zero
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
 main_mul_zero_route@4:
     // gvn/one_const_simplification.py:13
     // @public
     callsub mul_zero
-    b main_switch_case_next@13
+    b main_switch_case_next@27
 
-main_create_NoOp@14:
-    b main_after_if_else@15
+main_create_NoOp@28:
+    b main_after_if_else@29
 
-main___algopy_default_create@16:
+main___algopy_default_create@30:
     txn OnCompletion
-    intc_2 // NoOp
+    intc_1 // NoOp
     ==
     txn ApplicationID
-    intc_2 // 0
+    intc_1 // 0
     ==
     &&
     assert
-    b main_block@19
+    b main_block@33
 
-main_block@19:
-    b main_after_inlined_test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create@20
+main_block@33:
+    b main_after_inlined_test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create@34
 
-main_after_inlined_test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create@20:
-    intc_1 // 1
+main_after_inlined_test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create@34:
+    intc_0 // 1
     return
 
 
@@ -156,7 +254,7 @@ mul_zero_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -175,15 +273,15 @@ gt_zero_block@0:
     assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.gt_zero
-    pushbytes 0x00
-    intc_2 // 0
+    bytec_1 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
     bytec_0 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -207,7 +305,7 @@ lte_one_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -221,10 +319,10 @@ or_false_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 1
+    intc_0 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    intc_2 // 0
+    intc_1 // 0
     getbit
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false
     itob
@@ -232,7 +330,7 @@ or_false_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -246,7 +344,7 @@ bmul_zero_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.uint256
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bmul_zero
@@ -254,7 +352,7 @@ bmul_zero_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -268,7 +366,7 @@ badd_zero_left_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.uint256
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_left
@@ -276,7 +374,7 @@ badd_zero_left_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -290,7 +388,7 @@ badd_zero_right_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.uint256
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_right
@@ -298,7 +396,7 @@ badd_zero_right_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -312,7 +410,7 @@ bsub_zero_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.uint256
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bsub_zero
@@ -320,7 +418,7 @@ bsub_zero_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -334,7 +432,7 @@ bdiv_one_block@0:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.uint256
     callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bdiv_one
@@ -342,7 +440,360 @@ bdiv_one_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l[routing]() -> void:
+cond_mul_one_l:
+    b cond_mul_one_l_block@0
+
+cond_mul_one_l_block@0:
+    // gvn/one_const_simplification.py:68
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r[routing]() -> void:
+cond_mul_one_r:
+    b cond_mul_one_r_block@0
+
+cond_mul_one_r_block@0:
+    // gvn/one_const_simplification.py:75
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero[routing]() -> void:
+cond_mul_zero:
+    b cond_mul_zero_block@0
+
+cond_mul_zero_block@0:
+    // gvn/one_const_simplification.py:82
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one[routing]() -> void:
+cond_div_one:
+    b cond_div_one_block@0
+
+cond_div_one_block@0:
+    // gvn/one_const_simplification.py:89
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one[routing]() -> void:
+cond_mod_one:
+    b cond_mod_one_block@0
+
+cond_mod_one_block@0:
+    // gvn/one_const_simplification.py:96
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l[routing]() -> void:
+cond_add_zero_l:
+    b cond_add_zero_l_block@0
+
+cond_add_zero_l_block@0:
+    // gvn/one_const_simplification.py:103
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r[routing]() -> void:
+cond_add_zero_r:
+    b cond_add_zero_r_block@0
+
+cond_add_zero_r_block@0:
+    // gvn/one_const_simplification.py:110
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero[routing]() -> void:
+cond_sub_zero:
+    b cond_sub_zero_block@0
+
+cond_sub_zero_block@0:
+    // gvn/one_const_simplification.py:117
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero[routing]() -> void:
+cond_gt_zero:
+    b cond_gt_zero_block@0
+
+cond_gt_zero_block@0:
+    // gvn/one_const_simplification.py:124
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false[routing]() -> void:
+cond_and_false:
+    b cond_and_false_block@0
+
+cond_and_false_block@0:
+    // gvn/one_const_simplification.py:131
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one[routing]() -> void:
+val_gte_one:
+    b val_gte_one_block@0
+
+val_gte_one_block@0:
+    // gvn/one_const_simplification.py:142
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one[routing]() -> void:
+val_lte_one:
+    b val_lte_one_block@0
+
+val_lte_one_block@0:
+    // gvn/one_const_simplification.py:148
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero[routing]() -> void:
+val_lt_zero:
+    b val_lt_zero_block@0
+
+val_lt_zero_block@0:
+    // gvn/one_const_simplification.py:154
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero[routing]() -> void:
+val_gt_zero:
+    b val_gt_zero_block@0
+
+val_gt_zero_block@0:
+    // gvn/one_const_simplification.py:160
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    callsub test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
     return
 
 
@@ -359,7 +810,7 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.mul_zero_
     // # x * 0 -> 0
     // return x * UInt64(0)
     frame_dig -1
-    intc_2 // 0
+    intc_1 // 0
     *
     retsub
 
@@ -376,7 +827,7 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.gt_zero_b
     // gvn/one_const_simplification.py:20-21
     // # 0 > b -> 0 (uint64 is never negative)
     // return UInt64(0) > b
-    intc_2 // 0
+    intc_1 // 0
     frame_dig -1
     >
     retsub
@@ -394,7 +845,7 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one_b
     // gvn/one_const_simplification.py:25-26
     // # 1 <= x in a branch (bool context) -> x; so this returns 1 iff x != 0
     // if UInt64(1) <= x:
-    intc_1 // 1
+    intc_0 // 1
     frame_dig -1
     <=
     bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one_after_if_else@2
@@ -403,13 +854,13 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one_b
 test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one_if_body@1:
     // gvn/one_const_simplification.py:27
     // return UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     retsub
 
 test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one_after_if_else@2:
     // gvn/one_const_simplification.py:28
     // return UInt64(0)
-    intc_2 // 0
+    intc_1 // 0
     retsub
 
 
@@ -427,7 +878,7 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false_
     // # branch condition (bool context) it simplifies to `a`.
     // cond = a or False
     frame_dig -1
-    intc_2 // 0
+    intc_1 // 0
     ||
     // gvn/one_const_simplification.py:35
     // if cond:
@@ -437,13 +888,13 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false_
 test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false_if_body@1:
     // gvn/one_const_simplification.py:36
     // return UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     retsub
 
 test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false_after_if_else@2:
     // gvn/one_const_simplification.py:37
     // return UInt64(0)
-    intc_2 // 0
+    intc_1 // 0
     retsub
 
 
@@ -460,14 +911,14 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bmul_zero
     // # x b* 0 -> 0
     // return arc4.UInt256(x.as_biguint() * BigUInt(0))
     frame_dig -1
-    bytec_1 // 0x
+    bytec_2 // 0x
     b*
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     <=
     assert // overflow
-    intc_0 // 32
+    intc_2 // 32
     bzero
     b|
     retsub
@@ -486,14 +937,14 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero
     // # 0 b+ x -> x
     // return arc4.UInt256(BigUInt(0) + x.as_biguint())
     frame_dig -1
-    bytec_1 // 0x
+    bytec_2 // 0x
     b+
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     <=
     assert // overflow
-    intc_0 // 32
+    intc_2 // 32
     bzero
     b|
     retsub
@@ -512,14 +963,14 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero
     // # x b+ 0 -> x
     // return arc4.UInt256(x.as_biguint() + BigUInt(0))
     frame_dig -1
-    bytec_1 // 0x
+    bytec_2 // 0x
     b+
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     <=
     assert // overflow
-    intc_0 // 32
+    intc_2 // 32
     bzero
     b|
     retsub
@@ -538,14 +989,14 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bsub_zero
     // # x b- 0 -> x
     // return arc4.UInt256(x.as_biguint() - BigUInt(0))
     frame_dig -1
-    bytec_1 // 0x
+    bytec_2 // 0x
     b-
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     <=
     assert // overflow
-    intc_0 // 32
+    intc_2 // 32
     bzero
     b|
     retsub
@@ -568,10 +1019,418 @@ test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bdiv_one_
     b/
     dup
     len
-    intc_0 // 32
+    intc_2 // 32
     <=
     assert // overflow
-    intc_0 // 32
+    intc_2 // 32
     bzero
     b|
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l:
+    // gvn/one_const_simplification.py:68-69
+    // @public
+    // def cond_mul_one_l(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_block@0:
+    // gvn/one_const_simplification.py:70-71
+    // # 1 * x as a condition -> x
+    // if UInt64(1) * x:
+    intc_0 // 1
+    frame_dig -1
+    *
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_if_body@1:
+    // gvn/one_const_simplification.py:72
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_l_after_if_else@2:
+    // gvn/one_const_simplification.py:73
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r:
+    // gvn/one_const_simplification.py:75-76
+    // @public
+    // def cond_mul_one_r(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_block@0:
+    // gvn/one_const_simplification.py:77-78
+    // # x * 1 as a condition -> x
+    // if x * UInt64(1):
+    frame_dig -1
+    intc_0 // 1
+    *
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_if_body@1:
+    // gvn/one_const_simplification.py:79
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_one_r_after_if_else@2:
+    // gvn/one_const_simplification.py:80
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero:
+    // gvn/one_const_simplification.py:82-83
+    // @public
+    // def cond_mul_zero(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_block@0:
+    // gvn/one_const_simplification.py:84-85
+    // # x * 0 as a condition -> 0 (always false)
+    // if x * UInt64(0):
+    frame_dig -1
+    intc_1 // 0
+    *
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_if_body@1:
+    // gvn/one_const_simplification.py:86
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mul_zero_after_if_else@2:
+    // gvn/one_const_simplification.py:87
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one:
+    // gvn/one_const_simplification.py:89-90
+    // @public
+    // def cond_div_one(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_block@0:
+    // gvn/one_const_simplification.py:91-92
+    // # x // 1 as a condition -> x
+    // if x // UInt64(1):
+    frame_dig -1
+    intc_0 // 1
+    /
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_if_body@1:
+    // gvn/one_const_simplification.py:93
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_div_one_after_if_else@2:
+    // gvn/one_const_simplification.py:94
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one:
+    // gvn/one_const_simplification.py:96-97
+    // @public
+    // def cond_mod_one(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_block@0:
+    // gvn/one_const_simplification.py:98-99
+    // # x % 1 as a condition -> 0 (always false)
+    // if x % UInt64(1):
+    frame_dig -1
+    intc_0 // 1
+    %
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_if_body@1:
+    // gvn/one_const_simplification.py:100
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_mod_one_after_if_else@2:
+    // gvn/one_const_simplification.py:101
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l:
+    // gvn/one_const_simplification.py:103-104
+    // @public
+    // def cond_add_zero_l(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_block@0:
+    // gvn/one_const_simplification.py:105-106
+    // # 0 + x as a condition -> x
+    // if UInt64(0) + x:
+    intc_1 // 0
+    frame_dig -1
+    +
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_if_body@1:
+    // gvn/one_const_simplification.py:107
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_l_after_if_else@2:
+    // gvn/one_const_simplification.py:108
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r:
+    // gvn/one_const_simplification.py:110-111
+    // @public
+    // def cond_add_zero_r(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_block@0:
+    // gvn/one_const_simplification.py:112-113
+    // # x + 0 as a condition -> x
+    // if x + UInt64(0):
+    frame_dig -1
+    intc_1 // 0
+    +
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_if_body@1:
+    // gvn/one_const_simplification.py:114
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_add_zero_r_after_if_else@2:
+    // gvn/one_const_simplification.py:115
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero(x: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero:
+    // gvn/one_const_simplification.py:117-118
+    // @public
+    // def cond_sub_zero(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_block@0:
+    // gvn/one_const_simplification.py:119-120
+    // # x - 0 as a condition -> x
+    // if x - UInt64(0):
+    frame_dig -1
+    intc_1 // 0
+    -
+    intc_1 // 0
+    !=
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_if_body@1:
+    // gvn/one_const_simplification.py:121
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_sub_zero_after_if_else@2:
+    // gvn/one_const_simplification.py:122
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero(b: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero:
+    // gvn/one_const_simplification.py:124-125
+    // @public
+    // def cond_gt_zero(self, b: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_block@0:
+    // gvn/one_const_simplification.py:126-127
+    // # 0 > b as a condition -> 0 (always false)
+    // if UInt64(0) > b:
+    intc_1 // 0
+    frame_dig -1
+    >
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_if_body@1:
+    // gvn/one_const_simplification.py:128
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero_after_if_else@2:
+    // gvn/one_const_simplification.py:129
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false(a: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false:
+    // gvn/one_const_simplification.py:131-132
+    // @public
+    // def cond_and_false(self, a: bool) -> UInt64:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_block@0:
+    // gvn/one_const_simplification.py:133-134
+    // # `a and False` materialises &&(a, 0); as a condition -> 0 (always false)
+    // cond = a and False
+    frame_dig -1
+    intc_1 // 0
+    &&
+    // gvn/one_const_simplification.py:135
+    // if cond:
+    bz test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_after_if_else@2
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_if_body@1
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_if_body@1:
+    // gvn/one_const_simplification.py:136
+    // return UInt64(1)
+    intc_0 // 1
+    retsub
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_and_false_after_if_else@2:
+    // gvn/one_const_simplification.py:137
+    // return UInt64(0)
+    intc_1 // 0
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one(a: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one:
+    // gvn/one_const_simplification.py:142-143
+    // @public
+    // def val_gte_one(self, a: bool) -> bool:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gte_one_block@0:
+    // gvn/one_const_simplification.py:144-145
+    // # (a >= 1) -> a   (a is a bool)
+    // r = a >= UInt64(1)
+    intc_0 // 1
+    frame_dig -1
+    <=
+    // gvn/one_const_simplification.py:146
+    // return r
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one(b: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one:
+    // gvn/one_const_simplification.py:148-149
+    // @public
+    // def val_lte_one(self, b: bool) -> bool:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one_block@0:
+    // gvn/one_const_simplification.py:150-151
+    // # (1 <= b) -> b   (b is a bool)
+    // r = UInt64(1) <= b
+    intc_0 // 1
+    frame_dig -1
+    <=
+    // gvn/one_const_simplification.py:152
+    // return r
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero(b: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero:
+    // gvn/one_const_simplification.py:154-155
+    // @public
+    // def val_lt_zero(self, b: bool) -> bool:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero_block@0:
+    // gvn/one_const_simplification.py:156-157
+    // # (0 < b) -> b   (b is a bool)
+    // r = UInt64(0) < b
+    intc_1 // 0
+    frame_dig -1
+    <
+    // gvn/one_const_simplification.py:158
+    // return r
+    retsub
+
+
+// test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero(a: uint64) -> uint64:
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero:
+    // gvn/one_const_simplification.py:160-161
+    // @public
+    // def val_gt_zero(self, a: bool) -> bool:
+    proto 1 1
+    b test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero_block@0
+
+test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_gt_zero_block@0:
+    // gvn/one_const_simplification.py:162-163
+    // # (a > 0) -> a   (a is a bool)
+    // r = a > UInt64(0)
+    intc_1 // 0
+    frame_dig -1
+    <
+    // gvn/one_const_simplification.py:164
+    // return r
     retsub
