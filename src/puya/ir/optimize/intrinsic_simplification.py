@@ -114,18 +114,9 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
 def _simplify_assert(
     assert_: models.Assert, register_assignments: _RegisterAssignments
 ) -> models.Assert | None:
-    result: models.Assert | None = assert_
+    result = assert_
     cond = assert_.condition
-    if isinstance(cond, models.UInt64Constant):
-        value = cond.value
-        if value:
-            result = None
-        else:
-            # an assert 0 could be simplified to an err, but
-            # this would make it a ControlOp, so the block would
-            # need to be restructured
-            pass
-    elif cond_defn := register_assignments.get(cond):
+    if cond_defn := register_assignments.get(cond):
         assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
         if assert_cond_maybe_simplified is not None:
             result = attrs.evolve(assert_, condition=assert_cond_maybe_simplified)
