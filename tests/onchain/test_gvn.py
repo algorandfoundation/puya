@@ -58,6 +58,27 @@ def test_loop_invariant_phi_aliasing(deployer_o: Deployer) -> None:
         assert actual == expected, f"run({x}, {y}) gave {actual}, expected {expected}"
 
 
+def test_redundant_phi_moving_vn(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "redundant_phi_moving_vn.py").client
+
+    def run(n: int, y: int, *, cond: bool) -> int:
+        result = client.send.call(
+            au.AppClientMethodCallParams(method="run", args=[n, y, cond], note=random.randbytes(8))
+        ).abi_return
+        assert isinstance(result, int)
+        return result
+
+    # each iteration sets z = (z + y) + 1, starting from z = 0, so after n
+    # iterations z = n * (y + 1) — independent of cond (both branches are equal).
+    for n, y in [(0, 0), (1, 0), (3, 7), (5, 2), (10, 1)]:
+        expected = n * (y + 1)
+        for cond in (True, False):
+            actual = run(n, y, cond=cond)
+            assert (
+                actual == expected
+            ), f"run({n}, {y}, cond={cond}) gave {actual}, expected {expected}"
+
+
 def test_partial_redundancy_elimination(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "partial_redundancy_elimination.py")
 
