@@ -26,7 +26,7 @@ from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add
+from puya.utils import Address, biguint_bytes_length, set_add
 
 logger = log.get_logger(__name__)
 
@@ -560,7 +560,7 @@ def _make_try_simplify_triple_bytes_math_commutative(
         other = list[models.Value]()
         constants = list[int]()
         for arg in args:
-            const_bigint, _ = _get_biguint_constant(register_assignments, arg)
+            const_bigint = _get_biguint_constant(register_assignments, arg)
             if const_bigint is not None:
                 constants.append(const_bigint)
             else:
@@ -733,20 +733,19 @@ def _get_int_constant(value: models.Value) -> int | None:
 
 def _get_biguint_constant(
     register_assignments: _RegisterAssignments, value: models.Value
-) -> tuple[int | None, models.BytesConstant] | tuple[None, None]:
+) -> int | None:
     if isinstance(value, models.BigUIntConstant):
-        biguint_byte_const = _biguint_constant_to_bytes_constant(value)
-        if len(biguint_byte_const.value) <= 64:
-            return value.value, biguint_byte_const
+        if value.value.bit_length() <= 512:
+            return value.value
         else:
-            return None, biguint_byte_const
+            return None
     byte_const = _get_byte_constant(register_assignments, value)
     if byte_const is None:
-        return None, byte_const
+        return None
     biguint_value = None
     if len(byte_const.value) <= 64:
         biguint_value = int.from_bytes(byte_const.value, byteorder="big", signed=False)
-    return biguint_value, byte_const
+    return biguint_value
 
 
 def _get_byte_constant(
@@ -755,9 +754,19 @@ def _get_byte_constant(
     if byte_arg_defn := register_assignments.get(byte_arg):
         match byte_arg_defn.source:
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
-                return _eval_itob(itob_arg, byte_arg_defn.source_location)
+                return models.BytesConstant(
+                    value=itob_arg.to_bytes(8, byteorder="big", signed=False),
+                    encoding=AVMBytesEncoding.base16,
+                    source_location=byte_arg_defn.source_location,
+                )
             case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
-                return _eval_bzero(bzero_arg, byte_arg_defn.source_location)
+                if bzero_arg <= 64:
+                    return models.BytesConstant(
+                        value=b"\x00" * bzero_arg,
+                        encoding=AVMBytesEncoding.base16,
+                        source_location=byte_arg_defn.source_location,
+                    )
+                return None
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 return models.BytesConstant(
                     value=Address.parse(algo_constants.ZERO_ADDRESS).public_key,
@@ -814,32 +823,6 @@ def _get_bytes_length_safe(
         return biguint_bytes_length(byte_arg.value)
     elif isinstance(byte_arg, models.Constant):
         return byte_arg.ir_type.num_bytes
-    return None
-
-
-def _biguint_constant_to_bytes_constant(const: models.BigUIntConstant) -> models.BytesConstant:
-    return models.BytesConstant(
-        value=biguint_bytes_eval(const.value),
-        encoding=AVMBytesEncoding.base16,
-        source_location=const.source_location,
-    )
-
-
-def _eval_itob(arg: int, loc: SourceLocation | None) -> models.BytesConstant:
-    return models.BytesConstant(
-        value=arg.to_bytes(8, byteorder="big", signed=False),
-        encoding=AVMBytesEncoding.base16,
-        source_location=loc,
-    )
-
-
-def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | None:
-    if arg <= 64:
-        return models.BytesConstant(
-            value=b"\x00" * arg,
-            encoding=AVMBytesEncoding.base16,
-            source_location=loc,
-        )
     return None
 
 
