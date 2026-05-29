@@ -42,13 +42,11 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
 
     modified = 0
     for block in subroutine.body:
-        new_ops = list[models.Op]()
         for op in block.ops:
             match op:
                 case models.Assert() as assert_:
                     if _simplify_assert(assert_, register_assignments):
                         modified += 1
-                    new_ops.append(assert_)
                 case (
                     models.Assignment(
                         targets=[*targets], source=models.Intrinsic() as source
@@ -84,11 +82,6 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
                                 op=AVMOp.box_len,
                                 types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
                             )
-                    new_ops.append(ass)
-                case _:
-                    new_ops.append(op)
-        block.ops[:] = new_ops
-
         match block.terminator:
             case models.ConditionalBranch(condition=models.Register() as cond) as branch if (
                 cond_defn := register_assignments.get(cond)
