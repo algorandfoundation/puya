@@ -1,0 +1,162 @@
+// Op                                                                                Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // gvn/redundant_phi_moving_vn.py:4
+        // class RedundantPhiMovingVnContract(ARC4Contract):
+        txn NumAppArgs                                                               tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // gvn/redundant_phi_moving_vn.py:4
+        // class RedundantPhiMovingVnContract(ARC4Contract):
+        txna ApplicationArgs 0                                                       tmp%2#0
+        method run(uint64,uint64,bool)uint64                                         tmp%2#0,Method(run(uint64,uint64,bool)uint64)
+        l-load tmp%2#0 1                                                             Method(run(uint64,uint64,bool)uint64),tmp%2#0
+        match main_run_route@3 ; b main_switch_case_next@4
+
+    main_run_route@3:
+        // gvn/redundant_phi_moving_vn.py:5
+        // @public
+        txn OnCompletion                                                             tmp%3#0
+        !                                                                            tmp%4#0
+        txn ApplicationID                                                            tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                             tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                             tmp%4#0,tmp%5#0
+        &&                                                                           tmp%7#0
+        assert
+        callsub run
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // gvn/redundant_phi_moving_vn.py:4
+        // class RedundantPhiMovingVnContract(ARC4Contract):
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                             tmp%8#0
+        !                                                                            tmp%9#0
+        txn ApplicationID                                                            tmp%9#0,tmp%10#0
+        !                                                                            tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                             tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                            tmp%9#0,tmp%11#0
+        &&                                                                           tmp%12#0
+        assert
+        int 1                                                                        1
+        return
+
+
+// test_cases.gvn.redundant_phi_moving_vn.redundant_phi_moving_vn(n: uint64, y: uint64, cond: uint64) -> uint64:
+subroutine redundant_phi_moving_vn:
+    redundant_phi_moving_vn_block@0:                                                 (𝕡) n#0,y#0,cond#0 |
+        // gvn/redundant_phi_moving_vn.py:39
+        // z = UInt64(0)
+        int 0                                                                        (𝕡) n#0,y#0,cond#0 | z#0
+        f-store z#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0 |
+        // gvn/redundant_phi_moving_vn.py:40
+        // i = UInt64(0)
+        int 0                                                                        (𝕡) n#0,y#0,cond#0 | (𝕗) z#0 | i#0
+        f-store i#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        b redundant_phi_moving_vn_while_top@1                                        (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+
+    redundant_phi_moving_vn_while_top@1:                                             (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:41
+        // while i < n:
+        f-load i#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | i#0
+        p-load n#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | i#0,n#0 (copy)
+        <                                                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | tmp%0#0
+        bz redundant_phi_moving_vn_after_while@6 ; b redundant_phi_moving_vn_while_body@2 (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | 
+
+    redundant_phi_moving_vn_while_body@2:                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:42
+        // if cond:
+        p-load cond#0                                                                (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | cond#0 (copy)
+        bz redundant_phi_moving_vn_else_body@4 ; b redundant_phi_moving_vn_if_body@3 (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+
+    redundant_phi_moving_vn_if_body@3:                                               (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:43
+        // w = z + y
+        f-load z#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0
+        p-load y#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0,y#0 (copy)
+        +                                                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | w#0
+        x-store w#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | (𝕏) w#0 |
+        b redundant_phi_moving_vn_after_if_else@5                                    (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | (𝕏) w#0 |
+
+    redundant_phi_moving_vn_else_body@4:                                             (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:45
+        // w = z + y
+        f-load z#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0
+        p-load y#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0,y#0 (copy)
+        +                                                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | w#0
+        x-store w#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | (𝕏) w#0 |
+        b redundant_phi_moving_vn_after_if_else@5                                    (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | (𝕏) w#0 |
+
+    redundant_phi_moving_vn_after_if_else@5:                                         (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | (𝕏) w#0 |
+        // gvn/redundant_phi_moving_vn.py:46
+        // z = w + UInt64(1)
+        x-load w#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | w#0
+        int 1                                                                        (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | w#0,1
+        +                                                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0
+        f-store z#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:47
+        // i += UInt64(1)
+        f-load i#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | i#0
+        int 1                                                                        (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | i#0,1
+        +                                                                            (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | i#0
+        f-store i#0                                                                  (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        b redundant_phi_moving_vn_while_top@1                                        (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+
+    redundant_phi_moving_vn_after_while@6:                                           (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 |
+        // gvn/redundant_phi_moving_vn.py:48
+        // return z
+        f-load z#0                                                                   (𝕡) n#0,y#0,cond#0 | (𝕗) z#0,i#0 | z#0
+        retsub                                                                       z#0
+
+
+// test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run[routing]() -> void:
+subroutine run:
+    run_block@0:
+        // gvn/redundant_phi_moving_vn.py:5
+        // @public
+        txna ApplicationArgs 1                                                       tmp%0#0
+        l-load-copy tmp%0#0 0                                                        tmp%0#0,tmp%0#0 (copy)
+        len                                                                          tmp%0#0,len%0#0
+        int 8                                                                        tmp%0#0,len%0#0,8
+        ==                                                                           tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                            tmp%0#0
+        l-load tmp%0#0 0                                                             tmp%0#0
+        btoi                                                                         n#0
+        txna ApplicationArgs 2                                                       n#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                        n#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                          n#0,tmp%2#0,len%1#0
+        int 8                                                                        n#0,tmp%2#0,len%1#0,8
+        ==                                                                           n#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.uint64                            n#0,tmp%2#0
+        l-load tmp%2#0 0                                                             n#0,tmp%2#0
+        btoi                                                                         n#0,y#0
+        txna ApplicationArgs 3                                                       n#0,y#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                        n#0,y#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                          n#0,y#0,tmp%4#0,len%2#0
+        int 1                                                                        n#0,y#0,tmp%4#0,len%2#0,1
+        ==                                                                           n#0,y#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for arc4.bool                              n#0,y#0,tmp%4#0
+        l-load tmp%4#0 0                                                             n#0,y#0,tmp%4#0
+        int 0                                                                        n#0,y#0,tmp%4#0,0
+        getbit                                                                       n#0,y#0,cond#0
+        // gvn/redundant_phi_moving_vn.py:7
+        // return redundant_phi_moving_vn(n, y, cond=cond)
+        l-load n#0 2                                                                 y#0,cond#0,n#0
+        l-load y#0 2                                                                 cond#0,n#0,y#0
+        l-load cond#0 2                                                              n#0,y#0,cond#0
+        callsub redundant_phi_moving_vn                                              tmp%0#1
+        // gvn/redundant_phi_moving_vn.py:5
+        // @public
+        itob                                                                         aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                              aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                          0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                       tmp%8#0
+        log
+        int 1                                                                        1
+        return
+
+

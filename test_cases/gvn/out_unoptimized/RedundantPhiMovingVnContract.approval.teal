@@ -1,0 +1,203 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // gvn/redundant_phi_moving_vn.py:4
+    // class RedundantPhiMovingVnContract(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // gvn/redundant_phi_moving_vn.py:4
+    // class RedundantPhiMovingVnContract(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xc8372713 // method "run(uint64,uint64,bool)uint64"
+    uncover 1
+    match main_run_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // gvn/redundant_phi_moving_vn.py:4
+    // class RedundantPhiMovingVnContract(ARC4Contract):
+    err
+
+main_run_route@3:
+    // gvn/redundant_phi_moving_vn.py:5
+    // @public
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub run
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.__algopy_default_create@9
+
+main_after_inlined_test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.redundant_phi_moving_vn.redundant_phi_moving_vn(n: uint64, y: uint64, cond: uint64) -> uint64:
+redundant_phi_moving_vn:
+    // gvn/redundant_phi_moving_vn.py:10-11
+    // @subroutine(inline=False)
+    // def redundant_phi_moving_vn(n: UInt64, y: UInt64, *, cond: bool) -> UInt64:
+    proto 3 1
+    pushbytes ""
+    b redundant_phi_moving_vn_block@0
+
+redundant_phi_moving_vn_block@0:
+    // gvn/redundant_phi_moving_vn.py:39
+    // z = UInt64(0)
+    intc_0 // 0
+    // gvn/redundant_phi_moving_vn.py:40
+    // i = UInt64(0)
+    intc_0 // 0
+    b redundant_phi_moving_vn_while_top@1
+
+redundant_phi_moving_vn_while_top@1:
+    // gvn/redundant_phi_moving_vn.py:41
+    // while i < n:
+    frame_dig 2
+    frame_dig -3
+    <
+    bz redundant_phi_moving_vn_after_while@6
+    b redundant_phi_moving_vn_while_body@2
+
+redundant_phi_moving_vn_while_body@2:
+    // gvn/redundant_phi_moving_vn.py:42
+    // if cond:
+    frame_dig -1
+    bz redundant_phi_moving_vn_else_body@4
+    b redundant_phi_moving_vn_if_body@3
+
+redundant_phi_moving_vn_if_body@3:
+    // gvn/redundant_phi_moving_vn.py:43
+    // w = z + y
+    frame_dig 1
+    frame_dig -2
+    +
+    frame_bury 0
+    b redundant_phi_moving_vn_after_if_else@5
+
+redundant_phi_moving_vn_after_if_else@5:
+    // gvn/redundant_phi_moving_vn.py:46
+    // z = w + UInt64(1)
+    frame_dig 0
+    intc_1 // 1
+    +
+    frame_bury 1
+    // gvn/redundant_phi_moving_vn.py:47
+    // i += UInt64(1)
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b redundant_phi_moving_vn_while_top@1
+
+redundant_phi_moving_vn_else_body@4:
+    // gvn/redundant_phi_moving_vn.py:45
+    // w = z + y
+    frame_dig 1
+    frame_dig -2
+    +
+    frame_bury 0
+    b redundant_phi_moving_vn_after_if_else@5
+
+redundant_phi_moving_vn_after_while@6:
+    // gvn/redundant_phi_moving_vn.py:48
+    // return z
+    frame_dig 1
+    frame_bury 0
+    retsub
+
+
+// test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run[routing]() -> void:
+run:
+    b run_block@0
+
+run_block@0:
+    // gvn/redundant_phi_moving_vn.py:5
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run
+    itob
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run(n: uint64, y: uint64, cond: uint64) -> uint64:
+test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run:
+    // gvn/redundant_phi_moving_vn.py:5-6
+    // @public
+    // def run(self, n: UInt64, y: UInt64, *, cond: bool) -> UInt64:
+    proto 3 1
+    b test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run_block@0
+
+test_cases.gvn.redundant_phi_moving_vn.RedundantPhiMovingVnContract.run_block@0:
+    // gvn/redundant_phi_moving_vn.py:7
+    // return redundant_phi_moving_vn(n, y, cond=cond)
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    callsub redundant_phi_moving_vn
+    retsub
