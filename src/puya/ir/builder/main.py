@@ -1584,15 +1584,15 @@ class FunctionIRBuilder(
     def _visit_and_check_for_double_eval(
         self, expr: awst_nodes.Expression, *, materialise_as: str | Sequence[str] | None = None
     ) -> ir.ValueProvider | None:
-        # - explicit SingleEvaluation nodes already handle multi-eval (as the name implies)
-        # -constants and var expresions have no side effects and cannot contain nested expressions
+        # explicit SingleEvaluation nodes already handle multi-eval (as the name implies)
+        # constants and var expressions have no side effects and cannot contain nested expressions
         if isinstance(
             expr,
             awst_nodes.SingleEvaluation
             | awst_nodes.CompileTimeConstantExpression
             | awst_nodes.VarExpression,
         ):
-            return expr.accept(self)
+            return self._visit_and_maybe_materialise(expr, materialise_as)
         # include the expression in the key to ensure the lifetime of the
         # expression is as long as the cache.
         # Temporary nodes may end up with the same id if nothing is referencing them
@@ -1616,15 +1616,19 @@ class FunctionIRBuilder(
                 location=expr.source_location,
             )
             return result
-        source = expr.accept(self)
-        if materialise_as is None or not (source and source.types):
-            result = source
-        else:
-            result = self.materialise_value_provider_as_value_or_tuple(
-                source, description=materialise_as
-            )
+        result = self._visit_and_maybe_materialise(expr, materialise_as)
         self._visited_exprs[expr_id] = result
         return result
+
+    def _visit_and_maybe_materialise(
+        self, expr: awst_nodes.Expression, materialise_as: str | Sequence[str] | None
+    ) -> ir.ValueProvider | None:
+        source = expr.accept(self)
+        if materialise_as is None or not (source and source.types):
+            return source
+        return self.materialise_value_provider_as_value_or_tuple(
+            source, description=materialise_as
+        )
 
     def materialise_value_provider_as_value_or_tuple(
         self, provider: ir.ValueProvider, description: str | Sequence[str]
