@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, BigUInt, UInt64, arc4, public
+from algopy import ARC4Contract, UInt64, arc4, public
 
 
 class OneConstSimplificationContract(ARC4Contract):
@@ -13,7 +13,7 @@ class OneConstSimplificationContract(ARC4Contract):
     @public
     def mul_zero(self, x: UInt64) -> UInt64:
         # x * 0 -> 0
-        return x * UInt64(0)
+        return x * 0
 
     @public
     def gt_zero(self, b: UInt64) -> bool:
@@ -39,27 +39,27 @@ class OneConstSimplificationContract(ARC4Contract):
     @public
     def bmul_zero(self, x: arc4.UInt256) -> arc4.UInt256:
         # x b* 0 -> 0
-        return arc4.UInt256(x.as_biguint() * BigUInt(0))
+        return arc4.UInt256(x.as_biguint() * 0)
 
     @public
     def badd_zero_left(self, x: arc4.UInt256) -> arc4.UInt256:
         # 0 b+ x -> x
-        return arc4.UInt256(BigUInt(0) + x.as_biguint())
+        return arc4.UInt256(0 + x.as_biguint())
 
     @public
     def badd_zero_right(self, x: arc4.UInt256) -> arc4.UInt256:
         # x b+ 0 -> x
-        return arc4.UInt256(x.as_biguint() + BigUInt(0))
+        return arc4.UInt256(x.as_biguint() + 0)
 
     @public
     def bsub_zero(self, x: arc4.UInt256) -> arc4.UInt256:
         # x b- 0 -> x
-        return arc4.UInt256(x.as_biguint() - BigUInt(0))
+        return arc4.UInt256(x.as_biguint() - 0)
 
     @public
     def bdiv_one(self, x: arc4.UInt256) -> arc4.UInt256:
         # x b/ 1 -> x
-        return arc4.UInt256(x.as_biguint() // BigUInt(1))
+        return arc4.UInt256(x.as_biguint() // 1)
 
     @public
     def cond_gt_zero(self, b: UInt64) -> UInt64:
