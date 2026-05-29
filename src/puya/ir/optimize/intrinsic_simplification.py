@@ -692,9 +692,7 @@ def _try_simplify_uint64_binary_op(
             if b_const == 0:
                 return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
         if bool_context:
-            match simplify_uint64_binary_op_one_const(
-                op, a, b, a_const, b_const, bool_context=True
-            ):
+            match simplify_uint64_binary_op_one_const(op, a_const, b_const):
                 case int(c):
                     (ir_type,) = intrinsic.types
                     return models.UInt64Constant(

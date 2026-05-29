@@ -18,10 +18,12 @@ References:
     - Cooper & Torczon, Engineering a Compiler, 2nd ed., S8.4-8.5.
 """
 
+import hashlib
 import itertools
+import math
 import typing
 from collections import defaultdict
-from collections.abc import Collection, Mapping, Sequence, Set
+from collections.abc import Callable, Collection, Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
@@ -41,30 +43,11 @@ from puya.ir._utils import bfs_block_order, get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._intrinsics import (
     COMPILE_TIME_CONSTANT_OPS,
+    EXTRACT_UINTN_BYTE_SIZE,
     PURE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
     chop_encoding,
-    fold_addw,
-    fold_biguint_const_binary_op,
-    fold_bytes_const_binary_op,
-    fold_bytes_const_unary_op,
-    fold_divmodw,
-    fold_divw,
-    fold_expw,
-    fold_extract_uint_n,
-    fold_getbit_bytes,
-    fold_getbyte,
-    fold_mulw,
-    fold_replace2,
-    fold_setbit_bytes,
-    fold_setbit_uint64,
-    fold_setbyte,
-    fold_uint64_const_binary_op,
-    fold_uint64_const_unary_op,
-    hash_eval_funcs,
-    simplify_bytes_binary_op_one_const,
-    simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
 from puya.ir.optimize._utils import SSAReadTracker, compute_dominator_tree
@@ -78,6 +61,7 @@ from puya.utils import (
     lazy_setdefault,
     method_selector_hash,
     set_add,
+    sha512_256_hash,
     symmetric_mapping,
     unique,
 )
@@ -661,6 +645,243 @@ def build_replacements(
     return register_map
 
 
+_U64_MASK = (1 << 64) - 1
+
+
+def fold_addw(a: int, b: int) -> tuple[int, int]:
+    total = a + b
+    return total >> 64, total & _U64_MASK
+
+
+def fold_mulw(a: int, b: int) -> tuple[int, int]:
+    product = a * b
+    return product >> 64, product & _U64_MASK
+
+
+def fold_expw(a: int, b: int) -> tuple[int, int] | None:
+    if a == 0 and b == 0:
+        return None  # 0**0 traps on AVM
+    result = a**b
+    if result.bit_length() > 128:
+        return None  # would overflow uint128
+    return result >> 64, result & _U64_MASK
+
+
+def fold_divw(hi: int, lo: int, divisor: int) -> int | None:
+    if divisor == 0:
+        return None
+    dividend = (hi << 64) | lo
+    quotient = dividend // divisor
+    if not valid_uint64(quotient):
+        return None
+    return quotient
+
+
+def fold_divmodw(h1: int, l1: int, h2: int, l2: int) -> tuple[int, int, int, int] | None:
+    divisor = (h2 << 64) | l2
+    if divisor == 0:
+        return None
+    dividend = (h1 << 64) | l1
+    q, r = divmod(dividend, divisor)
+    return q >> 64, q & _U64_MASK, r >> 64, r & _U64_MASK
+
+
+def _eval_sha256(arg: bytes) -> bytes:
+    return hashlib.sha256(arg).digest()
+
+
+def _eval_sha3_256(arg: bytes) -> bytes:
+    return hashlib.sha3_256(arg).digest()
+
+
+def _eval_keccak256(arg: bytes) -> bytes:
+    from Cryptodome.Hash import keccak
+
+    return keccak.new(data=arg, digest_bits=256).digest()
+
+
+hash_eval_funcs: typing.Final[Mapping[AVMOp, Callable[[bytes], bytes]]] = {
+    AVMOp.sha256: _eval_sha256,
+    AVMOp.sha3_256: _eval_sha3_256,
+    AVMOp.sha512_256: sha512_256_hash,
+    AVMOp.keccak256: _eval_keccak256,
+}
+
+
+def fold_setbit_uint64(source: int, index: int, value: int) -> int | None:
+    if index >= 64:
+        return None
+    if value:
+        return source | (1 << index)
+    return source & ~(1 << index)
+
+
+def fold_setbit_bytes(b: bytes, index: int, value: int) -> bytes | None:
+    if index >= len(b) * 8:
+        return None
+    byte_index, bit_offset = divmod(index, 8)
+    mask = 1 << (7 - bit_offset)
+    byte = b[byte_index]
+    new_byte = byte | mask if value else byte & ~mask
+    return b[:byte_index] + bytes([new_byte]) + b[byte_index + 1 :]
+
+
+def fold_setbyte(b: bytes, index: int, value: int) -> bytes | None:
+    if index >= len(b):
+        return None
+    if value > 0xFF:
+        return None
+    out = bytearray(b)
+    out[index] = value
+    return bytes(out)
+
+
+def fold_getbyte(b: bytes, index: int) -> int | None:
+    if index >= len(b):
+        return None
+    return b[index]
+
+
+def fold_getbit_bytes(b: bytes, index: int) -> int | None:
+    if index >= len(b) * 8:
+        return None
+    byte_index, bit_offset = divmod(index, 8)
+    return (b[byte_index] >> (7 - bit_offset)) & 1
+
+
+def fold_replace2(source: bytes, start: int, replacement: bytes) -> bytes | None:
+    if start + len(replacement) > len(source):
+        return None
+    out = bytearray(source)
+    out[start : start + len(replacement)] = replacement
+    return bytes(out)
+
+
+def simplify_bytes_binary_op_one_const(
+    op: AVMOp,
+    a_const: int | None,
+    b_const: int | None,
+) -> int | BinarySimplification | None:
+    """BigUInt-valued one-const algebra on bytes binary ops.
+
+    Simpler than uint64's: no bool_context, no Value args, no eq carve-out.
+    """
+    match op:
+        case AVMOp.mul_bytes:
+            if a_const == 1:
+                return BinarySimplification.RIGHT
+            if b_const == 1:
+                return BinarySimplification.LEFT
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.add_bytes:
+            if a_const == 0:
+                return BinarySimplification.RIGHT
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.sub_bytes:
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.div_floor_bytes:
+            if b_const == 1:
+                return BinarySimplification.LEFT
+        case AVMOp.mod_bytes:
+            if b_const == 1:
+                return 0
+    return None
+
+
+def _byte_wise(op_fn: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
+    """Apply ``op_fn`` byte-by-byte over two big-endian byte strings, right-aligning the
+    shorter operand by zero-filling on the left — matching the AVM's b& / b| / b^ semantics."""
+    return bytes(
+        [op_fn(a, b) for a, b in itertools.zip_longest(lhs[::-1], rhs[::-1], fillvalue=0)][::-1]
+    )
+
+
+def _simplify_uint64_binary_op_one_const(
+    op: AVMOp,
+    a: models.Value,
+    b: models.Value,
+    a_const: int | None,
+    b_const: int | None,
+) -> int | BinarySimplification | None:
+    """Value-context sibling of `_intrinsics.simplify_uint64_binary_op_one_const`.
+
+    GVN consumes the result as a *value*, not just a boolean, so an operand is only
+    "bool safe" when its IR type is already bool — e.g. `a >= 1` folds to `a` only
+    when `a` is itself a bool, and `a or 0` has no rule (truthiness isn't preserved
+    as a value). Returns an int literal, LEFT/RIGHT pass-through, or None if no rule
+    fires. Does NOT handle `op == AVMOp.eq` — the caller emits its own `!operand`
+    rewrite (the rewrite shape is caller-specific).
+    """
+
+    def bool_safe(arg: models.Value) -> bool:
+        return arg.ir_type == PrimitiveIRType.bool
+
+    match op:
+        case AVMOp.gte:
+            # a >= 0 <-> 1
+            if b_const == 0:
+                return 1
+            # a >= 1 <-> a (when a is a bool)
+            if b_const == 1 and bool_safe(a):
+                return BinarySimplification.LEFT
+        case AVMOp.lte:
+            # 0 <= b <-> 1
+            if a_const == 0:
+                return 1
+            # 1 <= b <-> b (when b is a bool)
+            if a_const == 1 and bool_safe(b):
+                return BinarySimplification.RIGHT
+        case AVMOp.mul:
+            if a_const == 1:
+                return BinarySimplification.RIGHT
+            if b_const == 1:
+                return BinarySimplification.LEFT
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.div_floor:
+            if b_const == 1:
+                return BinarySimplification.LEFT
+        case AVMOp.mod:
+            if b_const == 1:
+                return 0
+        case AVMOp.add:
+            if a_const == 0:
+                return BinarySimplification.RIGHT
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.sub:
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.and_:
+            if 0 in (a_const, b_const):
+                return 0
+        # NB: AVMOp.or_ has no value-context rule (it only fires in a bool context)
+        case AVMOp.neq:
+            # 0 != b <-> b  /  a != 0 <-> a (when the surviving operand is a bool)
+            if a_const == 0 and bool_safe(b):
+                return BinarySimplification.RIGHT
+            if b_const == 0 and bool_safe(a):
+                return BinarySimplification.LEFT
+        case AVMOp.lt:
+            # 0 < b <-> b (when b is a bool)
+            if a_const == 0 and bool_safe(b):
+                return BinarySimplification.RIGHT
+            # a < 0 <-> 0 (uint64 is never negative)
+            if b_const == 0:
+                return 0
+        case AVMOp.gt:
+            # a > 0 <-> a (when a is a bool)
+            if b_const == 0 and bool_safe(a):
+                return BinarySimplification.LEFT
+            # 0 > b <-> 0 (uint64 is never negative)
+            if a_const == 0:
+                return 0
+    return None
+
+
 @attrs.frozen
 class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     """Number a ValueProvider: build a canonical key, look up or assign VNs.
@@ -793,41 +1014,194 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
             return self._tables.fresh_vns(intrinsic)
-        args = intrinsic.args
-        arg_vns = tuple(self._visit_value(a) for a in args)
+        arg_vns = tuple(self._visit_value(a) for a in intrinsic.args)
         arg_defns = [self._tables.vn_definition.get(arg_vn) for arg_vn in arg_vns]
 
-        if (
-            not intrinsic.immediates
-            and len(intrinsic.types) == 1
-            and op in COMPILE_TIME_CONSTANT_OPS
-        ):
-            match arg_defns:
-                case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
-                    z = fold_uint64_const_binary_op(op, x, y)
-                    if z is not None:
-                        return self._const_uint64(z)
-                case [
-                    _BytesConstKey(value=xb, encoding=ea, as_biguint=xb_int),
-                    _BytesConstKey(value=yb, encoding=eb, as_biguint=yb_int),
-                ]:
-                    if xb_int is not None and yb_int is not None:
-                        zi = fold_biguint_const_binary_op(op, xb_int, yb_int)
-                        if zi is not None:
-                            (ir_type,) = intrinsic.types
-                            if ir_type == PrimitiveIRType.biguint:
-                                return self._const_biguint(zi)
-                            assert ir_type.avm_type is AVMType.uint64
-                            return self._const_uint64(zi)
-                    match fold_bytes_const_binary_op(op, xb, yb):
-                        case int(zi):
-                            return self._const_uint64(zi)
-                        case bytes(zb):
-                            return self._const_bytes(zb, choose_encoding(ea, eb))
-                        case other:
-                            typing.assert_type(other, None)
+        # First try to fold the op to a constant (or a pass-through to one operand) based
+        # on its own per-op rules; failing that, fall back to the generic structural
+        # numbering (same-VN identities, one-const algebra, commutative canonicalisation).
+        folded = self._const_fold(intrinsic, op, arg_vns, arg_defns)
+        if folded is not None:
+            return folded
+        return self._number_generic(intrinsic, op, arg_vns, arg_defns)
 
+    def _const_fold(
+        self,
+        intrinsic: models.Intrinsic,
+        op: AVMOp,
+        arg_vns: tuple[VN, ...],
+        arg_defns: list[_ConstKey | _ProviderKey | None],
+    ) -> tuple[VN, ...] | None:
+        """Per-op constant folding: dispatch on the op code, with each op's folding logic
+        self-contained. Returns the VN tuple of the folded result (a constant, or a
+        pass-through to an operand), or None when the op can't be folded for these args.
+        """
         match op:
+            # -- uint64 binary arithmetic / comparison / bitwise / logical --
+            case AVMOp.add:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x + y)
+            case AVMOp.sub:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x - y)
+            case AVMOp.mul:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x * y)
+            case AVMOp.div_floor:
+                return self._fold_u64_binary(arg_defns, lambda x, y: None if y == 0 else x // y)
+            case AVMOp.mod:
+                return self._fold_u64_binary(arg_defns, lambda x, y: None if y == 0 else x % y)
+            case AVMOp.lt:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if x < y else 0)
+            case AVMOp.lte:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if x <= y else 0)
+            case AVMOp.gt:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if x > y else 0)
+            case AVMOp.gte:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if x >= y else 0)
+            case AVMOp.and_:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if (x and y) else 0)
+            case AVMOp.or_:
+                return self._fold_u64_binary(arg_defns, lambda x, y: 1 if (x or y) else 0)
+            case AVMOp.shl:
+                return self._fold_u64_binary(
+                    arg_defns, lambda x, y: None if y >= 64 else (x << y) % (2**64)
+                )
+            case AVMOp.shr:
+                return self._fold_u64_binary(arg_defns, lambda x, y: None if y >= 64 else x >> y)
+            case AVMOp.exp:
+                return self._fold_u64_binary(
+                    arg_defns, lambda x, y: None if (x == 0 and y == 0) else x**y
+                )
+            case AVMOp.bitwise_or:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x | y)
+            case AVMOp.bitwise_and:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x & y)
+            case AVMOp.bitwise_xor:
+                return self._fold_u64_binary(arg_defns, lambda x, y: x ^ y)
+            # -- (in)equality: operands may be uint64 or raw bytes --
+            case AVMOp.eq:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
+                        return self._const_uint64(1 if x == y else 0)
+                    case [_BytesConstKey(value=xb), _BytesConstKey(value=yb)]:
+                        return self._const_uint64(1 if xb == yb else 0)
+            case AVMOp.neq:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
+                        return self._const_uint64(1 if x != y else 0)
+                    case [_BytesConstKey(value=xb), _BytesConstKey(value=yb)]:
+                        return self._const_uint64(1 if xb != yb else 0)
+            case AVMOp.getbit:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=source), _UInt64ConstKey(value=index)]:
+                        if index < 64:
+                            return self._const_uint64(1 if source & (1 << index) else 0)
+                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
+                        folded = fold_getbit_bytes(bv, index)
+                        if folded is not None:
+                            return self._const_uint64(folded)
+            # -- biguint binary (bytes operands interpreted as big-endian biguints) --
+            case AVMOp.add_bytes:
+                return self._fold_biguint_binary(intrinsic, arg_defns, lambda x, y: x + y)
+            case AVMOp.sub_bytes:
+                return self._fold_biguint_binary(intrinsic, arg_defns, lambda x, y: x - y)
+            case AVMOp.mul_bytes:
+                return self._fold_biguint_binary(intrinsic, arg_defns, lambda x, y: x * y)
+            case AVMOp.div_floor_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: None if y == 0 else x // y
+                )
+            case AVMOp.mod_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: None if y == 0 else x % y
+                )
+            case AVMOp.lt_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x < y else 0
+                )
+            case AVMOp.lte_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x <= y else 0
+                )
+            case AVMOp.gt_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x > y else 0
+                )
+            case AVMOp.gte_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x >= y else 0
+                )
+            case AVMOp.eq_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x == y else 0
+                )
+            case AVMOp.neq_bytes:
+                return self._fold_biguint_binary(
+                    intrinsic, arg_defns, lambda x, y: 1 if x != y else 0
+                )
+            # -- byte-wise bitwise --
+            case AVMOp.bitwise_or_bytes:
+                return self._fold_bytes_bitwise(arg_defns, lambda a, b: a | b)
+            case AVMOp.bitwise_and_bytes:
+                return self._fold_bytes_bitwise(arg_defns, lambda a, b: a & b)
+            case AVMOp.bitwise_xor_bytes:
+                return self._fold_bytes_bitwise(arg_defns, lambda a, b: a ^ b)
+            # -- uint64 unary --
+            case AVMOp.not_:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x)]:
+                        return self._const_uint64(0 if x else 1)
+                    case [_IntrinsicKey(op=source_op) as comp]:
+                        # Negation-aware numbering: !(comparison) -> inverse comparison.
+                        # e.g. !(a < b) gets the same key as (a >= b).
+                        if inverse_op := _INVERSE_COMPARISONS.get(source_op):
+                            inverse_key = _IntrinsicKey(
+                                op=inverse_op,
+                                immediates=comp.immediates,
+                                arg_vns=comp.arg_vns,
+                            )
+                            return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
+            case AVMOp.bitwise_not:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x)]:
+                        return self._const_uint64(x ^ 0xFFFFFFFFFFFFFFFF)
+            case AVMOp.sqrt:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x)]:
+                        return self._const_uint64(math.isqrt(x))
+            case AVMOp.bitlen:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=x)]:
+                        return self._const_uint64(x.bit_length())
+                    case [_BytesConstKey(value=bv)]:
+                        return self._const_uint64(
+                            int.from_bytes(bv, byteorder="big", signed=False).bit_length()
+                        )
+            # -- bytes unary --
+            case AVMOp.bitwise_not_bytes:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv, encoding=enc)]:
+                        return self._const_bytes(bytes(x ^ 0xFF for x in bv), chop_encoding(enc))
+            case AVMOp.btoi:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv)] if len(bv) <= 8:
+                        return self._fold_bytes_to_int(
+                            intrinsic, int.from_bytes(bv, byteorder="big", signed=False)
+                        )
+                    case [_IntrinsicKey(op=AVMOp.itob, arg_vns=[source_vn])]:
+                        # btoi(itob(x)) = x
+                        return (source_vn,)
+            case AVMOp.bsqrt:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv)] if len(bv) <= 64:
+                        return self._fold_bytes_to_int(
+                            intrinsic,
+                            math.isqrt(int.from_bytes(bv, byteorder="big", signed=False)),
+                        )
+            # -- hashes --
+            case AVMOp.sha256 | AVMOp.sha3_256 | AVMOp.sha512_256 | AVMOp.keccak256:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv)]:
+                        return self._const_bytes(hash_eval_funcs[op](bv), AVMBytesEncoding.base16)
+            # -- length / conversion / fill --
             case AVMOp.len_:
                 match arg_defns:
                     case [_BytesConstKey(value=len_arg)]:
@@ -846,46 +1220,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if bzero_arg <= algo_constants.MAX_BYTES_LENGTH:
                             bytes_const_evald = b"\x00" * bzero_arg
                             return self._const_bytes(bytes_const_evald, AVMBytesEncoding.base16)
-            case AVMOp.not_ | AVMOp.bitwise_not | AVMOp.sqrt | AVMOp.bitlen:
-                match arg_defns:
-                    case [_UInt64ConstKey(value=x)]:
-                        folded = fold_uint64_const_unary_op(op, x)
-                        if folded is not None:
-                            return self._const_uint64(folded)
-                    case [_BytesConstKey(value=bv)] if op is AVMOp.bitlen:
-                        bitlen_folded = fold_bytes_const_unary_op(op, bv)
-                        if isinstance(bitlen_folded, int):
-                            return self._const_uint64(bitlen_folded)
-                    case [_IntrinsicKey(op=source_op) as comp] if op is AVMOp.not_:
-                        # Negation-aware numbering: !(comparison) -> inverse comparison.
-                        # e.g. !(a < b) gets the same key as (a >= b).
-                        if inverse_op := _INVERSE_COMPARISONS.get(source_op):
-                            inverse_key = _IntrinsicKey(
-                                op=inverse_op,
-                                immediates=comp.immediates,
-                                arg_vns=comp.arg_vns,
-                            )
-                            return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
-            case AVMOp.bitwise_not_bytes | AVMOp.btoi | AVMOp.bsqrt:
-                match arg_defns:
-                    case [_BytesConstKey(value=bv, encoding=enc)]:
-                        match fold_bytes_const_unary_op(op, bv):
-                            case int(v):
-                                if intrinsic.types[0] == PrimitiveIRType.biguint:
-                                    return self._const_biguint(v)
-                                return self._const_uint64(v)
-                            case bytes(result_bytes):
-                                return self._const_bytes(result_bytes, chop_encoding(enc))
-                            case other:
-                                typing.assert_type(other, None)
-                    case [_IntrinsicKey(op=AVMOp.itob, arg_vns=[source_vn])] if op is AVMOp.btoi:
-                        # btoi(itob(x)) = x
-                        return (source_vn,)
-            case AVMOp.sha256 | AVMOp.sha3_256 | AVMOp.sha512_256 | AVMOp.keccak256:
-                match arg_defns:
-                    case [_BytesConstKey(value=bv)]:
-                        digest = hash_eval_funcs[op](bv)
-                        return self._const_bytes(digest, AVMBytesEncoding.base16)
+            # -- bit / byte get & set --
             case AVMOp.setbit:
                 match arg_defns:
                     case [
@@ -914,18 +1249,13 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         folded_bytes = fold_setbyte(bv, index, value)
                         if folded_bytes is not None:
                             return self._const_bytes(folded_bytes, chop_encoding(enc))
-            case AVMOp.getbit:
-                match arg_defns:
-                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
-                        folded = fold_getbit_bytes(bv, index)
-                        if folded is not None:
-                            return self._const_uint64(folded)
             case AVMOp.getbyte:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
                         folded = fold_getbyte(bv, index)
                         if folded is not None:
                             return self._const_uint64(folded)
+            # -- select --
             case AVMOp.select:
                 # arg layout: [false_branch, true_branch, selector]
                 if arg_vns[0] == arg_vns[1]:
@@ -934,6 +1264,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 if isinstance(arg_defns[2], _UInt64ConstKey):
                     # const selector → pick branch directly
                     return (arg_vns[1] if arg_defns[2].value else arg_vns[0],)
+            # -- slicing / replacement --
             case AVMOp.replace2:
                 match arg_defns, intrinsic.immediates:
                     case [
@@ -1033,9 +1364,13 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
-                        folded = fold_extract_uint_n(op, bv, offset)
-                        if folded is not None:
-                            return self._const_uint64(folded)
+                        byte_size = EXTRACT_UINTN_BYTE_SIZE[op]
+                        extracted = bv[offset : offset + byte_size]
+                        if len(extracted) == byte_size:
+                            return self._const_uint64(
+                                int.from_bytes(extracted, byteorder="big", signed=False)
+                            )
+            # -- wide math (multiple results) --
             case AVMOp.addw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=addw_a), _UInt64ConstKey(value=addw_b)]:
@@ -1071,6 +1406,80 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         divmodw_folded = fold_divmodw(h1, l1, h2, l2)
                         if divmodw_folded is not None:
                             return self._const_wide_math_result(divmodw_folded)
+        return None
+
+    def _fold_u64_binary(
+        self,
+        arg_defns: list[_ConstKey | _ProviderKey | None],
+        compute: Callable[[int, int], int | None],
+    ) -> tuple[VN, ...] | None:
+        """Fold a uint64 binary op when both operands are uint64 constants.
+
+        ``compute`` returns the raw result, or None if the op would trap at runtime
+        (e.g. divide-by-zero); a result outside the uint64 range is likewise rejected.
+        """
+        match arg_defns:
+            case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
+                c = compute(x, y)
+                if c is not None and valid_uint64(c):
+                    return self._const_uint64(c)
+        return None
+
+    def _fold_biguint_binary(
+        self,
+        intrinsic: models.Intrinsic,
+        arg_defns: list[_ConstKey | _ProviderKey | None],
+        compute: Callable[[int, int], int | None],
+    ) -> tuple[VN, ...] | None:
+        """Fold a biguint binary op when both operands are bytes constants small enough to
+        interpret as biguints. ``compute`` returns the raw result, None if it would trap
+        (divide-by-zero), or a negative value to signal underflow (rejected). The result
+        is materialised as a biguint or a uint64 according to the op's return type.
+        """
+        match arg_defns:
+            case [_BytesConstKey(as_biguint=x_bg), _BytesConstKey(as_biguint=y_bg)] if (
+                x_bg is not None and y_bg is not None
+            ):
+                c = compute(x_bg, y_bg)
+                if c is not None and c >= 0:
+                    (ir_type,) = intrinsic.types
+                    if ir_type == PrimitiveIRType.biguint:
+                        return self._const_biguint(c)
+                    assert ir_type.avm_type is AVMType.uint64
+                    return self._const_uint64(c)
+        return None
+
+    def _fold_bytes_bitwise(
+        self,
+        arg_defns: list[_ConstKey | _ProviderKey | None],
+        op_fn: Callable[[int, int], int],
+    ) -> tuple[VN, ...] | None:
+        """Fold a byte-wise bitwise op (b& / b| / b^) over two bytes constants."""
+        match arg_defns:
+            case [
+                _BytesConstKey(value=a, encoding=ea),
+                _BytesConstKey(value=b, encoding=eb),
+            ]:
+                return self._const_bytes(_byte_wise(op_fn, a, b), choose_encoding(ea, eb))
+        return None
+
+    def _fold_bytes_to_int(self, intrinsic: models.Intrinsic, value: int) -> tuple[VN, ...]:
+        """Materialise the int result of a bytes-arg op as a biguint or uint64 constant
+        according to the op's return type (e.g. btoi -> uint64, bsqrt -> biguint)."""
+        if intrinsic.types[0] == PrimitiveIRType.biguint:
+            return self._const_biguint(value)
+        return self._const_uint64(value)
+
+    def _number_generic(
+        self,
+        intrinsic: models.Intrinsic,
+        op: AVMOp,
+        arg_vns: tuple[VN, ...],
+        arg_defns: list[_ConstKey | _ProviderKey | None],
+    ) -> tuple[VN, ...]:
+        """Structural value numbering for ops that didn't fold to a constant: same-VN
+        identities (f(x, x)), one-const algebra, commutative/mirror canonicalisation, then
+        a final expression-key lookup that mints or reuses a VN."""
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
                 match op:
@@ -1126,7 +1535,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             intrinsic,
                         )
                 a, b = intrinsic.args
-                match simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
+                match _simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
                     case int(v):
                         return self._const_uint64(v)
                     case BinarySimplification.LEFT:
@@ -1154,8 +1563,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             arg_vns = (arg_vns[1], arg_vns[0])
             op = _MIRROR_OPS[op]
         key = _IntrinsicKey(op=op, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
-        vns = self._tables.lookup_or_assign_vp(key, intrinsic)
-        return vns
+        return self._tables.lookup_or_assign_vp(key, intrinsic)
 
     @typing.override
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...]:
