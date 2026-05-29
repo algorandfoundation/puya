@@ -667,10 +667,16 @@ def simplify_uint64_binary_op_one_const(
             # 0 < b <-> b (in bool context)
             if a_const == 0 and bool_safe(b):
                 return BinarySimplification.RIGHT
+            # a < 0 <-> 0 (uint64 is never negative)
+            if b_const == 0:
+                return 0
         case AVMOp.gt:
             # a > 0 <-> a (in bool context)
             if b_const == 0 and bool_safe(a):
                 return BinarySimplification.LEFT
+            # 0 > b <-> 0 (uint64 is never negative)
+            if a_const == 0:
+                return 0
     return None
 
 
