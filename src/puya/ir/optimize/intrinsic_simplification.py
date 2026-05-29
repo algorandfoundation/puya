@@ -862,7 +862,7 @@ def _try_simplify_uint64_binary_op(
     op = intrinsic.op
     a_const = _get_int_constant(a)
     b_const = _get_int_constant(b)
-    if a_const is not None or b_const is not None:
+    if (a_const is not None) != (b_const is not None):
         if op == AVMOp.eq:
             if a_const == 0:
                 return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
