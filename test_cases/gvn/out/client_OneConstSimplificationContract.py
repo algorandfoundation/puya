@@ -71,70 +71,10 @@ class OneConstSimplificationContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.BigUIntN[typing.Literal[256]]: ...
 
     @algopy.arc4.abimethod
-    def cond_mul_one_l(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_mul_one_r(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_mul_zero(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_div_one(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_mod_one(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_add_zero_l(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_add_zero_r(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_sub_zero(
-        self,
-        x: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
     def cond_gt_zero(
         self,
         b: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def cond_and_false(
-        self,
-        a: algopy.arc4.Bool,
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
-
-    @algopy.arc4.abimethod
-    def val_gte_one(
-        self,
-        a: algopy.arc4.Bool,
-    ) -> algopy.arc4.Bool: ...
 
     @algopy.arc4.abimethod
     def val_lte_one(
@@ -146,10 +86,4 @@ class OneConstSimplificationContract(algopy.arc4.ARC4Client, typing.Protocol):
     def val_lt_zero(
         self,
         b: algopy.arc4.Bool,
-    ) -> algopy.arc4.Bool: ...
-
-    @algopy.arc4.abimethod
-    def val_gt_zero(
-        self,
-        a: algopy.arc4.Bool,
     ) -> algopy.arc4.Bool: ...
