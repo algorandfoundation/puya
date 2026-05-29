@@ -267,7 +267,7 @@ else:
     _IntCounter = itertools.count
 
 
-@attrs.define
+@attrs.define(init=False)
 class _GVNTables:
     """
     Value numbering state accumulated during pre-order dominator walk,
@@ -293,6 +293,11 @@ class _GVNTables:
     # Keyed by ``id(vp)`` so the same op instance is stable across
     # optimistic-iteration re-walks.
     _identity_vns: dict[int, tuple[VN, ...]] = attrs.field(factory=dict)
+
+    def __init__(self, subroutine: models.Subroutine) -> None:
+        self.__attrs_init__()
+        for param in subroutine.parameters:
+            self.assign_register_fresh_vn(param)
 
     def next_vn(self) -> VN:
         return next(self._vn_counter)
@@ -1394,18 +1399,6 @@ def _process_blocks_pre_order(
         _process_blocks_pre_order(tables, dom_tree, child, phi_treatment=phi_treatment)
 
 
-# Safety bound on optimistic iterations. The fixed point is reached when every
-# register's VN stops changing between consecutive walks. Each iteration can only
-# downgrade a phi's classification (redundant -> non-redundant pins the stable VN
-# permanently), so termination is guaranteed within a bounded number of iterations
-# in practice — this cap exists only to protect against pathological cases.
-# With the SCC pre-pass (``_classify_phi_sccs``) eliminating the chain-ratchet
-# shape (a multi-member phi SCC with ≥ 2 distinct external-arg Registers, where
-# convergence count was ``depth + 3``), the residual iteration count is bounded
-# by SCC convergence depth, empirically ≤ 3 across the corpus.
-_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 5
-
-
 def _classify_phi_sccs(
     subroutine: models.Subroutine,
     provisional_vn: Mapping[models.Register, VN],
@@ -1494,41 +1487,33 @@ def _number_values(
     pessimistic redundancy guard so iteration doesn't waste walks ratcheting
     through chain-shaped SCCs that can't collapse anyway.
     """
-    seed_tables = _GVNTables()
-    for param in subroutine.parameters:
-        seed_tables.assign_register_fresh_vn(param)
+    seed_tables = _GVNTables(subroutine)
     seed_treatment = {phi: _PESSIMISTIC for block in subroutine.body for phi in block.phis}
     _process_blocks_pre_order(seed_tables, dom_tree, start, phi_treatment=seed_treatment)
 
-    phi_treatment = _classify_phi_sccs(subroutine, seed_tables.register_vn)
-    tables = _GVNTables()
-    for param in subroutine.parameters:
-        tables.assign_register_fresh_vn(param)
+    # Safety bound on optimistic iterations. The fixed point is reached when every
+    # register's VN stops changing between consecutive walks. Each iteration can only
+    # downgrade a phi's classification (redundant -> non-redundant pins the stable VN
+    # permanently), so termination is guaranteed within a bounded number of iterations
+    # in practice — this cap exists only to protect against pathological cases.
+    # With the SCC pre-pass (``_classify_phi_sccs``) eliminating the chain-ratchet
+    # shape (a multi-member phi SCC with ≥ 2 distinct external-arg Registers, where
+    # convergence count was ``depth + 3``), the residual iteration count is bounded
+    # by SCC convergence depth, empirically ≤ 3 across the corpus.
+    max_iterations = 10
 
-    for iteration in range(_MAX_OPTIMISTIC_ITERATIONS):
+    phi_treatment = _classify_phi_sccs(subroutine, seed_tables.register_vn)
+    tables = _GVNTables(subroutine)
+    for iteration in range(max_iterations):
         prev_register_vn = dict(tables.register_vn)
         _process_blocks_pre_order(tables, dom_tree, start, phi_treatment=phi_treatment)
         if tables.register_vn == prev_register_vn:
             logger.debug(f"GVN: {subroutine.id} converged after {iteration + 1} iteration(s)")
             return tables
-    # Cap-out: an un-converged partition can contain optimistic merges that
-    # would not have survived further iteration. Discard the in-progress
-    # tables and re-number with a single pessimistic pass — un-numbered
-    # back-edge args block phi redundancy, matching the algorithm used
-    # before optimistic iteration was introduced. Forward CSE, trivially-
-    # redundant phis, and constant materialisation still apply; only
-    # cyclic phi congruences are missed.
-    logger.debug(
-        f"GVN: {subroutine.id} did not converge within"
-        f" {_MAX_OPTIMISTIC_ITERATIONS} iterations;"
-        f" falling back to pessimistic single-pass"
+
+    raise InternalError(
+        f"GVN: {subroutine.id} failed to converge after {max_iterations} iterations"
     )
-    fallback_treatment = {phi: _PESSIMISTIC for block in subroutine.body for phi in block.phis}
-    tables = _GVNTables()
-    for param in subroutine.parameters:
-        tables.assign_register_fresh_vn(param)
-    _process_blocks_pre_order(tables, dom_tree, start, phi_treatment=fallback_treatment)
-    return tables
 
 
 def global_value_numbering(context: CompileContext, subroutine: models.Subroutine) -> bool:
