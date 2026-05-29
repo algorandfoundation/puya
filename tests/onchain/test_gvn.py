@@ -7,6 +7,10 @@ from tests import TEST_CASES_DIR
 from tests.utils.deployer import Deployer
 
 
+def test_btoi_itob_vn(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "btoi_itob_vn.py")
+
+
 def test_phi_congruence(deployer_o: Deployer) -> None:
     client = deployer_o.create(TEST_CASES_DIR / "gvn" / "phi_congruence.py").client
 
