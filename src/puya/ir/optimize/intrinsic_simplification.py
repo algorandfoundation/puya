@@ -58,7 +58,7 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     modified = 0
     while work_list:
         ass, source = work_list.dequeue()
-        simplified = _try_fold_intrinsic(context, ssa_reads, register_assignments, source)
+        simplified = _try_fold_intrinsic(ssa_reads, register_assignments, source)
         if simplified is None:
             simplified = _try_simplify_repeated_binary_op(
                 register_assignments, ass, source, ssa_reads
@@ -296,7 +296,6 @@ def _try_simplify_bool_intrinsic(cond_op: models.ValueProvider) -> models.Value 
 
 
 def _try_fold_intrinsic(
-    context: IROptimizationContext,
     ssa_reads: SSAReadTracker,
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
