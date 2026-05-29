@@ -894,9 +894,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 return self._const_bytes(result_bytes, chop_encoding(enc))
                             case other:
                                 typing.assert_type(other, None)
-                    case [
-                        _IntrinsicKey(op=AVMOp.itob, immediates=(), arg_vns=(source_vn,))
-                    ] if op is AVMOp.btoi:
+                    case [_IntrinsicKey(op=AVMOp.itob, arg_vns=[source_vn])] if op is AVMOp.btoi:
                         # btoi(itob(x)) = x
                         return (source_vn,)
             case AVMOp.sha256 | AVMOp.sha3_256 | AVMOp.sha512_256 | AVMOp.keccak256:
