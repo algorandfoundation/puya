@@ -1,11 +1,10 @@
-import contextlib
 import functools
 import hashlib
 import math
 import operator
 import typing
-from collections import defaultdict, deque
-from collections.abc import Callable, Container, Generator, Iterable, Mapping, Set
+from collections import deque
+from collections.abc import Callable, Container, Mapping
 from itertools import zip_longest
 
 import attrs
@@ -16,9 +15,9 @@ from puya.ir import models
 from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
+from puya.ir.optimize._utils import SSAReadTracker
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
-from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -26,8 +25,6 @@ from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_ad
 
 logger = log.get_logger(__name__)
 
-
-_AnyOp = models.Op | models.ControlOp | models.Phi
 
 _RegisterAssignments = Mapping[models.Value, models.Assignment]
 
@@ -134,7 +131,7 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
 
 def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
     work_list = _AssignmentWorkQueue(COMPILE_TIME_CONSTANT_OPS)
-    ssa_reads = _SSAReadTracker()
+    ssa_reads = SSAReadTracker()
 
     register_assignments = dict[models.Value, models.Assignment]()
     for block in subroutine.body:
@@ -253,55 +250,6 @@ class _AssignmentWorkQueue:
 
     def __bool__(self) -> int:
         return bool(self._dq)
-
-
-@attrs.frozen
-class _SSAReadTracker:
-    _data: defaultdict[models.Register, set[_AnyOp]] = attrs.field(
-        factory=lambda: defaultdict(set), init=False
-    )
-
-    def add(self, op: _AnyOp) -> None:
-        for read_reg in self._register_reads(op):
-            self._data[read_reg].add(op)
-
-    def get(self, reg: models.Register, *, copy: bool = False) -> Iterable[_AnyOp]:
-        reads = self._data.get(reg)
-        if reads is None:
-            return ()
-        if copy:
-            return reads.copy()
-        return reads
-
-    def count(self, reg: models.Register) -> int:
-        reads = self._data.get(reg)
-        if reads is None:
-            return 0
-        return len(reads)
-
-    def is_sole_usage(self, reg: models.Register, op: _AnyOp) -> bool:
-        try:
-            (sole_usage,) = self._data[reg]
-        except (KeyError, ValueError):
-            return False
-        else:
-            return sole_usage is op
-
-    @contextlib.contextmanager
-    def update(self, op: _AnyOp) -> Generator[None, None, None]:
-        old_reads = self._register_reads(op)
-        yield
-        new_reads = self._register_reads(op)
-        for removed_read in old_reads - new_reads:
-            self._data[removed_read].remove(op)
-        for added_read in new_reads - old_reads:
-            self._data[added_read].add(op)
-
-    @staticmethod
-    def _register_reads(visitable: models.IRVisitable) -> Set[models.Register]:
-        collector = RegisterReadCollector()
-        visitable.accept(collector)
-        return collector.used_registers
 
 
 @attrs.define(kw_only=True)
@@ -616,7 +564,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
 
 def _try_fold_intrinsic(
     context: IROptimizationContext,
-    ssa_reads: _SSAReadTracker,
+    ssa_reads: SSAReadTracker,
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
 ) -> models.Value | models.Intrinsic | None:
@@ -1113,7 +1061,7 @@ def _try_simplify_repeated_binary_op(
     register_assignments: _RegisterAssignments,
     ass: models.Assignment,
     intrinsic: models.Intrinsic,
-    ssa_reads: _SSAReadTracker,
+    ssa_reads: SSAReadTracker,
 ) -> models.Value | models.Intrinsic | None:
     assert ass.source is intrinsic
 
@@ -1349,7 +1297,7 @@ def _eval_keccak256(arg: bytes, loc: SourceLocation | None) -> models.BytesConst
 
 def _try_simplify_uint64_unary_op(
     context: IROptimizationContext,
-    ssa_reads: _SSAReadTracker,
+    ssa_reads: SSAReadTracker,
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
     arg: models.Value,
