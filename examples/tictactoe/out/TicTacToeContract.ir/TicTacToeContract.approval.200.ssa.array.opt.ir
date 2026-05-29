@@ -72,13 +72,12 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x01
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x01
-        let tmp%6#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
         let aggregate%bytes_offset%0#0: uint64 = (* move.1#0 3u)
         let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 move.0#0 tmp%6#0) // on error: index access is out of bounds
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 move.0#0 aggregate%as_Encoded(uint8)%0#0) // on error: index access is out of bounds
         let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0) // on error: index access is out of bounds
         (app_global_put "game" aggregate%updated_array%1#0)
         (app_global_put "turns" 0u)
@@ -104,9 +103,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x02
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x02
-        let tmp%2#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
-        examples.tictactoe.tictactoe.TicTacToeContract.make_move(tmp%2#1, move.0#0, move.1#0)
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
+        examples.tictactoe.tictactoe.TicTacToeContract.make_move(aggregate%as_Encoded(uint8)%0#0, move.0#0, move.1#0)
         exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() -> void:
@@ -116,18 +114,16 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() 
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x02
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x02
-        let tmp%0#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
         let aggregate%bitlen%1#0: uint64 = 1u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x01
-        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x01
-        let tmp%1#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%0#0) // check self.turns exists
         let tmp%2#0: uint64 = (% maybe_value%0#0 2u)
-        let select%0#0: Encoded(uint8) = (select tmp%0#1 tmp%1#1 tmp%2#0)
+        let select%0#0: Encoded(uint8) = (select aggregate%as_Encoded(uint8)%0#0 aggregate%as_Encoded(uint8)%1#0 tmp%2#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 select%0#0)
         (log tmp%1#0)
         exit 1u
@@ -160,8 +156,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> voi
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x01
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x01
-        let player#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        let player#0: Encoded(uint8) = aggregate%uint8%0#0
         goto block@4
     block@3: // else_body_L54
         let tmp%6#0: account = (txn Sender)
@@ -175,8 +170,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> voi
         let aggregate%no_overflow%1#0: bool = 1u
         (assert aggregate%no_overflow%1#0) // overflow
         let aggregate%uint8%1#0: bytes = 0x02
-        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x02
-        let player#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
+        let player#1: Encoded(uint8) = aggregate%uint8%1#0
         goto block@4
     block@4: // after_if_else_L50
         let player#2: Encoded(uint8) = φ(player#0 <- block@2, player#1 <- block@3)
@@ -209,9 +203,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x00
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x00
-        let tmp%2#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
-        let tmp%3#0: bool = (b== aggregate%encoded_element%1#0 tmp%2#0)
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
+        let tmp%3#0: bool = (b== aggregate%encoded_element%1#0 aggregate%as_Encoded(uint8)%0#0)
         (assert tmp%3#0) // Square is already taken
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.game exists
@@ -315,9 +308,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let aggregate%bitlen%1#0: uint64 = 2u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x03
-        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x03
-        let tmp%7#0: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
-        (app_global_put "winner" tmp%7#0)
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
+        (app_global_put "winner" aggregate%as_Encoded(uint8)%1#0)
         goto block@9
     block@9: // after_if_else_L67
         return 

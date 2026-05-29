@@ -10,22 +10,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x07
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x07
-        let tmp%0#2: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 8u)
         let aggregate%bitlen%1#0: uint64 = 4u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x08
-        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x08
-        let tmp%1#2: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 9u)
         let aggregate%bitlen%2#0: uint64 = 4u
         let aggregate%no_overflow%2#0: bool = 1u
         let aggregate%uint8%2#0: bytes = 0x09
-        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = 0x09
-        let tmp%2#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%2#0
-        let aggregate%head%1#0: bytes = (concat tmp%0#2 tmp%1#2)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 tmp%2#1)
+        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = aggregate%uint8%2#0
+        let aggregate%head%1#0: bytes = (concat aggregate%as_Encoded(uint8)%0#0 aggregate%as_Encoded(uint8)%1#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint8)%2#0)
         (app_global_put "some_bytes" aggregate%head%2#0)
         let tmp%3#1: account = (txn Sender)
         (app_global_put "creator" tmp%3#1)
@@ -364,9 +361,8 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args[ro
         let aggregate%no_overflow%0#0: bool = 1u
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint8%0#0: bytes = 0x07
-        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = 0x07
-        let tmp%8#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%0#0
-        let tmp%9#1: bool = (b== aggregate%encoded_element%0#0 tmp%8#1)
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
+        let tmp%9#1: bool = (b== aggregate%encoded_element%0#0 aggregate%as_Encoded(uint8)%0#0)
         (assert tmp%9#1) // wrong 0th byte from storage
         let aggregate%bytes_offset%1#0: uint64 = 1u
         let aggregate%encoded_element%1#0: bytes = (extract3 bytes_from_storage#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
@@ -374,9 +370,8 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args[ro
         let aggregate%bitlen%1#0: uint64 = 4u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x08
-        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = 0x08
-        let tmp%10#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%1#0
-        let tmp%11#1: bool = (b== aggregate%encoded_element%1#0 tmp%10#1)
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
+        let tmp%11#1: bool = (b== aggregate%encoded_element%1#0 aggregate%as_Encoded(uint8)%1#0)
         (assert tmp%11#1) // wrong 1st byte from storage
         let aggregate%bytes_offset%2#0: uint64 = 2u
         let aggregate%encoded_element%2#0: bytes = (extract3 bytes_from_storage#0 aggregate%bytes_offset%2#0 1u) // on error: index access is out of bounds
@@ -384,9 +379,8 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args[ro
         let aggregate%bitlen%2#0: uint64 = 4u
         let aggregate%no_overflow%2#0: bool = 1u
         let aggregate%uint8%2#0: bytes = 0x09
-        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = 0x09
-        let tmp%12#1: Encoded(uint8) = aggregate%as_Encoded(uint8)%2#0
-        let tmp%13#1: bool = (b== aggregate%encoded_element%2#0 tmp%12#1)
+        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = aggregate%uint8%2#0
+        let tmp%13#1: bool = (b== aggregate%encoded_element%2#0 aggregate%as_Encoded(uint8)%2#0)
         (assert tmp%13#1) // wrong 2nd byte from storage
         let tmp%14#1: uint64 = (btoi int_from_storage#0)
         let tmp%15#1: bool = (== tmp%14#1 2u)
@@ -398,9 +392,8 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args[ro
         let aggregate%bitlen%3#0: uint64 = 7u
         let aggregate%no_overflow%3#0: bool = 1u
         let aggregate%uint32%0#0: bytes = 0x0000007b
-        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = 0x0000007b
-        let tmp%18#1: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
-        let tmp%19#1: bool = (b== int_from_const#0 tmp%18#1)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%uint32%0#0
+        let tmp%19#1: bool = (b== int_from_const#0 aggregate%as_Encoded(uint32)%0#0)
         (assert tmp%19#1)
         let aggregate%length%0#0: uint64 = 3u
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)

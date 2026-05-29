@@ -18,15 +18,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#0: uint64 = (txn NumAppArgs)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = 0x0000
-        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = 0x0000
-        let encoded_array%0#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
+        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%len_u16%0#0
         let aggregate%length%0#0: uint64 = 0u
         let aggregate%length_uint16%0#0: bytes = 0x0000
-        let aggregate%encoded_value%0#0: bytes = 0x0000
-        let aggregate%as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = 0x0000
         let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0016
-        let aggregate%head%11#0: bytes = (concat aggregate%head%1#0 0x0016)
+        let aggregate%head%11#0: bytes = (concat aggregate%head%1#0 aggregate%offset_as_uint16%0#0)
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 24u
         let aggregate%length%1#0: uint64 = 0u
@@ -39,9 +36,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001a
         let aggregate%head%13#0: bytes = (concat aggregate%head%12#0 aggregate%offset_as_uint16%2#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%13#0 aggregate%as_Encoded(len+uint8[])%1#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 encoded_array%0#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 encoded_array%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%13#0 aggregate%as_Encoded(len+uint8[])%0#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+uint8[])%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%as_Encoded(len+uint8[])%0#0)
         (app_global_put "dyn" aggregate%concat%2#0)
         (app_global_put "num_payments" 0u)
         let tmp%16#0: Encoded((uint8[32],uint64,uint64)[2]) = (bzero 96u)
@@ -174,7 +171,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[ro
         let tmp%7#0: bool = 1u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = 0x0003
-        let aggregate%head%6#0: bytes = (concat 0x0003 aggregate%val_as_bytes%0#0)
+        let aggregate%head%6#0: bytes = (concat aggregate%len_u16%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%1#0)
         let dynamic_arr#0: Encoded(len+uint64[]) = (concat aggregate%head%7#0 aggregate%val_as_bytes%2#0)
         let aggregate%array_length%0#0: uint64 = 3u
@@ -436,13 +433,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let aggregate%encoded_element%0#0: bytes = (extract3 new_items_bytes#3 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
-        let arr7#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0001 aggregate%encoded_element%0#0)
+        let arr7#0: Encoded(len+(uint64,uint64)[]) = (concat aggregate%len_u16%0#0 aggregate%encoded_element%0#0)
         let tmp%27#0: bool = (== arr2#1 arr7#0)
         (assert tmp%27#0) // expected arrays to be the same
         let aggregate%as_bytes%1#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%1#0: bytes = 0x0000
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%1#0: Encoded(len+(uint64,uint64)[]) = 0x0000
-        let arr8#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%1#0
+        let arr8#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%1#0
         let array_length#4: uint64 = 0u
         let tmp%0#10: bytes = (itob new_items_count#3)
         let new_len_u16#3: bytes = ((extract 6 0) tmp%0#10)

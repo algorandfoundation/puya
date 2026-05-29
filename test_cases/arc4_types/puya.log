@@ -7108,23 +7108,13 @@ debug: Simplified (extract3 my_tuple#0 0u 1u) to ((extract 0 1) my_tuple#0)
 debug: Simplified (extract3 my_tuple#0 6u 1u) to ((extract 6 1) my_tuple#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%5#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%5#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0xff
 debug: Simplified (concat 0x a#1) to a#1
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0007
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x10
 debug: Simplified (concat 0x tmp%7#0) to tmp%7#0
 debug: Simplified (concat 0x a#0) to a#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x00
 debug: Simplified (len 0x) to 0u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0000
-debug: Simplified (concat 0x0000 0x) to 0x0000
+debug: Simplified (concat aggregate%length_uint16%2#0 0x) to aggregate%length_uint16%2#0
 debug: Simplified (concat 0x tmp%0#2) to tmp%0#2
-debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0003
 debug: Simplified (concat 0x tmp%0#2) to tmp%0#2
-debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0001
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -7154,25 +7144,26 @@ debug: removing redundant assert of aggregate%no_overflow%5#0
 debug: removing redundant assert of tmp%7#2
 debug: removing redundant assert of tmp%9#2
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, tmp%0#4, aggregate%as_bytes%6#0), selected replacement: aggregate%val_as_bytes%0#0
-debug: GVN found equivalence set: (a#1, aggregate%head%0#0, tuple_item%0#1), selected replacement: a#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, a#1, aggregate%head%0#0, tuple_item%0#1), selected replacement: a#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, b#1), selected replacement: b#1
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%as_bytes%1#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%0#0, c#1), selected replacement: c#1
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%1#0, d#1, aggregate%substring3%0#0, tuple_item%2#0), selected replacement: d#1
-debug: GVN found equivalence set: (e#1, tuple_item%1#0), selected replacement: e#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, e#1, tuple_item%1#0), selected replacement: e#1
 debug: GVN found equivalence set: (aggregate%concat%1#0, aggregate%as_Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)%0#0, my_tuple#0), selected replacement: my_tuple#0
-debug: GVN found equivalence set: (tmp%7#0, aggregate%head%5#0, a#0, aggregate%head%9#0), selected replacement: a#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%3#0, tmp%7#0, aggregate%head%5#0, a#0, aggregate%head%9#0), selected replacement: a#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%8#0, b#0, d#0, e#0, f#0, g#0, i#0, j#0), selected replacement: b#0
-debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%1#0, tmp%9#0, c#0, h#0, tmp%0#2, aggregate%head%13#0, aggregate%head%15#0, aggregate%as_Encoded(uint8[])%0#0, tmp%4#2, new_items_bytes#0), selected replacement: c#0
-debug: GVN found equivalence set: (tmp%17#0, k#0, tuple_item%0#0), selected replacement: k#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%1#0, tmp%9#0, c#0, h#0, aggregate%as_Encoded(uint8)%5#0, tmp%0#2, aggregate%head%13#0, aggregate%head%15#0, aggregate%as_Encoded(uint8[])%0#0, tmp%4#2, new_items_bytes#0), selected replacement: c#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%4#0, tmp%17#0, k#0, tuple_item%0#0), selected replacement: k#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%0#0, boolean_packing#0, aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%1#0, tmp%66#0), selected replacement: boolean_packing#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%5#0, aggregate%as_bytes%4#0), selected replacement: aggregate%val_as_bytes%5#0
-debug: GVN found equivalence set: (tmp%1#2, tuple_item%0#2, array#0), selected replacement: array#0
+debug: GVN found equivalence set: (aggregate%encoded_value%2#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%1#2, tuple_item%0#2, array#0), selected replacement: array#0
 debug: GVN found equivalence set: (aggregate%concat%2#0, aggregate%as_Encoded(uint8,(len+uint8[]))%0#0, tup#0), selected replacement: tup#0
 debug: GVN found equivalence set: (tmp%5#2, aggregate%substring3%2#0, tuple_item%1#1, aggregate%as_Encoded(len+uint8[])%1#0, encoded_array%0#0, aggregate%substring3%3#0), selected replacement: tmp%5#2
 debug: GVN found equivalence set: (aggregate%data_up_to_item%0#0, aggregate%data_up_to_item%1#0), selected replacement: aggregate%data_up_to_item%0#0
 debug: GVN found equivalence set: (aggregate%updated_data%0#0, tup#1), selected replacement: tup#1
 debug: GVN found equivalence set: (aggregate%substring3%4#0, tuple_item%2#1), selected replacement: aggregate%substring3%4#0
-debug: GVN: 50 replacement(s) in test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
+debug: GVN: 58 replacement(s) in test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -7560,13 +7551,11 @@ debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
 debug: Removing unused variable a#1
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
 debug: Removing unused variable b#1
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
@@ -7581,7 +7570,6 @@ debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
 debug: Removing unused variable e#1
 debug: Removing unused variable aggregate%head%1#0
 debug: Removing unused variable aggregate%as_bytes%2#0
@@ -7599,7 +7587,6 @@ debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint8%3#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%3#0
 debug: Removing unused variable a#0
 debug: Removing unused variable aggregate%encoded_bool%0#0
 debug: Removing unused variable b#0
@@ -7609,7 +7596,6 @@ debug: Removing unused variable aggregate%val_as_bytes%4#0
 debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint8%4#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%4#0
 debug: Removing unused variable k#0
 debug: Removing unused variable aggregate%get_bit%0#0
 debug: Removing unused variable aggregate%set_bit%0#0
@@ -7700,11 +7686,8 @@ debug: Removing unused variable aggregate%val_as_bytes%5#0
 debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint8%5#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%5#0
 debug: Removing unused variable aggregate%length%2#0
 debug: Removing unused variable aggregate%length_uint16%2#0
-debug: Removing unused variable aggregate%encoded_value%2#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%0#0
 debug: Removing unused variable array#0
 debug: Removing unused variable aggregate%as_bytes%5#0
 debug: Removing unused variable aggregate%offset_as_uint16%2#0
@@ -10055,11 +10038,8 @@ debug: Simplified (concat 0x tmp%3#3) to tmp%3#3
 debug: Simplified (concat 0x aggregate%set_bit%2#0) to aggregate%set_bit%2#0
 debug: Simplified (concat 0x coord_1#0) to coord_1#0
 debug: Simplified (len 0x) to 0u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0000
-debug: Simplified (concat 0x0000 0x) to 0x0000
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0002
-debug: Simplified (concat 0x 0x0002) to 0x0002
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x2a
+debug: Simplified (concat aggregate%length_uint16%0#0 0x) to aggregate%length_uint16%0#0
+debug: Simplified (concat 0x aggregate%offset_as_uint16%0#0) to aggregate%offset_as_uint16%0#0
 debug: Simplified (concat 0x tmp%11#0) to tmp%11#0
 debug: Simplified (concat 0x tmp%15#0) to tmp%15#0
 debug: Simplified (concat 0x tuple_item%3#0) to tuple_item%3#0
@@ -10095,16 +10075,16 @@ debug: GVN found equivalence set: (aggregate%head%4#0, aggregate%as_Encoded(bool
 debug: GVN found equivalence set: (tuple_item%0#1, tmp%1#1, tuple_item%2#1, tmp%6#1, tuple_item%3#2, tmp%3#2), selected replacement: tuple_item%0#1
 debug: GVN found equivalence set: (tuple_item%1#1, tmp%3#1, tuple_item%3#1, tmp%8#1), selected replacement: tuple_item%1#1
 debug: GVN found equivalence set: (aggregate%head%6#0, aggregate%as_Encoded((uint64,uint64),(bool1,bool1,bool1,bool1))%0#0, vector_flags#0), selected replacement: vector_flags#0
-debug: GVN found equivalence set: (tmp%9#0, tuple_item%2#0, array#0), selected replacement: array#0
+debug: GVN found equivalence set: (aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%9#0, tuple_item%2#0, array#0), selected replacement: array#0
 debug: GVN found equivalence set: (aggregate%concat%0#0, aggregate%as_Encoded((len+uint8[]))%0#0, mutable#0), selected replacement: mutable#0
-debug: GVN found equivalence set: (tmp%11#0, aggregate%head%8#0, aggregate%as_Encoded(uint8[])%0#0, tmp%12#0, new_items_bytes#0), selected replacement: new_items_bytes#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%11#0, aggregate%head%8#0, aggregate%as_Encoded(uint8[])%0#0, tmp%12#0, new_items_bytes#0), selected replacement: new_items_bytes#0
 debug: GVN found equivalence set: (aggregate%updated_data%0#0, copy#1), selected replacement: copy#1
 debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%as_Encoded(uint64)%0#0, tmp%15#0, aggregate%head%9#0, aggregate%extract%7#0, tuple_item%3#0, aggregate%head%11#0, aggregate%extract%9#0, tuple_item%5#0), selected replacement: aggregate%val_as_bytes%1#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%2#0, aggregate%as_Encoded(uint64)%1#0, tmp%16#0), selected replacement: aggregate%val_as_bytes%2#0
 debug: GVN found equivalence set: (aggregate%head%10#0, aggregate%as_Encoded(uint64,uint64)%2#0, immutable#0), selected replacement: immutable#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%3#0, aggregate%as_Encoded(uint64)%2#0, tmp%20#0, aggregate%extract%8#0, tuple_item%4#0), selected replacement: aggregate%val_as_bytes%3#0
 debug: GVN found equivalence set: (aggregate%head%12#0, aggregate%as_Encoded(uint64,uint64)%3#0, immutable2#0), selected replacement: immutable2#0
-debug: GVN: 60 replacement(s) in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
+debug: GVN: 63 replacement(s) in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -10535,8 +10515,6 @@ debug: Removing unused variable aggregate%get_bit%12#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
-debug: Removing unused variable aggregate%encoded_value%0#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%0#0
 debug: Removing unused variable array#0
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
@@ -10549,7 +10527,6 @@ debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
 debug: Removing unused variable new_items_bytes#0
 debug: Removing unused variable array_length#0
 debug: Removing unused variable new_array_length#0
@@ -13044,14 +13021,10 @@ debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 tup#0 0u 8u) to ((extract 0 8) tup#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%5#0 4u 4u) to ((extract 4 4) aggregate%val_as_bytes%5#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0xff
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x01
 debug: Simplified (len 2b) to 1u
 debug: Simplified (len 1b) to 1u
 debug: Simplified (len 0b) to 0u
 debug: Simplified (concat 0x tmp%71#0) to tmp%71#0
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x00000001
 debug: Simplified (len 18446744073709551615b) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -13080,16 +13053,18 @@ debug: removing redundant assert of tmp%81#0
 debug: removing redundant assert of aggregate%len_ok%3#0
 debug: removing redundant assert of tmp%84#0
 debug: removing redundant assert of tmp%86#0
-debug: GVN found equivalence set: (int8_encoded#0, tmp%80#0), selected replacement: int8_encoded#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, int8_encoded#0, tmp%80#0), selected replacement: int8_encoded#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%18#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%2#0, tmp%65#0, aggregate%val_as_bytes%5#0), selected replacement: aggregate%val_as_bytes%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%19#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
 debug: GVN found equivalence set: (aggregate%bzero%0#0, aggregate%bzero%1#0, aggregate%bzero%2#0, aggregate%bzero%3#0, aggregate%arc4_encoded%3#0, aggregate%as_Encoded(uint512)%3#0, tmp%32#0, aggregate%bzero%4#0), selected replacement: aggregate%bzero%0#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%0#0, aggregate%as_Encoded(uint512)%0#0, arc4_biguint_dynamic#0), selected replacement: arc4_biguint_dynamic#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%1#0, aggregate%as_Encoded(uint512)%1#0, arc4_biguint_const#0, tmp%62#0), selected replacement: arc4_biguint_const#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%2#0, aggregate%as_Encoded(uint512)%2#0, tmp%31#0), selected replacement: aggregate%arc4_encoded%2#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%4#0, aggregate%as_Encoded(uint64)%0#0, tmp%71#0, aggregate%head%0#0, aggregate%as_Encoded(uint64)%1#0, tup#0, aggregate%extract%0#0, tuple_item%0#0), selected replacement: tup#0
-debug: GVN found equivalence set: (tmp%75#0, tmp%76#0), selected replacement: tmp%75#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%0#0, tmp%75#0, tmp%76#0), selected replacement: aggregate%as_Encoded(uint32)%0#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%4#0, aggregate%as_Encoded(uint512)%4#0, uint64_encoded_as_biguint#0, tmp%83#0), selected replacement: uint64_encoded_as_biguint#0
-debug: GVN: 28 replacement(s) in test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
+debug: GVN: 32 replacement(s) in test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -13224,7 +13199,6 @@ debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
 debug: Removing unused variable int8_encoded#0
 debug: Removing unused variable int8_decoded#0
 debug: Removing unused variable tmp%2#0
@@ -13243,13 +13217,11 @@ debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%18#0
 debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%19#0
 debug: Removing unused variable aggregate%value_len%0#0
 debug: Removing unused variable aggregate%len_ok%0#0
 debug: Removing unused variable aggregate%value_len%1#0
@@ -13273,7 +13245,6 @@ debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint32%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%0#0
-debug: Removing unused variable tmp%75#0
 debug: Removing unused variable tmp%77#0
 debug: Removing unused variable tmp%81#0
 debug: Removing unused variable aggregate%value_len%3#0
@@ -15952,75 +15923,23 @@ debug: Simplified (replace3 aggregate%updated_data%3#0 4u aggregate%tail_offset_
 debug: Simplified (extract3 aggregate%val_as_bytes%14#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%14#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%15#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%15#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0002
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x32
 debug: Simplified (concat 0x tmp%2#0) to tmp%2#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0003
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0006
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x5a
 debug: Simplified (concat 0x tmp%18#0) to tmp%18#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0008
 debug: Simplified (substring3 dynamic_uint8_array#3 2u aggregate%total_length%0#0) to ((extract 2 0) dynamic_uint8_array#3)
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0007
-debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0002
 debug: Simplified (concat 0x aggregate%set_bit%1#0) to aggregate%set_bit%1#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0004
-debug: Simplified ((extract 6 2) aggregate%as_bytes%7#0) to 0x0008
 debug: Simplified (concat 0x tmp%0#1) to tmp%0#1
-debug: Simplified ((extract 6 2) aggregate%as_bytes%8#0) to 0x0009
-debug: Simplified ((extract 6 2) aggregate%as_bytes%9#0) to 0x0007
-debug: Simplified ((extract 6 2) aggregate%as_bytes%14#0) to 0x0002
-debug: Simplified ((extract 6 2) aggregate%as_bytes%15#0) to 0x0004
-debug: Simplified (concat 0x0002 0x0004) to 0x00020004
-debug: Simplified ((extract 6 2) aggregate%as_bytes%17#0) to 0x0008
-debug: Simplified ((extract 6 2) aggregate%as_bytes%18#0) to 0x0010
-debug: Simplified (concat 0x0008 0x0010) to 0x00080010
-debug: Simplified ((extract 6 2) aggregate%as_bytes%26#0) to 0x0008
-debug: Simplified ((extract 6 2) aggregate%as_bytes%27#0) to 0x0010
-debug: Simplified (concat 0x0008 0x0010) to 0x00080010
-debug: Simplified ((extract 6 2) aggregate%as_bytes%35#0) to 0x0006
-debug: Simplified ((extract 6 2) aggregate%as_bytes%36#0) to 0x000c
-debug: Simplified (concat 0x0006 0x000c) to 0x0006000c
-debug: Simplified ((extract 6 2) aggregate%as_bytes%42#0) to 0x0000
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x0a
-debug: Simplified ((extract 6 2) aggregate%as_bytes%43#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0x10
-debug: Simplified ((extract 6 2) aggregate%as_bytes%44#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0xff
 debug: Simplified (concat 0x tmp%7#3) to tmp%7#3
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0x00
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%9#0) to 0x09
 debug: Simplified (concat 0x tmp%1#3) to tmp%1#3
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%10#0) to 0x40
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%11#0) to 0x80
 debug: Simplified (concat 0x tmp%2#4) to tmp%2#4
 debug: Simplified (concat 0x encoded_array%0#4) to encoded_array%0#4
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%12#0) to 0xfe
 debug: Simplified (concat 0x tmp%7#3) to tmp%7#3
 debug: Simplified (concat 0x tmp%0#0) to tmp%0#0
 debug: Simplified (concat 0x aggregate%set_bit%25#0) to aggregate%set_bit%25#0
 debug: Simplified (concat 0x tmp%0#1) to tmp%0#1
-debug: Simplified ((extract 6 2) aggregate%as_bytes%47#0) to 0x0006
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%13#0) to 0x0c
 debug: Simplified (concat 0x tmp%1#1) to tmp%1#1
-debug: Simplified ((extract 6 2) aggregate%as_bytes%49#0) to 0x0006
 debug: Simplified (concat 0x tmp%1#1) to tmp%1#1
-debug: Simplified ((extract 6 2) aggregate%as_bytes%54#0) to 0x0006
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%14#0) to 0x03
 debug: Simplified (concat 0x tmp%2#7) to tmp%2#7
-debug: Simplified ((extract 6 2) aggregate%as_bytes%56#0) to 0x0004
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%15#0) to 0x05
 debug: Simplified (concat 0x tmp%11#6) to tmp%11#6
-debug: Simplified ((extract 6 2) aggregate%as_bytes%57#0) to 0x0005
-debug: Simplified ((extract 6 2) aggregate%as_bytes%58#0) to 0x0001
-debug: Simplified ((extract 6 2) aggregate%as_bytes%59#0) to 0x0002
-debug: Simplified (concat 0x0001 0x0002) to 0x00010002
-debug: Simplified ((extract 6 2) aggregate%as_bytes%60#0) to 0x0001
-debug: Simplified ((extract 6 2) aggregate%as_bytes%61#0) to 0x0002
-debug: Simplified (concat 0x0001 0x0002) to 0x00010002
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -16093,10 +16012,11 @@ debug: removing redundant assert of tmp%10#6
 debug: removing redundant assert of aggregate%no_overflow%15#0
 debug: removing redundant assert of tmp%19#4
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, aggregate%as_bytes%43#0, aggregate%as_bytes%44#0, aggregate%as_bytes%58#0, aggregate%as_bytes%60#0), selected replacement: aggregate%val_as_bytes%0#0
-debug: GVN found equivalence set: (tmp%0#0, aggregate%head%72#0), selected replacement: tmp%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0, aggregate%head%72#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%as_bytes%0#0, aggregate%as_bytes%5#0, aggregate%as_bytes%14#0, aggregate%as_bytes%59#0, aggregate%as_bytes%61#0), selected replacement: aggregate%val_as_bytes%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%1#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, dynamic_uint8_array#0, array#0, array#5), selected replacement: dynamic_uint8_array#0
-debug: GVN found equivalence set: (tmp%2#0, aggregate%head%2#0, aggregate%as_Encoded(uint8[])%0#0, tmp%3#0, new_items_bytes#0), selected replacement: new_items_bytes#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%2#0, aggregate%head%2#0, aggregate%as_Encoded(uint8[])%0#0, tmp%3#0, new_items_bytes#0), selected replacement: new_items_bytes#0
 debug: GVN found equivalence set: (tmp%0#5, aggregate%as_bytes%1#0, aggregate%as_bytes%12#0, aggregate%as_bytes%13#0, aggregate%val_as_bytes%14#0), selected replacement: tmp%0#5
 debug: GVN found equivalence set: (dynamic_uint8_array#1, aggregate%as_Encoded(len+uint8[])%1#0, encoded_array%1#0, array#1), selected replacement: dynamic_uint8_array#1
 debug: GVN found equivalence set: (extract_to_end%0#0, new_items_bytes#1), selected replacement: new_items_bytes#1
@@ -16104,15 +16024,15 @@ debug: GVN found equivalence set: (tmp%9#0, new_items_count#1), selected replace
 debug: GVN found equivalence set: (tmp%0#7, aggregate%as_bytes%2#0, aggregate%as_bytes%35#0, aggregate%as_bytes%47#0, aggregate%as_bytes%49#0, aggregate%as_bytes%54#0), selected replacement: tmp%0#7
 debug: GVN found equivalence set: (tmp%4#9, dynamic_uint8_array#2, aggregate%as_Encoded(len+uint8[])%2#0, encoded_array%2#0, array#2), selected replacement: dynamic_uint8_array#2
 debug: GVN found equivalence set: (aggregate%val_as_bytes%3#0, aggregate%as_bytes%6#0, aggregate%as_bytes%15#0, aggregate%as_bytes%46#0, tmp%0#16, aggregate%as_bytes%56#0), selected replacement: aggregate%val_as_bytes%3#0
-debug: GVN found equivalence set: (tmp%18#0, aggregate%head%12#0), selected replacement: tmp%18#0
-debug: GVN found equivalence set: (tmp%19#0, popped#0), selected replacement: popped#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%3#0, tmp%18#0, aggregate%head%12#0), selected replacement: aggregate%as_Encoded(uint8)%3#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%4#0, tmp%19#0, popped#0), selected replacement: popped#0
 debug: GVN found equivalence set: (aggregate%head%13#0, aggregate%as_Encoded(uint8[])%1#0, tmp%20#0, new_items_bytes#2), selected replacement: new_items_bytes#2
 debug: GVN found equivalence set: (tmp%0#9, aggregate%as_bytes%3#0, aggregate%as_bytes%7#0, aggregate%as_bytes%17#0, aggregate%as_bytes%26#0), selected replacement: tmp%0#9
 debug: GVN found equivalence set: (tmp%4#10, dynamic_uint8_array#3, aggregate%as_Encoded(len+uint8[])%3#0, encoded_array%3#0, array#3), selected replacement: dynamic_uint8_array#3
 debug: GVN found equivalence set: (tmp%0#12, aggregate%as_bytes%4#0, aggregate%as_bytes%9#0, aggregate%as_bytes%53#0), selected replacement: tmp%0#12
 debug: GVN found equivalence set: (tmp%4#11, dynamic_uint8_array#4, aggregate%as_Encoded(len+uint8[])%4#0, encoded_array%4#0), selected replacement: dynamic_uint8_array#4
-debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%0#1, aggregate%head%30#0, aggregate%as_Encoded(bool1[])%0#0, tmp%5#1, aggregate%head%33#0, aggregate%as_Encoded(bool1[])%1#0, tmp%25#1, tmp%3#4, static_bool_array#1, aggregate%head%75#0), selected replacement: static_bool_array#1
-debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%1#0, tmp%1#1, tmp%11#3, aggregate%head%79#0, aggregate%head%83#0), selected replacement: aggregate%as_Encoded(bool8)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%0#1, aggregate%head%30#0, aggregate%as_Encoded(bool1[])%0#0, tmp%5#1, aggregate%head%33#0, aggregate%as_Encoded(bool1[])%1#0, tmp%25#1, aggregate%as_Encoded(uint8)%11#0, tmp%3#4, static_bool_array#1, aggregate%head%75#0), selected replacement: static_bool_array#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%1#0, tmp%1#1, aggregate%as_Encoded(uint8)%8#0, tmp%11#3, aggregate%head%79#0, aggregate%head%83#0), selected replacement: aggregate%as_Encoded(bool8)%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+bool1[])%0#0, dynamic_bool_array#0), selected replacement: dynamic_bool_array#0
 debug: GVN found equivalence set: (tmp%7#1, tmp%12#1), selected replacement: tmp%7#1
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+bool1[])%1#0, encoded_array%1#1), selected replacement: aggregate%as_Encoded(len+bool1[])%1#0
@@ -16149,18 +16069,22 @@ debug: GVN found equivalence set: (aggregate%item%1#0, tmp%16#2), selected repla
 debug: GVN found equivalence set: (aggregate%as_bytes%36#0, aggregate%val_as_bytes%13#0), selected replacement: aggregate%as_bytes%36#0
 debug: GVN found equivalence set: (aggregate%concat%23#0, aggregate%as_Encoded(len+(len+utf8[])[])%3#0, encoded_array%4#2), selected replacement: aggregate%concat%23#0
 debug: GVN found equivalence set: (aggregate%as_bytes%42#0, aggregate%val_as_bytes%8#0), selected replacement: aggregate%as_bytes%42#0
-debug: GVN found equivalence set: (tmp%1#3, aggregate%head%64#0), selected replacement: tmp%1#3
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+(len+uint8[])[])%0#0, array_of_array#0), selected replacement: array_of_array#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%5#0, tmp%1#3, aggregate%head%64#0), selected replacement: aggregate%as_Encoded(uint8)%5#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%5#0, encoded_array%1#3), selected replacement: aggregate%as_Encoded(len+uint8[])%5#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%6#0, tmp%4#3), selected replacement: aggregate%as_Encoded(uint8)%6#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%6#0, encoded_array%2#3), selected replacement: aggregate%as_Encoded(len+uint8[])%6#0
 debug: GVN found equivalence set: (aggregate%item%2#0, array_item%0#0, array#4), selected replacement: array#4
-debug: GVN found equivalence set: (tmp%7#3, aggregate%head%63#0, aggregate%as_Encoded(uint8[])%2#0, tmp%8#3, new_items_bytes#3, aggregate%head%70#0), selected replacement: new_items_bytes#3
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%7#0, tmp%7#3, aggregate%head%63#0, aggregate%as_Encoded(uint8[])%2#0, tmp%8#3, new_items_bytes#3, aggregate%head%70#0), selected replacement: new_items_bytes#3
 debug: GVN found equivalence set: (tmp%4#12, tmp%9#3), selected replacement: tmp%4#12
 debug: GVN found equivalence set: (aggregate%updated_array%2#0, array_of_array#3), selected replacement: array_of_array#3
 debug: GVN found equivalence set: (aggregate%updated_array%4#0, array_of_array#4), selected replacement: array_of_array#4
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%9#0, tmp%1#4), selected replacement: aggregate%as_Encoded(uint8)%9#0
 debug: GVN found equivalence set: (aggregate%head%65#0, aggregate%as_Encoded(uint8[2])%0#0, encoded_array%0#4, aggregate%head%68#0), selected replacement: aggregate%head%65#0
-debug: GVN found equivalence set: (tmp%2#4, aggregate%head%66#0), selected replacement: tmp%2#4
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%10#0, tmp%2#4, aggregate%head%66#0), selected replacement: aggregate%as_Encoded(uint8)%10#0
 debug: GVN found equivalence set: (aggregate%head%67#0, aggregate%as_Encoded(uint8[2])%1#0, encoded_array%1#4), selected replacement: aggregate%head%67#0
 debug: GVN found equivalence set: (aggregate%head%69#0, aggregate%as_Encoded(uint8[2][2])%0#0, array_of_array#5), selected replacement: array_of_array#5
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%12#0, tmp%6#4), selected replacement: aggregate%as_Encoded(uint8)%12#0
 debug: GVN found equivalence set: (aggregate%head%71#0, aggregate%as_Encoded(uint8[2])%2#0, encoded_array%3#3), selected replacement: aggregate%head%71#0
 debug: GVN found equivalence set: (aggregate%updated_array%5#0, array_of_array#6), selected replacement: array_of_array#6
 debug: GVN found equivalence set: (aggregate%updated_array%8#0, dynamic_uint8_array#6), selected replacement: dynamic_uint8_array#6
@@ -16174,6 +16098,7 @@ debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%5#0, tmp%3#6
 debug: GVN found equivalence set: (aggregate%as_bytes%48#0, aggregate%as_bytes%50#0, aggregate%as_bytes%52#0, aggregate%as_bytes%55#0), selected replacement: aggregate%as_bytes%48#0
 debug: GVN found equivalence set: (aggregate%concat%25#0, aggregate%as_Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))%0#0, test_struct#0), selected replacement: test_struct#0
 debug: GVN found equivalence set: (aggregate%updated_data%0#0, test_struct#1), selected replacement: test_struct#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%13#0, tmp%6#6), selected replacement: aggregate%as_Encoded(uint8)%13#0
 debug: GVN found equivalence set: (aggregate%updated_data%1#0, test_struct#2, aggregate%concat%27#0, aggregate%as_Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))%1#0, tmp%11#5), selected replacement: test_struct#2
 debug: GVN found equivalence set: (aggregate%head%80#0, aggregate%head%84#0), selected replacement: aggregate%head%80#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%6#0, tmp%13#4), selected replacement: aggregate%as_Encoded(len+utf8[])%6#0
@@ -16181,14 +16106,14 @@ debug: GVN found equivalence set: (aggregate%updated_data%2#0, aggregate%data_up
 debug: GVN found equivalence set: (aggregate%updated_data%3#0, aggregate%updated_data%4#0, test_struct#3), selected replacement: test_struct#3
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%7#0, tmp%14#4), selected replacement: aggregate%as_Encoded(len+utf8[])%7#0
 debug: GVN found equivalence set: (aggregate%updated_data%5#0, test_struct#4, aggregate%concat%29#0, aggregate%as_Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))%2#0, tmp%19#3), selected replacement: test_struct#4
-debug: GVN found equivalence set: (tmp%2#7, aggregate%head%87#0), selected replacement: tmp%2#7
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%14#0, tmp%2#7, aggregate%head%87#0), selected replacement: aggregate%as_Encoded(uint8)%14#0
 debug: GVN found equivalence set: (aggregate%head%88#0, aggregate%as_Encoded(uint8[])%3#0, tmp%4#7, new_items_bytes#4), selected replacement: new_items_bytes#4
 debug: GVN found equivalence set: (tmp%4#13, array_concat_tuple#0, aggregate%as_Encoded(len+uint8[])%7#0, encoded_array%1#6, array#6), selected replacement: array_concat_tuple#0
-debug: GVN found equivalence set: (tmp%11#6, aggregate%head%93#0, aggregate%as_Encoded(uint8[])%4#0, tmp%12#6, new_items_bytes#5), selected replacement: new_items_bytes#5
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%15#0, tmp%11#6, aggregate%head%93#0, aggregate%as_Encoded(uint8[])%4#0, tmp%12#6, new_items_bytes#5), selected replacement: new_items_bytes#5
 debug: GVN found equivalence set: (tmp%4#14, array_concat_tuple#1, aggregate%as_Encoded(len+uint8[])%8#0, encoded_array%2#6), selected replacement: array_concat_tuple#1
 debug: GVN found equivalence set: (aggregate%concat%30#0, aggregate%as_Encoded(len+(len+utf8[])[])%4#0, encoded_array%4#3), selected replacement: aggregate%concat%30#0
 debug: GVN found equivalence set: (aggregate%concat%31#0, aggregate%as_Encoded(len+(len+utf8[])[])%5#0, encoded_array%5#0), selected replacement: aggregate%concat%31#0
-debug: GVN: 195 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
+debug: GVN: 212 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -16738,13 +16663,11 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%1#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%0#0
 debug: Removing unused variable aggregate%head%1#0
@@ -16753,7 +16676,6 @@ debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
 debug: Removing unused variable new_items_bytes#0
 debug: Removing unused variable array_length#0
 debug: Removing unused variable new_array_length#0
@@ -16786,12 +16708,10 @@ debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint8%3#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%3#0
-debug: Removing unused variable tmp%18#0
 debug: Removing unused variable aggregate%val_as_bytes%4#0
 debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint8%4#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%4#0
 debug: Removing unused variable popped#0
 debug: Removing unused variable array_length#2
 debug: Removing unused variable new_array_length#2
@@ -17036,7 +16956,6 @@ debug: Removing unused variable aggregate%offset_as_uint16%23#0
 debug: Removing unused variable aggregate%head%60#0
 debug: Removing unused variable aggregate%as_bytes%42#0
 debug: Removing unused variable aggregate%len_u16%14#0
-debug: Removing unused variable aggregate%as_Encoded(len+(len+uint8[])[])%0#0
 debug: Removing unused variable array_of_array#0
 debug: Removing unused variable tmp%0#3
 debug: Removing unused variable aggregate%val_as_bytes%5#0
@@ -17044,7 +16963,6 @@ debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint8%5#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%5#0
-debug: Removing unused variable tmp%1#3
 debug: Removing unused variable aggregate%len_u16%15#0
 debug: Removing unused variable aggregate%head%61#0
 debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%5#0
@@ -17052,7 +16970,6 @@ debug: Removing unused variable aggregate%bitlen%6#0
 debug: Removing unused variable aggregate%no_overflow%6#0
 debug: Removing unused variable aggregate%uint8%6#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%6#0
-debug: Removing unused variable tmp%4#3
 debug: Removing unused variable aggregate%len_u16%16#0
 debug: Removing unused variable aggregate%head%62#0
 debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%6#0
@@ -17061,13 +16978,11 @@ debug: Removing unused variable aggregate%val_as_bytes%7#0
 debug: Removing unused variable aggregate%bitlen%7#0
 debug: Removing unused variable aggregate%no_overflow%7#0
 debug: Removing unused variable aggregate%uint8%7#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%7#0
 debug: Removing unused variable new_items_bytes#3
 debug: Removing unused variable index#3
 debug: Removing unused variable aggregate%bitlen%8#0
 debug: Removing unused variable aggregate%no_overflow%8#0
 debug: Removing unused variable aggregate%uint8%8#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%8#0
 debug: Removing unused variable index#4
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%write_offset_with_length_header%0#0
@@ -17076,25 +16991,21 @@ debug: Removing unused variable aggregate%bitlen%9#0
 debug: Removing unused variable aggregate%no_overflow%9#0
 debug: Removing unused variable aggregate%uint8%9#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%9#0
-debug: Removing unused variable tmp%1#4
 debug: Removing unused variable aggregate%val_as_bytes%10#0
 debug: Removing unused variable aggregate%bitlen%10#0
 debug: Removing unused variable aggregate%no_overflow%10#0
 debug: Removing unused variable aggregate%uint8%10#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%10#0
-debug: Removing unused variable tmp%2#4
 debug: Removing unused variable aggregate%val_as_bytes%11#0
 debug: Removing unused variable aggregate%bitlen%11#0
 debug: Removing unused variable aggregate%no_overflow%11#0
 debug: Removing unused variable aggregate%uint8%11#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%11#0
 debug: Removing unused variable tmp%4#4
 debug: Removing unused variable aggregate%val_as_bytes%12#0
 debug: Removing unused variable aggregate%bitlen%12#0
 debug: Removing unused variable aggregate%no_overflow%12#0
 debug: Removing unused variable aggregate%uint8%12#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%12#0
-debug: Removing unused variable tmp%6#4
 debug: Removing unused variable aggregate%write_offset%1#0
 debug: Removing unused variable array_of_array#6
 debug: Removing unused variable tmp%7#4
@@ -17146,7 +17057,6 @@ debug: Removing unused variable aggregate%bitlen%13#0
 debug: Removing unused variable aggregate%no_overflow%13#0
 debug: Removing unused variable aggregate%uint8%13#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%13#0
-debug: Removing unused variable tmp%6#6
 debug: Removing unused variable aggregate%head%80#0
 debug: Removing unused variable aggregate%offset_as_uint16%26#0
 debug: Removing unused variable aggregate%head%81#0
@@ -17187,7 +17097,6 @@ debug: Removing unused variable aggregate%bitlen%14#0
 debug: Removing unused variable aggregate%no_overflow%14#0
 debug: Removing unused variable aggregate%uint8%14#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%14#0
-debug: Removing unused variable tmp%2#7
 debug: Removing unused variable array_length#5
 debug: Removing unused variable new_array_length#4
 debug: Removing unused variable new_len_u16#4
@@ -17201,7 +17110,6 @@ debug: Removing unused variable tmp%10#6
 debug: Removing unused variable aggregate%bitlen%15#0
 debug: Removing unused variable aggregate%no_overflow%15#0
 debug: Removing unused variable aggregate%uint8%15#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%15#0
 debug: Removing unused variable new_items_bytes#5
 debug: Removing unused variable array_length#6
 debug: Removing unused variable new_array_length#5
@@ -19759,14 +19667,6 @@ debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%3#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%3#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x00
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0002
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x2a
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -19778,12 +19678,16 @@ debug: GVN: test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebi
 debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: removing redundant assert of aggregate%no_overflow%3#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%val_as_bytes%1#0, aggregate%as_bytes%2#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, a#0), selected replacement: a#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%2#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%1#0, encoded_array%1#0), selected replacement: aggregate%as_Encoded(len+uint8[])%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%2#0, a#2), selected replacement: a#2
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%6#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%3#0, tmp%7#0), selected replacement: aggregate%as_Encoded(uint8)%3#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%3#0, encoded_array%3#0), selected replacement: aggregate%as_Encoded(len+uint8[])%3#0
-debug: GVN: 6 replacement(s) in test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]
+debug: GVN: 10 replacement(s) in test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -19809,14 +19713,8 @@ debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%3#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%3#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%4#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%4#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
 debug: Simplified (concat 0x tmp%0#0) to tmp%0#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x04
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0003
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x2a
 debug: Simplified (concat 0x tmp%12#0) to tmp%12#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x04
 debug: Simplified (concat 0x tmp%15#0) to tmp%15#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -19843,15 +19741,17 @@ debug: GVN: test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_ar
 debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
 debug: GVN found equivalence set: (a#0, array#2, array#1), selected replacement: a#0
-debug: GVN found equivalence set: (tmp%0#0, aggregate%head%0#0, aggregate%as_Encoded(uint8[])%0#0, tmp%1#0, new_items_bytes#2), selected replacement: new_items_bytes#2
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0, aggregate%head%0#0, aggregate%as_Encoded(uint8[])%0#0, tmp%1#0, new_items_bytes#2), selected replacement: new_items_bytes#2
 debug: GVN found equivalence set: (tmp%4#3, a#1), selected replacement: a#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%4#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%6#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, a#5), selected replacement: a#5
-debug: GVN found equivalence set: (tmp%12#0, aggregate%head%4#0, aggregate%as_Encoded(uint8[])%1#0, tmp%13#0, new_items_bytes#1), selected replacement: new_items_bytes#1
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%3#0, tmp%12#0, aggregate%head%4#0, aggregate%as_Encoded(uint8[])%1#0, tmp%13#0, new_items_bytes#1), selected replacement: new_items_bytes#1
 debug: GVN found equivalence set: (tmp%4#2, a#6), selected replacement: a#6
 debug: GVN found equivalence set: (a#7, array#0), selected replacement: a#7
-debug: GVN found equivalence set: (tmp%15#0, aggregate%head%5#0, aggregate%as_Encoded(uint8[])%2#0, tmp%16#0, new_items_bytes#0), selected replacement: new_items_bytes#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%4#0, tmp%15#0, aggregate%head%5#0, aggregate%as_Encoded(uint8[])%2#0, tmp%16#0, new_items_bytes#0), selected replacement: new_items_bytes#0
 debug: GVN found equivalence set: (tmp%4#1, a#10), selected replacement: a#10
-debug: GVN: 19 replacement(s) in test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array
+debug: GVN: 24 replacement(s) in test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -19900,7 +19800,6 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%0#0
@@ -19909,7 +19808,6 @@ debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%2#0
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%len_u16%1#0
 debug: Removing unused variable aggregate%head%1#0
@@ -19923,13 +19821,11 @@ debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%6#0
 debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint8%3#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%3#0
-debug: Removing unused variable tmp%7#0
 debug: Removing unused variable aggregate%as_bytes%3#0
 debug: Removing unused variable aggregate%len_u16%3#0
 debug: Removing unused variable aggregate%head%4#0
@@ -19962,20 +19858,17 @@ debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
 debug: Removing unused variable new_items_bytes#2
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%4#0
 debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%6#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%1#0
@@ -19985,13 +19878,11 @@ debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint8%3#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%3#0
 debug: Removing unused variable new_items_bytes#1
 debug: Removing unused variable aggregate%val_as_bytes%4#0
 debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint8%4#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%4#0
 debug: Removing unused variable new_items_bytes#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
@@ -21683,31 +21574,8 @@ debug: Simplified (extract3 aggregate%val_as_bytes%20#0 7u 1u) to ((extract 7 1)
 debug: Simplified (extract3 aggregate%val_as_bytes%21#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%21#0)
 debug: Simplified (extract3 nested#0 0u 4u) to ((extract 0 4) nested#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x03
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x04
 debug: Simplified (concat 0x tmp%0#0) to tmp%0#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x32
 debug: Simplified (concat 0x tmp%4#0) to tmp%4#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0006
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x05
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0x0a
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0x64
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0x65
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%9#0) to 0x66
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%10#0) to 0x67
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%11#0) to 0x68
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%12#0) to 0x69
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%13#0) to 0xc8
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%14#0) to 0xc9
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%15#0) to 0xca
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%16#0) to 0xce
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%17#0) to 0xcf
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%18#0) to 0xd0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%19#0) to 0xe4
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%20#0) to 0xe5
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%21#0) to 0xe6
 debug: Simplified (concat 0x my_array#4) to my_array#4
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -21742,41 +21610,59 @@ debug: removing redundant assert of aggregate%no_overflow%18#0
 debug: removing redundant assert of aggregate%no_overflow%19#0
 debug: removing redundant assert of aggregate%no_overflow%20#0
 debug: removing redundant assert of aggregate%no_overflow%21#0
-debug: GVN found equivalence set: (tmp%0#0, aggregate%head%0#0), selected replacement: tmp%0#0
-debug: GVN found equivalence set: (tmp%1#0, array_item%3#0), selected replacement: tmp%1#0
-debug: GVN found equivalence set: (tmp%2#0, array_item%0#0), selected replacement: tmp%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0, aggregate%head%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%1#0, array_item%3#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%2#0, array_item%0#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%3#0, aggregate%as_bytes%1#0), selected replacement: aggregate%val_as_bytes%3#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%3#0, tmp%3#0), selected replacement: aggregate%as_Encoded(uint8)%3#0
 debug: GVN found equivalence set: (aggregate%head%3#0, aggregate%as_Encoded(uint8[4])%0#0, my_array#0), selected replacement: my_array#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%4#0, aggregate%head%4#0), selected replacement: aggregate%as_Encoded(bool8)%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%4#0, tmp%5#0), selected replacement: aggregate%as_Encoded(uint8)%4#0
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%val_as_bytes%5#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%0#0, tmp%6#0, aggregate%substring3%1#0, tuple_item%1#0), selected replacement: aggregate%as_Encoded(len+utf8[])%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%1#0, tmp%7#0), selected replacement: aggregate%as_Encoded(len+utf8[])%1#0
 debug: GVN found equivalence set: (aggregate%concat%1#0, aggregate%as_Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))%0#0, my_struct#0), selected replacement: my_struct#0
-debug: GVN found equivalence set: (tmp%9#0, array_item%1#0), selected replacement: tmp%9#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%5#0, tmp%9#0, array_item%1#0), selected replacement: aggregate%as_Encoded(uint8)%5#0
 debug: GVN found equivalence set: (aggregate%updated_array%0#0, my_array#1), selected replacement: my_array#1
 debug: GVN found equivalence set: (aggregate%encoded_element%2#0, array_item%2#0), selected replacement: aggregate%encoded_element%2#0
 debug: GVN found equivalence set: (aggregate%substring3%0#0, tuple_item%0#0), selected replacement: aggregate%substring3%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%2#0, tmp%17#0), selected replacement: aggregate%as_Encoded(len+utf8[])%2#0
 debug: GVN found equivalence set: (aggregate%encoded_element%4#0, array_item%4#0), selected replacement: aggregate%encoded_element%4#0
 debug: GVN found equivalence set: (aggregate%encoded_element%5#0, array_item%5#0), selected replacement: aggregate%encoded_element%5#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%6#0, tmp%25#0), selected replacement: aggregate%as_Encoded(uint8)%6#0
 debug: GVN found equivalence set: (aggregate%encoded_element%6#0, array_item%6#0), selected replacement: aggregate%encoded_element%6#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%7#0, tmp%32#0), selected replacement: aggregate%as_Encoded(uint8)%7#0
 debug: GVN found equivalence set: (aggregate%encoded_element%7#0, array_item%7#0), selected replacement: aggregate%encoded_element%7#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%8#0, tmp%34#0), selected replacement: aggregate%as_Encoded(uint8)%8#0
 debug: GVN found equivalence set: (aggregate%encoded_element%8#0, array_item%8#0), selected replacement: aggregate%encoded_element%8#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%9#0, tmp%36#0), selected replacement: aggregate%as_Encoded(uint8)%9#0
 debug: GVN found equivalence set: (aggregate%encoded_element%9#0, array_item%9#0), selected replacement: aggregate%encoded_element%9#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%10#0, tmp%38#0), selected replacement: aggregate%as_Encoded(uint8)%10#0
 debug: GVN found equivalence set: (aggregate%encoded_element%10#0, array_item%10#0), selected replacement: aggregate%encoded_element%10#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%11#0, tmp%40#0), selected replacement: aggregate%as_Encoded(uint8)%11#0
 debug: GVN found equivalence set: (aggregate%encoded_element%11#0, array_item%11#0), selected replacement: aggregate%encoded_element%11#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%12#0, tmp%42#0), selected replacement: aggregate%as_Encoded(uint8)%12#0
 debug: GVN found equivalence set: (my_array#4, aggregate%head%8#0, aggregate%as_Encoded(uint8[4])%1#0, nested#0), selected replacement: my_array#4
 debug: GVN found equivalence set: (aggregate%encoded_element%12#0, array_item%12#0), selected replacement: aggregate%encoded_element%12#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%13#0, tmp%44#0), selected replacement: aggregate%as_Encoded(uint8)%13#0
 debug: GVN found equivalence set: (aggregate%encoded_element%13#0, array_item%13#0), selected replacement: aggregate%encoded_element%13#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%14#0, tmp%46#0), selected replacement: aggregate%as_Encoded(uint8)%14#0
 debug: GVN found equivalence set: (aggregate%encoded_element%14#0, array_item%14#0), selected replacement: aggregate%encoded_element%14#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%15#0, tmp%48#0), selected replacement: aggregate%as_Encoded(uint8)%15#0
 debug: GVN found equivalence set: (aggregate%encoded_element%15#0, array_item%15#0), selected replacement: aggregate%encoded_element%15#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%16#0, tmp%50#0), selected replacement: aggregate%as_Encoded(uint8)%16#0
 debug: GVN found equivalence set: (aggregate%encoded_element%16#0, array_item%16#0), selected replacement: aggregate%encoded_element%16#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%17#0, tmp%52#0), selected replacement: aggregate%as_Encoded(uint8)%17#0
 debug: GVN found equivalence set: (aggregate%encoded_element%17#0, array_item%17#0), selected replacement: aggregate%encoded_element%17#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%18#0, tmp%54#0), selected replacement: aggregate%as_Encoded(uint8)%18#0
 debug: GVN found equivalence set: (aggregate%encoded_element%18#0, array_item%18#0), selected replacement: aggregate%encoded_element%18#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%19#0, tmp%56#0), selected replacement: aggregate%as_Encoded(uint8)%19#0
 debug: GVN found equivalence set: (aggregate%encoded_element%19#0, array_item%19#0), selected replacement: aggregate%encoded_element%19#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%20#0, tmp%58#0), selected replacement: aggregate%as_Encoded(uint8)%20#0
 debug: GVN found equivalence set: (aggregate%encoded_element%20#0, array_item%20#0), selected replacement: aggregate%encoded_element%20#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%21#0, tmp%60#0), selected replacement: aggregate%as_Encoded(uint8)%21#0
 debug: GVN found equivalence set: (aggregate%extract%0#0, tuple_item%2#0), selected replacement: aggregate%extract%0#0
-debug: GVN: 41 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
+debug: GVN: 63 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -21991,7 +21877,6 @@ debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%0#0)
 debug: Simplified (replace3 aggregate%updated_data%1#0 4u aggregate%tail_offset_bytes%0#0) to ((replace2 4) aggregate%updated_data%1#0 aggregate%tail_offset_bytes%0#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x05
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -22000,11 +21885,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine converged after 2 iteration(s)
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%updated_array%0#0, array#1), selected replacement: array#1
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%0#0, tmp%1#0), selected replacement: aggregate%as_Encoded(len+utf8[])%0#0
 debug: GVN found equivalence set: (aggregate%next_item_offset%0#0, aggregate%tail_offset%0#0), selected replacement: aggregate%next_item_offset%0#0
 debug: GVN found equivalence set: (aggregate%updated_data%2#0, struct#2), selected replacement: struct#2
-debug: GVN: 4 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
+debug: GVN: 5 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -22020,7 +21906,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%0#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x0a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -22029,8 +21914,9 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2 converged after 2 iteration(s)
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%updated_array%0#0, array#1), selected replacement: array#1
-debug: GVN: 1 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2
+debug: GVN: 2 replacement(s) in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -22125,25 +22011,21 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%1#0
 debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%2#0
 debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint8%3#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%3#0
-debug: Removing unused variable tmp%3#0
 debug: Removing unused variable aggregate%encoded_bool%0#0
 debug: Removing unused variable aggregate%as_Encoded(bool8)%0#0
 debug: Removing unused variable aggregate%val_as_bytes%4#0
@@ -22151,7 +22033,6 @@ debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint8%4#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%4#0
-debug: Removing unused variable tmp%5#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
@@ -22174,7 +22055,6 @@ debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint8%5#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%5#0
-debug: Removing unused variable tmp%9#0
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Removing unused variable aggregate%encoded_element%0#0
@@ -22202,7 +22082,6 @@ debug: Removing unused variable aggregate%bitlen%6#0
 debug: Removing unused variable aggregate%no_overflow%6#0
 debug: Removing unused variable aggregate%uint8%6#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%6#0
-debug: Removing unused variable tmp%25#0
 debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, my_array_copy_2#3, my_array#0, 0u, 1u)
 debug: Removing unused variable aggregate%bytes_offset%6#0
 debug: Removing unused variable aggregate%val_as_bytes%7#0
@@ -22210,105 +22089,90 @@ debug: Removing unused variable aggregate%bitlen%7#0
 debug: Removing unused variable aggregate%no_overflow%7#0
 debug: Removing unused variable aggregate%uint8%7#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%7#0
-debug: Removing unused variable tmp%32#0
 debug: Removing unused variable aggregate%bytes_offset%7#0
 debug: Removing unused variable aggregate%val_as_bytes%8#0
 debug: Removing unused variable aggregate%bitlen%8#0
 debug: Removing unused variable aggregate%no_overflow%8#0
 debug: Removing unused variable aggregate%uint8%8#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%8#0
-debug: Removing unused variable tmp%34#0
 debug: Removing unused variable aggregate%bytes_offset%8#0
 debug: Removing unused variable aggregate%val_as_bytes%9#0
 debug: Removing unused variable aggregate%bitlen%9#0
 debug: Removing unused variable aggregate%no_overflow%9#0
 debug: Removing unused variable aggregate%uint8%9#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%9#0
-debug: Removing unused variable tmp%36#0
 debug: Removing unused variable aggregate%bytes_offset%9#0
 debug: Removing unused variable aggregate%val_as_bytes%10#0
 debug: Removing unused variable aggregate%bitlen%10#0
 debug: Removing unused variable aggregate%no_overflow%10#0
 debug: Removing unused variable aggregate%uint8%10#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%10#0
-debug: Removing unused variable tmp%38#0
 debug: Removing unused variable aggregate%bytes_offset%10#0
 debug: Removing unused variable aggregate%val_as_bytes%11#0
 debug: Removing unused variable aggregate%bitlen%11#0
 debug: Removing unused variable aggregate%no_overflow%11#0
 debug: Removing unused variable aggregate%uint8%11#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%11#0
-debug: Removing unused variable tmp%40#0
 debug: Removing unused variable aggregate%bytes_offset%11#0
 debug: Removing unused variable aggregate%val_as_bytes%12#0
 debug: Removing unused variable aggregate%bitlen%12#0
 debug: Removing unused variable aggregate%no_overflow%12#0
 debug: Removing unused variable aggregate%uint8%12#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%12#0
-debug: Removing unused variable tmp%42#0
 debug: Removing unused variable aggregate%bytes_offset%12#0
 debug: Removing unused variable aggregate%val_as_bytes%13#0
 debug: Removing unused variable aggregate%bitlen%13#0
 debug: Removing unused variable aggregate%no_overflow%13#0
 debug: Removing unused variable aggregate%uint8%13#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%13#0
-debug: Removing unused variable tmp%44#0
 debug: Removing unused variable aggregate%bytes_offset%13#0
 debug: Removing unused variable aggregate%val_as_bytes%14#0
 debug: Removing unused variable aggregate%bitlen%14#0
 debug: Removing unused variable aggregate%no_overflow%14#0
 debug: Removing unused variable aggregate%uint8%14#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%14#0
-debug: Removing unused variable tmp%46#0
 debug: Removing unused variable aggregate%bytes_offset%14#0
 debug: Removing unused variable aggregate%val_as_bytes%15#0
 debug: Removing unused variable aggregate%bitlen%15#0
 debug: Removing unused variable aggregate%no_overflow%15#0
 debug: Removing unused variable aggregate%uint8%15#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%15#0
-debug: Removing unused variable tmp%48#0
 debug: Removing unused variable aggregate%bytes_offset%15#0
 debug: Removing unused variable aggregate%val_as_bytes%16#0
 debug: Removing unused variable aggregate%bitlen%16#0
 debug: Removing unused variable aggregate%no_overflow%16#0
 debug: Removing unused variable aggregate%uint8%16#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%16#0
-debug: Removing unused variable tmp%50#0
 debug: Removing unused variable aggregate%bytes_offset%16#0
 debug: Removing unused variable aggregate%val_as_bytes%17#0
 debug: Removing unused variable aggregate%bitlen%17#0
 debug: Removing unused variable aggregate%no_overflow%17#0
 debug: Removing unused variable aggregate%uint8%17#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%17#0
-debug: Removing unused variable tmp%52#0
 debug: Removing unused variable aggregate%bytes_offset%17#0
 debug: Removing unused variable aggregate%val_as_bytes%18#0
 debug: Removing unused variable aggregate%bitlen%18#0
 debug: Removing unused variable aggregate%no_overflow%18#0
 debug: Removing unused variable aggregate%uint8%18#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%18#0
-debug: Removing unused variable tmp%54#0
 debug: Removing unused variable aggregate%bytes_offset%18#0
 debug: Removing unused variable aggregate%val_as_bytes%19#0
 debug: Removing unused variable aggregate%bitlen%19#0
 debug: Removing unused variable aggregate%no_overflow%19#0
 debug: Removing unused variable aggregate%uint8%19#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%19#0
-debug: Removing unused variable tmp%56#0
 debug: Removing unused variable aggregate%bytes_offset%19#0
 debug: Removing unused variable aggregate%val_as_bytes%20#0
 debug: Removing unused variable aggregate%bitlen%20#0
 debug: Removing unused variable aggregate%no_overflow%20#0
 debug: Removing unused variable aggregate%uint8%20#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%20#0
-debug: Removing unused variable tmp%58#0
 debug: Removing unused variable aggregate%bytes_offset%20#0
 debug: Removing unused variable aggregate%val_as_bytes%21#0
 debug: Removing unused variable aggregate%bitlen%21#0
 debug: Removing unused variable aggregate%no_overflow%21#0
 debug: Removing unused variable aggregate%uint8%21#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%21#0
-debug: Removing unused variable tmp%60#0
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine_2%4#0: Encoded(uint8[4]), other_routine_2%5#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(aggregate%extract%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#0, my_struct#0)
 debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, my_array_copy_2#3, my_array#0, 0u, 1u)
@@ -22364,7 +22228,6 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
@@ -22400,7 +22263,6 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (replace3 array#0 0u 0x0a) // on error: index access is out of bounds to ((replace2 0) array#0 0x0a) // on error: index access is out of bounds
@@ -22515,7 +22377,6 @@ debug: Not removing unused assignment since source is not marked as pure: let (o
 debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, my_array_copy_2#3, 0x01020304, 0u, 1u)
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 0 1) 0x01020304) // on error: index access is out of bounds to 0x01
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -23619,9 +23480,6 @@ debug: Removing unused variable aggregate%current_tail_offset%2#0
 debug: Removing unused variable aggregate%data_length%2#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0006
-debug: Simplified (concat 0x0003 0x0006) to 0x00030006
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -23655,15 +23513,6 @@ debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%1#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x58
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x59
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x5a
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0001
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0006
-debug: Simplified (concat 0x0003 0x0006) to 0x00030006
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -23674,12 +23523,15 @@ debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing] converged after 2 iteration(s)
 debug: removing redundant assert of aggregate%no_overflow%1#0
 debug: removing redundant assert of aggregate%no_overflow%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#1), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%as_bytes%1#0, aggregate%as_bytes%2#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, encoded_array%0#0), selected replacement: aggregate%as_Encoded(len+uint8[])%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%1#1), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%1#0, encoded_array%1#0), selected replacement: aggregate%as_Encoded(len+uint8[])%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%2#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%2#0, encoded_array%2#0), selected replacement: aggregate%as_Encoded(len+uint8[])%2#0
 debug: GVN found equivalence set: (aggregate%concat%2#0, aggregate%as_Encoded(len+(len+uint8[])[])%0#0, raw#0), selected replacement: raw#0
-debug: GVN: 7 replacement(s) in test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]
+debug: GVN: 10 replacement(s) in test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -23775,7 +23627,6 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#1
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%0#0
@@ -23785,7 +23636,6 @@ debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%1#1
 debug: Removing unused variable aggregate%len_u16%1#0
 debug: Removing unused variable aggregate%head%1#0
 debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%1#0
@@ -23794,7 +23644,6 @@ debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%2#0
 debug: Removing unused variable aggregate%len_u16%2#0
 debug: Removing unused variable aggregate%head%2#0
 debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%2#0
@@ -25562,26 +25411,13 @@ debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) 
 debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%1#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x02
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x03
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x01
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0003
 debug: Simplified (substring3 dynamic_bytes#0 2u aggregate%total_length%0#0) to ((extract 2 0) dynamic_bytes#0)
 debug: Simplified (len 0x0304) to 2u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0002
-debug: Simplified (concat 0x0002 0x0304) to 0x00020304
 debug: Simplified (substring3 dynamic_bytes2#0 2u aggregate%total_length%1#0) to ((extract 2 0) dynamic_bytes2#0)
 debug: Simplified (substring3 dynamic_bytes2#0 2u aggregate%total_length%2#0) to ((extract 2 0) dynamic_bytes2#0)
 debug: Simplified (len 0x616263) to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0003
-debug: Simplified (concat 0x0003 0x616263) to 0x0003616263
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
 debug: Simplified (len 0x32) to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0001
-debug: Simplified (concat 0x0001 0x32) to 0x000132
 debug: Simplified (len 0x33) to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0001
-debug: Simplified (concat 0x0001 0x33) to 0x000133
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -25603,22 +25439,28 @@ debug: removing redundant assert of tmp%12#0
 debug: removing redundant assert of tmp%26#0
 debug: removing redundant assert of tmp%28#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, aggregate%as_bytes%1#0), selected replacement: aggregate%val_as_bytes%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%as_bytes%0#0, aggregate%as_bytes%2#0, aggregate%as_bytes%3#0), selected replacement: aggregate%val_as_bytes%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%1#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%2#0, aggregate%as_bytes%4#0, aggregate%as_bytes%5#0), selected replacement: aggregate%val_as_bytes%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%2#0), selected replacement: aggregate%as_Encoded(uint8)%2#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, dynamic_bytes#0), selected replacement: dynamic_bytes#0
 debug: GVN found equivalence set: (tmp%3#0, aggregate%array_trimmed%0#0), selected replacement: tmp%3#0
 debug: GVN found equivalence set: (array_length%0#0, tmp%24#0, new_items_count#0), selected replacement: new_items_count#0
 debug: GVN found equivalence set: (item_index_internal%0#1, aggregate%bytes_offset%0#0), selected replacement: item_index_internal%0#1
 debug: GVN found equivalence set: (aggregate%encoded_element%0#0, uint8_item#0), selected replacement: uint8_item#0
-debug: GVN found equivalence set: (dynamic_bytes2#0, array#0), selected replacement: dynamic_bytes2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%1#0, dynamic_bytes2#0, array#0), selected replacement: dynamic_bytes2#0
 debug: GVN found equivalence set: (item_index_internal%1#1, aggregate%bytes_offset%1#0), selected replacement: item_index_internal%1#1
 debug: GVN found equivalence set: (aggregate%encoded_element%1#0, uint8_item#1), selected replacement: uint8_item#1
 debug: GVN found equivalence set: (item_index_internal%2#1, aggregate%bytes_offset%2#0), selected replacement: item_index_internal%2#1
 debug: GVN found equivalence set: (aggregate%encoded_element%2#0, uint8_item#2), selected replacement: uint8_item#2
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%2#0, tmp%23#0), selected replacement: aggregate%as_Encoded(len+uint8[])%2#0
 debug: GVN found equivalence set: (extract_to_end%0#0, new_items_bytes#0), selected replacement: new_items_bytes#0
 debug: GVN found equivalence set: (tmp%4#1, dynamic_bytes3#2), selected replacement: dynamic_bytes3#2
 debug: GVN found equivalence set: (aggregate%head%5#0, aggregate%as_Encoded(len+uint8[])%3#0, dynamic_bytes#1), selected replacement: dynamic_bytes#1
-debug: GVN: 21 replacement(s) in test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%4#0, ternary_result%0#0), selected replacement: aggregate%as_Encoded(len+uint8[])%4#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%5#0, ternary_result%0#1), selected replacement: aggregate%as_Encoded(len+uint8[])%5#0
+debug: GVN: 28 replacement(s) in test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -25892,19 +25734,16 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%1#0
 debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint8%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
-debug: Removing unused variable tmp%2#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%0#0
 debug: Removing unused variable aggregate%head%1#0
@@ -25918,7 +25757,6 @@ debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
 debug: Removing unused variable aggregate%encoded_value%0#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%1#0
 debug: Removing unused variable dynamic_bytes2#0
 debug: Removing unused variable tmp%12#0
 debug: Removing unused variable aggregate%array_length%1#0
@@ -25931,7 +25769,6 @@ debug: Removing unused variable aggregate%length%1#0
 debug: Removing unused variable aggregate%length_uint16%1#0
 debug: Removing unused variable aggregate%encoded_value%1#0
 debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%2#0
-debug: Removing unused variable tmp%23#0
 debug: Removing unused variable aggregate%array_length%2#0
 debug: Removing unused variable array_length#0
 debug: Removing unused variable new_array_length#0
@@ -25945,17 +25782,14 @@ debug: Removing unused variable aggregate%len_u16%1#0
 debug: Removing unused variable aggregate%length%2#0
 debug: Removing unused variable aggregate%length_uint16%2#0
 debug: Removing unused variable aggregate%encoded_value%2#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%4#0
 debug: Removing unused variable aggregate%length%3#0
 debug: Removing unused variable aggregate%length_uint16%3#0
 debug: Removing unused variable aggregate%encoded_value%3#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint8[])%5#0
 debug: Removing unused variable dynamic_bytes3#2
 debug: Removing unused variable new_items_bytes#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 2 0) 0x0003020301) to 0x020301
-debug: Simplified (btoi uint8_item#0) to (getbyte 0x020301 item_index_internal%0#1)
+debug: Simplified (btoi uint8_item#0) to (getbyte tmp%3#0 item_index_internal%0#1)
 debug: Simplified (btoi uint8_item#1) to (getbyte 0x0304 item_index_internal%1#1)
 debug: Simplified (btoi uint8_item#2) to (getbyte 0x0304 item_index_internal%2#1)
 debug: Simplified (concat aggregate%head%4#0 0x01) to (concat aggregate%head%3#0 0x0301)
@@ -26069,8 +25903,7 @@ debug: Coalescing item_index_internal%0#0 with [item_index_internal%0#1, item_in
 debug: Coalescing item_index_internal%1#0 with [item_index_internal%1#1, item_index_internal%1#2]
 debug: Coalescing item_index_internal%2#0 with [item_index_internal%2#1, item_index_internal%2#2]
 debug: Coalescing dynamic_bytes#1 with [dynamic_bytes#2]
-debug: Coalescing ternary_result%0#0 with [ternary_result%0#1]
-debug: Coalescing resulted in 45 replacement/s
+debug: Coalescing resulted in 43 replacement/s
 debug: Sequentializing parallel copies in test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
 debug: Performing post-SSA optimizations at level 1
 debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ir/Arc4DynamicBytesContract.approval.400.destructured.ir
@@ -26118,10 +25951,10 @@ debug: Inserted main_after_for@12.ops[13]: 'l-store-copy select%0#0 0'
 debug: Replaced main_after_for@12.ops[16]: 'v-load select%0#0' with 'l-load select%0#0'
 debug: Inserted main_after_for@12.ops[8]: 'l-store-copy tmp%31#0 0'
 debug: Replaced main_after_for@12.ops[12]: 'v-load tmp%31#0' with 'l-load tmp%31#0'
-debug: Inserted main_ternary_true@13.ops[1]: 'l-store-copy ternary_result%0#0 0'
-debug: Replaced main_ternary_true@13.ops[3]: 'v-load ternary_result%0#0' with 'l-load ternary_result%0#0'
-debug: Inserted main_ternary_false@14.ops[1]: 'l-store-copy ternary_result%0#0 0'
-debug: Replaced main_ternary_false@14.ops[3]: 'v-load ternary_result%0#0' with 'l-load ternary_result%0#0'
+debug: Inserted main_ternary_true@13.ops[1]: 'l-store-copy aggregate%as_Encoded(len+uint8[])%4#0 0'
+debug: Replaced main_ternary_true@13.ops[3]: 'v-load aggregate%as_Encoded(len+uint8[])%4#0' with 'l-load aggregate%as_Encoded(len+uint8[])%4#0'
+debug: Inserted main_ternary_false@14.ops[1]: 'l-store-copy aggregate%as_Encoded(len+uint8[])%5#0 0'
+debug: Replaced main_ternary_false@14.ops[3]: 'v-load aggregate%as_Encoded(len+uint8[])%5#0' with 'l-load aggregate%as_Encoded(len+uint8[])%5#0'
 debug: Inserted main_ternary_merge@15.ops[2]: 'l-store-copy tmp%39#0 0'
 debug: Replaced main_ternary_merge@15.ops[4]: 'v-load tmp%39#0' with 'l-load tmp%39#0'
 debug: Inserted main_ternary_merge@15.ops[7]: 'l-store-copy tmp%40#0 0'
@@ -26973,23 +26806,14 @@ debug: Simplified (extract3 aggregate%val_as_bytes%8#0 5u 3u) to ((extract 5 3) 
 debug: Simplified (extract3 aggregate%val_as_bytes%9#0 5u 3u) to ((extract 5 3) aggregate%val_as_bytes%9#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat aggregate%length_uint16%0#0 "") to aggregate%length_uint16%0#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x00
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
-debug: Simplified ((extract 6 2) aggregate%val_as_bytes%2#0) to 0x0000
-debug: Simplified ((extract 6 2) aggregate%val_as_bytes%3#0) to 0x0001
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%4#0) to 0x00000000
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x00000001
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
-debug: Simplified ((extract 5 3) aggregate%val_as_bytes%8#0) to 0x000000
-debug: Simplified ((extract 5 3) aggregate%val_as_bytes%9#0) to 0x000001
 debug: Simplified (len 0b) to 0u
 debug: Simplified (len 1b) to 1u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0000
 debug: Simplified (concat 0x tmp%30#0) to tmp%30#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -27030,22 +26854,28 @@ debug: removing redundant assert of tmp%49#0
 debug: removing redundant assert of tmp%51#0
 debug: removing redundant assert of tmp%53#0
 debug: removing redundant assert of tmp%62#0
-debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%0#0, tmp%18#0), selected replacement: aggregate%as_Encoded(bool8)%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%0#0, tmp%0#0, aggregate%as_Encoded(uint8)%0#0, tmp%18#0), selected replacement: aggregate%as_Encoded(bool8)%0#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(bool8)%1#0, tmp%3#0), selected replacement: aggregate%as_Encoded(bool8)%1#0
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%val_as_bytes%0#0, aggregate%val_as_bytes%2#0, aggregate%val_as_bytes%4#0, aggregate%val_as_bytes%6#0, aggregate%as_Encoded(uint64)%0#0, tmp%30#0, aggregate%val_as_bytes%8#0, aggregate%as_bytes%2#0, aggregate%head%0#0, aggregate%as_Encoded(uint64[])%0#0, tmp%60#0, new_items_bytes#0), selected replacement: new_items_bytes#0
-debug: GVN found equivalence set: (aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%6#0, tmp%22#0, dynamic_arr#0, array#0), selected replacement: dynamic_arr#0
+debug: GVN found equivalence set: (aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%6#0, aggregate%as_Encoded(uint16)%0#0, tmp%22#0, aggregate%as_Encoded(len+uint64[])%0#0, dynamic_arr#0, array#0), selected replacement: dynamic_arr#0
 debug: GVN found equivalence set: (aggregate%as_bytes%1#0, aggregate%val_as_bytes%1#0, aggregate%val_as_bytes%3#0, aggregate%val_as_bytes%5#0, aggregate%val_as_bytes%7#0, aggregate%as_Encoded(uint64)%1#0, tmp%32#0, aggregate%val_as_bytes%9#0, tmp%0#2), selected replacement: aggregate%as_bytes%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%1#0, tmp%9#0), selected replacement: aggregate%as_Encoded(len+utf8[])%1#0
 debug: GVN found equivalence set: (tmp%16#0, aggregate%bzero%2#0, aggregate%arc4_encoded%2#0, aggregate%as_Encoded(uint256)%0#0, tmp%38#0, aggregate%bzero%3#0), selected replacement: tmp%16#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%20#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint16)%1#0, tmp%24#0), selected replacement: aggregate%as_Encoded(uint16)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%0#0, tmp%26#0), selected replacement: aggregate%as_Encoded(uint32)%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%1#0, tmp%28#0), selected replacement: aggregate%as_Encoded(uint32)%1#0
 debug: GVN found equivalence set: (aggregate%bzero%0#0, aggregate%arc4_encoded%0#0, aggregate%as_Encoded(uint128)%0#0, tmp%34#0, aggregate%bzero%1#0), selected replacement: aggregate%bzero%0#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%1#0, aggregate%as_Encoded(uint128)%1#0, tmp%36#0), selected replacement: aggregate%arc4_encoded%1#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%3#0, aggregate%as_Encoded(uint256)%1#0, tmp%40#0), selected replacement: aggregate%arc4_encoded%3#0
 debug: GVN found equivalence set: (aggregate%bzero%4#0, aggregate%arc4_encoded%4#0, aggregate%as_Encoded(uint512)%0#0, tmp%42#0, aggregate%bzero%5#0), selected replacement: aggregate%bzero%4#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%5#0, aggregate%as_Encoded(uint512)%1#0, tmp%44#0), selected replacement: aggregate%arc4_encoded%5#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint24)%0#0, tmp%46#0), selected replacement: aggregate%as_Encoded(uint24)%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint24)%1#0, tmp%48#0), selected replacement: aggregate%as_Encoded(uint24)%1#0
 debug: GVN found equivalence set: (aggregate%bzero%6#0, aggregate%arc4_encoded%6#0, aggregate%as_Encoded(uint504)%0#0, tmp%50#0, aggregate%bzero%7#0), selected replacement: aggregate%bzero%6#0
 debug: GVN found equivalence set: (aggregate%arc4_encoded%7#0, aggregate%as_Encoded(uint504)%1#0, tmp%52#0), selected replacement: aggregate%arc4_encoded%7#0
 debug: GVN found equivalence set: (tmp%4#0, dynamic_arr#1), selected replacement: dynamic_arr#1
-debug: GVN: 55 replacement(s) in test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
+debug: GVN: 64 replacement(s) in test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -27216,36 +27046,30 @@ debug: Removing unused variable tmp%11#0
 debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
 debug: Removing unused variable tmp%19#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%20#0
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint16%0#0
-debug: Removing unused variable aggregate%as_Encoded(uint16)%0#0
 debug: Removing unused variable tmp%23#0
 debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint16%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint16)%1#0
-debug: Removing unused variable tmp%24#0
 debug: Removing unused variable tmp%25#0
 debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint32%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%0#0
-debug: Removing unused variable tmp%26#0
 debug: Removing unused variable tmp%27#0
 debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint32%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%1#0
-debug: Removing unused variable tmp%28#0
 debug: Removing unused variable tmp%29#0
 debug: Removing unused variable tmp%31#0
 debug: Removing unused variable tmp%33#0
@@ -27274,13 +27098,11 @@ debug: Removing unused variable aggregate%bitlen%6#0
 debug: Removing unused variable aggregate%no_overflow%6#0
 debug: Removing unused variable aggregate%uint24%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint24)%0#0
-debug: Removing unused variable tmp%46#0
 debug: Removing unused variable tmp%47#0
 debug: Removing unused variable aggregate%bitlen%7#0
 debug: Removing unused variable aggregate%no_overflow%7#0
 debug: Removing unused variable aggregate%uint24%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint24)%1#0
-debug: Removing unused variable tmp%48#0
 debug: Removing unused variable tmp%49#0
 debug: Removing unused variable aggregate%value_len%6#0
 debug: Removing unused variable aggregate%len_ok%6#0
@@ -27290,7 +27112,6 @@ debug: Removing unused variable aggregate%len_ok%7#0
 debug: Removing unused variable aggregate%arc4_encoded%7#0
 debug: Removing unused variable tmp%53#0
 debug: Removing unused variable aggregate%len_u16%0#0
-debug: Removing unused variable aggregate%as_Encoded(len+uint64[])%0#0
 debug: Removing unused variable array_length#0
 debug: Removing unused variable new_array_length#0
 debug: Removing unused variable new_len_u16#0
@@ -28988,7 +28809,6 @@ debug: Removing unused variable read_step#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x aggregate%set_bit%6#0) to aggregate%set_bit%6#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0003
 debug: Simplified (concat 0x aggregate%set_bit%15#0) to aggregate%set_bit%15#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -29271,7 +29091,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0000
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -29280,6 +29099,8 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.arc4_types.bool.get_arr converged after 2 iteration(s)
+debug: GVN found equivalence set: (aggregate%as_Encoded(len+bool1[])%0#0, encoded_array%0#0), selected replacement: aggregate%as_Encoded(len+bool1[])%0#0
+debug: GVN: 1 replacement(s) in test_cases.arc4_types.bool.get_arr
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -29386,7 +29207,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%as_Encoded(len+bool1[])%0#0
-debug: Removing unused variable encoded_array%0#0
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -30664,25 +30484,11 @@ debug: Simplified (extract3 aggregate%val_as_bytes%5#0 4u 4u) to ((extract 4 4) 
 debug: Simplified (extract3 aggregate%val_as_bytes%6#0 4u 4u) to ((extract 4 4) aggregate%val_as_bytes%6#0)
 debug: Simplified (extract3 aggregate%val_as_bytes%7#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%7#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x01
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x02
-debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0002
 debug: Simplified (substring3 dynamic_uint8_array#0 2u aggregate%total_length%0#0) to ((extract 2 0) dynamic_uint8_array#0)
-debug: Simplified ((extract 6 2) aggregate%val_as_bytes%2#0) to 0x0001
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
 debug: Simplified (substring3 aliased_dynamic#0 2u aggregate%total_length%1#0) to ((extract 2 0) aliased_dynamic#0)
-debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0002
-debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0004
-debug: Simplified (concat 0x0002 0x0004) to 0x00020004
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%3#0) to 0x00000001
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%4#0) to 0x0000000a
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%5#0) to 0x000000ff
-debug: Simplified ((extract 4 4) aggregate%val_as_bytes%6#0) to 0x00000080
 debug: Simplified (concat 0x tmp%21#0) to tmp%21#0
-debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0x65
 debug: Simplified (concat 0x tmp%33#0) to tmp%33#0
-debug: Simplified ((extract 6 2) aggregate%as_bytes%9#0) to 0x0004
-debug: Simplified (concat 0x 0x0004) to 0x0004
+debug: Simplified (concat 0x aggregate%offset_as_uint16%2#0) to aggregate%offset_as_uint16%2#0
 debug: Simplified (select tmp%0#2 tmp%2#2 1u) to tmp%2#2
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -30711,11 +30517,14 @@ debug: removing redundant assert of aggregate%no_overflow%7#0
 debug: removing redundant assert of tmp%37#0
 debug: removing redundant assert of aggregate%lt%0#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, aggregate%val_as_bytes%2#0, aggregate%as_bytes%1#0, aggregate%val_as_bytes%3#0), selected replacement: aggregate%val_as_bytes%0#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%0#0, tmp%0#0), selected replacement: aggregate%as_Encoded(uint8)%0#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%1#0, aggregate%as_bytes%0#0, aggregate%as_bytes%4#0), selected replacement: aggregate%val_as_bytes%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%1#0, tmp%1#0), selected replacement: aggregate%as_Encoded(uint8)%1#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+uint8[])%0#0, dynamic_uint8_array#0), selected replacement: dynamic_uint8_array#0
 debug: GVN found equivalence set: (array_length%0#0, tmp%11#0), selected replacement: array_length%0#0
 debug: GVN found equivalence set: (item_index_internal%0#1, aggregate%bytes_offset%0#0), selected replacement: item_index_internal%0#1
 debug: GVN found equivalence set: (aggregate%encoded_element%0#0, uint8_item#0), selected replacement: uint8_item#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint16)%0#0, tmp%5#0), selected replacement: aggregate%as_Encoded(uint16)%0#0
 debug: GVN found equivalence set: (aggregate%head%2#0, aggregate%as_Encoded(len+uint16[])%0#0, aliased_dynamic#0), selected replacement: aliased_dynamic#0
 debug: GVN found equivalence set: (aggregate%encoded_element%1#0, uint16_item#0), selected replacement: uint16_item#0
 debug: GVN found equivalence set: (aggregate%as_bytes%2#0, aggregate%as_bytes%3#0), selected replacement: aggregate%as_bytes%2#0
@@ -30725,13 +30534,16 @@ debug: GVN found equivalence set: (aggregate%as_bytes%5#0, aggregate%as_bytes%7#
 debug: GVN found equivalence set: (aggregate%concat%1#0, aggregate%as_Encoded(len+(len+utf8[])[])%0#0, dynamic_string_array#0, array#0), selected replacement: dynamic_string_array#0
 debug: GVN found equivalence set: (aggregate%item%0#0, array_item%2#0), selected replacement: aggregate%item%0#0
 debug: GVN found equivalence set: (aggregate%item%1#0, string_item#0), selected replacement: string_item#0
-debug: GVN found equivalence set: (tmp%21#0, aggregate%head%5#0), selected replacement: tmp%21#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%0#0, tmp%21#0, aggregate%head%5#0), selected replacement: aggregate%as_Encoded(uint32)%0#0
 debug: GVN found equivalence set: (aggregate%val_as_bytes%4#0, aggregate%as_bytes%10#0), selected replacement: aggregate%val_as_bytes%4#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%1#0, tmp%22#0), selected replacement: aggregate%as_Encoded(uint32)%1#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%2#0, tmp%23#0), selected replacement: aggregate%as_Encoded(uint32)%2#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint32)%3#0, tmp%24#0), selected replacement: aggregate%as_Encoded(uint32)%3#0
 debug: GVN found equivalence set: (aggregate%head%8#0, aggregate%as_Encoded(uint32[4])%0#0, static_uint32_array#0), selected replacement: static_uint32_array#0
 debug: GVN found equivalence set: (aggregate%encoded_element%2#0, uint32_item#0), selected replacement: uint32_item#0
 debug: GVN found equivalence set: (count#1, aggregate%bytes_offset%3#0), selected replacement: count#1
 debug: GVN found equivalence set: (aggregate%encoded_element%3#0, uint8_item#1), selected replacement: uint8_item#1
-debug: GVN found equivalence set: (tmp%33#0, aggregate%head%9#0, aggregate%as_Encoded(uint8[1])%0#0, aliased_static#0, array_item%6#0), selected replacement: aliased_static#0
+debug: GVN found equivalence set: (aggregate%as_Encoded(uint8)%2#0, tmp%33#0, aggregate%head%9#0, aggregate%as_Encoded(uint8[1])%0#0, aliased_static#0, array_item%6#0), selected replacement: aliased_static#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%2#0, tmp%38#0, new_item#0), selected replacement: new_item#0
 debug: GVN found equivalence set: (aggregate%as_Encoded(len+utf8[])%3#0, tmp%39#0), selected replacement: aggregate%as_Encoded(len+utf8[])%3#0
 debug: GVN found equivalence set: (aggregate%concat%2#0, tmp%5#1), selected replacement: aggregate%concat%2#0
@@ -30740,7 +30552,7 @@ debug: GVN found equivalence set: (aggregate%item%2#0, string_item#1), selected 
 debug: GVN found equivalence set: (tmp%6#1, new_head_and_tail#0), selected replacement: new_head_and_tail#0
 debug: GVN found equivalence set: (array_head_and_tail#2, aggregate%updated_array%0#0, static_string_array#3), selected replacement: array_head_and_tail#2
 debug: GVN found equivalence set: (aggregate%item%3#0, string_item#2), selected replacement: string_item#2
-debug: GVN: 46 replacement(s) in test_cases.arc4_types.array.Arc4ArraysContract.approval_program
+debug: GVN: 54 replacement(s) in test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -30966,13 +30778,11 @@ debug: Removing unused variable aggregate%bitlen%0#0
 debug: Removing unused variable aggregate%no_overflow%0#0
 debug: Removing unused variable aggregate%uint8%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%0#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%bitlen%1#0
 debug: Removing unused variable aggregate%no_overflow%1#0
 debug: Removing unused variable aggregate%uint8%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint8)%1#0
-debug: Removing unused variable tmp%1#0
 debug: Removing unused variable aggregate%len_u16%0#0
 debug: Removing unused variable aggregate%head%0#0
 debug: Removing unused variable aggregate%head%1#0
@@ -30985,7 +30795,6 @@ debug: Removing unused variable aggregate%bitlen%2#0
 debug: Removing unused variable aggregate%no_overflow%2#0
 debug: Removing unused variable aggregate%uint16%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint16)%0#0
-debug: Removing unused variable tmp%5#0
 debug: Removing unused variable aggregate%len_u16%1#0
 debug: Removing unused variable aliased_dynamic#0
 debug: Removing unused variable aggregate%array_length%1#0
@@ -31018,30 +30827,25 @@ debug: Removing unused variable aggregate%bitlen%3#0
 debug: Removing unused variable aggregate%no_overflow%3#0
 debug: Removing unused variable aggregate%uint32%0#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%0#0
-debug: Removing unused variable tmp%21#0
 debug: Removing unused variable aggregate%val_as_bytes%4#0
 debug: Removing unused variable aggregate%bitlen%4#0
 debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint32%1#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%1#0
-debug: Removing unused variable tmp%22#0
 debug: Removing unused variable aggregate%val_as_bytes%5#0
 debug: Removing unused variable aggregate%bitlen%5#0
 debug: Removing unused variable aggregate%no_overflow%5#0
 debug: Removing unused variable aggregate%uint32%2#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%2#0
-debug: Removing unused variable tmp%23#0
 debug: Removing unused variable aggregate%val_as_bytes%6#0
 debug: Removing unused variable aggregate%bitlen%6#0
 debug: Removing unused variable aggregate%no_overflow%6#0
 debug: Removing unused variable aggregate%uint32%3#0
 debug: Removing unused variable aggregate%as_Encoded(uint32)%3#0
-debug: Removing unused variable tmp%24#0
 debug: Removing unused variable aggregate%val_as_bytes%7#0
 debug: Removing unused variable aggregate%bitlen%7#0
 debug: Removing unused variable aggregate%no_overflow%7#0
 debug: Removing unused variable aggregate%uint8%2#0
-debug: Removing unused variable aggregate%as_Encoded(uint8)%2#0
 debug: Removing unused variable aliased_static#0
 debug: Removing unused variable aggregate%bytes_offset%4#0
 debug: Removing unused variable aggregate%encoded_element%4#0
@@ -31061,7 +30865,6 @@ debug: Removing unused variable aggregate%head%10#0
 debug: Removing unused variable aggregate%data_length%2#0
 debug: Removing unused variable aggregate%current_tail_offset%2#0
 debug: Removing unused variable aggregate%offset_as_uint16%3#0
-debug: Removing unused variable aggregate%head%11#0
 debug: Removing unused variable aggregate%lt%0#0
 debug: Removing unused variable offset_for_index#0
 debug: Removing unused variable old_item_length#0
@@ -31082,6 +30885,7 @@ debug: Simplified (concat 0x000000010000000a 0x000000ff) to 0x000000010000000a00
 debug: Simplified (concat 0x000000010000000a000000ff 0x00000080) to 0x000000010000000a000000ff00000080
 debug: Simplified (btoi uint32_item#0) to (extract_uint32 0x000000010000000a000000ff00000080 aggregate%bytes_offset%2#0)
 debug: Simplified (btoi uint8_item#1) to (getbyte 0x010203040506 count#1)
+debug: Simplified (concat 0x0004 0x000a) to 0x0004000a
 debug: Simplified (concat 0x0004000a 0x000450696e67) to 0x0004000a000450696e67
 debug: Simplified (concat 0x0004000a000450696e67 0x0004506f6e67) to 0x0004000a000450696e670004506f6e67
 debug: Simplified (concat 0x0004000a000450696e67 0x000450696e67) to 0x0004000a000450696e67000450696e67
@@ -31160,6 +30964,7 @@ debug: Removing unused variable aggregate%head%7#0
 debug: Removing unused variable static_uint32_array#0
 debug: Removing unused variable uint32_item#0
 debug: Removing unused variable uint8_item#1
+debug: Removing unused variable aggregate%head%11#0
 debug: Removing unused variable aggregate%concat%2#0
 debug: Removing unused variable static_string_array#0
 debug: Optimizer: Convert Stack Args To Immediates

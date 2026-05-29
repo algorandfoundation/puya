@@ -220,7 +220,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let tmp%55#0: uint64 = 13u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 2u)
         let aggregate%len_u16%0#0: bytes = 0x0002
-        let aggregate%head%4#0: bytes = (concat 0x0002 aggregate%val_as_bytes%2#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%len_u16%0#0 aggregate%val_as_bytes%2#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%val_as_bytes%3#0)
         let aggregate%array_length%5#0: uint64 = 2u
         let new_items_count#9: uint64 = aggregate%array_length%5#0
@@ -313,7 +313,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let aggregate%as_bytes%1#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%1#0: bytes = 0x0003
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob 1u)
-        let aggregate%head%6#0: bytes = (concat 0x0003 aggregate%val_as_bytes%7#0)
+        let aggregate%head%6#0: bytes = (concat aggregate%len_u16%1#0 aggregate%val_as_bytes%7#0)
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%as_bytes%0#0)
         let rArr1#0: Encoded(len+uint64[]) = (concat aggregate%head%7#0 aggregate%as_bytes%1#0)
         let new_items_bytes#5: bytes = (itob 4u)
@@ -323,7 +323,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let result#5: bytes = ((replace2 0) rArr1#0 new_len_u16#5)
         let rArr1#1: Encoded(len+uint64[]) = (concat result#5 new_items_bytes#5)
         let aggregate%len_u16%2#0: bytes = 0x0001
-        let aggregate%head%10#0: bytes = (concat 0x0001 new_items_bytes#11)
+        let aggregate%head%10#0: bytes = (concat aggregate%len_u16%2#0 new_items_bytes#11)
         let aggregate%array_length%7#0: uint64 = 1u
         let new_items_count#6: uint64 = aggregate%array_length%7#0
         let array_length#6: uint64 = 4u
@@ -377,13 +377,12 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         (assert and_result%4#2) // assert target is match for conditions
         let fArr1#0: Encoded(uint64[4]) = (bzero 32u)
         let as_u16_bytes%0#0: bytes = 0x0004
-        let converted_array%0#0: Encoded(len+uint64[]) = 0x00040000000000000000000000000000000000000000000000000000000000000000
-        let array#4: bytes = 0x00040000000000000000000000000000000000000000000000000000000000000000
+        let array#4: bytes = (concat as_u16_bytes%0#0 fArr1#0)
         let array_length#4: uint64 = 4u
         let new_array_length#4: uint64 = 8u
         let tmp%0#9: bytes = (itob new_array_length#4)
         let new_len_u16#4: bytes = 0x0008
-        let result#4: bytes = 0x00080000000000000000000000000000000000000000000000000000000000000000
+        let result#4: bytes = ((replace2 0) array#4 new_len_u16#4)
         let fArr2#0: Encoded(len+uint64[]) = (concat result#4 fArr1#0)
         let tmp%107#0: bool = 1u
         goto tmp%107#0 ? block@43 : block@48
@@ -560,12 +559,11 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let and_result%7#2: bool = φ(and_result%7#0 <- block@74, and_result%7#1 <- block@75)
         (assert and_result%7#2) // assert target is match for conditions
         let new_items_bytes#2: bytes = ((extract 2 0) rArr1#2)
-        let array#2: bytes = 0x00040000000000000000000000000000000000000000000000000000000000000000
         let array_length#2: uint64 = 4u
         let new_array_length#2: uint64 = 9u
         let tmp%0#5: bytes = (itob new_array_length#2)
         let new_len_u16#2: bytes = 0x0009
-        let result#2: bytes = 0x00090000000000000000000000000000000000000000000000000000000000000000
+        let result#2: bytes = ((replace2 0) array#4 new_len_u16#2)
         let arr4#0: Encoded(len+uint64[]) = (concat result#2 new_items_bytes#2)
         let aggregate%array_length%11#0: uint64 = 9u
         let tmp%170#0: uint64 = aggregate%array_length%11#0
@@ -633,12 +631,11 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let and_result%8#2: bool = φ(and_result%8#0 <- block@86, and_result%8#1 <- block@87)
         (assert and_result%8#2) // assert target is match for conditions
         let new_items_bytes#1: bytes = ((extract 2 0) arr#12)
-        let array#1: bytes = 0x00040000000000000000000000000000000000000000000000000000000000000000
         let array_length#1: uint64 = 4u
         let new_array_length#1: uint64 = (+ array_length#1 new_items_count#1)
         let tmp%0#3: bytes = (itob new_array_length#1)
         let new_len_u16#1: bytes = ((extract 6 0) tmp%0#3)
-        let result#1: bytes = ((replace2 0) array#1 new_len_u16#1)
+        let result#1: bytes = ((replace2 0) array#4 new_len_u16#1)
         let arr8#0: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#1)
         let aggregate%array_length%12#0: uint64 = (extract_uint16 arr8#0 0u) // on error: invalid array length header
         let tmp%194#0: bool = (== aggregate%array_length%12#0 15u)
@@ -863,7 +860,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.buildArray() 
         let aggregate%as_bytes%0#0: bytes[8] = (itob 4u)
         let aggregate%len_u16%0#0: bytes = 0x0004
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
-        let aggregate%head%0#0: bytes = (concat 0x0004 aggregate%val_as_bytes%0#0)
+        let aggregate%head%0#0: bytes = (concat aggregate%len_u16%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%val_as_bytes%1#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 3u)
