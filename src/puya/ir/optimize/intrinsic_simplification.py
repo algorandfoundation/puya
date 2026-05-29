@@ -295,25 +295,9 @@ def _try_fold_intrinsic(
     op_loc = intrinsic.source_location
     if intrinsic.op is AVMOp.select:
         false, true, selector = intrinsic.args
-        selector_const = _get_int_constant(selector)
-        if selector_const is not None:
-            return true if selector_const else false
         maybe_simplified_select_cond = _try_simplify_bool_condition(register_assignments, selector)
         if maybe_simplified_select_cond is not None:
             return attrs.evolve(intrinsic, args=[false, true, maybe_simplified_select_cond])
-        if false == true:
-            return true
-        match (
-            _get_byte_constant(register_assignments, false),
-            _get_byte_constant(register_assignments, true),
-        ):
-            case (None, _) | (_, None):
-                pass
-            case (
-                models.BytesConstant(value=false_value),
-                models.BytesConstant(value=true_value) as true_bytes_const,
-            ) if false_value == true_value:
-                return true_bytes_const
         match _get_int_constant(false), _get_int_constant(true):
             case (None, _) | (_, None):
                 pass
