@@ -435,8 +435,10 @@ def _try_fold_constants(
                 value=bytes_const, encoding=bytes_encoding
             ) if expand_all_bytes or (
                 isinstance(op.source, models.Intrinsic)
-                and len(encode_bytes(bytes_const))
-                <= _intrinsic_dead_cost(op, op.source, ssa_reads, defining_op)
+                and (
+                    len(encode_bytes(bytes_const))
+                    <= _intrinsic_dead_cost(op, op.source, ssa_reads, defining_op)
+                )
             ):
                 return models.BytesConstant(
                     value=bytes_const,
