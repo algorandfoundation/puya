@@ -11,6 +11,14 @@ def test_btoi_itob_vn(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "btoi_itob_vn.py")
 
 
+def test_same_vn_binary_ops(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "same_vn_binary_ops.py")
+
+
+def test_biguint_one_const_vn(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "biguint_one_const_vn.py")
+
+
 def test_phi_congruence(deployer_o: Deployer) -> None:
     client = deployer_o.create(TEST_CASES_DIR / "gvn" / "phi_congruence.py").client
 
