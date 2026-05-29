@@ -532,11 +532,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]() -> void:
     block@0: // L95
-        let twm.arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
-        let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let twm.arr#1: Encoded(len+uint64[]) = array_concat(twm.arr#0, tmp%0#1, 1u)
-        let tmp%2#1: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000002)
-        let twm.arr#2: Encoded(len+uint64[]) = array_concat(twm.arr#1, tmp%2#1, 1u)
+        let tmp%0#1: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let twm.arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#1)
+        let tmp%1#1: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%2#1: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%1#1)
+        let twm.arr#1: Encoded(len+uint64[]) = array_concat(twm.arr#0, tmp%2#1, 1u)
+        let tmp%4#1: Encoded(uint64) = bytes_encode<uint64>(2u)
+        let tmp%5#1: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%4#1)
+        let twm.arr#2: Encoded(len+uint64[]) = array_concat(twm.arr#1, tmp%5#1, 1u)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L107
@@ -545,9 +548,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L108
         let array_item%0#0: Encoded(uint64) = extract_value(twm.arr#2, i#0)
-        let tmp%4#1: biguint = (itob i#0)
-        let tmp%5#1: bool = (b== array_item%0#0 tmp%4#1)
-        (assert tmp%5#1)
+        let tmp%7#0: biguint = (itob i#0)
+        let tmp%8#0: bool = (b== array_item%0#0 tmp%7#0)
+        (assert tmp%8#0)
         let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L107
@@ -561,8 +564,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "twm")
         (assert maybe_exists%0#0) // check self.twm exists
         let (arr2#0: Encoded(len+uint64[]), tmp%1#0: uint64, tmp%2#0: bytes, tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%0#0)
-        let tmp%4#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let arr2#1: Encoded(len+uint64[]) = array_concat(arr2#0, tmp%4#0, 1u)
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%5#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%4#0)
+        let arr2#1: Encoded(len+uint64[]) = array_concat(arr2#0, tmp%5#0, 1u)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "twm")
         (assert maybe_exists%1#0) // check self.twm exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64, awst_tmp%2#0: bytes, awst_tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%1#0)
@@ -581,12 +585,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         (assert tmp%6#0)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 1u)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 0u)
-        let x.0.0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
-        let tmp%0#2: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let x.0.0#1: Encoded(len+uint64[]) = array_concat(x.0.0#0, tmp%0#2, 1u)
-        let tmp%2#2: uint64 = array_len(x.0.0#1)
-        let tmp%3#1: bool = (== tmp%2#2 2u)
-        (assert tmp%3#1)
+        let tmp%0#2: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let x.0.0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#2)
+        let tmp%1#2: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%2#2: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%1#2)
+        let x.0.0#1: Encoded(len+uint64[]) = array_concat(x.0.0#0, tmp%2#2, 1u)
+        let tmp%4#1: uint64 = array_len(x.0.0#1)
+        let tmp%5#1: bool = (== tmp%4#1 2u)
+        (assert tmp%5#1)
         let total#0: uint64 = 0u
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u
@@ -644,9 +650,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         let b#6: uint64 = 2u
         goto block@17
     block@21: // after_for_L301
-        let tmp%4#1: uint64 = (/ total#4 8u)
-        let tmp%5#1: bool = (== tmp%4#1 3u)
-        (assert tmp%5#1)
+        let tmp%4#2: uint64 = (/ total#4 8u)
+        let tmp%5#2: bool = (== tmp%4#2 3u)
+        (assert tmp%5#2)
         (app_global_put "build_nested_call_count" 0u)
         let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "build_nested_call_count")
         (assert maybe_exists%0#1) // check self.build_nested_call_count exists

@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 0 2
-    bytecblock 0x151f7c75 "asa" 0x01040023 0x07 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
+    intcblock 1 8 0 2 456
+    bytecblock 0x151f7c75 "asa" 0x01040023 "local_uint" "local_bytes" "abc"
     b main_block@0
 
 main_block@0:
@@ -1502,12 +1502,42 @@ __init___block@0:
     app_global_put
     // abi_routing/contract.py:28
     // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
+    pushint 7
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
+    intc_1 // 8
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
+    pushint 9
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
     pushbytes 0x
-    bytec_3 // 0x07
+    uncover 3
     concat
-    pushbytes 0x08
+    uncover 2
     concat
-    pushbytes 0x09
+    uncover 1
     concat
     pushbytes "some_bytes"
     uncover 1
@@ -1584,13 +1614,13 @@ test_cases.abi_routing.contract.Reference.opt_in_block@0:
     // abi_routing/contract.py:47
     // self.local_uint[Txn.sender] = uint
     txn Sender
-    bytec 4 // "local_uint"
+    bytec_3 // "local_uint"
     frame_dig -2
     app_local_put
     // abi_routing/contract.py:48
     // self.local_bytes[Txn.sender] = bites
     txn Sender
-    bytec 5 // "local_bytes"
+    bytec 4 // "local_bytes"
     frame_dig -1
     app_local_put
     retsub
@@ -1827,7 +1857,8 @@ test_cases.abi_routing.contract.Reference.get_asset:
 test_cases.abi_routing.contract.Reference.get_asset_block@0:
     // abi_routing/contract.py:132
     // return arc4.UInt64(456)
-    bytec 6 // 0x00000000000001c8
+    intc 4 // 456
+    itob
     retsub
 
 
@@ -1838,7 +1869,8 @@ test_cases.abi_routing.contract.Reference.get_app:
 test_cases.abi_routing.contract.Reference.get_app_block@0:
     // abi_routing/contract.py:136
     // return arc4.UInt64(456)
-    bytec 6 // 0x00000000000001c8
+    intc 4 // 456
+    itob
     retsub
 
 
@@ -1849,7 +1881,8 @@ test_cases.abi_routing.contract.Reference.get_a_int:
 test_cases.abi_routing.contract.Reference.get_a_int_block@0:
     // abi_routing/contract.py:140
     // return arc4.UInt64(3)
-    pushbytes 0x0000000000000003
+    pushint 3
+    itob
     retsub
 
 
@@ -1902,7 +1935,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // abi_routing/contract.py:176
     // assert asset_from_function == Asset(456), "wrong asset from function"
     frame_dig -12
-    pushint 456
+    intc 4 // 456
     ==
     assert // wrong asset from function
     // abi_routing/contract.py:177
@@ -1926,7 +1959,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // abi_routing/contract.py:180
     // assert application_from_function == Application(456), "wrong application from function"
     frame_dig -8
-    pushint 456
+    intc 4 // 456
     ==
     assert // wrong application from function
     // abi_routing/contract.py:181
@@ -1938,7 +1971,16 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     uncover 1
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    bytec_3 // 0x07
+    pushint 7
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
     b==
     assert // wrong 0th byte from storage
     // abi_routing/contract.py:182
@@ -1950,7 +1992,16 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     uncover 1
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    pushbytes 0x08
+    intc_1 // 8
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
     b==
     assert // wrong 1st byte from storage
     // abi_routing/contract.py:183
@@ -1962,7 +2013,16 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     uncover 1
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    pushbytes 0x09
+    pushint 9
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_0 // 1
+    extract3
     b==
     assert // wrong 2nd byte from storage
     // abi_routing/contract.py:184
@@ -1981,17 +2041,26 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     assert // wrong int from function
     // abi_routing/contract.py:186
     // assert int_from_const == 123
+    pushint 123
+    itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    pushint 4
+    pushint 4
+    extract3
     frame_dig -4
-    pushbytes 0x0000007b
     b==
     assert
     // abi_routing/contract.py:187
     // assert str_from_const == "abc"
-    bytec 7 // "abc"
+    bytec 5 // "abc"
     len
     itob
     extract 6 2
-    bytec 7 // "abc"
+    bytec 5 // "abc"
     concat
     frame_dig -3
     ==
@@ -2000,7 +2069,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
     intc_2 // 0
-    bytec 4 // "local_uint"
+    bytec_3 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
     frame_dig -2
@@ -2010,7 +2079,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
     intc_2 // 0
-    bytec 5 // "local_bytes"
+    bytec 4 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
     frame_dig -1

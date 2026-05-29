@@ -20502,7 +20502,7 @@ regression_tests/jira_142.py:13:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, my_struct#0
+debug: Found equivalence set: tmp%1#0, my_struct#0
 debug: selected my_struct#0 from equivalence set
 debug: Found equivalence set: some_subroutine%0#0, my_struct#1
 debug: selected my_struct#1 from equivalence set
@@ -20556,7 +20556,7 @@ regression_tests/jira_142.py:18:13 debug: inlining call to test_cases.regression
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, my_struct#0, char#0, some_subroutine%0#0, my_struct#1
+debug: Found equivalence set: tmp%1#0, my_struct#0, char#0, some_subroutine%0#0, my_struct#1
 debug: selected my_struct#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -20573,7 +20573,7 @@ debug: Merged linear block@4 into block@1
 debug: Optimizer: Remove Linear Jumps
 debug: Removing jump block block@1
 debug: branching to block@1 will be replaced with block@2
-debug: replaced goto tmp%1#0 ? block@2 : block@2 with goto block@2
+debug: replaced goto tmp%3#0 ? block@2 : block@2 with goto block@2
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -20756,7 +20756,7 @@ debug: Merged linear block@5 into block@2
 debug: Optimizer: Remove Linear Jumps
 debug: Removing jump block block@2
 debug: branching to block@2 will be replaced with block@3
-debug: replaced goto tmp%1#0 ? block@3 : block@3 with goto block@3
+debug: replaced goto tmp%3#0 ? block@3 : block@3 with goto block@3
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -20937,8 +20937,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%3#0
 debug: Removing unused variable tuple_item%0#0
+debug: Removing unused variable tmp%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -21056,13 +21057,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%head%0#0, aggregate%as_Encoded(uint64)%0#0, my_struct#0
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%0#0
+debug: selected aggregate%val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%head%0#0, aggregate%as_Encoded(uint64)%1#0, my_struct#0
 debug: selected my_struct#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x 0x00000000000000c8) to 0x00000000000000c8
+debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -21102,9 +21105,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, my_struct#0
+debug: selected my_struct#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable my_struct#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -21120,10 +21125,8 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to regression_tests/out/Jira142.ir/Jira142.approval.201.ssa.array.opt.ir
 debug: Begin optimization pass 3/100
-debug: marking trivial method test_cases.regression_tests.jira_142.Jira142.battle[routing] as inlineable
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
-regression_tests/jira_142.py:13:6 debug: inlining call to test_cases.regression_tests.jira_142.Jira142.battle[routing] in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -21134,10 +21137,7 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
-debug: Merged linear block@6 into block@3
 debug: Optimizer: Remove Linear Jumps
-debug: Removing jump block block@7
-debug: branching to block@7 will be replaced with block@4
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -21165,31 +21165,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine test_cases.regression_tests.jira_142.Jira142.battle[routing]
-debug: Unused subroutines removed
-debug: Output IR to regression_tests/out/Jira142.ir/Jira142.approval.202.ssa.array.opt.ir
-debug: Begin optimization pass 4/100
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.regression_tests.jira_142.Jira142 at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
@@ -21215,6 +21191,7 @@ debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.regression_tests.jira_142.Jira142
 debug: auto reserving slots in algopy.arc4.ARC4Contract.approval_program, []
+regression_tests/jira_142.py:13:6 debug: auto reserving slots in test_cases.regression_tests.jira_142.Jira142.battle[routing], []
 debug: Slot allocation not required
 debug: Output IR to regression_tests/out/Jira142.ir/Jira142.approval.300.ssa.slot.ir
 debug: removing local static slots in clear program of test_cases.regression_tests.jira_142.Jira142
@@ -21222,11 +21199,22 @@ debug: auto reserving slots in algopy.arc4.ARC4Contract.clear_state_program, []
 debug: Slot allocation not required
 debug: Output IR to regression_tests/out/Jira142.ir/Jira142.clear.300.ssa.slot.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.approval_program
+debug: splitting critical edge block@2->block@4
+debug: Replaced predecessor block@2 with block@6 in block@4
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy 'root_operand'
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
+debug: Performing post-SSA optimizations at level 1
+debug: Removing jump block block@6
+debug: branching to block@6 will be replaced with block@4
+debug: Performing SSA IR destructuring for test_cases.regression_tests.jira_142.Jira142.battle[routing]
+debug: Converting to CSSA
+debug: Removing Phi nodes
+debug: Coalescing local variables in test_cases.regression_tests.jira_142.Jira142.battle[routing] using strategy 'root_operand'
+debug: Coalescing resulted in 0 replacement/s
+debug: Sequentializing parallel copies in test_cases.regression_tests.jira_142.Jira142.battle[routing]
 debug: Performing post-SSA optimizations at level 1
 debug: Output IR to regression_tests/out/Jira142.ir/Jira142.approval.400.destructured.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.clear_state_program
@@ -21259,12 +21247,18 @@ debug: Inserted main___algopy_default_create@5.ops[11]: 'l-store-copy tmp%11#0 0
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main___algopy_default_create@5.ops[5]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted battle_block@0.ops[2]: 'l-store-copy my_struct#0 0'
+debug: Replaced battle_block@0.ops[4]: 'v-load my_struct#0' with 'l-load my_struct#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
+regression_tests/jira_142.py:13:6 debug: optimizing TEAL subroutine ops test_cases.regression_tests.jira_142.Jira142.battle[routing]() -> void:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.approval_program() -> uint64:
+debug: replacing `b main_switch_case_next@4` with `err`
 debug: inlining single reference block main_block@0 into main
 debug: inlining single reference block main_abi_routing@2 into main
 debug: inlining single reference block main_switch_case_next@4 into main
+regression_tests/jira_142.py:13:6 debug: optimizing TEAL subroutine blocks test_cases.regression_tests.jira_142.Jira142.battle[routing]() -> void:
+debug: inlining single reference block battle_block@0 into battle
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.clear_state_program() -> uint64:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.clear_state_program() -> uint64:
 debug: inlining single reference block main_block@0 into main

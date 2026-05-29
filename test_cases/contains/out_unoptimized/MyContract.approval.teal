@@ -131,7 +131,8 @@ one_arc4u64:
 one_arc4u64_block@0:
     // contains/contract.py:144
     // return arc4.UInt64(1)
-    pushbytes 0x0000000000000001
+    intc_1 // 1
+    itob
     retsub
 
 
@@ -153,7 +154,16 @@ two_u8:
 two_u8_block@0:
     // contains/contract.py:154
     // return arc4.UInt8(2)
-    pushbytes 0x02
+    intc_3 // 2
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     retsub
 
 
@@ -164,7 +174,15 @@ three_u512:
 three_u512_block@0:
     // contains/contract.py:159
     // return arc4.UInt512(3)
-    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+    pushbytes 0x03
+    len
+    pushint 64
+    <=
+    assert // overflow
+    pushint 64
+    bzero
+    pushbytes 0x03
+    b|
     retsub
 
 
@@ -1988,6 +2006,18 @@ test_numeric_types_bool_merge@102:
     b==
     !
     assert // 3 not in (5, foo)
+    // contains/contract.py:130
+    // assert arc4.UInt8(65) not in (
+    pushint 65
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     // contains/contract.py:132
     // UInt64(64),
     pushint 64
@@ -1998,20 +2028,23 @@ test_numeric_types_bool_merge@102:
     //     UInt64(66),
     // ), "65 not in (b'A', 64, 66)"
     itob
-    // contains/contract.py:130
-    // assert arc4.UInt8(65) not in (
-    pushbytes 0x41
-    // contains/contract.py:130-134
-    // assert arc4.UInt8(65) not in (
-    //     Bytes(b"A"),
-    //     UInt64(64),
-    //     UInt64(66),
-    // ), "65 not in (b'A', 64, 66)"
     b==
     bnz test_numeric_types_bool_true@104
     b test_numeric_types_or_contd@103
 
 test_numeric_types_or_contd@103:
+    // contains/contract.py:130
+    // assert arc4.UInt8(65) not in (
+    pushint 65
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     // contains/contract.py:133
     // UInt64(66),
     pushint 66
@@ -2022,15 +2055,6 @@ test_numeric_types_or_contd@103:
     //     UInt64(66),
     // ), "65 not in (b'A', 64, 66)"
     itob
-    // contains/contract.py:130
-    // assert arc4.UInt8(65) not in (
-    pushbytes 0x41
-    // contains/contract.py:130-134
-    // assert arc4.UInt8(65) not in (
-    //     Bytes(b"A"),
-    //     UInt64(64),
-    //     UInt64(66),
-    // ), "65 not in (b'A', 64, 66)"
     b==
     bz test_numeric_types_bool_false@105
     b test_numeric_types_bool_true@104

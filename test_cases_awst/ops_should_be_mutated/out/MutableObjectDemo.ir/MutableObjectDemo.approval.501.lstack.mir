@@ -63,11 +63,13 @@ subroutine setPlugin:
         assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8> tmp%0#0
         l-load tmp%0#0 0                                                     tmp%0#0
         extract 2 0                                                          key#0
-        byte "plugins"                                                       key#0,"plugins"
-        l-load key#0 1                                                       "plugins",key#0
-        concat                                                               map_prefixed_key%0#0
-        l-load map_prefixed_key%0#0 0                                        map_prefixed_key%0#0
-        byte 0x0000000000000001                                              map_prefixed_key%0#0,0x0000000000000001
+        int 1                                                                key#0,1
+        itob                                                                 key#0,aggregate%val_as_bytes%0#0
+        byte "plugins"                                                       key#0,aggregate%val_as_bytes%0#0,"plugins"
+        l-load key#0 2                                                       aggregate%val_as_bytes%0#0,"plugins",key#0
+        concat                                                               aggregate%val_as_bytes%0#0,map_prefixed_key%0#0
+        l-load map_prefixed_key%0#0 0                                        aggregate%val_as_bytes%0#0,map_prefixed_key%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                  map_prefixed_key%0#0,aggregate%val_as_bytes%0#0
         box_put
         int 1                                                                1
         return

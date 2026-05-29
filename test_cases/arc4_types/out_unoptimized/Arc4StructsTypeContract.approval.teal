@@ -4,7 +4,7 @@
 // test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
 main:
     intcblock 0 8 1 2
-    bytecblock 0x 0x00 0x000000083cfbf217 0x000000230384b842 0x000000000000007b
+    bytecblock 0x 0x00 0x000000083cfbf217 0x000000230384b842
     intc_0 // 0
     intc_0 // 0
     intc_0 // 0
@@ -169,8 +169,18 @@ main_after_for@4:
     uncover 2
     uncover 2
     substring3
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_2 // 1
+    extract3
     bytec_0 // 0x
-    pushbytes 0x2a
+    uncover 1
     concat
     uncover 1
     bury 16
@@ -228,10 +238,14 @@ main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     assert // expected copy is different
     // arc4_types/structs.py:58
     // immutable = FrozenAndImmutable(arc4.UInt64(12), arc4.UInt64(34))
+    pushint 12
+    itob
+    pushint 34
+    itob
     bytec_0 // 0x
-    pushbytes 0x000000000000000c
+    uncover 2
     concat
-    pushbytes 0x0000000000000022
+    uncover 1
     concat
     // arc4_types/structs.py:59
     // no_copy = immutable
@@ -257,10 +271,12 @@ main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     intc_0 // 0
     intc_1 // 8
     extract3
+    pushint 123
+    itob
     bytec_0 // 0x
-    uncover 1
+    uncover 2
     concat
-    bytec 4 // 0x000000000000007b
+    uncover 1
     concat
     // arc4_types/structs.py:65
     // assert immutable2.two == 123
@@ -268,7 +284,8 @@ main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     intc_1 // 8
     intc_1 // 8
     extract3
-    bytec 4 // 0x000000000000007b
+    pushint 123
+    itob
     b==
     assert
     // arc4_types/structs.py:66

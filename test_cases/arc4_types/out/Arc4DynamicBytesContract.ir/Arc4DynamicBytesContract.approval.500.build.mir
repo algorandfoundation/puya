@@ -27,10 +27,10 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:17
         // total += uint8_item.as_uint64()
         v-load item_index_internal%0#0                                                0x020301,item_index_internal%0#0
-        getbyte                                                                       tmp%3#0
-        v-store tmp%3#0
+        getbyte                                                                       tmp%6#0
+        v-store tmp%6#0
         v-load total#0                                                                total#0
-        v-load tmp%3#0                                                                total#0,tmp%3#0
+        v-load tmp%6#0                                                                total#0,tmp%6#0
         +                                                                             total#0
         v-store total#0
         v-load item_index_internal%0#0                                                item_index_internal%0#0
@@ -44,9 +44,9 @@ subroutine main:
         // assert total == 6, "Total should be of dynamic_bytes items"
         v-load total#0                                                                total#0
         int 6                                                                         total#0,6
-        ==                                                                            tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                tmp%5#0
+        ==                                                                            tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                                tmp%8#0
         assert // Total should be of dynamic_bytes items
         int 0                                                                         0
         v-store item_index_internal%1#0
@@ -69,10 +69,10 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:26
         // total += uint8_item.as_uint64()
         v-load item_index_internal%1#0                                                0x0304,item_index_internal%1#0
-        getbyte                                                                       tmp%10#0
-        v-store tmp%10#0
+        getbyte                                                                       tmp%13#0
+        v-store tmp%13#0
         v-load total#0                                                                total#0
-        v-load tmp%10#0                                                               total#0,tmp%10#0
+        v-load tmp%13#0                                                               total#0,tmp%13#0
         +                                                                             total#0
         v-store total#0
         v-load item_index_internal%1#0                                                item_index_internal%1#0
@@ -103,10 +103,10 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:33
         // total += uint8_item.as_uint64()
         v-load item_index_internal%2#0                                                0x0304,item_index_internal%2#0
-        getbyte                                                                       tmp%17#0
-        v-store tmp%17#0
+        getbyte                                                                       tmp%20#0
+        v-store tmp%20#0
         v-load total#0                                                                total#0
-        v-load tmp%17#0                                                               total#0,tmp%17#0
+        v-load tmp%20#0                                                               total#0,tmp%20#0
         +                                                                             total#0
         v-store total#0
         v-load item_index_internal%2#0                                                item_index_internal%2#0
@@ -120,17 +120,21 @@ subroutine main:
         // assert total == 20, "Total should now include sum of dynamic_bytes3 items"
         v-load total#0                                                                total#0
         int 20                                                                        total#0,20
-        ==                                                                            tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                               tmp%19#0
+        ==                                                                            tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                                               tmp%22#0
         assert // Total should now include sum of dynamic_bytes3 items
         // arc4_types/dynamic_bytes.py:41
         // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
-        txn NumAppArgs                                                                tmp%26#0
-        v-store tmp%26#0
+        txn NumAppArgs                                                                tmp%31#0
+        v-store tmp%31#0
+        // arc4_types/dynamic_bytes.py:12
+        // dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
         byte 0x03                                                                     0x03
         byte 0x02                                                                     0x03,0x02
-        v-load tmp%26#0                                                               0x03,0x02,tmp%26#0
+        // arc4_types/dynamic_bytes.py:41
+        // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+        v-load tmp%31#0                                                               0x03,0x02,tmp%31#0
         select                                                                        select%0#0
         v-store select%0#0
         byte 0x0003                                                                   0x0003
@@ -144,19 +148,19 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:42
         // assert dynamic_bytes.native == Bytes.from_hex("030301")
         v-load dynamic_bytes#1                                                        dynamic_bytes#1
-        extract 2 0                                                                   tmp%28#0
-        v-store tmp%28#0
-        v-load tmp%28#0                                                               tmp%28#0
-        byte 0x030301                                                                 tmp%28#0,0x030301
-        ==                                                                            tmp%29#0
-        v-store tmp%29#0
-        v-load tmp%29#0                                                               tmp%29#0
+        extract 2 0                                                                   tmp%35#0
+        v-store tmp%35#0
+        v-load tmp%35#0                                                               tmp%35#0
+        byte 0x030301                                                                 tmp%35#0,0x030301
+        ==                                                                            tmp%36#0
+        v-store tmp%36#0
+        v-load tmp%36#0                                                               tmp%36#0
         assert
         // arc4_types/dynamic_bytes.py:44
         // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
-        txn NumAppArgs                                                                tmp%30#0
-        v-store tmp%30#0
-        v-load tmp%30#0                                                               tmp%30#0
+        txn NumAppArgs                                                                tmp%37#0
+        v-store tmp%37#0
+        v-load tmp%37#0                                                               tmp%37#0
         bz main_ternary_false@14 ; b main_ternary_true@13
 
     main_ternary_true@13:
@@ -181,13 +185,13 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:45
         // assert dynamic_bytes.native == b"3"
         v-load dynamic_bytes#1                                                        dynamic_bytes#1
-        extract 2 0                                                                   tmp%32#0
-        v-store tmp%32#0
-        v-load tmp%32#0                                                               tmp%32#0
-        byte 0x33                                                                     tmp%32#0,0x33
-        ==                                                                            tmp%33#0
-        v-store tmp%33#0
-        v-load tmp%33#0                                                               tmp%33#0
+        extract 2 0                                                                   tmp%39#0
+        v-store tmp%39#0
+        v-load tmp%39#0                                                               tmp%39#0
+        byte 0x33                                                                     tmp%39#0,0x33
+        ==                                                                            tmp%40#0
+        v-store tmp%40#0
+        v-load tmp%40#0                                                               tmp%40#0
         assert
         // arc4_types/dynamic_bytes.py:46
         // return True

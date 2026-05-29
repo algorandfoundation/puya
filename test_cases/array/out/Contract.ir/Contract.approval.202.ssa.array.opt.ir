@@ -638,6 +638,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         (assert tmp%9#0) // array is not sorted
         goto block@14
     block@17: // after_for_L158
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let arc4_arr#0: Encoded(len+uint64[]) = 0x0000
         let native_arr#0: Encoded(uint64[])* = new()
         store(native_arr#0, 0x)
@@ -675,17 +676,18 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let tmp%19#0: bool = (== aggregate%array_length%0#0 10u)
         (assert tmp%19#0)
         let aggregate%encoded_element%3#0: bytes = ((extract 2 8) combined_arr#0)
-        let tmp%20#0: bool = (b== aggregate%encoded_element%3#0 0x0000000000000000)
-        (assert tmp%20#0)
-        let aggregate%encoded_element%4#0: bytes = ((extract 34 8) combined_arr#0)
-        let tmp%21#0: bool = (b== aggregate%encoded_element%4#0 0x0000000000000004)
+        let tmp%21#0: bool = (b== aggregate%encoded_element%3#0 aggregate%as_bytes%0#0)
         (assert tmp%21#0)
-        let aggregate%encoded_element%5#0: bytes = ((extract 42 8) combined_arr#0)
-        let tmp%22#0: bool = (b== aggregate%encoded_element%5#0 0x0000000000000000)
-        (assert tmp%22#0)
-        let aggregate%encoded_element%6#0: bytes = ((extract 74 8) combined_arr#0)
-        let tmp%23#0: bool = (b== aggregate%encoded_element%6#0 0x0000000000000004)
+        let aggregate%encoded_element%4#0: bytes = ((extract 34 8) combined_arr#0)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 4u)
+        let tmp%23#0: bool = (b== aggregate%encoded_element%4#0 aggregate%val_as_bytes%3#0)
         (assert tmp%23#0)
+        let aggregate%encoded_element%5#0: bytes = ((extract 42 8) combined_arr#0)
+        let tmp%25#0: bool = (b== aggregate%encoded_element%5#0 aggregate%as_bytes%0#0)
+        (assert tmp%25#0)
+        let aggregate%encoded_element%6#0: bytes = ((extract 74 8) combined_arr#0)
+        let tmp%27#0: bool = (b== aggregate%encoded_element%6#0 aggregate%val_as_bytes%3#0)
+        (assert tmp%27#0)
         exit 1u
 
 subroutine test_cases.array.uint64.Contract.test_quicksort[routing]() -> void:

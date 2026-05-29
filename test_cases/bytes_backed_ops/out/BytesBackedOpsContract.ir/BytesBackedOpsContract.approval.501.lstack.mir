@@ -2,42 +2,46 @@
 // test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
+        // bytes_backed_ops/contract.py:56
+        // assert op.sha256(arc4.UInt64(42))
+        int 42                                                                 42
+        itob                                                                   aggregate%val_as_bytes%0#0
         // bytes_backed_ops/contract.py:100
         // acct = Account(op.Txn.sender.bytes)
-        txn Sender                                                             acct#1
+        txn Sender                                                             aggregate%val_as_bytes%0#0,acct#1
         // bytes_backed_ops/contract.py:69
         // assert op.sha256(arc4.Tuple((arc4.UInt8(1), arc4.String("hello"))))
-        byte 0x000568656c6c6f                                                  acct#1,0x000568656c6c6f
+        byte 0x000568656c6c6f                                                  aggregate%val_as_bytes%0#0,acct#1,0x000568656c6c6f
         // bytes_backed_ops/contract.py:106
         // assert op.concat(arc4.String("hello"), acct)
-        l-load-copy acct#1 1                                                   acct#1,0x000568656c6c6f,acct#1 (copy)
-        concat                                                                 acct#1,tmp%6#1
-        l-load tmp%6#1 0                                                       acct#1,tmp%6#1
-        len                                                                    acct#1,tmp%7#1
-        l-load tmp%7#1 0                                                       acct#1,tmp%7#1
-        assert                                                                 acct#1
+        l-load-copy acct#1 1                                                   aggregate%val_as_bytes%0#0,acct#1,0x000568656c6c6f,acct#1 (copy)
+        concat                                                                 aggregate%val_as_bytes%0#0,acct#1,tmp%6#1
+        l-load tmp%6#1 0                                                       aggregate%val_as_bytes%0#0,acct#1,tmp%6#1
+        len                                                                    aggregate%val_as_bytes%0#0,acct#1,tmp%7#1
+        l-load tmp%7#1 0                                                       aggregate%val_as_bytes%0#0,acct#1,tmp%7#1
+        assert                                                                 aggregate%val_as_bytes%0#0,acct#1
         // bytes_backed_ops/contract.py:107
         // assert op.concat(acct, s)
-        l-load-copy acct#1 0                                                   acct#1,acct#1 (copy)
+        l-load-copy acct#1 0                                                   aggregate%val_as_bytes%0#0,acct#1,acct#1 (copy)
         // bytes_backed_ops/contract.py:99
         // s = String("hello")
-        byte "hello"                                                           acct#1,acct#1 (copy),"hello"
+        byte "hello"                                                           aggregate%val_as_bytes%0#0,acct#1,acct#1 (copy),"hello"
         // bytes_backed_ops/contract.py:107
         // assert op.concat(acct, s)
-        concat                                                                 acct#1,tmp%9#1
-        l-load tmp%9#1 0                                                       acct#1,tmp%9#1
-        len                                                                    acct#1,tmp%10#1
-        l-load tmp%10#1 0                                                      acct#1,tmp%10#1
-        assert                                                                 acct#1
+        concat                                                                 aggregate%val_as_bytes%0#0,acct#1,tmp%9#1
+        l-load tmp%9#1 0                                                       aggregate%val_as_bytes%0#0,acct#1,tmp%9#1
+        len                                                                    aggregate%val_as_bytes%0#0,acct#1,tmp%10#1
+        l-load tmp%10#1 0                                                      aggregate%val_as_bytes%0#0,acct#1,tmp%10#1
+        assert                                                                 aggregate%val_as_bytes%0#0,acct#1
         // bytes_backed_ops/contract.py:124
         // assert op.getbyte(arc4.UInt64(42), 7) == 42
-        byte 0x000000000000002a                                                acct#1,0x000000000000002a
-        int 7                                                                  acct#1,0x000000000000002a,7
-        getbyte                                                                acct#1,tmp%43#1
-        l-load tmp%43#1 0                                                      acct#1,tmp%43#1
-        int 42                                                                 acct#1,tmp%43#1,42
-        ==                                                                     acct#1,tmp%44#1
-        l-load tmp%44#1 0                                                      acct#1,tmp%44#1
+        l-load aggregate%val_as_bytes%0#0 1                                    acct#1,aggregate%val_as_bytes%0#0
+        int 7                                                                  acct#1,aggregate%val_as_bytes%0#0,7
+        getbyte                                                                acct#1,tmp%47#1
+        l-load tmp%47#1 0                                                      acct#1,tmp%47#1
+        int 42                                                                 acct#1,tmp%47#1,42
+        ==                                                                     acct#1,tmp%48#1
+        l-load tmp%48#1 0                                                      acct#1,tmp%48#1
         assert                                                                 acct#1
         // bytes_backed_ops/contract.py:99
         // s = String("hello")
@@ -45,11 +49,11 @@ subroutine main:
         // bytes_backed_ops/contract.py:126
         // assert op.getbyte(s, 0) == 104  # 'h'
         int 0                                                                  acct#1,"hello",0
-        getbyte                                                                acct#1,tmp%47#1
-        l-load tmp%47#1 0                                                      acct#1,tmp%47#1
-        int 104                                                                acct#1,tmp%47#1,104
-        ==                                                                     acct#1,tmp%48#1
-        l-load tmp%48#1 0                                                      acct#1,tmp%48#1
+        getbyte                                                                acct#1,tmp%51#1
+        l-load tmp%51#1 0                                                      acct#1,tmp%51#1
+        int 104                                                                acct#1,tmp%51#1,104
+        ==                                                                     acct#1,tmp%52#1
+        l-load tmp%52#1 0                                                      acct#1,tmp%52#1
         assert                                                                 acct#1
         // bytes_backed_ops/contract.py:98
         // fb = FixedBytes[typing.Literal[5]](b"hello")
@@ -63,8 +67,8 @@ subroutine main:
         // assert modified == b"Hello"
         l-load modified#0 0                                                    acct#1,modified#0
         byte 0x48656c6c6f                                                      acct#1,modified#0,0x48656c6c6f
-        ==                                                                     acct#1,tmp%50#1
-        l-load tmp%50#1 0                                                      acct#1,tmp%50#1
+        ==                                                                     acct#1,tmp%54#1
+        l-load tmp%54#1 0                                                      acct#1,tmp%54#1
         assert                                                                 acct#1
         // bytes_backed_ops/contract.py:136
         // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))
@@ -74,8 +78,8 @@ subroutine main:
         // bytes_backed_ops/contract.py:137
         // assert replaced2
         l-load replaced2#0 0                                                   replaced2#0
-        len                                                                    tmp%55#1
-        l-load tmp%55#1 0                                                      tmp%55#1
+        len                                                                    tmp%59#1
+        l-load tmp%59#1 0                                                      tmp%59#1
         assert
         // bytes_backed_ops/contract.py:155
         // encoded = Bytes(b"aGVsbG8=")
@@ -87,8 +91,8 @@ subroutine main:
         // assert decoded == b"hello"
         l-load decoded#0 0                                                     decoded#0
         byte 0x68656c6c6f                                                      decoded#0,0x68656c6c6f
-        ==                                                                     tmp%7#2
-        l-load tmp%7#2 0                                                       tmp%7#2
+        ==                                                                     tmp%8#2
+        l-load tmp%8#2 0                                                       tmp%8#2
         assert
         // bytes_backed_ops/contract.py:164
         // acct = Account(op.Txn.sender.bytes)

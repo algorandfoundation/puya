@@ -1561,7 +1561,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_ar
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
-        let prefix#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002)
+        let tmp%0#1: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%1#1: Encoded(uint64) = bytes_encode<uint64>(2u)
+        let prefix#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#1, tmp%1#1)
         let result#0: Encoded(len+uint64[]) = array_concat(prefix#0, arg#0, 2u)
         let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%2#0)
@@ -1574,9 +1576,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
         let (arg.0#0: Encoded(uint64), arg.1#0: Encoded(uint64)) = decode_bytes<(Encoded(uint64),Encoded(uint64),)>(tmp%0#0)
-        let prefix#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002)
-        let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(arg.0#0, arg.1#0)
-        let result#0: Encoded(len+uint64[]) = array_concat(prefix#0, tmp%0#1, 2u)
+        let tmp%0#1: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%1#1: Encoded(uint64) = bytes_encode<uint64>(2u)
+        let prefix#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#1, tmp%1#1)
+        let tmp%2#1: Encoded(uint64[]) = bytes_encode<uint64[]>(arg.0#0, arg.1#0)
+        let result#0: Encoded(len+uint64[]) = array_concat(prefix#0, tmp%2#1, 2u)
         let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%4#0)
         exit 1u

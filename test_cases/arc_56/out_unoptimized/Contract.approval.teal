@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 0x2a 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
+    bytecblock 0x 0x151f7c75 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
     b main_block@0
 
 main_block@0:
@@ -1045,7 +1045,16 @@ test_cases.arc_56.contract.Contract.errors_block@0:
     intc_0 // 0
     intc_3 // 8
     extract3
-    pushbytes 0x00
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     ==
     assert // this will error
     retsub
@@ -1058,19 +1067,29 @@ test_cases.arc_56.contract.Contract.emitter:
 test_cases.arc_56.contract.Contract.emitter_block@0:
     // arc_56/contract.py:105
     // arc4.emit(SharedStruct(foo=arc4.DynamicBytes(b"hello1"), bar=arc4.UInt8(42)))
-    bytec_3 // 0x68656c6c6f31
+    bytec_2 // 0x68656c6c6f31
     len
     itob
     extract 6 2
-    bytec_3 // 0x68656c6c6f31
+    bytec_2 // 0x68656c6c6f31
     concat
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     pushint 3
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    bytec_2 // 0x2a
+    uncover 1
     concat
     uncover 1
     concat
@@ -1080,27 +1099,37 @@ test_cases.arc_56.contract.Contract.emitter_block@0:
     log
     // arc_56/contract.py:109
     // String("hello"),
-    bytec 4 // "hello"
+    bytec_3 // "hello"
     len
     itob
     extract 6 2
-    bytec 4 // "hello"
+    bytec_3 // "hello"
     concat
     // arc_56/contract.py:110
     // SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
-    bytec 5 // 0x68656c6c6f32
+    bytec 4 // 0x68656c6c6f32
     len
     itob
     extract 6 2
-    bytec 5 // 0x68656c6c6f32
+    bytec 4 // 0x68656c6c6f32
     concat
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     pushint 3
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    bytec_2 // 0x2a
+    uncover 1
     concat
     uncover 1
     concat
@@ -1152,26 +1181,40 @@ test_cases.arc_56.contract.Contract.conditional_emit_block@0:
 test_cases.arc_56.contract.Contract.conditional_emit_if_body@1:
     // arc_56/contract.py:118
     // EventOnly(arc4.UInt64(42), arc4.UInt64(43)),
+    pushint 42
+    itob
+    pushint 43
+    itob
     bytec_0 // 0x
-    pushbytes 0x000000000000002a
+    uncover 2
     concat
-    pushbytes 0x000000000000002b
+    uncover 1
     concat
     // arc_56/contract.py:119
     // SharedStruct(foo=arc4.DynamicBytes(b"hello3"), bar=arc4.UInt8(42)),
-    bytec 6 // 0x68656c6c6f33
+    bytec 5 // 0x68656c6c6f33
     len
     itob
     extract 6 2
-    bytec 6 // 0x68656c6c6f33
+    bytec 5 // 0x68656c6c6f33
     concat
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_3 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     pushint 3
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    bytec_2 // 0x2a
+    uncover 1
     concat
     uncover 1
     concat
@@ -1207,16 +1250,16 @@ test_cases.arc_56.contract.Contract.template_value:
 test_cases.arc_56.contract.Contract.template_value_block@0:
     // arc_56/contract.py:125
     // TemplateVar[SharedStruct]("STRUCT"),
-    bytec 8 // TMPL_STRUCT
+    bytec 7 // TMPL_STRUCT
     // arc_56/contract.py:126
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
     // arc_56/contract.py:127
     // TemplateVar[String]("AVM_STRING"),
-    bytec 9 // TMPL_AVM_STRING
+    bytec 8 // TMPL_AVM_STRING
     // arc_56/contract.py:128
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
-    bytec 10 // TMPL_ARC4_UINT8
+    bytec 9 // TMPL_ARC4_UINT8
     // arc_56/contract.py:124-129
     // return (
     //     TemplateVar[SharedStruct]("STRUCT"),
@@ -1350,11 +1393,11 @@ test_cases.arc_56.contract.Contract.with_constant_defaults_bool_merge@8:
     frame_dig -4
     intc_0 // 0
     callsub static_array_read_byte_length_element
-    bytec 7 // "hi"
+    bytec 6 // "hi"
     len
     itob
     extract 6 2
-    bytec 7 // "hi"
+    bytec 6 // "hi"
     concat
     ==
     assert

@@ -3,7 +3,12 @@
 
 // test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
 main:
+    intcblock 42 0
     bytecblock 0x68656c6c6f 0x74657374
+    // bytes_backed_ops/contract.py:56
+    // assert op.sha256(arc4.UInt64(42))
+    intc_0 // 42
+    itob
     // bytes_backed_ops/contract.py:100
     // acct = Account(op.Txn.sender.bytes)
     txn Sender
@@ -30,10 +35,10 @@ main:
     // bytes_backed_ops/contract.py:123-124
     // # getbyte
     // assert op.getbyte(arc4.UInt64(42), 7) == 42
-    pushbytes 0x000000000000002a
+    swap
     pushint 7
     getbyte
-    pushint 42
+    intc_0 // 42
     ==
     assert
     // bytes_backed_ops/contract.py:99
@@ -41,7 +46,7 @@ main:
     bytec_0 // "hello"
     // bytes_backed_ops/contract.py:126
     // assert op.getbyte(s, 0) == 104  # 'h'
-    pushint 0
+    intc_1 // 0
     getbyte
     pushint 104
     ==
@@ -52,7 +57,8 @@ main:
     // bytes_backed_ops/contract.py:128-129
     // # setbyte
     // modified = op.setbyte(fb, 0, 72)
-    pushints 0 72
+    intc_1 // 0
+    pushint 72
     setbyte
     // bytes_backed_ops/contract.py:130
     // assert modified == b"Hello"

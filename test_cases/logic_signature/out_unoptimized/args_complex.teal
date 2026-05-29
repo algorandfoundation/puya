@@ -3,8 +3,8 @@
 
 // test_cases.logic_signature.lsig_args_complex.args_complex() -> uint64:
 main:
-    intcblock 0 1 8 2
-    bytecblock 0x 0x00 0x21 0xff
+    intcblock 0 1 8 2 255
+    bytecblock 0x 0x00 0x21 0x01
     intc_0 // 0
     intc_0 // 0
     bytec_0 // ""
@@ -600,7 +600,7 @@ main_block@0:
     // logic_signature/lsig_args_complex.py:85
     // arg2 = arg2 + BigUInt(1)
     uncover 21
-    pushbytes 0x01
+    bytec_3 // 0x01
     b+
     cover 21
     // logic_signature/lsig_args_complex.py:86
@@ -641,7 +641,7 @@ main_block@0:
     // logic_signature/lsig_args_complex.py:90
     // arg7 = arc4.UInt128(arg7.as_biguint() + BigUInt(1))
     uncover 16
-    pushbytes 0x01
+    bytec_3 // 0x01
     b+
     dup
     len
@@ -695,12 +695,22 @@ main_block@0:
     cover 13
     // logic_signature/lsig_args_complex.py:95
     // arg12[0] = arc4.Byte(0xFF)
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     intc_0 // 0
     intc_1 // 1
     *
-    uncover 13
+    uncover 14
     uncover 1
-    bytec_3 // 0xff
+    uncover 2
     replace3 // on error: index access is out of bounds
     cover 12
     // logic_signature/lsig_args_complex.py:96
@@ -902,8 +912,18 @@ main_block@0:
     cover 1
     // logic_signature/lsig_args_complex.py:117
     // arg20.append(arc4.UInt8(0xFF))
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     bytec_0 // 0x
-    bytec_3 // 0xff
+    uncover 1
     concat
     b main_block@3
 
@@ -1024,7 +1044,16 @@ main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@6:
     uncover 1
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bytec_3 // 0xff
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     b==
     assert
     // logic_signature/lsig_args_complex.py:131

@@ -1,13 +1,16 @@
 main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     block@0: // L10
         let total#0: uint64 = 0u
-        let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x02, 0x03, 0x01)
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(2u)
+        let tmp%1#0: Encoded(uint8) = bytes_encode<uint8>(3u)
+        let tmp%2#0: Encoded(uint8) = bytes_encode<uint8>(1u)
+        let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0, tmp%1#0, tmp%2#0)
         let dynamic_bytes#0: Encoded(len+uint8[]) = encoded_array%0#0
-        let tmp%0#0: bytes = decode_bytes<bytes>(dynamic_bytes#0)
-        let tmp%1#0: bool = (== tmp%0#0 0x020301)
-        (assert tmp%1#0)
-        let tmp%2#0: bool = (== dynamic_bytes#0 0x0003020301)
-        (assert tmp%2#0)
+        let tmp%3#0: bytes = decode_bytes<bytes>(dynamic_bytes#0)
+        let tmp%4#0: bool = (== tmp%3#0 0x020301)
+        (assert tmp%4#0)
+        let tmp%5#0: bool = (== dynamic_bytes#0 0x0003020301)
+        (assert tmp%5#0)
         let array_length%0#0: uint64 = array_len(dynamic_bytes#0)
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
@@ -20,23 +23,23 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@2: // for_body_L17
         let array_item%0#0: Encoded(uint8) = extract_value(dynamic_bytes#0, item_index_internal%0#1)
         let uint8_item#0: Encoded(uint8) = array_item%0#0
-        let tmp%3#0: uint64 = decode_bytes<uint64>(uint8_item#0)
-        let tmp%4#0: uint64 = (+ total#1 tmp%3#0)
-        let total#2: uint64 = tmp%4#0
+        let tmp%6#0: uint64 = decode_bytes<uint64>(uint8_item#0)
+        let tmp%7#0: uint64 = (+ total#1 tmp%6#0)
+        let total#2: uint64 = tmp%7#0
         goto block@3
     block@3: // for_footer_L16
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L16
-        let tmp%5#0: bool = (== total#1 6u)
-        (assert tmp%5#0) // Total should be of dynamic_bytes items
-        let tmp%6#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x0304)
-        let dynamic_bytes2#0: Encoded(len+uint8[]) = tmp%6#0
-        let tmp%7#0: bytes = decode_bytes<bytes>(dynamic_bytes2#0)
-        let tmp%8#0: bool = (== tmp%7#0 0x0304)
-        (assert tmp%8#0)
-        let tmp%9#0: bool = (== dynamic_bytes2#0 0x00020304)
-        (assert tmp%9#0)
+        let tmp%8#0: bool = (== total#1 6u)
+        (assert tmp%8#0) // Total should be of dynamic_bytes items
+        let tmp%9#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x0304)
+        let dynamic_bytes2#0: Encoded(len+uint8[]) = tmp%9#0
+        let tmp%10#0: bytes = decode_bytes<bytes>(dynamic_bytes2#0)
+        let tmp%11#0: bool = (== tmp%10#0 0x0304)
+        (assert tmp%11#0)
+        let tmp%12#0: bool = (== dynamic_bytes2#0 0x00020304)
+        (assert tmp%12#0)
         let array_length%1#0: uint64 = array_len(dynamic_bytes2#0)
         let item_index_internal%1#0: uint64 = 0u
         let reverse_index_internal%1#0: uint64 = array_length%1#0
@@ -49,22 +52,22 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@6: // for_body_L26
         let array_item%1#0: Encoded(uint8) = extract_value(dynamic_bytes2#0, item_index_internal%1#1)
         let uint8_item#1: Encoded(uint8) = array_item%1#0
-        let tmp%10#0: uint64 = decode_bytes<uint64>(uint8_item#1)
-        let tmp%11#0: uint64 = (+ total#3 tmp%10#0)
-        let total#4: uint64 = tmp%11#0
+        let tmp%13#0: uint64 = decode_bytes<uint64>(uint8_item#1)
+        let tmp%14#0: uint64 = (+ total#3 tmp%13#0)
+        let total#4: uint64 = tmp%14#0
         goto block@7
     block@7: // for_footer_L25
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
     block@8: // after_for_L25
-        let tmp%12#0: bytes = decode_bytes<bytes>(dynamic_bytes2#0)
-        let tmp%13#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%12#0)
-        let dynamic_bytes3#0: Encoded(len+uint8[]) = tmp%13#0
-        let tmp%14#0: bytes = decode_bytes<bytes>(dynamic_bytes3#0)
-        let tmp%15#0: bool = (== tmp%14#0 0x0304)
-        (assert tmp%15#0)
-        let tmp%16#0: bool = (== dynamic_bytes3#0 0x00020304)
-        (assert tmp%16#0)
+        let tmp%15#0: bytes = decode_bytes<bytes>(dynamic_bytes2#0)
+        let tmp%16#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%15#0)
+        let dynamic_bytes3#0: Encoded(len+uint8[]) = tmp%16#0
+        let tmp%17#0: bytes = decode_bytes<bytes>(dynamic_bytes3#0)
+        let tmp%18#0: bool = (== tmp%17#0 0x0304)
+        (assert tmp%18#0)
+        let tmp%19#0: bool = (== dynamic_bytes3#0 0x00020304)
+        (assert tmp%19#0)
         let array_length%2#0: uint64 = array_len(dynamic_bytes3#0)
         let item_index_internal%2#0: uint64 = 0u
         let reverse_index_internal%2#0: uint64 = array_length%2#0
@@ -77,38 +80,42 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@10: // for_body_L33
         let array_item%2#0: Encoded(uint8) = extract_value(dynamic_bytes3#0, item_index_internal%2#1)
         let uint8_item#2: Encoded(uint8) = array_item%2#0
-        let tmp%17#0: uint64 = decode_bytes<uint64>(uint8_item#2)
-        let tmp%18#0: uint64 = (+ total#5 tmp%17#0)
-        let total#6: uint64 = tmp%18#0
+        let tmp%20#0: uint64 = decode_bytes<uint64>(uint8_item#2)
+        let tmp%21#0: uint64 = (+ total#5 tmp%20#0)
+        let total#6: uint64 = tmp%21#0
         goto block@11
     block@11: // for_footer_L32
         let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
         goto block@9
     block@12: // after_for_L32
-        let tmp%19#0: bool = (== total#5 20u)
-        (assert tmp%19#0) // Total should now include sum of dynamic_bytes3 items
-        let tmp%20#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x616263)
-        let total_length%0#0: uint64 = (len tmp%20#0)
-        let extract_to_end%0#0: bytes = (substring3 tmp%20#0 2u total_length%0#0)
-        let tmp%21#0: uint64 = array_len(tmp%20#0)
-        let tmp%22#0: Encoded(len+uint8[]) = array_concat(dynamic_bytes3#0, extract_to_end%0#0, tmp%21#0)
-        let dynamic_bytes3#2: Encoded(len+uint8[]) = tmp%22#0
-        let tmp%23#0: bool = (== dynamic_bytes3#2 0x00050304616263)
-        (assert tmp%23#0)
-        let tmp%24#0: bytes = decode_bytes<bytes>(dynamic_bytes3#2)
-        let tmp%25#0: bool = (== tmp%24#0 0x0304616263)
-        (assert tmp%25#0)
-        let tmp%26#0: uint64 = (txn NumAppArgs)
-        let tmp%27#0: bool = (!= tmp%26#0 0u)
-        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%27#0)
-        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(select%0#0, 0x03, 0x01)
+        let tmp%22#0: bool = (== total#5 20u)
+        (assert tmp%22#0) // Total should now include sum of dynamic_bytes3 items
+        let tmp%23#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x616263)
+        let total_length%0#0: uint64 = (len tmp%23#0)
+        let extract_to_end%0#0: bytes = (substring3 tmp%23#0 2u total_length%0#0)
+        let tmp%24#0: uint64 = array_len(tmp%23#0)
+        let tmp%25#0: Encoded(len+uint8[]) = array_concat(dynamic_bytes3#0, extract_to_end%0#0, tmp%24#0)
+        let dynamic_bytes3#2: Encoded(len+uint8[]) = tmp%25#0
+        let tmp%26#0: bool = (== dynamic_bytes3#2 0x00050304616263)
+        (assert tmp%26#0)
+        let tmp%27#0: bytes = decode_bytes<bytes>(dynamic_bytes3#2)
+        let tmp%28#0: bool = (== tmp%27#0 0x0304616263)
+        (assert tmp%28#0)
+        let tmp%29#0: Encoded(uint8) = bytes_encode<uint8>(3u)
+        let tmp%30#0: Encoded(uint8) = bytes_encode<uint8>(2u)
+        let tmp%31#0: uint64 = (txn NumAppArgs)
+        let tmp%32#0: bool = (!= tmp%31#0 0u)
+        let select%0#0: Encoded(uint8) = (select tmp%29#0 tmp%30#0 tmp%32#0)
+        let tmp%33#0: Encoded(uint8) = bytes_encode<uint8>(3u)
+        let tmp%34#0: Encoded(uint8) = bytes_encode<uint8>(1u)
+        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(select%0#0, tmp%33#0, tmp%34#0)
         let dynamic_bytes#1: Encoded(len+uint8[]) = encoded_array%1#0
-        let tmp%28#0: bytes = decode_bytes<bytes>(dynamic_bytes#1)
-        let tmp%29#0: bool = (== tmp%28#0 0x030301)
-        (assert tmp%29#0)
-        let tmp%30#0: uint64 = (txn NumAppArgs)
-        let tmp%31#0: bool = (!= tmp%30#0 0u)
-        goto tmp%31#0 ? block@13 : block@14
+        let tmp%35#0: bytes = decode_bytes<bytes>(dynamic_bytes#1)
+        let tmp%36#0: bool = (== tmp%35#0 0x030301)
+        (assert tmp%36#0)
+        let tmp%37#0: uint64 = (txn NumAppArgs)
+        let tmp%38#0: bool = (!= tmp%37#0 0u)
+        goto tmp%38#0 ? block@13 : block@14
     block@13: // ternary_true_L44
         let ternary_result%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x32)
         goto block@15
@@ -118,9 +125,9 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@15: // ternary_merge_L44
         let ternary_result%0#2: Encoded(len+uint8[]) = φ(ternary_result%0#0 <- block@13, ternary_result%0#1 <- block@14)
         let dynamic_bytes#2: Encoded(len+uint8[]) = ternary_result%0#2
-        let tmp%32#0: bytes = decode_bytes<bytes>(dynamic_bytes#2)
-        let tmp%33#0: bool = (== tmp%32#0 0x33)
-        (assert tmp%33#0)
+        let tmp%39#0: bytes = decode_bytes<bytes>(dynamic_bytes#2)
+        let tmp%40#0: bool = (== tmp%39#0 0x33)
+        (assert tmp%40#0)
         return 1u
 
 subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:

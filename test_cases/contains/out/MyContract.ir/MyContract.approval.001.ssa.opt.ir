@@ -676,15 +676,24 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%146#0: bool = (b== awst_tmp%24#0 tmp%44#1)
         let tmp%147#0: bool = (! tmp%146#0)
         (assert tmp%147#0) // 3 not in (5, foo)
-        let tmp%148#0: biguint = (itob 64u)
-        let tmp%149#0: bool = 0u
-        let tmp%150#0: biguint = (itob 66u)
-        let tmp%151#0: bool = 0u
+        let tmp%148#0: Encoded(uint8) = bytes_encode<uint8>(65u)
+        let tmp%149#0: biguint = (itob 64u)
+        let tmp%150#0: bool = (b== tmp%148#0 tmp%149#0)
+        goto tmp%150#0 ? block@151 : block@150
+    block@150: // or_contd_L130
+        let tmp%152#0: biguint = (itob 66u)
+        let tmp%153#0: bool = (b== tmp%148#0 tmp%152#0)
+        goto tmp%153#0 ? block@151 : block@152
+    block@151: // bool_true_L130
+        let or_result%24#0: bool = 1u
+        goto block@153
+    block@152: // bool_false_L130
         let or_result%24#1: bool = 0u
         goto block@153
     block@153: // bool_merge_L130
-        let tmp%152#0: bool = (! or_result%24#1)
-        (assert tmp%152#0) // 65 not in (b'A', 64, 66)
+        let or_result%24#2: bool = φ(or_result%24#0 <- block@151, or_result%24#1 <- block@152)
+        let tmp%154#0: bool = (! or_result%24#2)
+        (assert tmp%154#0) // 65 not in (b'A', 64, 66)
         return 1u
 
 subroutine test_cases.contains.contract.one_u64() -> uint64:
@@ -693,7 +702,8 @@ subroutine test_cases.contains.contract.one_u64() -> uint64:
 
 subroutine test_cases.contains.contract.one_arc4u64() -> Encoded(uint64):
     block@0: // L142
-        return 0x0000000000000001
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.two_u64() -> uint64:
     block@0: // L147
@@ -701,11 +711,13 @@ subroutine test_cases.contains.contract.two_u64() -> uint64:
 
 subroutine test_cases.contains.contract.two_u8() -> Encoded(uint8):
     block@0: // L152
-        return 0x02
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(2u)
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.three_u512() -> Encoded(uint512):
     block@0: // L157
-        return 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+        let tmp%0#0: Encoded(uint512) = bytes_encode<uint512>(3b)
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.four_biguint() -> biguint:
     block@0: // L162

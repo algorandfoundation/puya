@@ -538,14 +538,23 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let encoded_array%3#0: Encoded(uint64[3]) = aggregate%as_Encoded(uint64[3])%2#0
         let tmp%14#0: bool = (== arr_3#0 encoded_array%3#0)
         (assert tmp%14#0)
-        let aggregate%head%15#0: bytes = (concat 0x 0x0000000000000000)
-        let aggregate%head%16#0: bytes = (concat aggregate%head%15#0 0x0000000000000001)
-        let aggregate%head%17#0: bytes = (concat aggregate%head%16#0 0x0000000000000002)
+        let aggregate%val_as_bytes%18#0: bytes[8] = (itob 0u)
+        let aggregate%as_Encoded(uint64)%18#0: Encoded(uint64) = aggregate%val_as_bytes%18#0
+        let tmp%15#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%18#0
+        let aggregate%val_as_bytes%19#0: bytes[8] = (itob 1u)
+        let aggregate%as_Encoded(uint64)%19#0: Encoded(uint64) = aggregate%val_as_bytes%19#0
+        let tmp%16#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%19#0
+        let aggregate%val_as_bytes%20#0: bytes[8] = (itob 2u)
+        let aggregate%as_Encoded(uint64)%20#0: Encoded(uint64) = aggregate%val_as_bytes%20#0
+        let tmp%17#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%20#0
+        let aggregate%head%15#0: bytes = (concat 0x tmp%15#0)
+        let aggregate%head%16#0: bytes = (concat aggregate%head%15#0 tmp%16#0)
+        let aggregate%head%17#0: bytes = (concat aggregate%head%16#0 tmp%17#0)
         let aggregate%as_Encoded(uint64[3])%3#0: Encoded(uint64[3]) = aggregate%head%17#0
         let encoded_array%4#0: Encoded(uint64[3]) = aggregate%as_Encoded(uint64[3])%3#0
         let static_array#0: Encoded(uint64[3]) = encoded_array%4#0
-        let tmp%16#0: bool = (== static_array#0 arr_3#0)
-        (assert tmp%16#0)
+        let tmp%19#0: bool = (== static_array#0 arr_3#0)
+        (assert tmp%19#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: Encoded(uint8[32],uint64,uint64)) -> void:

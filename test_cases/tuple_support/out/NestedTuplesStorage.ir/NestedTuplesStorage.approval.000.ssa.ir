@@ -354,16 +354,19 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__init__() -> void:
     block@0: // L12
-        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, 0u)
         (app_global_put "tup" encoded_for_storage%0#0)
-        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%1#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%1#0)
         (app_global_put "glob" encoded_for_storage%1#0)
-        let encoded_array%2#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%2#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%2#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%2#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
@@ -373,19 +376,21 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__init__()
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
     block@0: // L23
-        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
-        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%1#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
-        let tmp%0#0: account = (txn Sender)
+        let tmp%2#0: account = (txn Sender)
         let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%3#0)
-        (app_local_put tmp%0#0 "loc" encoded_for_storage%1#0)
+        (app_local_put tmp%2#0 "loc" encoded_for_storage%1#0)
         return 
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: Encoded(uint64)) -> void:
