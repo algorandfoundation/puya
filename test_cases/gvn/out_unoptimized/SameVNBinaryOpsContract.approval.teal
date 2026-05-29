@@ -1,0 +1,70 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.same_vn_binary_ops.SameVNBinaryOpsContract.approval_program() -> uint64:
+main:
+    b main_block@0
+
+main_block@0:
+    // gvn/same_vn_binary_ops.py:15
+    // test_self_sub(BigUInt(42))
+    pushbytes 0x2a
+    callsub test_self_sub
+    // gvn/same_vn_binary_ops.py:16
+    // test_self_bitwise(UInt64(42))
+    pushint 42
+    callsub test_self_bitwise
+    // gvn/same_vn_binary_ops.py:17
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.gvn.same_vn_binary_ops.test_self_sub(x: bytes) -> void:
+test_self_sub:
+    // gvn/same_vn_binary_ops.py:23-24
+    // @subroutine(inline=False)
+    // def test_self_sub(x: BigUInt) -> None:
+    proto 1 0
+    b test_self_sub_block@0
+
+test_self_sub_block@0:
+    // gvn/same_vn_binary_ops.py:25-26
+    // # both operands are x -> same value number -> sub_bytes folds to b"" (0n)
+    // assert x - x == 0
+    frame_dig -1
+    frame_dig -1
+    b-
+    pushbytes 0x
+    b==
+    assert
+    retsub
+
+
+// test_cases.gvn.same_vn_binary_ops.test_self_bitwise(y: uint64) -> void:
+test_self_bitwise:
+    // gvn/same_vn_binary_ops.py:29-30
+    // @subroutine(inline=False)
+    // def test_self_bitwise(y: UInt64) -> None:
+    proto 1 0
+    b test_self_bitwise_block@0
+
+test_self_bitwise_block@0:
+    // gvn/same_vn_binary_ops.py:31-32
+    // # both operands share a value number -> bitwise and/or fold to the operand
+    // assert (y & y) == y
+    frame_dig -1
+    frame_dig -1
+    &
+    frame_dig -1
+    ==
+    assert
+    // gvn/same_vn_binary_ops.py:33
+    // assert (y | y) == y
+    frame_dig -1
+    frame_dig -1
+    |
+    frame_dig -1
+    ==
+    assert
+    retsub

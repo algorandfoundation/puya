@@ -148,6 +148,40 @@ subroutine alternating(a: uint64, b: uint64, n: uint64): uint64
   return x + y + s
 }
 
+contract SameVNBinaryOpsContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.same_vn_binary_ops.SameVNBinaryOpsContract.approval_program(): bool
+  {
+    test_cases.gvn.same_vn_binary_ops.test_self_sub(42n)
+    test_cases.gvn.same_vn_binary_ops.test_self_bitwise(42u)
+    return true
+  }
+  
+  subroutine test_cases.gvn.same_vn_binary_ops.SameVNBinaryOpsContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_self_sub(x: biguint): void
+{
+  assert(x b- x == 0n)
+}
+
+subroutine test_self_bitwise(y: uint64): void
+{
+  assert(y & y == y)
+  assert(y | y == y)
+}
+
 contract Replace3ConstFoldContract
 {
   method_resolution_order: (
@@ -729,4 +763,38 @@ subroutine test_through_phi(x: uint64): void
     b: bytes = itob(x)
   }
   assert(btoi(b) == x)
+}
+
+contract BigUIntOneConstVNContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.biguint_one_const_vn.BigUIntOneConstVNContract.approval_program(): bool
+  {
+    test_cases.gvn.biguint_one_const_vn.test_one_const(42n, selector=true)
+    test_cases.gvn.biguint_one_const_vn.test_one_const(42n, selector=false)
+    return true
+  }
+  
+  subroutine test_cases.gvn.biguint_one_const_vn.BigUIntOneConstVNContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_one_const(x: biguint, selector: bool): void
+{
+  if (selector) {
+    one: biguint = reinterpret_cast<biguint>(bzero(65u) + hex<"01">[-10:])
+  } else {
+    one: biguint = reinterpret_cast<biguint>(bzero(66u) + hex<"01">[-10:])
+  }
+  assert(x b* one == x)
+  assert(one b* x == x)
 }

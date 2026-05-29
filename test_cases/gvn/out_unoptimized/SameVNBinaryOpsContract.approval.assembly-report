@@ -1,0 +1,46 @@
+| PC | TEAL Bytes                  | TEAL                            | Source                        | Location                                                                                |
+|--: | :---------------------------| :-------------------------------| :-----------------------------| :---------------------------------------------------------------------------------------|
+|  0 | 0b                          | #pragma version 11              |                               |                                                                                         |
+|    | # main                      | main:                           |                               | test_cases.gvn.same_vn_binary_ops.SameVNBinaryOpsContract.approval_program() -> uint64: |
+|  1 | 42 00 00                    |     b main_block@0              |                               |                                                                                         |
+|    | # main_block@0              | main_block@0:                   |                               |                                                                                         |
+|    |                             |                                 | test_self_sub(BigUInt(42))    | gvn/same_vn_binary_ops.py:15                                                            |
+|  4 | 80 01 2a                    |     pushbytes 0x2a              |               -----------     | gvn/same_vn_binary_ops.py:15:22-33                                                      |
+|  7 | 88 00 08                    |     callsub test_self_sub       | --------------------------    | gvn/same_vn_binary_ops.py:15:8-34                                                       |
+|    |                             |                                 | test_self_bitwise(UInt64(42)) | gvn/same_vn_binary_ops.py:16                                                            |
+| 10 | 81 2a                       |     pushint 42                  |                   ----------  | gvn/same_vn_binary_ops.py:16:26-36                                                      |
+| 12 | 88 00 13                    |     callsub test_self_bitwise   | ----------------------------- | gvn/same_vn_binary_ops.py:16:8-37                                                       |
+|    |                             |                                 | return True                   | gvn/same_vn_binary_ops.py:17                                                            |
+| 15 | 81 01                       |     pushint 1                   |        ----                   | gvn/same_vn_binary_ops.py:17:15-19                                                      |
+| 17 | 43                          |     return                      | -----------                   | gvn/same_vn_binary_ops.py:17:8-19                                                       |
+|    | # test_self_sub             | test_self_sub:                  |                               | test_cases.gvn.same_vn_binary_ops.test_self_sub(x: bytes) -> void:                      |
+| 18 | 8a 01 00                    |     proto 1 0                   |                               | gvn/same_vn_binary_ops.py:23-24:1                                                       |
+| 21 | 42 00 00                    |     b test_self_sub_block@0     |                               |                                                                                         |
+|    | # test_self_sub_block@0     | test_self_sub_block@0:          |                               |                                                                                         |
+|    |                             |                                 | assert x - x == 0             | gvn/same_vn_binary_ops.py:26                                                            |
+| 24 | 8b ff                       |     frame_dig -1                |        -----                  | gvn/same_vn_binary_ops.py:26:11-16                                                      |
+| 26 | 8b ff                       |     frame_dig -1                |        -----                  | gvn/same_vn_binary_ops.py:26:11-16                                                      |
+| 28 | a1                          |     b-                          |        -----                  | gvn/same_vn_binary_ops.py:26:11-16                                                      |
+| 29 | 80 00                       |     pushbytes 0x                |                 -             | gvn/same_vn_binary_ops.py:26:20-21                                                      |
+| 31 | a8                          |     b==                         |        ----------             | gvn/same_vn_binary_ops.py:26:11-21                                                      |
+| 32 | 44                          |     assert                      | -----------------             | gvn/same_vn_binary_ops.py:26:4-21                                                       |
+| 33 | 89                          |     retsub                      |                               |                                                                                         |
+|    | # test_self_bitwise         | test_self_bitwise:              |                               | test_cases.gvn.same_vn_binary_ops.test_self_bitwise(y: uint64) -> void:                 |
+| 34 | 8a 01 00                    |     proto 1 0                   |                               | gvn/same_vn_binary_ops.py:29-30:1                                                       |
+| 37 | 42 00 00                    |     b test_self_bitwise_block@0 |                               |                                                                                         |
+|    | # test_self_bitwise_block@0 | test_self_bitwise_block@0:      |                               |                                                                                         |
+|    |                             |                                 | assert (y & y) == y           | gvn/same_vn_binary_ops.py:32                                                            |
+| 40 | 8b ff                       |     frame_dig -1                |         -----                 | gvn/same_vn_binary_ops.py:32:12-17                                                      |
+| 42 | 8b ff                       |     frame_dig -1                |         -----                 | gvn/same_vn_binary_ops.py:32:12-17                                                      |
+| 44 | 1a                          |     &                           |         -----                 | gvn/same_vn_binary_ops.py:32:12-17                                                      |
+| 45 | 8b ff                       |     frame_dig -1                |         -----------           | gvn/same_vn_binary_ops.py:32:12-23                                                      |
+| 47 | 12                          |     ==                          |         -----------           | gvn/same_vn_binary_ops.py:32:12-23                                                      |
+| 48 | 44                          |     assert                      | -------------------           | gvn/same_vn_binary_ops.py:32:4-23                                                       |
+|    |                             |                                 | assert (y | y) == y           | gvn/same_vn_binary_ops.py:33                                                            |
+| 49 | 8b ff                       |     frame_dig -1                |         -----                 | gvn/same_vn_binary_ops.py:33:12-17                                                      |
+| 51 | 8b ff                       |     frame_dig -1                |         -----                 | gvn/same_vn_binary_ops.py:33:12-17                                                      |
+| 53 | 19                          |     |                           |         -----                 | gvn/same_vn_binary_ops.py:33:12-17                                                      |
+| 54 | 8b ff                       |     frame_dig -1                |         -----------           | gvn/same_vn_binary_ops.py:33:12-23                                                      |
+| 56 | 12                          |     ==                          |         -----------           | gvn/same_vn_binary_ops.py:33:12-23                                                      |
+| 57 | 44                          |     assert                      | -------------------           | gvn/same_vn_binary_ops.py:33:4-23                                                       |
+| 58 | 89                          |     retsub                      |                               |                                                                                         |

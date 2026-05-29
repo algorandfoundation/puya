@@ -1,0 +1,114 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.biguint_one_const_vn.BigUIntOneConstVNContract.approval_program() -> uint64:
+main:
+    intcblock 10 1 0
+    bytecblock 0x2a 0x01
+    b main_block@0
+
+main_block@0:
+    // gvn/biguint_one_const_vn.py:14
+    // test_one_const(BigUInt(42), selector=True)
+    bytec_0 // 0x2a
+    intc_1 // 1
+    callsub test_one_const
+    // gvn/biguint_one_const_vn.py:15
+    // test_one_const(BigUInt(42), selector=False)
+    bytec_0 // 0x2a
+    intc_2 // 0
+    callsub test_one_const
+    // gvn/biguint_one_const_vn.py:16
+    // return True
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.biguint_one_const_vn.test_one_const(x: bytes, selector: uint64) -> void:
+test_one_const:
+    // gvn/biguint_one_const_vn.py:22-23
+    // @subroutine(inline=False)
+    // def test_one_const(x: BigUInt, *, selector: bool) -> None:
+    proto 2 0
+    intc_2 // 0
+    b test_one_const_block@0
+
+test_one_const_block@0:
+    // gvn/biguint_one_const_vn.py:24
+    // if selector:
+    frame_dig -1
+    bz test_one_const_else_body@2
+    b test_one_const_if_body@1
+
+test_one_const_if_body@1:
+    // gvn/biguint_one_const_vn.py:25
+    // one = BigUInt.from_bytes((op.bzero(65) + b"\x01")[-10:])
+    pushint 65
+    bzero
+    bytec_1 // 0x01
+    concat
+    dup
+    len
+    intc_0 // 10
+    dig 1
+    >=
+    intc_0 // 10
+    dig 2
+    uncover 2
+    select
+    dig 1
+    uncover 1
+    -
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    frame_bury 0
+    b test_one_const_after_if_else@3
+
+test_one_const_after_if_else@3:
+    // gvn/biguint_one_const_vn.py:28-29
+    // # one == 1 (only GVN proves it). x b* 1 -> LEFT operand; 1 b* x -> RIGHT.
+    // assert x * one == x
+    frame_dig -2
+    frame_dig 0
+    dup
+    cover 2
+    b*
+    frame_dig -2
+    b==
+    assert
+    // gvn/biguint_one_const_vn.py:30
+    // assert one * x == x
+    frame_dig -2
+    b*
+    frame_dig -2
+    b==
+    assert
+    retsub
+
+test_one_const_else_body@2:
+    // gvn/biguint_one_const_vn.py:27
+    // one = BigUInt.from_bytes((op.bzero(66) + b"\x01")[-10:])
+    pushint 66
+    bzero
+    bytec_1 // 0x01
+    concat
+    dup
+    len
+    intc_0 // 10
+    dig 1
+    >=
+    intc_0 // 10
+    dig 2
+    uncover 2
+    select
+    dig 1
+    uncover 1
+    -
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    frame_bury 0
+    b test_one_const_after_if_else@3
