@@ -574,18 +574,18 @@ def _build_equivalence_sets(
             ops.append(op)
             if isinstance(op, models.Assert):
                 condition = op.condition
+                redundant = False
                 if _assert_always_passes(condition, tables):
+                    redundant = True
+                elif isinstance(condition, models.Register):
+                    condition_vn = tables.register_vn[condition]
+                    if not set_add(asserted, condition_vn):
+                        redundant = True
+                if redundant:
                     modified = True
                     logger.debug(f"removing redundant assert of {condition}")
                     ops.pop()
                     ssa_reads.remove(op)
-                elif isinstance(condition, models.Register):
-                    condition_vn = tables.register_vn[condition]
-                    if not set_add(asserted, condition_vn):
-                        modified = True
-                        logger.debug(f"removing redundant assert of {condition}")
-                        ops.pop()
-                        ssa_reads.remove(op)
             elif isinstance(op, models.Assignment):
                 match op.source:
                     case models.Constant():
