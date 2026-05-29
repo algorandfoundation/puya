@@ -88,21 +88,17 @@ class _IntrinsicSimplifier(IRTraverser):
 
     @typing.override
     def visit_assert(self, assert_: models.Assert) -> None:
-        cond = assert_.condition
-        if cond_defn := self.register_assignments.get(cond):
-            cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
-            if cond_maybe_simplified is not None:
-                assert_.condition = cond_maybe_simplified
-                self.modified += 1
+        simplified = _try_simplify_bool_condition(self.register_assignments, assert_.condition)
+        if simplified is not None:
+            assert_.condition = simplified
+            self.modified += 1
 
     @typing.override
     def visit_conditional_branch(self, branch: models.ConditionalBranch) -> None:
-        cond = branch.condition
-        if cond_defn := self.register_assignments.get(cond):
-            cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
-            if cond_maybe_simplified is not None:
-                branch.condition = cond_maybe_simplified
-                self.modified += 1
+        simplified = _try_simplify_bool_condition(self.register_assignments, branch.condition)
+        if simplified is not None:
+            branch.condition = simplified
+            self.modified += 1
 
 
 def _try_simplify_bool_condition(
