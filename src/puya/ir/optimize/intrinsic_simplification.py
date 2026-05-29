@@ -21,6 +21,7 @@ from puya.ir.optimize._intrinsics import (
 from puya.ir.optimize._utils import SSAReadTracker
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
+from puya.ir.visitor import IRTraverser
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import Address, biguint_bytes_length
 
@@ -40,66 +41,68 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
                 (target,) = op.targets
                 register_assignments[target] = op
 
-    modified = 0
-    for block in subroutine.body:
-        for op in block.ops:
-            match op:
-                case models.Assert() as assert_:
-                    if _simplify_assert(assert_, register_assignments):
-                        modified += 1
-                case (
-                    models.Assignment(
-                        targets=[*targets], source=models.Intrinsic() as source
-                    ) as ass
-                ):
-                    if len(targets) == 1:
-                        simplified = _try_simplify_intrinsic(
-                            ssa_reads, register_assignments, source
-                        )
-                        if simplified is None:
-                            simplified = _try_simplify_repeated_binary_op(
-                                register_assignments, ass, source, ssa_reads
-                            )
-                        if simplified is not None:
-                            logger.debug(f"Simplified {source} to {simplified}")
-                            with ssa_reads.update(ass):
-                                ass.source = simplified
-                            modified += 1
-                    elif source.op is AVMOp.box_get:
-                        maybe_value, exists = ass.targets
-                        if ssa_reads.count(maybe_value) == 0:
-                            logger.debug(
-                                f"replacing box_get with box_len"
-                                f" because {maybe_value.local_id} is unused"
-                            )
-                            modified += 1
-                            # we've checked this isn't used, so it's safe to just change it's type
-                            ass.targets[0] = attrs.evolve(
-                                maybe_value, ir_type=PrimitiveIRType.uint64
-                            )
-                            ass.source = attrs.evolve(
-                                source,
-                                op=AVMOp.box_len,
-                                types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
-                            )
-        match block.terminator:
-            case models.ConditionalBranch(condition=models.Register() as cond) as branch if (
-                cond_defn := register_assignments.get(cond)
-            ):
-                cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
-                if cond_maybe_simplified is not None:
-                    block.terminator = attrs.evolve(branch, condition=cond_maybe_simplified)
-                    modified += 1
-    return modified > 0
+    simplifier = _IntrinsicSimplifier(
+        ssa_reads=ssa_reads, register_assignments=register_assignments
+    )
+    simplifier.visit_all_blocks(subroutine.body)
+    return simplifier.modified > 0
 
 
-def _simplify_assert(assert_: models.Assert, register_assignments: _RegisterAssignments) -> bool:
-    if cond_defn := register_assignments.get(assert_.condition):
-        assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
-        if assert_cond_maybe_simplified is not None:
-            assert_.condition = assert_cond_maybe_simplified
-            return True
-    return False
+@attrs.define(kw_only=True)
+class _IntrinsicSimplifier(IRTraverser):
+    ssa_reads: SSAReadTracker
+    register_assignments: _RegisterAssignments
+    modified: int = 0
+
+    @typing.override
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        source = ass.source
+        if isinstance(source, models.Intrinsic):
+            if len(ass.targets) == 1:
+                simplified = _try_simplify_intrinsic(
+                    self.ssa_reads, self.register_assignments, source
+                )
+                if simplified is None:
+                    simplified = _try_simplify_repeated_binary_op(
+                        self.register_assignments, ass, source, self.ssa_reads
+                    )
+                if simplified is not None:
+                    logger.debug(f"Simplified {source} to {simplified}")
+                    with self.ssa_reads.update(ass):
+                        ass.source = simplified
+                    self.modified += 1
+            elif source.op is AVMOp.box_get:
+                maybe_value, exists = ass.targets
+                if self.ssa_reads.count(maybe_value) == 0:
+                    logger.debug(
+                        f"replacing box_get with box_len because {maybe_value.local_id} is unused"
+                    )
+                    self.modified += 1
+                    # we've checked this isn't used, so it's safe to just change it's type
+                    ass.targets[0] = attrs.evolve(maybe_value, ir_type=PrimitiveIRType.uint64)
+                    ass.source = attrs.evolve(
+                        source,
+                        op=AVMOp.box_len,
+                        types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
+                    )
+
+    @typing.override
+    def visit_assert(self, assert_: models.Assert) -> None:
+        cond = assert_.condition
+        if cond_defn := self.register_assignments.get(cond):
+            cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
+            if cond_maybe_simplified is not None:
+                assert_.condition = cond_maybe_simplified
+                self.modified += 1
+
+    @typing.override
+    def visit_conditional_branch(self, branch: models.ConditionalBranch) -> None:
+        cond = branch.condition
+        if cond_defn := self.register_assignments.get(cond):
+            cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
+            if cond_maybe_simplified is not None:
+                branch.condition = cond_maybe_simplified
+                self.modified += 1
 
 
 def _try_simplify_bool_condition(
