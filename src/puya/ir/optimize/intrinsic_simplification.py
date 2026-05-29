@@ -608,6 +608,32 @@ def _try_fold_intrinsic(
                         models.UInt64Constant(value=8, source_location=None),
                     ],
                 )
+    elif intrinsic.op is AVMOp.len_:
+        (arg,) = intrinsic.args
+        if (safe_num_bytes := _get_bytes_length_safe(register_assignments, arg)) is not None:
+            return models.UInt64Constant(value=safe_num_bytes, source_location=op_loc)
+    elif intrinsic.op is AVMOp.btoi:
+        (arg,) = intrinsic.args
+        if arg_defn := register_assignments.get(arg):
+            match arg_defn.source:
+                # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
+                case models.Intrinsic(
+                    op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
+                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                    return attrs.evolve(
+                        intrinsic,
+                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                        args=[bites, UInt64Constant(value=start, source_location=None)],
+                    )
+                case models.Intrinsic(
+                    op=AVMOp.extract3,
+                    args=[bites, start_arg, models.UInt64Constant(value=length)],
+                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                    return attrs.evolve(
+                        intrinsic,
+                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                        args=[bites, start_arg],
+                    )
     elif not intrinsic.immediates:
         match intrinsic.args:
             case [
@@ -615,8 +641,6 @@ def _try_fold_intrinsic(
                 models.Value(atype=AVMType.uint64) as b,
             ]:
                 return _try_simplify_uint64_binary_op(register_assignments, intrinsic, a, b)
-            case [models.Value(atype=AVMType.bytes) as x]:
-                return _try_simplify_bytes_unary_op(register_assignments, intrinsic, x)
             case [
                 models.Value(atype=AVMType.bytes) as a,
                 models.Value(atype=AVMType.bytes) as b,
@@ -987,39 +1011,6 @@ _EXTRACT_UINT_OPS_BY_LENGTH = {
 }
 
 
-def _try_simplify_bytes_unary_op(
-    register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic, arg: models.Value
-) -> models.Value | models.Intrinsic | None:
-    op_loc = intrinsic.source_location
-    op = intrinsic.op
-    if (
-        op is AVMOp.len_
-        and (safe_num_bytes := _get_bytes_length_safe(register_assignments, arg)) is not None
-    ):
-        return models.UInt64Constant(value=safe_num_bytes, source_location=op_loc)
-    if op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
-        match arg_defn.source:
-            # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
-            case models.Intrinsic(
-                op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
-            ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                return attrs.evolve(
-                    intrinsic,
-                    op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
-                    args=[bites, UInt64Constant(value=start, source_location=None)],
-                )
-            case models.Intrinsic(
-                op=AVMOp.extract3,
-                args=[bites, start_arg, models.UInt64Constant(value=length)],
-            ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                return attrs.evolve(
-                    intrinsic,
-                    op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
-                    args=[bites, start_arg],
-                )
-    return None
-
-
 def _try_simplify_uint64_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1077,38 +1068,6 @@ def _try_simplify_bytes_binary_op(
     b: models.Value,
 ) -> models.Value | None:
     op = intrinsic.op
-    # a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
-    # b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
-    # if (
-    #     a_const is not None
-    #     and b_const is not None
-    #     and (folded := fold_biguint_const_binary_op(op, a_const, b_const)) is not None
-    # ):
-    #     return _wrap_biguint_or_uint64(folded, intrinsic)
-    # if a_const_bytes is not None and b_const_bytes is not None:
-    #     match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
-    #         case int(v):
-    #             return _wrap_biguint_or_uint64(v, intrinsic)
-    #         case bytes(result_bytes):
-    #             return models.BytesConstant(
-    #                 value=result_bytes,
-    #                 encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
-    #                 source_location=intrinsic.source_location,
-    #             )
-    #         case None:
-    #             pass
-    #         case unexpected:
-    #             typing.assert_never(unexpected)
-    #
-    # match simplify_bytes_binary_op_one_const(op, a_const, b_const):
-    #     case int(v):
-    #         return _wrap_biguint_or_uint64(v, intrinsic)
-    #     case BinarySimplification.LEFT:
-    #         return a
-    #     case BinarySimplification.RIGHT:
-    #         return b
-    #     case other:
-    #         typing.assert_type(other, None)
 
     a_size = _get_bytes_length_safe(register_assignments, a)
     b_size = _get_bytes_length_safe(register_assignments, b)
