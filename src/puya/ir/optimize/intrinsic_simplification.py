@@ -891,16 +891,6 @@ def _try_simplify_uint64_binary_op(
     return None
 
 
-def _wrap_biguint_or_uint64(c: int, intrinsic: models.Intrinsic) -> models.Value:
-    (ir_type,) = intrinsic.types
-    if ir_type == PrimitiveIRType.biguint:
-        return models.BigUIntConstant(value=c, source_location=intrinsic.source_location)
-    assert ir_type.avm_type is AVMType.uint64
-    return models.UInt64Constant(
-        value=c, ir_type=ir_type, source_location=intrinsic.source_location
-    )
-
-
 def _try_simplify_bytes_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -908,12 +898,13 @@ def _try_simplify_bytes_binary_op(
     b: models.Value,
 ) -> models.Value | None:
     op = intrinsic.op
-
-    a_size = _get_bytes_length_safe(register_assignments, a)
-    b_size = _get_bytes_length_safe(register_assignments, b)
-    if a_size is not None and b_size is not None and a_size != b_size:
-        if op is AVMOp.eq:
-            return _wrap_biguint_or_uint64(0, intrinsic)
-        if op is AVMOp.neq:
-            return _wrap_biguint_or_uint64(1, intrinsic)
+    if intrinsic.op in (AVMOp.eq, AVMOp.neq):
+        a_size = _get_bytes_length_safe(register_assignments, a)
+        b_size = _get_bytes_length_safe(register_assignments, b)
+        if a_size is not None and b_size is not None and a_size != b_size:
+            return UInt64Constant(
+                value=0 if op is AVMOp.eq else 1,
+                ir_type=PrimitiveIRType.bool,
+                source_location=intrinsic.source_location,
+            )
     return None
