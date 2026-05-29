@@ -287,6 +287,12 @@ def _try_simplify_bool_intrinsic(cond_op: models.ValueProvider) -> models.Value 
     return None
 
 
+_EXTRACT_UINT_OPS_BY_LENGTH = {
+    1: AVMOp.getbyte,
+    **{v: k for k, v in EXTRACT_UINTN_BYTE_SIZE.items()},
+}
+
+
 def _try_fold_intrinsic(
     ssa_reads: SSAReadTracker,
     register_assignments: _RegisterAssignments,
@@ -824,12 +830,6 @@ def _get_bytes_length_safe(
     elif isinstance(byte_arg, models.Constant):
         return byte_arg.ir_type.num_bytes
     return None
-
-
-_EXTRACT_UINT_OPS_BY_LENGTH = {
-    1: AVMOp.getbyte,
-    **{v: k for k, v in EXTRACT_UINTN_BYTE_SIZE.items()},
-}
 
 
 def _try_simplify_uint64_binary_op(
