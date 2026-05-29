@@ -345,6 +345,13 @@ def _try_fold_intrinsic(
                             )
                             return attrs.evolve(intrinsic, args=[src_bytes_arg, new_offset_const])
     elif intrinsic.op is AVMOp.concat:
+        # TODO: this folding here is vestigial from when this file did pure constant
+        # folding as well, but not that job is (other than this op) left to GVN,
+        # however, the conditions under which this folded are difficult to replicate there,
+        # a better size/op cost accounting model in GVN constant materialisation there might
+        # allow GVN to fully replace this without significant regressions in the test suite
+        # (or we could just accept that the test suite is not representative of real-world
+        # contracts necessarily and accept the decrease in size_diff stats)
         left_arg, right_arg = intrinsic.args
         left_const = _get_byte_constant(register_assignments, left_arg)
         right_const = _get_byte_constant(register_assignments, right_arg)
