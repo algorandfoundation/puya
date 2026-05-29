@@ -399,15 +399,20 @@ class FunctionIRBuilder(
 
                 return ir.BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
-                num_bytes = bit_size // 8
-                try:
-                    arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
-                except OverflowError:
-                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location) from None
-                return ir.BytesConstant(
-                    value=arc4_result,
-                    encoding=types.AVMBytesEncoding.base16,
-                    source_location=expr.source_location,
+                loc = expr.source_location
+                if expr.value < 0 or expr.value.bit_length() > bit_size:
+                    raise CodeError(f"invalid {expr.wtype} value", loc)
+                if bit_size <= 64:
+                    value_const: ir.Value = ir.UInt64Constant(
+                        value=expr.value, source_location=loc
+                    )
+                else:
+                    value_const = ir.BigUIntConstant(value=expr.value, source_location=loc)
+                return ir.BytesEncode.maybe(
+                    values=[value_const],
+                    values_type=value_const.ir_type,
+                    encoding=wtype_to_encoding(expr.wtype, loc),
+                    source_location=loc,
                 )
             case _:
                 raise InternalError(
