@@ -13,7 +13,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._intrinsics import (
     EXTRACT_UINTN_BYTE_SIZE,
-    SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
     simplify_uint64_binary_op_one_const,
@@ -46,14 +45,6 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
         new_ops = list[models.Op]()
         for op in block.ops:
             match op:
-                case models.Intrinsic() as intrinsic:
-                    # a bare intrinsic op means its result is unused or it doesn't return,
-                    # so the result is either the (possibly modified) op, or None to delete it
-                    visited = _visit_intrinsic_op(intrinsic)
-                    if visited is not intrinsic:
-                        modified += 1
-                    if visited is not None:
-                        new_ops.append(visited)
                 case models.Assert() as assert_:
                     if _simplify_assert(assert_, register_assignments):
                         modified += 1
@@ -116,24 +107,6 @@ def _simplify_assert(assert_: models.Assert, register_assignments: _RegisterAssi
             assert_.condition = assert_cond_maybe_simplified
             return True
     return False
-
-
-def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
-    # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
-    # in either case, the result has to be either an Op or None (ie delete),
-    # so we don't invoke _try_simplify_intrinsic here
-    if intrinsic.op == AVMOp.itxn_field:
-        (field_im,) = intrinsic.immediates
-        if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
-            (page_value,) = intrinsic.args
-            if isinstance(page_value, models.BytesConstant) and page_value.value == b"":
-                return None
-        return intrinsic
-    elif intrinsic.op.code in SIDE_EFFECT_FREE_AVM_OPS:
-        logger.debug(f"Removing unused pure op {intrinsic}")
-        return None
-    else:
-        return intrinsic
 
 
 def _try_simplify_bool_condition(

@@ -17,6 +17,7 @@ from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.convert_stack_args_to_immediates import convert_stack_args_to_immediates
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
+    remove_unused_intrinsics,
     remove_unused_subroutines,
     remove_unused_variables,
 )
@@ -86,6 +87,7 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(elide_itxn_field_calls),
         # TODO: improve this algorithm instead of looping
         SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),
+        SubroutineOptimization.from_function(remove_unused_intrinsics),
         SubroutineOptimization.from_function(convert_stack_args_to_immediates),
         SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),

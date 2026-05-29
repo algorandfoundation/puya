@@ -140,6 +140,25 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     return modified > 0
 
 
+def remove_unused_intrinsics(_context: CompileContext, subroutine: models.Subroutine) -> bool:
+    modified = False
+    for block in subroutine.body:
+        new_ops = list[models.Op]()
+        for op in block.ops:
+            # a bare intrinsic op means its result is unused or it doesn't return,
+            # so if it's also side-effect free, it can be removed entirely
+            match op:
+                case models.Intrinsic(
+                    op=intrinsic_op
+                ) if intrinsic_op.code in SIDE_EFFECT_FREE_AVM_OPS:
+                    logger.debug(f"Removing unused pure op {op}")
+                    modified = True
+                case _:
+                    new_ops.append(op)
+        block.ops[:] = new_ops
+    return modified
+
+
 @attrs.define(kw_only=True)
 class UnusedRegisterCollector(visitor.IRTraverser):
     used: set[models.Register] = attrs.field(factory=set)
