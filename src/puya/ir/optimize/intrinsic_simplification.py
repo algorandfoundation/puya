@@ -19,8 +19,6 @@ from puya.ir.optimize._intrinsics import (
     BinarySimplification,
     choose_encoding,
     chop_encoding,
-    fold_biguint_const_binary_op,
-    fold_bytes_const_binary_op,
     fold_bytes_const_unary_op,
     fold_extract_uint_n,
     fold_getbit_bytes,
@@ -31,7 +29,6 @@ from puya.ir.optimize._intrinsics import (
     fold_setbyte,
     fold_uint64_const_unary_op,
     hash_eval_funcs,
-    simplify_bytes_binary_op_one_const,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
@@ -1138,38 +1135,38 @@ def _try_simplify_bytes_binary_op(
     b: models.Value,
 ) -> models.Value | None:
     op = intrinsic.op
-    a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
-    b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
-    if (
-        a_const is not None
-        and b_const is not None
-        and (folded := fold_biguint_const_binary_op(op, a_const, b_const)) is not None
-    ):
-        return _wrap_biguint_or_uint64(folded, intrinsic)
-    if a_const_bytes is not None and b_const_bytes is not None:
-        match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
-            case int(v):
-                return _wrap_biguint_or_uint64(v, intrinsic)
-            case bytes(result_bytes):
-                return models.BytesConstant(
-                    value=result_bytes,
-                    encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
-                    source_location=intrinsic.source_location,
-                )
-            case None:
-                pass
-            case unexpected:
-                typing.assert_never(unexpected)
-
-    match simplify_bytes_binary_op_one_const(op, a_const, b_const):
-        case int(v):
-            return _wrap_biguint_or_uint64(v, intrinsic)
-        case BinarySimplification.LEFT:
-            return a
-        case BinarySimplification.RIGHT:
-            return b
-        case other:
-            typing.assert_type(other, None)
+    # a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
+    # b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
+    # if (
+    #     a_const is not None
+    #     and b_const is not None
+    #     and (folded := fold_biguint_const_binary_op(op, a_const, b_const)) is not None
+    # ):
+    #     return _wrap_biguint_or_uint64(folded, intrinsic)
+    # if a_const_bytes is not None and b_const_bytes is not None:
+    #     match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
+    #         case int(v):
+    #             return _wrap_biguint_or_uint64(v, intrinsic)
+    #         case bytes(result_bytes):
+    #             return models.BytesConstant(
+    #                 value=result_bytes,
+    #                 encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
+    #                 source_location=intrinsic.source_location,
+    #             )
+    #         case None:
+    #             pass
+    #         case unexpected:
+    #             typing.assert_never(unexpected)
+    #
+    # match simplify_bytes_binary_op_one_const(op, a_const, b_const):
+    #     case int(v):
+    #         return _wrap_biguint_or_uint64(v, intrinsic)
+    #     case BinarySimplification.LEFT:
+    #         return a
+    #     case BinarySimplification.RIGHT:
+    #         return b
+    #     case other:
+    #         typing.assert_type(other, None)
 
     a_size = _get_bytes_length_safe(register_assignments, a)
     b_size = _get_bytes_length_safe(register_assignments, b)
