@@ -29,6 +29,7 @@ from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimi
 from puya.ir.optimize.repeated_loads_elimination import (
     constant_reads_and_unobserved_writes_elimination,
 )
+from puya.ir.optimize.sink_single_use_intrinsics import sink_single_use_intrinsics
 from puya.ir.to_text_visitor import render_program
 from puya.options import PuyaOptions
 from puya.utils import attrs_extend
@@ -87,6 +88,7 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),
         SubroutineOptimization.from_function(replace_compiled_references, min_level=0),
         SubroutineOptimization.from_function(simplify_control_ops, loop=True),
+        SubroutineOptimization.from_function(sink_single_use_intrinsics, min_level=1),
         SubroutineOptimization.from_function(merge_blocks),
         SubroutineOptimization.from_function(remove_linear_jumps),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
