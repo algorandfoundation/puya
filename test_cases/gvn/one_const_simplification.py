@@ -18,6 +18,10 @@ class OneConstSimplificationContract(ARC4Contract):
     @public
     def gt_zero(self, b: UInt64) -> bool:
         # 0 > b -> 0 (uint64 is never negative)
+        # NOTE: the UInt64 wrapper here (and elsewhere in this file) is load bearing,
+        #       for the sole reason that otherwise the puyapy front-end will flip it
+        #       around when resolving the literal (which is correct, but doesn't hit
+        #       the lines we want to test)
         return UInt64(0) > b
 
     @public
