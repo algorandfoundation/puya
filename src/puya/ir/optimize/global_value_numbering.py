@@ -519,7 +519,6 @@ def _build_equivalence_sets(
     Also drops redundant asserts where the condition VN was already asserted on
     this dominator path.
     """
-    modified = False
     all_sets = defaultdict[models.Register, list[models.Register]](list)
 
     def _keep_defn(
@@ -545,9 +544,8 @@ def _build_equivalence_sets(
         block: models.BasicBlock,
         vn_to_rep: _VNRepresentativeMap,
         asserted_: Set[VN | models.Value],
-    ) -> None:
-        nonlocal modified
-
+    ) -> bool:
+        modified = False
         scope = dict(vn_to_rep)
         asserted = set(asserted_)
         phis = []
@@ -582,55 +580,41 @@ def _build_equivalence_sets(
             elif isinstance(op, models.Assignment):
                 match op.source:
                     case models.Constant():
-                        continue
-                    case models.ValueTuple(values=values) if all(
-                        isinstance(v, models.Constant) for v in values
-                    ):
-                        # matches multi-target ops folded by _materialize_constants —
-                        # mirrors the single-target Constant skip above
-                        continue
+                        pass
+                    case models.ValueTuple(values=values) if is_list_of(values, models.Constant):  # type: ignore[type-abstract]
+                        pass
                     case models.Intrinsic(args=[]):
-                        force_new_rep = True
+                        # no-arg intrinsic: never matches an external rep, so it's
+                        # always kept, registering a fresh rep for each target.
+                        for target in op.targets:
+                            _keep_defn(target, scope, force_new_rep=True)
                     case _:
-                        force_new_rep = False
-                if len(op.targets) == 1 or force_new_rep:
-                    keep = False
-                    for target in op.targets:
-                        keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
-                    if not keep:
-                        ops.pop()
-                        modified = True
-                        ssa_reads.remove(op)
-                else:
-                    # Multi-target: only drop the op if EVERY target has an external
-                    # dominating rep. Partial folding would let MemoryReplacer rewrite
-                    # only some targets on the LHS, producing duplicate Assignment
-                    # targets and violating SSA. When kept, still register the novel
-                    # targets as reps so a later identical op can drop itself.
-                    target_keys = [
-                        (tables.register_vn[t], t.ir_type.maybe_avm_type) for t in op.targets
-                    ]
-                    external_reps = [scope.get(k) for k in target_keys]
-                    if all(rep is not None for rep in external_reps):
-                        for target, rep in zip(op.targets, external_reps, strict=True):
-                            assert rep is not None
-                            all_sets[rep].append(target)
-                        ops.pop()
-                        modified = True
-                        ssa_reads.remove(op)
-                    else:
-                        seen_keys = set[tuple[VN, _MaybeAVMType]]()
-                        for target, key, ext_rep in zip(
-                            op.targets, target_keys, external_reps, strict=True
-                        ):
-                            if ext_rep is None and set_add(seen_keys, key):
-                                _keep_defn(target, scope, force_new_rep=False)
-
+                        # Only drop the op if EVERY target has an external dominating rep.
+                        # Partial folding would let MemoryReplacer rewrite only some targets
+                        # on the LHS, producing duplicate Assignment targets and violating SSA
+                        # — so it's all-or-nothing.
+                        target_keys = [
+                            (tables.register_vn[t], t.ir_type.maybe_avm_type) for t in op.targets
+                        ]
+                        all_in_scope = all(k in scope for k in target_keys)
+                        # When dropping, fold every target into its external rep. When keeping,
+                        # process only the novel targets: each registers itself as a fresh rep,
+                        # which means a same-VN sibling later in this op now resolves against
+                        # that fresh rep and is skipped — so two such targets can't be marked as
+                        # replacements for each other. _keep_defn does the right thing either way.
+                        for target, key in zip(op.targets, target_keys, strict=True):
+                            if all_in_scope or key not in scope:
+                                _keep_defn(target, scope)
+                        if all_in_scope:
+                            ops.pop()
+                            modified = True
+                            ssa_reads.remove(op)
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
-            _walk(child, scope, asserted)
+            modified |= _walk(child, scope, asserted)
+        return modified
 
-    _walk(start, initial_scope, set())
+    modified = _walk(start, initial_scope, set())
     return modified, [s for s in all_sets.values() if len(s) > 1]
 
 
