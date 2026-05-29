@@ -503,6 +503,16 @@ def _get_const_size(arg: models.Constant) -> int:
     return 0
 
 
+def _assert_always_passes(condition: models.Value, tables: _GVNTables) -> bool:
+    match condition:
+        case models.UInt64Constant(value=value):
+            return value != 0
+        case models.Register():
+            defn = tables.vn_definition.get(tables.register_vn[condition])
+            return isinstance(defn, _UInt64ConstKey) and defn.value != 0
+    return False
+
+
 def _build_equivalence_sets(
     subroutine: models.Subroutine,
     tables: _GVNTables,
@@ -563,11 +573,17 @@ def _build_equivalence_sets(
         for op in block.ops:
             ops.append(op)
             if isinstance(op, models.Assert):
-                if isinstance(op.condition, models.Register):
-                    condition_vn = tables.register_vn[op.condition]
+                condition = op.condition
+                if _assert_always_passes(condition, tables):
+                    modified = True
+                    logger.debug(f"removing assert of non-zero constant {condition}")
+                    ops.pop()
+                    ssa_reads.remove(op)
+                elif isinstance(condition, models.Register):
+                    condition_vn = tables.register_vn[condition]
                     if not set_add(asserted, condition_vn):
                         modified = True
-                        logger.debug(f"removing redundant assert of {op.condition}")
+                        logger.debug(f"removing redundant assert of {condition}")
                         ops.pop()
                         ssa_reads.remove(op)
             elif isinstance(op, models.Assignment):
