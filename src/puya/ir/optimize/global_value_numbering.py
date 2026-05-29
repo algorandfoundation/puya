@@ -1322,7 +1322,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
             self.tables.set_register_vn(phi.register, self.tables.stable_phi_vn(phi))
             return
 
-        real_vns = list[VN]()
+        real_vns = set[VN]()
         phi_key_entries = list[tuple[models.BasicBlock, VN | models.Register]]()
         any_top = False
         for arg in phi.non_self_args:
@@ -1336,7 +1336,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
                 any_top = True
                 phi_key_entries.append((arg.through, arg.value))
             else:
-                real_vns.append(existing_vn)
+                real_vns.add(existing_vn)
                 phi_key_entries.append((arg.through, existing_vn))
         phi_key = frozenset(phi_key_entries)
 
@@ -1356,11 +1356,8 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         # propagate disagreement, an un-numbered back-edge can't be optimistically
         # equated with the forward args. (Self-args don't reach ``any_top``.)
         candidate: VN | None = None
-        can_be_redundant = real_vns and len(set(real_vns)) == 1
-        if phi in self.non_collapsing_phis and any_top:
-            can_be_redundant = False
-        if can_be_redundant:
-            candidate = real_vns[0]
+        if len(real_vns) == 1 and not (phi in self.non_collapsing_phis and any_top):
+            (candidate,) = real_vns
             prev_vn = self.tables.register_vn.get(phi.register)
             if prev_vn is not None and prev_vn != candidate:
                 candidate = self.tables.stable_phi_vn(phi)
