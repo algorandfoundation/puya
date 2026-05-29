@@ -86,13 +86,6 @@ logger = log.get_logger(__name__)
 
 VN: typing.TypeAlias = int
 
-# Phi treatment classification produced by ``_classify_phi_sccs`` and consulted
-# by ``GVNBlockVisitor.visit_phi``. Phis absent from the treatment map default
-# to the standard optimistic redundancy claim; phis mapped to ``_PESSIMISTIC``
-# have that claim gated on every arg already being numbered.
-_PhiTreatment: typing.TypeAlias = typing.Literal["pessimistic"]
-_PESSIMISTIC: _PhiTreatment = "pessimistic"
-
 # Commutative AVM ops: sorting operand VNs lets us recognise a+b == b+a.
 _COMMUTATIVE_OPS: typing.Final[Set[AVMOp]] = frozenset(
     [
@@ -1277,16 +1270,14 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         self,
         tables: _GVNTables,
         *,
-        phi_treatment: Mapping[models.Phi, _PhiTreatment],
+        non_collapsing_phis: Set[models.Phi],
     ):
         self.tables = tables
-        # ``phi_treatment`` marks the phis whose redundancy claim is gated
-        # on every arg already being numbered, matching the algorithm used
-        # before optimistic iteration was introduced. Populated by the SCC
-        # pre-pass (``_classify_phi_sccs``) for phis that demonstrably
-        # cannot benefit from iteration; the cap-out fallback passes a map
-        # of every phi → ``_PESSIMISTIC`` to apply the gate everywhere.
-        self.phi_treatment = phi_treatment
+        # Phis whose redundancy claim is gated on every non-self arg already
+        # being numbered. Populated by ``_find_non_collapsing_phis`` for SCCs that
+        # demonstrably cannot collapse to a single VN; the seed walk passes
+        # the full set to bootstrap that classifier.
+        self.non_collapsing_phis = non_collapsing_phis
         # phi table is per block because the through->block relationship is
         # effectively part of the identity
         self.phi_table = dict[frozenset[tuple[models.BasicBlock, VN | models.Register]], VN]()
@@ -1360,15 +1351,13 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         # the sibling-congruence branch would split block-local-congruent
         # cohorts onto distinct stable VNs, because `stable_phi_vn` is keyed
         # per-Phi — each cohort member has its own.
-        # For phis the SCC pre-pass marked ``_PESSIMISTIC``, the redundancy
-        # branch additionally requires that every non-self arg was already
-        # numbered — without iteration, an un-numbered back-edge can't be
-        # optimistically equated with the forward args. (Self-args don't
-        # contribute to ``any_top`` because they're filtered upstream; the
-        # gate fires only on genuine non-self back-edges.)
+        # For non-collapsing phis, the redundancy branch additionally requires
+        # every non-self arg to be already numbered: without iteration to
+        # propagate disagreement, an un-numbered back-edge can't be optimistically
+        # equated with the forward args. (Self-args don't reach ``any_top``.)
         candidate: VN | None = None
         can_be_redundant = real_vns and len(set(real_vns)) == 1
-        if self.phi_treatment.get(phi) == _PESSIMISTIC and any_top:
+        if phi in self.non_collapsing_phis and any_top:
             can_be_redundant = False
         if can_be_redundant:
             candidate = real_vns[0]
@@ -1389,44 +1378,35 @@ def _process_blocks_pre_order(
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
     *,
-    phi_treatment: Mapping[models.Phi, _PhiTreatment],
+    non_collapsing_phis: Set[models.Phi],
 ) -> None:
-    visitor = GVNBlockVisitor(tables, phi_treatment=phi_treatment)
+    visitor = GVNBlockVisitor(tables, non_collapsing_phis=non_collapsing_phis)
     for op in block.all_ops:
         op.accept(visitor)
 
     for child in dom_tree.get(block, []):
-        _process_blocks_pre_order(tables, dom_tree, child, phi_treatment=phi_treatment)
+        _process_blocks_pre_order(tables, dom_tree, child, non_collapsing_phis=non_collapsing_phis)
 
 
-def _classify_phi_sccs(
+def _find_non_collapsing_phis(
     subroutine: models.Subroutine,
     provisional_vn: Mapping[models.Register, VN],
-) -> Mapping[models.Phi, _PhiTreatment]:
-    """Classify phis whose SCC cannot collapse, so iteration is skipped on them.
+) -> Set[models.Phi]:
+    """Return phis in SCCs that can't collapse to a single VN.
 
-    Builds the phi-only dependency graph (nodes = ``Phi`` instances, edges
-    consumer → producer iff some arg of consumer has ``.value`` equal to the
-    producer's register, with self-edges skipped) and finds SCCs. A
-    multi-member SCC with ≥ 2 distinct external-arg VNs cannot reduce to a
-    single VN — its members can only mint per-phi stable VNs, which the
-    pessimistic guard produces in one walk instead of taking ``depth + 3``
-    walks for the disagreement signal to propagate outward through the SCC.
+    Builds the phi-only dependency graph (edges consumer → producer where some
+    arg's ``.value`` is the producer's register; self-edges skipped) and finds
+    SCCs. A multi-member SCC with ≥ 2 distinct external-arg VNs can only mint
+    per-phi stable VNs; flagging its members short-circuits the ``depth + 3``
+    optimistic walks that would otherwise ratchet the disagreement outward.
 
-    External-arg cardinality is counted by VN identity using ``provisional_vn``
-    (the numbering produced by an all-pessimistic seed walk). Counting by VN
-    rather than Register identity lets the criterion see through commutative
-    canonicalisation, constant folding, and structural CSE — distinct
-    Registers that GVN proves equivalent share a provisional VN and do not
-    block their SCC's collapse.
-
-    ``Phi`` uses identity hashing (``@attrs.define(eq=False)`` on
-    ``src/puya/ir/models.py``), so the returned mapping is keyed by ``Phi``
-    object identity.
+    External-arg cardinality is counted by VN via ``provisional_vn`` (from the
+    seed walk), not Register, so commutative canonicalisation, constant folding,
+    and structural CSE don't spuriously block an SCC's collapse.
     """
     reg_to_phi = {phi.register: phi for block in subroutine.body for phi in block.phis}
     if not reg_to_phi:
-        return {}
+        return set()
 
     graph = nx.DiGraph()
     for phi in reg_to_phi.values():
@@ -1436,11 +1416,10 @@ def _classify_phi_sccs(
             if producer is not None:
                 graph.add_edge(phi, producer)
 
-    result = dict[models.Phi, _PhiTreatment]()
+    result = set[models.Phi]()
     for scc in nx.strongly_connected_components(graph):
         if _has_multiple_external_vns(scc, reg_to_phi, provisional_vn):
-            for phi in scc:
-                result[phi] = _PESSIMISTIC
+            result.update(scc)
     return result
 
 
@@ -1471,42 +1450,37 @@ def _number_values(
 ) -> _GVNTables:
     """Number every SSA definition via optimistic iteration to a fixed point.
 
-    The dominator-tree walk is repeated until ``register_vn`` stops changing
-    between iterations. On iteration 1 every non-self back-edge phi argument
-    is treated as the lattice top (filtered from the redundancy check); on
-    later iterations those args take their previous-iteration VN, letting
-    cyclic phi congruences surface naturally. Self-args are filtered out
-    entirely (see :meth:`GVNBlockVisitor.visit_phi`) — they're tautological
-    and would only delay convergence without affecting outcomes. Non-redundant
-    phis pin a stable VN (see :meth:`_GVNTables.stable_phi_vn`) so the
-    partition stops moving.
+    The dominator-tree walk is repeated until ``register_vn`` stops changing.
+    On iteration 1 every non-self back-edge phi argument is treated as the
+    lattice top (filtered from the redundancy check); later iterations use
+    the previous-iteration VN, letting cyclic phi congruences surface. Self-
+    args are filtered upstream (see :meth:`GVNBlockVisitor.visit_phi`). Non-
+    redundant phis pin a stable VN (see :meth:`_GVNTables.stable_phi_vn`) so
+    the partition stops moving.
 
-    ``_classify_phi_sccs`` runs first against an all-pessimistic seed walk,
-    so external-arg VNs reflect structural CSE / commutative canonicalisation;
-    multi-member phi SCCs whose externals have ≥ 2 distinct seed VNs use the
-    pessimistic redundancy guard so iteration doesn't waste walks ratcheting
-    through chain-shaped SCCs that can't collapse anyway.
+    A seed walk treating every phi as non-collapsing produces provisional VNs
+    for ``_find_non_collapsing_phis``; flagged SCCs skip optimistic iteration
+    in the main loop, since they can't collapse anyway.
     """
     seed_tables = _GVNTables(subroutine)
-    seed_treatment = {phi: _PESSIMISTIC for block in subroutine.body for phi in block.phis}
-    _process_blocks_pre_order(seed_tables, dom_tree, start, phi_treatment=seed_treatment)
+    seed_non_collapsing = {phi for block in subroutine.body for phi in block.phis}
+    _process_blocks_pre_order(
+        seed_tables, dom_tree, start, non_collapsing_phis=seed_non_collapsing
+    )
 
-    # Safety bound on optimistic iterations. The fixed point is reached when every
-    # register's VN stops changing between consecutive walks. Each iteration can only
-    # downgrade a phi's classification (redundant -> non-redundant pins the stable VN
-    # permanently), so termination is guaranteed within a bounded number of iterations
-    # in practice — this cap exists only to protect against pathological cases.
-    # With the SCC pre-pass (``_classify_phi_sccs``) eliminating the chain-ratchet
-    # shape (a multi-member phi SCC with ≥ 2 distinct external-arg Registers, where
-    # convergence count was ``depth + 3``), the residual iteration count is bounded
-    # by SCC convergence depth, empirically ≤ 3 across the corpus.
+    # Safety bound on optimistic iterations. Each iteration can only downgrade
+    # a phi (redundant → non-redundant pins the stable VN permanently), so
+    # termination is bounded. With the SCC pre-pass eliminating the chain-ratchet
+    # shape (``depth + 3`` walks for disagreement to propagate outward), residual
+    # iterations are bounded by SCC convergence depth — empirically ≤ 3 across
+    # the corpus.
     max_iterations = 10
 
-    phi_treatment = _classify_phi_sccs(subroutine, seed_tables.register_vn)
+    non_collapsing_phis = _find_non_collapsing_phis(subroutine, seed_tables.register_vn)
     tables = _GVNTables(subroutine)
     for iteration in range(max_iterations):
         prev_register_vn = dict(tables.register_vn)
-        _process_blocks_pre_order(tables, dom_tree, start, phi_treatment=phi_treatment)
+        _process_blocks_pre_order(tables, dom_tree, start, non_collapsing_phis=non_collapsing_phis)
         if tables.register_vn == prev_register_vn:
             logger.debug(f"GVN: {subroutine.id} converged after {iteration + 1} iteration(s)")
             return tables
