@@ -253,8 +253,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (b== result#0 0x0000000000001000)
-        (assert tmp%4#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 4096u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%4#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%5#0: bool = (b== result#0 tmp%4#0)
+        (assert tmp%5#0)
         exit 1u
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -> void:

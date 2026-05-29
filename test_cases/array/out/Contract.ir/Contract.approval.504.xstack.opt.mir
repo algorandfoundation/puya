@@ -1587,6 +1587,9 @@ subroutine test_iteration:
     test_iteration_after_for@17:
         // array/uint64.py:162
         // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
+        int 0                                                                        0
+        itob                                                                         aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
         byte 0x0000                                                                  0x0000
         v-store arc4_arr#0
         // array/uint64.py:142
@@ -1676,29 +1679,33 @@ subroutine test_iteration:
         // assert combined_arr[0] == 0
         l-load-copy combined_arr#0 0                                                 combined_arr#0,combined_arr#0 (copy)
         extract 2 8                                                                  combined_arr#0,aggregate%encoded_element%3#0
-        byte 0x0000000000000000                                                      combined_arr#0,aggregate%encoded_element%3#0,0x0000000000000000
-        b==                                                                          combined_arr#0,tmp%20#0
-        assert                                                                       combined_arr#0
+        v-load aggregate%as_bytes%0#0                                                combined_arr#0,aggregate%encoded_element%3#0,aggregate%as_bytes%0#0
+        l-store-copy aggregate%as_bytes%0#0 2                                        aggregate%as_bytes%0#0,combined_arr#0,aggregate%encoded_element%3#0,aggregate%as_bytes%0#0 (copy)
+        b==                                                                          aggregate%as_bytes%0#0,combined_arr#0,tmp%21#0
+        assert                                                                       aggregate%as_bytes%0#0,combined_arr#0
         // array/uint64.py:170
         // assert combined_arr[4] == 4
-        l-load-copy combined_arr#0 0                                                 combined_arr#0,combined_arr#0 (copy)
-        extract 34 8                                                                 combined_arr#0,aggregate%encoded_element%4#0
-        byte 0x0000000000000004                                                      combined_arr#0,aggregate%encoded_element%4#0,0x0000000000000004
-        b==                                                                          combined_arr#0,tmp%21#0
-        assert                                                                       combined_arr#0
+        l-load-copy combined_arr#0 0                                                 aggregate%as_bytes%0#0,combined_arr#0,combined_arr#0 (copy)
+        extract 34 8                                                                 aggregate%as_bytes%0#0,combined_arr#0,aggregate%encoded_element%4#0
+        int 4                                                                        aggregate%as_bytes%0#0,combined_arr#0,aggregate%encoded_element%4#0,4
+        itob                                                                         aggregate%as_bytes%0#0,combined_arr#0,aggregate%encoded_element%4#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%encoded_element%4#0 1                                       aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0,aggregate%encoded_element%4#0
+        l-load-copy aggregate%val_as_bytes%3#0 1                                     aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0,aggregate%encoded_element%4#0,aggregate%val_as_bytes%3#0 (copy)
+        b==                                                                          aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0,tmp%23#0
+        assert                                                                       aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0
         // array/uint64.py:171
         // assert combined_arr[5] == 0
-        l-load-copy combined_arr#0 0                                                 combined_arr#0,combined_arr#0 (copy)
-        extract 42 8                                                                 combined_arr#0,aggregate%encoded_element%5#0
-        byte 0x0000000000000000                                                      combined_arr#0,aggregate%encoded_element%5#0,0x0000000000000000
-        b==                                                                          combined_arr#0,tmp%22#0
-        assert                                                                       combined_arr#0
+        l-load-copy combined_arr#0 1                                                 aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0,combined_arr#0 (copy)
+        extract 42 8                                                                 aggregate%as_bytes%0#0,combined_arr#0,aggregate%val_as_bytes%3#0,aggregate%encoded_element%5#0
+        l-load aggregate%as_bytes%0#0 3                                              combined_arr#0,aggregate%val_as_bytes%3#0,aggregate%encoded_element%5#0,aggregate%as_bytes%0#0
+        b==                                                                          combined_arr#0,aggregate%val_as_bytes%3#0,tmp%25#0
+        assert                                                                       combined_arr#0,aggregate%val_as_bytes%3#0
         // array/uint64.py:172
         // assert combined_arr[9] == 4
-        l-load combined_arr#0 0                                                      combined_arr#0
-        extract 74 8                                                                 aggregate%encoded_element%6#0
-        byte 0x0000000000000004                                                      aggregate%encoded_element%6#0,0x0000000000000004
-        b==                                                                          tmp%23#0
+        l-load combined_arr#0 1                                                      aggregate%val_as_bytes%3#0,combined_arr#0
+        extract 74 8                                                                 aggregate%val_as_bytes%3#0,aggregate%encoded_element%6#0
+        l-load aggregate%val_as_bytes%3#0 1                                          aggregate%encoded_element%6#0,aggregate%val_as_bytes%3#0
+        b==                                                                          tmp%27#0
         assert
         // array/uint64.py:140
         // @arc4.abimethod()

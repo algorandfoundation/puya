@@ -432,14 +432,16 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:
     block@0: // L278
-        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
         let x.0.0#0: Encoded(len+uint64[]) = (encoded_array%0#0)
-        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let tmp%1#0: Encoded(len+uint64[]) = array_concat(x.0.0#0, tmp%0#0, 1u)
-        let x.0.0#1: Encoded(len+uint64[]) = tmp%1#0
-        let tmp%2#0: uint64 = array_len(x.0.0#1)
-        let tmp%3#0: bool = (== tmp%2#0 2u)
-        (assert tmp%3#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(x.0.0#0, tmp%2#0, 1u)
+        let x.0.0#1: Encoded(len+uint64[]) = tmp%3#0
+        let tmp%4#0: uint64 = array_len(x.0.0#1)
+        let tmp%5#0: bool = (== tmp%4#0 2u)
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> void:
@@ -991,14 +993,17 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple() -> <Encoded(len+uint64[]), uint64, bytes, string>:
     block@0: // L95
-        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
         let (twm.arr#0: Encoded(len+uint64[]), twm.child.a#0: uint64, twm.child.b#0: bytes, twm.child.c#0: string) = (encoded_array%0#0, 0u, 0x, "")
-        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let tmp%1#0: Encoded(len+uint64[]) = array_concat(twm.arr#0, tmp%0#0, 1u)
-        let twm.arr#1: Encoded(len+uint64[]) = tmp%1#0
-        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000002)
-        let tmp%3#0: Encoded(len+uint64[]) = array_concat(twm.arr#1, tmp%2#0, 1u)
-        let twm.arr#2: Encoded(len+uint64[]) = tmp%3#0
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(twm.arr#0, tmp%2#0, 1u)
+        let twm.arr#1: Encoded(len+uint64[]) = tmp%3#0
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(2u)
+        let tmp%5#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%4#0)
+        let tmp%6#0: Encoded(len+uint64[]) = array_concat(twm.arr#1, tmp%5#0, 1u)
+        let twm.arr#2: Encoded(len+uint64[]) = tmp%6#0
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
@@ -1009,9 +1014,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
     block@2: // for_body_L108
         let i#0: uint64 = value_internal%0#1
         let array_item%0#0: Encoded(uint64) = extract_value(twm.arr#2, i#0)
-        let tmp%4#0: biguint = (itob i#0)
-        let tmp%5#0: bool = (b== array_item%0#0 tmp%4#0)
-        (assert tmp%5#0)
+        let tmp%7#0: biguint = (itob i#0)
+        let tmp%8#0: bool = (b== array_item%0#0 tmp%7#0)
+        (assert tmp%8#0)
         goto block@3
     block@3: // for_footer_L107
         let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
@@ -1025,9 +1030,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         (assert maybe_exists%0#0) // check self.twm exists
         let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64, tmp%2#0: bytes, tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%0#0)
         let arr2#0: Encoded(len+uint64[]) = tmp%0#0
-        let tmp%4#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let tmp%5#0: Encoded(len+uint64[]) = array_concat(arr2#0, tmp%4#0, 1u)
-        let arr2#1: Encoded(len+uint64[]) = tmp%5#0
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let tmp%5#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%4#0)
+        let tmp%6#0: Encoded(len+uint64[]) = array_concat(arr2#0, tmp%5#0, 1u)
+        let arr2#1: Encoded(len+uint64[]) = tmp%6#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "twm")
         (assert maybe_exists%1#0) // check self.twm exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64, awst_tmp%2#0: bytes, awst_tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%1#0)

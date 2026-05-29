@@ -3,8 +3,8 @@
 
 // test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program() -> uint64:
 main:
-    intcblock 0 1
-    bytecblock 0x 0x00 "." 0x0000000000000000
+    intcblock 0 1 16 32
+    bytecblock 0x 0x01 0x00 "."
     intc_0 // 0
     intc_0 // 0
     bytec_0 // ""
@@ -13,11 +13,11 @@ main:
 main_block@0:
     // arc4_types/bool_eval.py:9
     // assert not arc4.Bool(False)
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_0 // 0
     setbit
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_0 // 0
     setbit
@@ -25,11 +25,11 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:10
     // assert arc4.Bool(True)
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_0 // 0
     setbit
@@ -53,11 +53,11 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:13
     // assert arc4.String(".")
-    bytec_2 // "."
+    bytec_3 // "."
     len
     itob
     extract 6 2
-    bytec_2 // "."
+    bytec_3 // "."
     concat
     bytec_0 // ""
     len
@@ -81,109 +81,247 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:18
     // assert not arc4.UInt8(0)
-    bytec_1 // 0x00
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:19
     // assert arc4.UInt8(1)
-    pushbytes 0x01
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:21
     // assert not arc4.UInt16(0)
-    pushbytes 0x0000
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    intc_2 // 16
+    <=
+    assert // overflow
+    pushint 6
+    pushint 2
+    extract3
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:22
     // assert arc4.UInt16(1)
-    pushbytes 0x0001
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 16
+    <=
+    assert // overflow
+    pushint 6
+    pushint 2
+    extract3
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:24
     // assert not arc4.UInt32(0)
-    pushbytes 0x00000000
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    intc_3 // 32
+    <=
+    assert // overflow
+    pushint 4
+    pushint 4
+    extract3
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:25
     // assert arc4.UInt32(1)
-    pushbytes 0x00000001
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_3 // 32
+    <=
+    assert // overflow
+    pushint 4
+    pushint 4
+    extract3
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:27
     // assert not arc4.UInt64(0)
-    bytec_3 // 0x0000000000000000
+    intc_0 // 0
+    itob
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:28
     // assert arc4.UInt64(1)
-    pushbytes 0x0000000000000001
+    intc_1 // 1
+    itob
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:30
     // assert not arc4.UInt128(0)
-    pushbytes 0x00000000000000000000000000000000
+    bytec_0 // 0x
+    len
+    intc_2 // 16
+    <=
+    assert // overflow
+    intc_2 // 16
+    bzero
+    bytec_0 // 0x
+    b|
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:31
     // assert arc4.UInt128(1)
-    pushbytes 0x00000000000000000000000000000001
+    bytec_1 // 0x01
+    len
+    intc_2 // 16
+    <=
+    assert // overflow
+    intc_2 // 16
+    bzero
+    bytec_1 // 0x01
+    b|
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:33
     // assert not arc4.UInt256(0)
-    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+    bytec_0 // 0x
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x
+    b|
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:34
     // assert arc4.UInt256(1)
-    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+    bytec_1 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x01
+    b|
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:36
     // assert not arc4.UInt512(0)
-    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    bytec_0 // 0x
+    len
+    pushint 64
+    <=
+    assert // overflow
+    pushint 64
+    bzero
+    bytec_0 // 0x
+    b|
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:37
     // assert arc4.UInt512(1)
-    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+    bytec_1 // 0x01
+    len
+    pushint 64
+    <=
+    assert // overflow
+    pushint 64
+    bzero
+    bytec_1 // 0x01
+    b|
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:39
     // assert not arc4.UIntN[t.Literal[24]](0)
-    pushbytes 0x000000
+    intc_0 // 0
+    itob
+    dup
+    bitlen
+    pushint 24
+    <=
+    assert // overflow
+    pushint 5
+    pushint 3
+    extract3
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:40
     // assert arc4.UIntN[t.Literal[24]](1)
-    pushbytes 0x000001
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    pushint 24
+    <=
+    assert // overflow
+    pushint 5
+    pushint 3
+    extract3
     bytec_0 // 0x
     b!=
     assert
     // arc4_types/bool_eval.py:42
     // assert not arc4.BigUIntN[t.Literal[504]](0)
-    pushbytes 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    bytec_0 // 0x
+    len
+    pushint 63
+    <=
+    assert // overflow
+    pushint 63
+    bzero
+    bytec_0 // 0x
+    b|
     bytec_0 // 0x
     b==
     assert
     // arc4_types/bool_eval.py:43
     // assert arc4.BigUIntN[t.Literal[504]](1)
-    pushbytes 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+    bytec_1 // 0x01
+    len
+    pushint 63
+    <=
+    assert // overflow
+    pushint 63
+    bzero
+    bytec_1 // 0x01
+    b|
     bytec_0 // 0x
     b!=
     assert
@@ -226,8 +364,10 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:53
     // dynamic_arr.append(arc4.UInt64(0))
+    intc_0 // 0
+    itob
     bytec_0 // 0x
-    bytec_3 // 0x0000000000000000
+    uncover 1
     concat
     b main_block@1
 
@@ -275,11 +415,11 @@ main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
     assert
     // arc4_types/bool_eval.py:56
     // assert arc4.Bool() == arc4.Bool(False)
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_0 // 0
     setbit
-    bytec_1 // 0x00
+    bytec_2 // 0x00
     intc_0 // 0
     intc_0 // 0
     setbit

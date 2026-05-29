@@ -1,14 +1,25 @@
 main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     block@0: // L10
         let total#0: uint64 = 0u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
+        let aggregate%bitlen%0#0: uint64 = 2u
+        let aggregate%no_overflow%0#0: bool = 1u
+        let aggregate%uint8%0#0: bytes = 0x02
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 3u)
+        let aggregate%bitlen%1#0: uint64 = 2u
+        let aggregate%no_overflow%1#0: bool = 1u
+        let aggregate%uint8%1#0: bytes = 0x03
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
+        let aggregate%bitlen%2#0: uint64 = 1u
+        let aggregate%no_overflow%2#0: bool = 1u
+        let aggregate%uint8%2#0: bytes = 0x01
         let aggregate%len_u16%0#0: bytes = 0x0003
         let aggregate%head%0#0: bytes = 0x000302
         let aggregate%head%1#0: bytes = 0x00030203
         let dynamic_bytes#0: Encoded(len+uint8[]) = 0x0003020301
-        let tmp%0#0: bytes = 0x020301
-        let tmp%1#0: bool = 1u
-        let tmp%2#0: bool = 1u
+        let tmp%3#0: bytes = 0x020301
+        let tmp%4#0: bool = 1u
+        let tmp%5#0: bool = 1u
         let aggregate%array_length%0#0: uint64 = 3u
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
@@ -21,18 +32,17 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%total_length%0#0: uint64 = 5u
         let aggregate%array_trimmed%0#0: bytes = 0x020301
         let uint8_item#0: Encoded(uint8) = (extract3 0x020301 item_index_internal%0#1 1u) // on error: index access is out of bounds
-        let tmp%3#0: uint64 = (getbyte 0x020301 item_index_internal%0#1)
-        let total#2: uint64 = (+ total#1 tmp%3#0)
+        let tmp%6#0: uint64 = (getbyte 0x020301 item_index_internal%0#1)
+        let total#2: uint64 = (+ total#1 tmp%6#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L16
-        let tmp%5#0: bool = (== total#1 6u)
-        (assert tmp%5#0) // Total should be of dynamic_bytes items
+        let tmp%8#0: bool = (== total#1 6u)
+        (assert tmp%8#0) // Total should be of dynamic_bytes items
         let aggregate%length%0#0: uint64 = 2u
-        let aggregate%as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%length_uint16%0#0: bytes = 0x0002
         let dynamic_bytes2#0: Encoded(len+uint8[]) = 0x00020304
-        let tmp%9#0: bool = 1u
+        let tmp%12#0: bool = 1u
         let aggregate%array_length%1#0: uint64 = 2u
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
@@ -45,8 +55,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%total_length%1#0: uint64 = 4u
         let aggregate%array_trimmed%1#0: bytes = 0x0304
         let uint8_item#1: Encoded(uint8) = (extract3 0x0304 item_index_internal%1#1 1u) // on error: index access is out of bounds
-        let tmp%10#0: uint64 = (getbyte 0x0304 item_index_internal%1#1)
-        let total#4: uint64 = (+ total#3 tmp%10#0)
+        let tmp%13#0: uint64 = (getbyte 0x0304 item_index_internal%1#1)
+        let total#4: uint64 = (+ total#3 tmp%13#0)
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
     block@8: // after_for_L25
@@ -62,13 +72,13 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%total_length%2#0: uint64 = 4u
         let aggregate%array_trimmed%2#0: bytes = 0x0304
         let uint8_item#2: Encoded(uint8) = (extract3 0x0304 item_index_internal%2#1 1u) // on error: index access is out of bounds
-        let tmp%17#0: uint64 = (getbyte 0x0304 item_index_internal%2#1)
-        let total#6: uint64 = (+ total#5 tmp%17#0)
+        let tmp%20#0: uint64 = (getbyte 0x0304 item_index_internal%2#1)
+        let total#6: uint64 = (+ total#5 tmp%20#0)
         let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
         goto block@9
     block@12: // after_for_L32
-        let tmp%19#0: bool = (== total#5 20u)
-        (assert tmp%19#0) // Total should now include sum of dynamic_bytes3 items
+        let tmp%22#0: bool = (== total#5 20u)
+        (assert tmp%22#0) // Total should now include sum of dynamic_bytes3 items
         let aggregate%length%1#0: uint64 = 3u
         let aggregate%length_uint16%1#0: bytes = 0x0003
         let aggregate%encoded_value%1#0: bytes = 0x0003616263
@@ -80,35 +90,33 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let new_len_u16#0: bytes = 0x0005
         let result#0: bytes = 0x00050304
         let dynamic_bytes3#2: Encoded(len+uint8[]) = 0x00050304616263
-        let tmp%23#0: bool = 1u
-        let tmp%24#0: bytes = 0x0304616263
-        let tmp%25#0: bool = 1u
-        let tmp%26#0: uint64 = (txn NumAppArgs)
-        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%26#0)
+        let tmp%26#0: bool = 1u
+        let tmp%27#0: bytes = 0x0304616263
+        let tmp%28#0: bool = 1u
+        let tmp%31#0: uint64 = (txn NumAppArgs)
+        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%31#0)
         let aggregate%len_u16%1#0: bytes = 0x0003
         let aggregate%head%3#0: bytes = (concat 0x0003 select%0#0)
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 0x03)
         let dynamic_bytes#1: Encoded(len+uint8[]) = (concat aggregate%head%3#0 0x0301)
-        let tmp%28#0: bytes = ((extract 2 0) dynamic_bytes#1)
-        let tmp%29#0: bool = (== tmp%28#0 0x030301)
-        (assert tmp%29#0)
-        let tmp%30#0: uint64 = (txn NumAppArgs)
-        goto tmp%30#0 ? block@13 : block@14
+        let tmp%35#0: bytes = ((extract 2 0) dynamic_bytes#1)
+        let tmp%36#0: bool = (== tmp%35#0 0x030301)
+        (assert tmp%36#0)
+        let tmp%37#0: uint64 = (txn NumAppArgs)
+        goto tmp%37#0 ? block@13 : block@14
     block@13: // ternary_true_L44
         let aggregate%length%2#0: uint64 = 1u
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x000132
         goto block@15
     block@14: // ternary_false_L44
         let aggregate%length%3#0: uint64 = 1u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%3#0: bytes = 0x0001
         let aggregate%encoded_value%3#0: bytes = 0x000133
         goto block@15
     block@15: // ternary_merge_L44
         let dynamic_bytes#2: Encoded(len+uint8[]) = φ(aggregate%encoded_value%2#0 <- block@13, aggregate%encoded_value%3#0 <- block@14)
-        let tmp%32#0: bytes = ((extract 2 0) dynamic_bytes#2)
-        let tmp%33#0: bool = (== tmp%32#0 0x33)
-        (assert tmp%33#0)
+        let tmp%39#0: bytes = ((extract 2 0) dynamic_bytes#2)
+        let tmp%40#0: bool = (== tmp%39#0 0x33)
+        (assert tmp%40#0)
         return 1u

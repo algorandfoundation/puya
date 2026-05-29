@@ -3,8 +3,8 @@
 
 // test_cases.arc4_types.mutation.Arc4MutationContract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 4
-    bytecblock 0x00 0x 0x01 0x02 0x32 0x04 "Hello" "World" 0xff "Happy" "Days" "Hmmmm" "Oh well" 0x03 0x0c 0x5a "Foo" "Bar"
+    intcblock 0 1 8 7 255
+    bytecblock 0x00 0x "Hello" "World" "Happy" "Days" "Hmmmm" "Oh well" "Foo" "Bar"
     b main_block@0
 
 main_block@0:
@@ -70,9 +70,9 @@ dynamic_array_pop_bit_after_inlined__puya_lib.arc4._itob16@2:
     intc_0 // 0
     setbit
     cover 1
-    pushint 7
+    intc_3 // 7
     +
-    pushint 8
+    intc_2 // 8
     /
     uncover 1
     intc_0 // 0
@@ -166,7 +166,7 @@ dynamic_array_pop_byte_length_head_after_inlined__puya_lib.arc4._itob16@2:
     frame_dig 1
     dup
     cover 2
-    intc_2 // 2
+    pushint 2
     *
     dup2
     extract_uint16
@@ -176,7 +176,7 @@ dynamic_array_pop_byte_length_head_after_inlined__puya_lib.arc4._itob16@2:
     dig 2
     substring3
     cover 1
-    intc_2 // 2
+    pushint 2
     +
     uncover 2
     uncover 1
@@ -200,14 +200,14 @@ dynamic_array_read_byte_length_element_block@0:
     frame_dig -2
     extract 2 0
     frame_dig -1
-    intc_2 // 2
+    pushint 2
     *
     dig 1
     uncover 1
     extract_uint16
     dup2
     extract_uint16
-    intc_2 // 2
+    pushint 2
     +
     uncover 2
     uncover 2
@@ -255,16 +255,16 @@ dynamic_array_concat_bits_after_inlined__puya_lib.arc4._itob16@7:
     dup
     frame_bury 0
     frame_dig 8
-    pushint 7
+    intc_3 // 7
     +
-    pushint 8
+    intc_2 // 8
     /
     dup
     frame_bury 3
     frame_dig 9
-    pushint 7
+    intc_3 // 7
     +
-    pushint 8
+    intc_2 // 8
     /
     dup
     frame_bury 5
@@ -343,16 +343,16 @@ dynamic_array_concat_byte_length_head_block@0:
     intc_0 // 0
     extract_uint16
     dup
-    intc_2 // 2
+    pushint 2
     *
-    intc_2 // 2
+    pushint 2
     +
     frame_dig -3
-    intc_2 // 2
+    pushint 2
     dig 2
     substring3
     frame_dig -1
-    intc_2 // 2
+    pushint 2
     *
     bzero
     concat
@@ -398,7 +398,7 @@ dynamic_array_replace_byte_length_head:
 dynamic_array_replace_byte_length_head_block@0:
     frame_dig -3
     intc_0 // 0
-    intc_2 // 2
+    pushint 2
     substring3
     dup
     btoi
@@ -419,7 +419,7 @@ static_array_replace_byte_length_head:
 
 static_array_replace_byte_length_head_block@0:
     frame_dig -2
-    intc_2 // 2
+    pushint 2
     *
     frame_dig -4
     uncover 1
@@ -429,7 +429,7 @@ static_array_replace_byte_length_head_block@0:
     extract_uint16
     dig 1
     +
-    intc_2 // 2
+    pushint 2
     +
     cover 1
     frame_dig -4
@@ -461,10 +461,10 @@ _recalculate_head_for_elements_with_byte_length_head:
 
 _recalculate_head_for_elements_with_byte_length_head_block@0:
     frame_dig -2
-    intc_2 // 2
+    pushint 2
     *
     frame_dig -1
-    intc_2 // 2
+    pushint 2
     *
     frame_dig -3
     uncover 1
@@ -472,12 +472,12 @@ _recalculate_head_for_elements_with_byte_length_head_block@0:
     frame_dig -1
     select
     frame_dig -2
-    intc_2 // 2
+    pushint 2
     *
     frame_dig -1
-    intc_2 // 2
+    pushint 2
     *
-    intc_2 // 2
+    pushint 2
     assert // Step cannot be zero
     b _recalculate_head_for_elements_with_byte_length_head_for_header@1
 
@@ -514,7 +514,7 @@ _recalculate_head_for_elements_with_byte_length_head_after_inlined__puya_lib.arc
     dup
     cover 2
     extract_uint16
-    intc_2 // 2
+    pushint 2
     +
     +
     frame_bury 3
@@ -522,7 +522,7 @@ _recalculate_head_for_elements_with_byte_length_head_after_inlined__puya_lib.arc
 
 _recalculate_head_for_elements_with_byte_length_head_for_footer@3:
     frame_dig 5
-    intc_2 // 2
+    pushint 2
     +
     frame_bury 5
     b _recalculate_head_for_elements_with_byte_length_head_for_header@1
@@ -563,19 +563,59 @@ array_concat:
 array_concat_block@0:
     // arc4_types/mutation.py:60
     // uint8_array = DynamicArray(UInt8(1), UInt8(2))
-    intc_2 // 2
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 2
     concat
-    bytec_3 // 0x02
+    uncover 1
     concat
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
+    pushint 3
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec 13 // 0x03
+    uncover 2
     concat
-    bytec 5 // 0x04
+    uncover 1
     concat
     b array_concat_block@1
 
@@ -585,7 +625,7 @@ array_concat_block@1:
     extract_uint16
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
-    intc_2 // 2
+    pushint 2
     +
     frame_bury 3
     b array_concat_block@2
@@ -605,7 +645,7 @@ array_concat_after_inlined__puya_lib.arc4._itob16@3:
     replace3
     frame_dig 5
     concat
-    frame_bury 0
+    frame_bury 2
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
     b array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
@@ -613,27 +653,77 @@ array_concat_after_inlined__puya_lib.arc4._itob16@3:
 array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
-    frame_dig 0
+    frame_dig 2
     // arc4_types/mutation.py:62
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    intc_3 // 4
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 3
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 4
     concat
-    bytec_3 // 0x02
+    uncover 3
     concat
-    bytec 13 // 0x03
+    uncover 2
     concat
-    bytec 5 // 0x04
+    uncover 1
     concat
     dig 1
     ==
     assert
     // arc4_types/mutation.py:63
     // array_concat_tuple += (UInt8(5),)
+    pushint 5
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    pushbytes 0x05
+    uncover 1
     concat
     uncover 1
     frame_bury 4
@@ -666,7 +756,7 @@ array_concat_after_inlined__puya_lib.arc4._itob16@7:
     replace3
     frame_dig 5
     concat
-    frame_bury 2
+    frame_bury 0
     // arc4_types/mutation.py:63
     // array_concat_tuple += (UInt8(5),)
     b array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8
@@ -674,49 +764,99 @@ array_concat_after_inlined__puya_lib.arc4._itob16@7:
 array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     // arc4_types/mutation.py:63
     // array_concat_tuple += (UInt8(5),)
-    frame_dig 2
+    frame_dig 0
     // arc4_types/mutation.py:64
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4), UInt8(5))
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 3
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 5
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     pushint 5
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 5
     concat
-    bytec_3 // 0x02
+    uncover 4
     concat
-    bytec 13 // 0x03
+    uncover 3
     concat
-    bytec 5 // 0x04
+    uncover 2
     concat
-    pushbytes 0x05
+    uncover 1
     concat
     ==
     assert
     // arc4_types/mutation.py:66
     // hello_world = DynamicArray(String("Hello"), String("World"))
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     len
     itob
     extract 6 2
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     concat
-    bytec 7 // "World"
+    bytec_3 // "World"
     len
     itob
     extract 6 2
-    bytec 7 // "World"
+    bytec_3 // "World"
     concat
     cover 1
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
-    intc_3 // 4
+    pushint 4
     itob
     extract 6 2
     concat
     dig 1
     len
-    intc_3 // 4
+    pushint 4
     +
     itob
     extract 6 2
@@ -727,31 +867,31 @@ array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     concat
     // arc4_types/mutation.py:67
     // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     len
     itob
     extract 6 2
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     concat
     intc_1 // 1
     itob
     extract 6 2
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
     concat
     uncover 1
     concat
-    bytec 7 // "World"
+    bytec_3 // "World"
     len
     itob
     extract 6 2
-    bytec 7 // "World"
+    bytec_3 // "World"
     concat
     intc_1 // 1
     itob
     extract 6 2
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
     concat
@@ -761,14 +901,14 @@ array_concat_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     len
     cover 1
     dup
-    intc_2 // 2
+    pushint 2
     uncover 3
     substring3
     cover 1
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    intc_2 // 2
+    pushint 2
     *
     dig 2
     len
@@ -813,10 +953,20 @@ array_of_array_dynamic_block@0:
     assert
     // arc4_types/mutation.py:74
     // array_of_array.append(DynamicArray[UInt8](UInt8(10)))
+    pushint 10
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     intc_1 // 1
     itob
     extract 6 2
-    pushbytes 0x0a
+    uncover 1
     concat
     bytec_1 // 0x
     uncover 1
@@ -831,10 +981,20 @@ array_of_array_dynamic_block@0:
     assert
     // arc4_types/mutation.py:76
     // array_of_array.append(DynamicArray[UInt8](UInt8(16)))
+    pushint 16
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     intc_1 // 1
     itob
     extract 6 2
-    pushbytes 0x10
+    uncover 1
     concat
     bytec_1 // 0x
     uncover 1
@@ -854,8 +1014,18 @@ array_of_array_dynamic_block@0:
     callsub dynamic_assert_index
     intc_0 // 0
     callsub dynamic_array_read_byte_length_element
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec 8 // 0xff
+    uncover 1
     concat
     b array_of_array_dynamic_block@1
 
@@ -908,18 +1078,28 @@ array_of_array_dynamic_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
     assert
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
+    intc_0 // 0
+    itob
     dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    dig 1
     intc_0 // 0
     callsub dynamic_assert_index
-    dup
+    dig 1
     intc_0 // 0
     callsub dynamic_array_read_byte_length_element
     intc_1 // 1
     intc_1 // 1
     *
-    intc_2 // 2
+    pushint 2
     +
-    bytec_0 // 0x00
+    uncover 2
     replace3 // on error: index access is out of bounds
     dig 1
     intc_0 // 0
@@ -941,17 +1121,57 @@ array_of_array_static:
 array_of_array_static_block@0:
     // arc4_types/mutation.py:88
     // StaticArray[UInt8, typing.Literal[2]](UInt8(10), UInt8(9)),
+    pushint 10
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 9
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    pushbytes 0x0a
+    uncover 2
     concat
-    pushbytes 0x09
+    uncover 1
     concat
     // arc4_types/mutation.py:89
     // StaticArray[UInt8, typing.Literal[2]](UInt8(64), UInt8(128)),
+    pushint 64
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 128
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    pushbytes 0x40
+    uncover 2
     concat
-    pushbytes 0x80
+    uncover 1
     concat
     // arc4_types/mutation.py:87-90
     // array_of_array = StaticArray[StaticArray[UInt8, typing.Literal[2]], typing.Literal[2]](
@@ -971,13 +1191,33 @@ array_of_array_static_block@0:
     assert
     // arc4_types/mutation.py:94
     // array_of_array[0] = StaticArray[UInt8, typing.Literal[2]](UInt8(255), UInt8(254))
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 254
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec 8 // 0xff
+    uncover 2
     concat
-    pushbytes 0xfe
+    uncover 1
     concat
     intc_0 // 0
-    intc_2 // 2
+    pushint 2
     *
     uncover 2
     uncover 1
@@ -992,19 +1232,29 @@ array_of_array_static_block@0:
     // arc4_types/mutation.py:97
     // array_of_array[1][0] = UInt8(1)
     intc_1 // 1
-    intc_2 // 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    intc_1 // 1
+    pushint 2
     *
-    dig 1
+    dig 2
     uncover 1
-    intc_2 // 2
+    pushint 2
     extract3 // on error: index access is out of bounds
     intc_0 // 0
     intc_1 // 1
     *
-    bytec_2 // 0x01
+    uncover 2
     replace3 // on error: index access is out of bounds
     intc_1 // 1
-    intc_2 // 2
+    pushint 2
     *
     uncover 2
     uncover 1
@@ -1025,21 +1275,53 @@ index_assign:
 index_assign_block@0:
     // arc4_types/mutation.py:102
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    intc_2 // 2
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 2
     concat
-    bytec_3 // 0x02
+    uncover 1
     concat
     // arc4_types/mutation.py:103
     // dynamic_uint8_array[0] = UInt8(255)
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     intc_0 // 0
     intc_1 // 1
     *
-    intc_2 // 2
+    pushint 2
     +
-    bytec 8 // 0xff
+    uncover 2
+    uncover 1
+    uncover 2
     replace3 // on error: index access is out of bounds
     // arc4_types/mutation.py:104
     // assert dynamic_uint8_array.bytes == Bytes.from_hex("0002ff02")
@@ -1048,17 +1330,49 @@ index_assign_block@0:
     assert
     // arc4_types/mutation.py:105
     // static_uint8_array = StaticArray(UInt8(1), UInt8(2))
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec_2 // 0x01
+    uncover 2
     concat
-    bytec_3 // 0x02
+    uncover 1
     concat
     // arc4_types/mutation.py:106
     // static_uint8_array[1] = UInt8(255)
+    intc 4 // 255
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     intc_1 // 1
     intc_1 // 1
     *
-    bytec 8 // 0xff
+    uncover 2
+    uncover 1
+    uncover 2
     replace3 // on error: index access is out of bounds
     // arc4_types/mutation.py:107
     // assert static_uint8_array.bytes == Bytes.from_hex("01ff")
@@ -1075,7 +1389,7 @@ index_assign_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
     cover 1
@@ -1137,7 +1451,7 @@ index_assign_block@0:
     intc_0 // 0
     getbit
     intc_1 // 1
-    intc_2 // 2
+    pushint 2
     <
     assert // index access is out of bounds
     uncover 1
@@ -1163,22 +1477,33 @@ struct_assign_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
+    // arc4_types/mutation.py:120
+    // u_val=UInt8(50),
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:121
     // s_val_1=String("Happy"),
-    bytec 9 // "Happy"
+    bytec 4 // "Happy"
     len
     itob
     extract 6 2
-    bytec 9 // "Happy"
+    bytec 4 // "Happy"
     concat
-    cover 1
     // arc4_types/mutation.py:122
     // s_val_2=String("Days"),
-    bytec 10 // "Days"
+    bytec 5 // "Days"
     len
     itob
     extract 6 2
-    bytec 10 // "Days"
+    bytec 5 // "Days"
     concat
     cover 2
     // arc4_types/mutation.py:118-123
@@ -1189,18 +1514,9 @@ struct_assign_block@0:
     //     s_val_2=String("Days"),
     // )
     bytec_1 // 0x
-    uncover 1
+    uncover 4
     concat
-    // arc4_types/mutation.py:120
-    // u_val=UInt8(50),
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:118-123
-    // test_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    uncover 2
     concat
     pushint 6
     itob
@@ -1231,8 +1547,19 @@ struct_assign_block@0:
     setbit
     // arc4_types/mutation.py:126
     // test_struct.u_val = UInt8(12)
+    pushint 12
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
     intc_1 // 1
-    bytec 14 // 0x0c
+    extract3
+    uncover 1
+    intc_1 // 1
+    uncover 2
     replace3
     // arc4_types/mutation.py:128
     // b_val=Bool(False),
@@ -1240,22 +1567,33 @@ struct_assign_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
+    // arc4_types/mutation.py:129
+    // u_val=UInt8(12),
+    pushint 12
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:130
     // s_val_1=String("Happy"),
-    bytec 9 // "Happy"
+    bytec 4 // "Happy"
     len
     itob
     extract 6 2
-    bytec 9 // "Happy"
+    bytec 4 // "Happy"
     concat
-    cover 1
     // arc4_types/mutation.py:131
     // s_val_2=String("Days"),
-    bytec 10 // "Days"
+    bytec 5 // "Days"
     len
     itob
     extract 6 2
-    bytec 10 // "Days"
+    bytec 5 // "Days"
     concat
     cover 2
     // arc4_types/mutation.py:127-132
@@ -1266,18 +1604,9 @@ struct_assign_block@0:
     //     s_val_2=String("Days"),
     // )
     bytec_1 // 0x
-    uncover 1
+    uncover 4
     concat
-    // arc4_types/mutation.py:129
-    // u_val=UInt8(12),
-    bytec 14 // 0x0c
-    // arc4_types/mutation.py:127-132
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    uncover 2
     concat
     pushint 6
     itob
@@ -1299,14 +1628,14 @@ struct_assign_block@0:
     assert
     // arc4_types/mutation.py:133
     // test_struct.s_val_1 = String("Hmmmm")
-    bytec 11 // "Hmmmm"
+    bytec 6 // "Hmmmm"
     len
     itob
     extract 6 2
-    bytec 11 // "Hmmmm"
+    bytec 6 // "Hmmmm"
     concat
     dig 1
-    intc_2 // 2
+    pushint 2
     extract_uint16
     dig 2
     intc_0 // 0
@@ -1316,7 +1645,7 @@ struct_assign_block@0:
     concat
     cover 1
     dig 3
-    intc_3 // 4
+    pushint 4
     extract_uint16
     cover 1
     dig 4
@@ -1334,7 +1663,7 @@ struct_assign_block@0:
     uncover 1
     len
     uncover 2
-    intc_3 // 4
+    pushint 4
     extract_uint16
     +
     uncover 1
@@ -1342,19 +1671,19 @@ struct_assign_block@0:
     itob
     extract 6 2
     uncover 1
-    intc_3 // 4
+    pushint 4
     uncover 2
     replace3
     // arc4_types/mutation.py:134
     // test_struct.s_val_2 = String("Oh well")
-    bytec 12 // "Oh well"
+    bytec 7 // "Oh well"
     len
     itob
     extract 6 2
-    bytec 12 // "Oh well"
+    bytec 7 // "Oh well"
     concat
     dig 1
-    intc_3 // 4
+    pushint 4
     extract_uint16
     uncover 2
     intc_0 // 0
@@ -1368,22 +1697,33 @@ struct_assign_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
+    // arc4_types/mutation.py:138
+    // u_val=UInt8(12),
+    pushint 12
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:139
     // s_val_1=String("Hmmmm"),
-    bytec 11 // "Hmmmm"
+    bytec 6 // "Hmmmm"
     len
     itob
     extract 6 2
-    bytec 11 // "Hmmmm"
+    bytec 6 // "Hmmmm"
     concat
-    cover 1
     // arc4_types/mutation.py:140
     // s_val_2=String("Oh well"),
-    bytec 12 // "Oh well"
+    bytec 7 // "Oh well"
     len
     itob
     extract 6 2
-    bytec 12 // "Oh well"
+    bytec 7 // "Oh well"
     concat
     cover 2
     // arc4_types/mutation.py:136-141
@@ -1394,18 +1734,9 @@ struct_assign_block@0:
     //     s_val_2=String("Oh well"),
     // )
     bytec_1 // 0x
-    uncover 1
+    uncover 4
     concat
-    // arc4_types/mutation.py:138
-    // u_val=UInt8(12),
-    bytec 14 // 0x0c
-    // arc4_types/mutation.py:136-141
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Hmmmm"),
-    //     s_val_2=String("Oh well"),
-    // )
+    uncover 2
     concat
     pushint 6
     itob
@@ -1444,17 +1775,47 @@ dynamic_array_fixed_size:
 dynamic_array_fixed_size_block@0:
     // arc4_types/mutation.py:145
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    intc_2 // 2
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 2
     concat
-    bytec_3 // 0x02
+    uncover 1
     concat
     // arc4_types/mutation.py:146
     // dynamic_uint8_array.append(UInt8(50))
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec 4 // 0x32
+    uncover 1
     concat
     b dynamic_array_fixed_size_block@1
 
@@ -1484,7 +1845,7 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@3:
     replace3
     frame_dig 7
     concat
-    frame_bury 0
+    frame_bury 3
     // arc4_types/mutation.py:146
     // dynamic_uint8_array.append(UInt8(50))
     b dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
@@ -1492,17 +1853,47 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@3:
 dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
     // arc4_types/mutation.py:146
     // dynamic_uint8_array.append(UInt8(50))
-    frame_dig 0
+    frame_dig 3
     // arc4_types/mutation.py:147
     // assert dynamic_uint8_array == DynamicArray[UInt8](UInt8(1), UInt8(2), UInt8(50))
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     pushint 3
     itob
     extract 6 2
-    bytec_2 // 0x01
+    uncover 3
     concat
-    bytec_3 // 0x02
+    uncover 2
     concat
-    bytec 4 // 0x32
+    uncover 1
     concat
     dig 1
     ==
@@ -1513,7 +1904,7 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed
     len
     cover 1
     dup
-    intc_2 // 2
+    pushint 2
     uncover 3
     substring3
     cover 1
@@ -1551,7 +1942,7 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@7:
     replace3
     frame_dig 7
     concat
-    frame_bury 2
+    frame_bury 0
     // arc4_types/mutation.py:148
     // dynamic_uint8_array.extend(dynamic_uint8_array)
     b dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8
@@ -1559,7 +1950,69 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@7:
 dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@8:
     // arc4_types/mutation.py:148
     // dynamic_uint8_array.extend(dynamic_uint8_array)
-    frame_dig 2
+    frame_dig 0
+    // arc4_types/mutation.py:151
+    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1567,63 +2020,47 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed
     pushint 6
     itob
     extract 6 2
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 6
     concat
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 5
     concat
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 4
     concat
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 3
     concat
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 2
     concat
-    // arc4_types/mutation.py:151
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:150-152
-    // assert dynamic_uint8_array == DynamicArray[UInt8](
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    // )
+    uncover 1
     concat
     dig 1
     ==
     assert
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 90
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     bytec_1 // 0x
-    bytec 5 // 0x04
+    uncover 2
     concat
-    bytec 15 // 0x5a
+    uncover 1
     concat
     uncover 1
     frame_bury 6
@@ -1636,7 +2073,7 @@ dynamic_array_fixed_size_block@9:
     extract_uint16
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
-    intc_2 // 2
+    pushint 2
     +
     frame_bury 4
     b dynamic_array_fixed_size_block@10
@@ -1656,7 +2093,7 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@11:
     replace3
     frame_dig 7
     concat
-    frame_bury 3
+    frame_bury 2
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
     b dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@12
@@ -1664,77 +2101,111 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4._itob16@11:
 dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@12:
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
-    frame_dig 3
+    frame_dig 2
+    // arc4_types/mutation.py:156
+    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 90
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
     // )
-    pushint 8
+    intc_2 // 8
     itob
     extract 6 2
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 8
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 7
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 6
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 5
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 4
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 3
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 5 // 0x04
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 2
     concat
-    // arc4_types/mutation.py:156
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 15 // 0x5a
-    // arc4_types/mutation.py:155-157
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    // )
+    uncover 1
     concat
     dig 1
     ==
@@ -1750,7 +2221,7 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed
     len
     cover 1
     dig 2
-    intc_2 // 2
+    pushint 2
     uncover 3
     substring3
     uncover 1
@@ -1764,71 +2235,110 @@ dynamic_array_fixed_size_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed
     cover 1
     // arc4_types/mutation.py:160
     // assert popped == UInt8(90)
-    bytec 15 // 0x5a
+    pushint 90
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     b==
     assert
+    // arc4_types/mutation.py:163
+    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 50
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_1 // 1
+    extract3
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
     // )
-    pushint 7
+    intc_3 // 7
     itob
     extract 6 2
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 7
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 6
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 5
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec_2 // 0x01
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 4
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec_3 // 0x02
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 3
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 4 // 0x32
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 2
     concat
-    // arc4_types/mutation.py:163
-    // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 5 // 0x04
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
+    uncover 1
     concat
     ==
     assert
@@ -1850,7 +2360,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
     cover 1
@@ -1886,7 +2396,7 @@ dynamic_array_bool_block@0:
     bytec_1 // 0x
     uncover 1
     concat
-    intc_2 // 2
+    pushint 2
     intc_1 // 1
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:171
@@ -1919,7 +2429,7 @@ dynamic_array_bool_block@0:
     // assert dynamic_bool_array == DynamicArray[Bool](
     //     Bool(True), Bool(False), Bool(True), Bool(False)
     // )
-    intc_3 // 4
+    pushint 4
     itob
     extract 6 2
     cover 3
@@ -1933,7 +2443,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_2 // 2
+    pushint 2
     uncover 2
     setbit
     uncover 1
@@ -1953,7 +2463,7 @@ dynamic_array_bool_block@0:
     len
     cover 1
     dup
-    intc_2 // 2
+    pushint 2
     uncover 3
     substring3
     cover 1
@@ -2030,7 +2540,7 @@ dynamic_array_bool_block@0:
     //     Bool(True),
     //     Bool(False),
     // )
-    pushint 8
+    intc_2 // 8
     itob
     extract 6 2
     cover 7
@@ -2044,7 +2554,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_2 // 2
+    pushint 2
     uncover 2
     setbit
     uncover 1
@@ -2058,7 +2568,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_3 // 4
+    pushint 4
     uncover 2
     setbit
     uncover 1
@@ -2079,7 +2589,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    pushint 7
+    intc_3 // 7
     uncover 2
     setbit
     concat
@@ -2185,7 +2695,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_2 // 2
+    pushint 2
     uncover 2
     setbit
     uncover 2
@@ -2199,7 +2709,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_3 // 4
+    pushint 4
     uncover 2
     setbit
     uncover 2
@@ -2220,7 +2730,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    pushint 7
+    intc_3 // 7
     uncover 2
     setbit
     concat
@@ -2336,7 +2846,7 @@ dynamic_array_bool_block@0:
     //     Bool(False),
     //     Bool(True),
     // )
-    pushint 7
+    intc_3 // 7
     itob
     extract 6 2
     cover 6
@@ -2350,7 +2860,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_2 // 2
+    pushint 2
     uncover 2
     setbit
     uncover 1
@@ -2364,7 +2874,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     getbit
     uncover 1
-    intc_3 // 4
+    pushint 4
     uncover 2
     setbit
     uncover 1
@@ -2394,50 +2904,50 @@ dynamic_array_string:
 dynamic_array_string_block@0:
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     len
     itob
     extract 6 2
-    bytec 6 // "Hello"
+    bytec_2 // "Hello"
     concat
     // arc4_types/mutation.py:216
     // world = String("World")
-    bytec 7 // "World"
+    bytec_3 // "World"
     len
     itob
     extract 6 2
-    bytec 7 // "World"
+    bytec_3 // "World"
     concat
     cover 1
     // arc4_types/mutation.py:217
     // foo = String("Foo")
-    bytec 16 // "Foo"
+    bytec 8 // "Foo"
     len
     itob
     extract 6 2
-    bytec 16 // "Foo"
+    bytec 8 // "Foo"
     concat
     cover 1
     // arc4_types/mutation.py:218
     // bar = String("Bar")
-    bytec 17 // "Bar"
+    bytec 9 // "Bar"
     len
     itob
     extract 6 2
-    bytec 17 // "Bar"
+    bytec 9 // "Bar"
     concat
     // arc4_types/mutation.py:219
     // dynamic_string_array = DynamicArray(hello, world)
-    intc_2 // 2
+    pushint 2
     itob
     extract 6 2
-    intc_3 // 4
+    pushint 4
     itob
     extract 6 2
     concat
     dig 2
     len
-    intc_3 // 4
+    pushint 4
     +
     itob
     extract 6 2
@@ -2461,7 +2971,7 @@ dynamic_array_string_block@0:
     concat
     dig 2
     concat
-    intc_2 // 2
+    pushint 2
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:225-227
     // assert dynamic_string_array.bytes == Bytes(
@@ -2477,7 +2987,7 @@ dynamic_array_string_block@0:
     len
     cover 1
     dup
-    intc_2 // 2
+    pushint 2
     uncover 3
     substring3
     cover 1
@@ -2485,7 +2995,7 @@ dynamic_array_string_block@0:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    intc_2 // 2
+    pushint 2
     *
     dig 3
     len
@@ -2501,7 +3011,7 @@ dynamic_array_string_block@0:
     cover 4
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    pushint 8
+    intc_2 // 8
     itob
     extract 6 2
     pushint 16
@@ -2596,7 +3106,7 @@ dynamic_array_string_block@0:
     assert
     // arc4_types/mutation.py:232
     // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    pushint 8
+    intc_2 // 8
     itob
     extract 6 2
     pushint 16
@@ -2707,7 +3217,7 @@ dynamic_array_string_block@0:
     // assert dynamic_string_array == DynamicArray(
     //     hello, world, foo, hello, hello, hello, foo, bar
     // )
-    pushint 8
+    intc_2 // 8
     itob
     extract 6 2
     pushint 16

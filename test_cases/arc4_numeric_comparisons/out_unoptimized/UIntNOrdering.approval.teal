@@ -3,25 +3,68 @@
 
 // test_cases.arc4_numeric_comparisons.uint_n.UIntNOrdering.approval_program() -> uint64:
 main:
-    intcblock 1 2
-    bytecblock 0x01 0x02 0x0000000000000000000000000000000000000000000000000000000000000001 0x0000000000000000000000000000000000000000000000000000000000000002 0x000000000000000000000000000000000000000000000000000000000000000002
+    intcblock 1 8 7 32
+    bytecblock 0x01 0x02
     b main_block@0
 
 main_block@0:
     // arc4_numeric_comparisons/uint_n.py:9
     // check_both_uint_n(arc4.Byte(1), arc4.UInt64(2))
-    bytec_0 // 0x01
-    pushbytes 0x0000000000000002
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
+    pushint 2
+    itob
     callsub check_both_uint_n
     // arc4_numeric_comparisons/uint_n.py:10
     // check_mixed(arc4.Byte(1), arc4.BigUIntN[t.Literal[264]](2))
-    bytec_0 // 0x01
-    bytec 4 // 0x000000000000000000000000000000000000000000000000000000000000000002
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
+    bytec_1 // 0x02
+    len
+    pushint 33
+    <=
+    assert // overflow
+    pushint 33
+    bzero
+    bytec_1 // 0x02
+    b|
     callsub check_mixed
     // arc4_numeric_comparisons/uint_n.py:11
     // check_both_big_uint_n(arc4.UInt256(1), arc4.BigUIntN[t.Literal[264]](2))
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    bytec 4 // 0x000000000000000000000000000000000000000000000000000000000000000002
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
+    bytec_1 // 0x02
+    len
+    pushint 33
+    <=
+    assert // overflow
+    pushint 33
+    bzero
+    bytec_1 // 0x02
+    b|
     callsub check_both_big_uint_n
     // arc4_numeric_comparisons/uint_n.py:12
     // return True
@@ -40,14 +83,32 @@ check_both_uint_n:
 check_both_uint_n_block@0:
     // arc4_numeric_comparisons/uint_n.py:26
     // assert one == 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:27
     // assert 1 == one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:28
@@ -77,8 +138,17 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:31
     // assert not (one == 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
     b==
     !
     assert
@@ -91,7 +161,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:33
     // assert not (one == two_uint64)
     itob
@@ -112,15 +182,33 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:36
     // assert not (one != 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b!=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:37
     // assert not (1 != one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b!=
     !
     assert
@@ -154,8 +242,17 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:41
     // assert one != 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
     b!=
     assert
     // arc4_numeric_comparisons/uint_n.py:42
@@ -166,7 +263,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:43
     // assert one != two_uint64
     itob
@@ -185,15 +282,33 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:46
     // assert one <= 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:47
     // assert 1 <= one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:48
     // assert one <= one
@@ -222,9 +337,18 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:51
     // assert one <= 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:52
     // assert one <= two
@@ -234,7 +358,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:53
     // assert one <= two_uint64
     itob
@@ -253,16 +377,34 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:56
     // assert not (one < 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:57
     // assert not (1 < one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:58
@@ -295,9 +437,18 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:61
     // assert one < 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b<
+    b>
     assert
     // arc4_numeric_comparisons/uint_n.py:62
     // assert one < two
@@ -307,7 +458,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:63
     // assert one < two_uint64
     itob
@@ -326,15 +477,33 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:66
     // assert one >= 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:67
     // assert 1 >= one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:68
     // assert one >= one
@@ -363,9 +532,18 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:71
     // assert not (one >= 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b>=
+    b<=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:72
@@ -377,7 +555,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:73
     // assert not (one >= two_uint64)
     itob
@@ -398,16 +576,34 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:76
     // assert not (one > 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:77
     // assert not (1 > one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:78
@@ -440,9 +636,18 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:81
     // assert not (one > 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:82
@@ -454,7 +659,7 @@ check_both_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:23
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:83
     // assert not (one > two_uint64)
     itob
@@ -487,14 +692,32 @@ check_mixed:
 check_mixed_block@0:
     // arc4_numeric_comparisons/uint_n.py:95
     // assert one == 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:96
     // assert 1 == one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:97
@@ -524,8 +747,17 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:100
     // assert not (one == 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
     b==
     !
     assert
@@ -538,7 +770,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:102
     // assert not (one == two_uint64)
     itob
@@ -559,15 +791,33 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:105
     // assert not (one != 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b!=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:106
     // assert not (1 != one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
     b!=
     !
     assert
@@ -601,8 +851,17 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:110
     // assert one != 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
     b!=
     assert
     // arc4_numeric_comparisons/uint_n.py:111
@@ -613,7 +872,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:112
     // assert one != two_uint64
     itob
@@ -632,15 +891,33 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:115
     // assert one <= 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:116
     // assert 1 <= one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:117
     // assert one <= one
@@ -669,9 +946,18 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:120
     // assert one <= 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:121
     // assert one <= two
@@ -681,7 +967,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:122
     // assert one <= two_uint64
     itob
@@ -700,16 +986,34 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:125
     // assert not (one < 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:126
     // assert not (1 < one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:127
@@ -742,9 +1046,18 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:130
     // assert one < 2
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b<
+    b>
     assert
     // arc4_numeric_comparisons/uint_n.py:131
     // assert one < two
@@ -754,7 +1067,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:132
     // assert one < two_uint64
     itob
@@ -773,15 +1086,33 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:135
     // assert one >= 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:136
     // assert 1 >= one
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:137
     // assert one >= one
@@ -810,9 +1141,18 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:140
     // assert not (one >= 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b>=
+    b<=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:141
@@ -824,7 +1164,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:142
     // assert not (one >= two_uint64)
     itob
@@ -845,16 +1185,34 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:145
     // assert not (one > 1)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:146
     // assert not (1 > one)
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_0 // 0x01
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:147
@@ -887,9 +1245,18 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:150
     // assert not (one > 2)
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_2 // 7
+    intc_0 // 1
+    extract3
     frame_dig -2
-    bytec_1 // 0x02
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:151
@@ -901,7 +1268,7 @@ check_mixed_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:92
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:152
     // assert not (one > two_uint64)
     itob
@@ -934,14 +1301,30 @@ check_both_big_uint_n:
 check_both_big_uint_n_block@0:
     // arc4_numeric_comparisons/uint_n.py:164
     // assert one == 1
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:165
     // assert 1 == one
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
     b==
     assert
     // arc4_numeric_comparisons/uint_n.py:166
@@ -971,8 +1354,16 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:169
     // assert not (one == 2)
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
     b==
     !
     assert
@@ -985,7 +1376,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:171
     // assert not (one == two_uint64)
     itob
@@ -1006,15 +1397,31 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:174
     // assert not (one != 1)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
     b!=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:175
     // assert not (1 != one)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
     b!=
     !
     assert
@@ -1048,8 +1455,16 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:179
     // assert one != 2
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
     b!=
     assert
     // arc4_numeric_comparisons/uint_n.py:180
@@ -1060,7 +1475,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:181
     // assert one != two_uint64
     itob
@@ -1079,15 +1494,31 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:184
     // assert one <= 1
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:185
     // assert 1 <= one
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:186
     // assert one <= one
@@ -1116,9 +1547,17 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:189
     // assert one <= 2
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:190
     // assert one <= two
@@ -1128,7 +1567,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:191
     // assert one <= two_uint64
     itob
@@ -1147,16 +1586,32 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:194
     // assert not (one < 1)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:195
     // assert not (1 < one)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:196
@@ -1189,9 +1644,17 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:199
     // assert one < 2
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
-    b<
+    b>
     assert
     // arc4_numeric_comparisons/uint_n.py:200
     // assert one < two
@@ -1201,7 +1664,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:201
     // assert one < two_uint64
     itob
@@ -1220,15 +1683,31 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:204
     // assert one >= 1
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b>=
+    b<=
     assert
     // arc4_numeric_comparisons/uint_n.py:205
     // assert 1 >= one
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b<=
+    b>=
     assert
     // arc4_numeric_comparisons/uint_n.py:206
     // assert one >= one
@@ -1257,9 +1736,17 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:209
     // assert not (one >= 2)
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
-    b>=
+    b<=
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:210
@@ -1271,7 +1758,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:211
     // assert not (one >= two_uint64)
     itob
@@ -1292,16 +1779,32 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:214
     // assert not (one > 1)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:215
     // assert not (1 > one)
+    bytec_0 // 0x01
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_0 // 0x01
+    b|
     frame_dig -2
-    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000001
-    b<
+    b>
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:216
@@ -1334,9 +1837,17 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:219
     // assert not (one > 2)
+    bytec_1 // 0x02
+    len
+    intc_3 // 32
+    <=
+    assert // overflow
+    intc_3 // 32
+    bzero
+    bytec_1 // 0x02
+    b|
     frame_dig -2
-    bytec_3 // 0x0000000000000000000000000000000000000000000000000000000000000002
-    b>
+    b<
     !
     assert
     // arc4_numeric_comparisons/uint_n.py:220
@@ -1348,7 +1859,7 @@ check_both_big_uint_n_block@0:
     assert
     // arc4_numeric_comparisons/uint_n.py:161
     // two_uint64 = UInt64(2)
-    intc_1 // 2
+    pushint 2
     // arc4_numeric_comparisons/uint_n.py:221
     // assert not (one > two_uint64)
     itob

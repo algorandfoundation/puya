@@ -65,10 +65,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         store(arr#0, aggregate%concat%1#0)
         let aggregate%bytes_len%8#0: uint64 = (len aggregate%concat%1#0)
         let aggregate%array_len%8#0: uint64 = (/ aggregate%bytes_len%8#0 8u)
-        let tmp%25#1: bool = (== aggregate%array_len%8#0 4u)
-        (assert tmp%25#1)
-        let tmp%27#2: uint64 = (- aggregate%array_len%8#0 1u)
-        let aggregate%bytes_offset%4#0: uint64 = (* tmp%27#2 8u)
+        let tmp%25#0: bool = (== aggregate%array_len%8#0 4u)
+        (assert tmp%25#0)
+        let tmp%27#3: uint64 = (- aggregate%array_len%8#0 1u)
+        let aggregate%bytes_offset%4#0: uint64 = (* tmp%27#3 8u)
         let tmp%28#0: uint64 = (extract_uint64 aggregate%concat%1#0 aggregate%bytes_offset%4#0)
         let tmp%29#0: bool = (== tmp%28#0 43u)
         (assert tmp%29#0)
@@ -237,8 +237,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%23#2: uint64 = (- aggregate%array_len%26#0 1u)
         let aggregate%bytes_offset%14#0: uint64 = (* tmp%23#2 8u)
         let tmp%24#1: uint64 = (extract_uint64 aggregate%concat%16#0 aggregate%bytes_offset%14#0)
-        let tmp%25#1: bool = (== tmp%24#1 4u)
-        (assert tmp%25#1) // expected 4
+        let tmp%25#0: bool = (== tmp%24#1 4u)
+        (assert tmp%25#0) // expected 4
         let tmp%26#1: uint64 = (extract_uint64 aggregate%concat%16#0 32u)
         let tmp%27#0: bool = (== tmp%26#1 4u)
         (assert tmp%27#0) // expected 4
@@ -291,9 +291,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_element%24#0: bytes = (extract3 aggregate%slot_contents%27#0 aggregate%bytes_offset%24#0 8u) // on error: index access is out of bounds
         let tmp%24#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
         let slot_contents%10#0: Encoded(uint64[]) = load(tmp%24#0)
-        let tmp%25#0: uint64 = (extract_uint64 slot_contents%10#0 0u)
+        let tmp%25#1: uint64 = (extract_uint64 slot_contents%10#0 0u)
         let slot_contents%11#0: Encoded(uint64[]) = load(arr#0)
-        let aggregate%write_offset%1#0: uint64 = (* tmp%25#0 8u)
+        let aggregate%write_offset%1#0: uint64 = (* tmp%25#1 8u)
         let aggregate%updated_array%1#0: bytes = (replace3 slot_contents%11#0 aggregate%write_offset%1#0 aggregate%encoded_element%24#0) // on error: index access is out of bounds
         store(arr#0, aggregate%updated_array%1#0)
         let aggregate%bytes_len%32#0: uint64 = (len aggregate%updated_array%1#0)
@@ -424,6 +424,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let last#0: uint64 = value#0
         goto block@42
     block@44: // after_for_L158
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let arc4_arr#0: Encoded(len+uint64[]) = 0x0000
         store(local.4, 0x)
         let value_internal%1#0: uint64 = 0u
@@ -460,17 +461,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%19#0: bool = (== aggregate%array_length%0#0 10u)
         (assert tmp%19#0)
         let aggregate%encoded_element%34#0: bytes = ((extract 2 8) combined_arr#0)
-        let tmp%20#0: bool = (b== aggregate%encoded_element%34#0 0x0000000000000000)
-        (assert tmp%20#0)
-        let aggregate%encoded_element%35#0: bytes = ((extract 34 8) combined_arr#0)
-        let tmp%21#0: bool = (b== aggregate%encoded_element%35#0 0x0000000000000004)
+        let tmp%21#0: bool = (b== aggregate%encoded_element%34#0 aggregate%as_bytes%0#0)
         (assert tmp%21#0)
-        let aggregate%encoded_element%36#0: bytes = ((extract 42 8) combined_arr#0)
-        let tmp%22#0: bool = (b== aggregate%encoded_element%36#0 0x0000000000000000)
-        (assert tmp%22#0)
-        let aggregate%encoded_element%37#0: bytes = ((extract 74 8) combined_arr#0)
-        let tmp%23#0: bool = (b== aggregate%encoded_element%37#0 0x0000000000000004)
+        let aggregate%encoded_element%35#0: bytes = ((extract 34 8) combined_arr#0)
+        let aggregate%val_as_bytes%22#0: bytes[8] = (itob 4u)
+        let tmp%23#0: bool = (b== aggregate%encoded_element%35#0 aggregate%val_as_bytes%22#0)
         (assert tmp%23#0)
+        let aggregate%encoded_element%36#0: bytes = ((extract 42 8) combined_arr#0)
+        let tmp%25#0: bool = (b== aggregate%encoded_element%36#0 aggregate%as_bytes%0#0)
+        (assert tmp%25#0)
+        let aggregate%encoded_element%37#0: bytes = ((extract 74 8) combined_arr#0)
+        let tmp%27#0: bool = (b== aggregate%encoded_element%37#0 aggregate%val_as_bytes%22#0)
+        (assert tmp%27#0)
         exit 1u
     block@14: // test_quicksort_route_L174
         let rnd#0: Encoded(uint64[])* = new()
@@ -484,8 +486,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@26: // for_body_L179
         let tmp%1#2: uint64 = (getbyte tmp%0#2 item_index_internal%0#0)
         let slot_contents%0#1: Encoded(uint64[]) = load(rnd#0)
-        let aggregate%val_as_bytes%21#0: bytes[8] = (itob tmp%1#2)
-        let aggregate%concat%22#0: Encoded(uint64[]) = (concat slot_contents%0#1 aggregate%val_as_bytes%21#0) // on error: max array length exceeded
+        let aggregate%val_as_bytes%23#0: bytes[8] = (itob tmp%1#2)
+        let aggregate%concat%22#0: Encoded(uint64[]) = (concat slot_contents%0#1 aggregate%val_as_bytes%23#0) // on error: max array length exceeded
         store(rnd#0, aggregate%concat%22#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@25
@@ -521,14 +523,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%bytes_len%42#0: uint64 = (len aggregate%slot_contents%37#0)
         let aggregate%array_len%42#0: uint64 = (/ aggregate%bytes_len%42#0 8u)
         let last#0: uint64 = (- aggregate%array_len%42#0 1u)
-        let aggregate%val_as_bytes%22#0: bytes[8] = (itob 0u)
+        let aggregate%val_as_bytes%24#0: bytes[8] = (itob 0u)
         let aggregate%write_offset%3#0: uint64 = (* last#0 8u)
-        let aggregate%updated_array%3#0: bytes = (replace3 aggregate%slot_contents%37#0 aggregate%write_offset%3#0 aggregate%val_as_bytes%22#0) // on error: index access is out of bounds
+        let aggregate%updated_array%3#0: bytes = (replace3 aggregate%slot_contents%37#0 aggregate%write_offset%3#0 aggregate%val_as_bytes%24#0) // on error: index access is out of bounds
         store(arr#0, aggregate%updated_array%3#0)
         test_cases.array.uint64.assert_last_is_zero(arr#0)
-        let aggregate%val_as_bytes%23#0: bytes[8] = (itob 1u)
+        let aggregate%val_as_bytes%25#0: bytes[8] = (itob 1u)
         let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
-        let aggregate%updated_array%4#0: bytes = (replace3 slot_contents%1#0 aggregate%write_offset%3#0 aggregate%val_as_bytes%23#0) // on error: index access is out of bounds
+        let aggregate%updated_array%4#0: bytes = (replace3 slot_contents%1#0 aggregate%write_offset%3#0 aggregate%val_as_bytes%25#0) // on error: index access is out of bounds
         store(arr#0, aggregate%updated_array%4#0)
         let tmp%3#1: uint64 = (extract_uint64 aggregate%updated_array%4#0 aggregate%write_offset%3#0)
         let tmp%4#1: bool = (== tmp%3#1 1u)

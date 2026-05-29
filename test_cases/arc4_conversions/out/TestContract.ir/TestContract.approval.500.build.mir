@@ -159,11 +159,14 @@ subroutine test_literal_encoding:
         // arc4_conversions/contract.py:28
         // arc4.abi_call(CheckApp.check_uint64, 0, op.bzero(8), app_id=app)
         itxn_begin
+        int 0                                                                                        0
+        itob                                                                                         aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         method check_uint64(uint64,byte[])void                                                       Method(check_uint64(uint64,byte[])void)
         itxn_field ApplicationArgs
-        byte 0x0000000000000000                                                                      0x0000000000000000
+        v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
         byte 0x00080000000000000000                                                                  0x00080000000000000000
         itxn_field ApplicationArgs
@@ -485,11 +488,14 @@ subroutine test_arc4_encoding:
         // arc4_conversions/contract.py:79
         // arc4.abi_call(CheckApp.check_uint64, arc4.UInt64(), op.bzero(8), app_id=app)
         itxn_begin
+        int 0                                                                                        0
+        itob                                                                                         aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         method check_uint64(uint64,byte[])void                                                       Method(check_uint64(uint64,byte[])void)
         itxn_field ApplicationArgs
-        byte 0x0000000000000000                                                                      0x0000000000000000
+        v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
         byte 0x00080000000000000000                                                                  0x00080000000000000000
         itxn_field ApplicationArgs
@@ -508,9 +514,9 @@ subroutine test_arc4_encoding:
         itxn_begin
         // arc4_conversions/contract.py:84
         // arc4.DynamicBytes(Txn.application_args(0)),
-        txna ApplicationArgs 0                                                                       tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
+        txna ApplicationArgs 0                                                                       tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                               tmp%4#0
         len                                                                                          aggregate%length%1#0
         v-store aggregate%length%1#0
         v-load aggregate%length%1#0                                                                  aggregate%length%1#0
@@ -520,18 +526,18 @@ subroutine test_arc4_encoding:
         extract 6 2                                                                                  aggregate%length_uint16%1#0
         v-store aggregate%length_uint16%1#0
         v-load aggregate%length_uint16%1#0                                                           aggregate%length_uint16%1#0
-        v-load tmp%3#0                                                                               aggregate%length_uint16%1#0,tmp%3#0
+        v-load tmp%4#0                                                                               aggregate%length_uint16%1#0,tmp%4#0
         concat                                                                                       aggregate%encoded_value%1#0
         v-store aggregate%encoded_value%1#0
         // arc4_conversions/contract.py:85
         // b"\x00\x04" + Txn.application_args(0),
-        txna ApplicationArgs 0                                                                       tmp%5#0
-        v-store tmp%5#0
-        byte 0x0004                                                                                  0x0004
-        v-load tmp%5#0                                                                               0x0004,tmp%5#0
-        concat                                                                                       tmp%6#0
+        txna ApplicationArgs 0                                                                       tmp%6#0
         v-store tmp%6#0
-        v-load tmp%6#0                                                                               tmp%6#0
+        byte 0x0004                                                                                  0x0004
+        v-load tmp%6#0                                                                               0x0004,tmp%6#0
+        concat                                                                                       tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                               tmp%7#0
         len                                                                                          aggregate%length%2#0
         v-store aggregate%length%2#0
         v-load aggregate%length%2#0                                                                  aggregate%length%2#0
@@ -541,7 +547,7 @@ subroutine test_arc4_encoding:
         extract 6 2                                                                                  aggregate%length_uint16%2#0
         v-store aggregate%length_uint16%2#0
         v-load aggregate%length_uint16%2#0                                                           aggregate%length_uint16%2#0
-        v-load tmp%6#0                                                                               aggregate%length_uint16%2#0,tmp%6#0
+        v-load tmp%7#0                                                                               aggregate%length_uint16%2#0,tmp%7#0
         concat                                                                                       aggregate%encoded_value%2#0
         v-store aggregate%encoded_value%2#0
         v-load app#0                                                                                 app#0
@@ -609,15 +615,15 @@ subroutine test_arc4_encoding:
         // arc4_conversions/contract.py:98
         // arc4.abi_call(CheckApp.check_bool, arc4.Bool(Txn.num_app_args == 1), b"\x80", app_id=app)
         itxn_begin
-        txn NumAppArgs                                                                               tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                              tmp%12#0
-        int 1                                                                                        tmp%12#0,1
-        ==                                                                                           tmp%13#0
-        v-store tmp%13#0
+        txn NumAppArgs                                                                               tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                              tmp%14#0
+        int 1                                                                                        tmp%14#0,1
+        ==                                                                                           tmp%15#0
+        v-store tmp%15#0
         byte 0x00                                                                                    0x00
         int 0                                                                                        0x00,0
-        v-load tmp%13#0                                                                              0x00,0,tmp%13#0
+        v-load tmp%15#0                                                                              0x00,0,tmp%15#0
         setbit                                                                                       aggregate%encoded_bool%0#0
         v-store aggregate%encoded_bool%0#0
         v-load app#0                                                                                 app#0

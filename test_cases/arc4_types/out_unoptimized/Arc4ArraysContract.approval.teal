@@ -3,7 +3,7 @@
 
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 main:
-    intcblock 0 2 1 4
+    intcblock 0 1 2 4
     bytecblock 0x "Hello" "Ping" " " "World" "Pong"
     intc_0 // 0
     intc_0 // 0
@@ -26,12 +26,32 @@ main:
 main_block@0:
     // arc4_types/array.py:25
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    intc_1 // 2
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
+    intc_2 // 2
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
+    intc_2 // 2
     itob
     extract 6 2
-    pushbytes 0x01
+    uncover 2
     concat
-    pushbytes 0x02
+    uncover 1
     concat
     dup
     // arc4_types/array.py:26
@@ -61,13 +81,13 @@ main_for_body@2:
     dup
     len
     cover 1
-    intc_1 // 2
+    intc_2 // 2
     uncover 2
     substring3
     dig 1
-    intc_2 // 1
+    intc_1 // 1
     *
-    intc_2 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     // arc4_types/array.py:28
     // total += uint8_item.as_uint64()
@@ -79,7 +99,7 @@ main_for_body@2:
 
 main_for_footer@3:
     dup
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 1
     b main_for_header@1
@@ -93,10 +113,20 @@ main_after_for@4:
     assert // Total should be sum of dynamic_uint8_array items
     // arc4_types/array.py:31
     // aliased_dynamic = AliasedDynamicArray(UInt16(1))
-    intc_2 // 1
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    pushint 16
+    <=
+    assert // overflow
+    pushint 6
+    intc_2 // 2
+    extract3
+    intc_1 // 1
     itob
     extract 6 2
-    pushbytes 0x0001
+    uncover 1
     concat
     dup
     bury 21
@@ -125,13 +155,13 @@ main_for_body@6:
     dup
     len
     cover 1
-    intc_1 // 2
+    intc_2 // 2
     uncover 2
     substring3
     dig 11
-    intc_1 // 2
+    intc_2 // 2
     *
-    intc_1 // 2
+    intc_2 // 2
     extract3 // on error: index access is out of bounds
     // arc4_types/array.py:33
     // total += uint16_item.as_uint64()
@@ -143,7 +173,7 @@ main_for_body@6:
 
 main_for_footer@7:
     dig 10
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 11
     b main_for_header@5
@@ -170,7 +200,7 @@ main_after_for@8:
     bytec 4 // "World"
     concat
     cover 1
-    intc_1 // 2
+    intc_2 // 2
     itob
     extract 6 2
     intc_3 // 4
@@ -195,7 +225,7 @@ main_after_for@8:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
+    intc_2 // 2
     ==
     assert
     // arc4_types/array.py:37
@@ -265,7 +295,7 @@ main_after_if_else@13:
 
 main_for_footer@14:
     dig 9
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 10
     b main_for_header@9
@@ -293,14 +323,54 @@ main_after_for@15:
     assert
     // arc4_types/array.py:47
     // static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
+    intc_1 // 1
+    itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    intc_3 // 4
+    intc_3 // 4
+    extract3
+    pushint 10
+    itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    intc_3 // 4
+    intc_3 // 4
+    extract3
+    pushint 255
+    itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    intc_3 // 4
+    intc_3 // 4
+    extract3
+    pushint 128
+    itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    intc_3 // 4
+    intc_3 // 4
+    extract3
     bytec_0 // 0x
-    pushbytes 0x00000001
+    uncover 4
     concat
-    pushbytes 0x0000000a
+    uncover 3
     concat
-    pushbytes 0x000000ff
+    uncover 2
     concat
-    pushbytes 0x00000080
+    uncover 1
     concat
     bury 16
     intc_0 // 0
@@ -336,7 +406,7 @@ main_for_body@17:
 
 main_for_footer@18:
     dig 8
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 9
     b main_for_header@16
@@ -373,7 +443,7 @@ main_for_body@21:
     // arc4_types/array.py:58
     // for uint8_item in static_uint8_array:
     dig 7
-    intc_2 // 1
+    intc_1 // 1
     *
     // arc4_types/array.py:53-55
     // static_uint8_array = StaticArray[UInt8, t.Literal[4]].from_bytes(
@@ -383,7 +453,7 @@ main_for_body@21:
     // arc4_types/array.py:58
     // for uint8_item in static_uint8_array:
     uncover 1
-    intc_2 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     // arc4_types/array.py:59
     // uint8_total += uint8_item.as_uint64()
@@ -394,14 +464,14 @@ main_for_body@21:
     // arc4_types/array.py:60
     // count += UInt64(1)
     dig 11
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 12
     b main_for_footer@22
 
 main_for_footer@22:
     dig 7
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 8
     b main_for_header@20
@@ -421,17 +491,27 @@ main_after_for@23:
     assert
     // arc4_types/array.py:64
     // aliased_static = AliasedStaticArray(UInt8(101))
+    pushint 101
+    itob
+    dup
+    bitlen
+    pushint 8
+    <=
+    assert // overflow
+    pushint 7
+    intc_1 // 1
+    extract3
     bytec_0 // 0x
-    pushbytes 0x65
+    uncover 1
     concat
     // arc4_types/array.py:68
     // assert (aliased_static[0].as_uint64() + aliased_static[index].as_uint64()) == 202
     intc_0 // 0
-    intc_2 // 1
+    intc_1 // 1
     *
     dig 1
     uncover 1
-    intc_2 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     btoi
     cover 1
@@ -440,9 +520,9 @@ main_after_for@23:
     intc_0 // 0
     // arc4_types/array.py:68
     // assert (aliased_static[0].as_uint64() + aliased_static[index].as_uint64()) == 202
-    intc_2 // 1
+    intc_1 // 1
     *
-    intc_2 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     btoi
     +
@@ -494,7 +574,7 @@ main_for_header@24:
     // arc4_types/array.py:73
     // for index, string_item in uenumerate(static_string_array):
     dig 6
-    intc_1 // 2
+    intc_2 // 2
     <
     bz main_after_for@30
     b main_for_body@25
@@ -528,7 +608,7 @@ main_after_if_else@28:
 
 main_for_footer@29:
     dig 6
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 7
     b main_for_header@24
@@ -562,14 +642,14 @@ main_after_for@30:
     extract 6 2
     bytec_2 // "Ping"
     concat
-    intc_2 // 1
-    intc_1 // 2
+    intc_1 // 1
+    intc_2 // 2
     <
     assert // index access is out of bounds
     dig 17
     uncover 1
-    intc_2 // 1
-    intc_1 // 2
+    intc_1 // 1
+    intc_2 // 2
     callsub static_array_replace_byte_length_head
     bury 17
     // arc4_types/array.py:82
@@ -584,7 +664,7 @@ main_for_header@31:
     // arc4_types/array.py:83
     // for string_item in static_string_array:
     dig 5
-    intc_1 // 2
+    intc_2 // 2
     <
     bz main_after_for@34
     b main_for_body@32
@@ -608,7 +688,7 @@ main_for_body@32:
 
 main_for_footer@33:
     dig 5
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 6
     b main_for_header@31
@@ -627,7 +707,7 @@ main_after_for@34:
     pop
     // arc4_types/array.py:89
     // return True
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -640,14 +720,14 @@ dynamic_array_read_byte_length_element_block@0:
     frame_dig -2
     extract 2 0
     frame_dig -1
-    intc_1 // 2
+    intc_2 // 2
     *
     dig 1
     uncover 1
     extract_uint16
     dup2
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     uncover 2
     uncover 2
@@ -663,7 +743,7 @@ static_array_read_byte_length_element:
 
 static_array_read_byte_length_element_block@0:
     frame_dig -1
-    intc_1 // 2
+    intc_2 // 2
     *
     frame_dig -2
     uncover 1
@@ -671,7 +751,7 @@ static_array_read_byte_length_element_block@0:
     frame_dig -2
     dig 1
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     frame_dig -2
     uncover 2
@@ -687,7 +767,7 @@ static_array_replace_byte_length_head:
 
 static_array_replace_byte_length_head_block@0:
     frame_dig -2
-    intc_1 // 2
+    intc_2 // 2
     *
     frame_dig -4
     uncover 1
@@ -697,7 +777,7 @@ static_array_replace_byte_length_head_block@0:
     extract_uint16
     dig 1
     +
-    intc_1 // 2
+    intc_2 // 2
     +
     cover 1
     frame_dig -4
@@ -729,10 +809,10 @@ _recalculate_head_for_elements_with_byte_length_head:
 
 _recalculate_head_for_elements_with_byte_length_head_block@0:
     frame_dig -2
-    intc_1 // 2
+    intc_2 // 2
     *
     frame_dig -1
-    intc_1 // 2
+    intc_2 // 2
     *
     frame_dig -3
     uncover 1
@@ -740,12 +820,12 @@ _recalculate_head_for_elements_with_byte_length_head_block@0:
     frame_dig -1
     select
     frame_dig -2
-    intc_1 // 2
+    intc_2 // 2
     *
     frame_dig -1
-    intc_1 // 2
+    intc_2 // 2
     *
-    intc_1 // 2
+    intc_2 // 2
     assert // Step cannot be zero
     b _recalculate_head_for_elements_with_byte_length_head_for_header@1
 
@@ -782,7 +862,7 @@ _recalculate_head_for_elements_with_byte_length_head_after_inlined__puya_lib.arc
     dup
     cover 2
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     +
     frame_bury 3
@@ -790,7 +870,7 @@ _recalculate_head_for_elements_with_byte_length_head_after_inlined__puya_lib.arc
 
 _recalculate_head_for_elements_with_byte_length_head_for_footer@3:
     frame_dig 5
-    intc_1 // 2
+    intc_2 // 2
     +
     frame_bury 5
     b _recalculate_head_for_elements_with_byte_length_head_for_header@1

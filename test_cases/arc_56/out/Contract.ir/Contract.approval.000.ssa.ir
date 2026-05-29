@@ -446,21 +446,24 @@ subroutine test_cases.arc_56.contract.Contract.struct_return(arg: Encoded(uint64
 subroutine test_cases.arc_56.contract.Contract.errors(arg: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))) -> void:
     block@0: // L99
         let tuple_item%0#0: Encoded(uint64) = extract_value(arg#0, 0)
-        let tmp%0#0: bool = (== tuple_item%0#0 0x00)
-        (assert tmp%0#0) // this will error
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(0u)
+        let tmp%1#0: bool = (== tuple_item%0#0 tmp%0#0)
+        (assert tmp%1#0) // this will error
         return 
 
 subroutine test_cases.arc_56.contract.Contract.emitter() -> void:
     block@0: // L103
         let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f31)
-        let tmp%1#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%0#0, 0x2a)
-        let event%0#0: bytes = (concat method "SharedStruct(byte[],uint8)" tmp%1#0)
+        let tmp%1#0: Encoded(uint8) = bytes_encode<uint8>(42u)
+        let tmp%2#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%0#0, tmp%1#0)
+        let event%0#0: bytes = (concat method "SharedStruct(byte[],uint8)" tmp%2#0)
         (log event%0#0)
-        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
-        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f32)
-        let tmp%4#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%3#0, 0x2a)
-        let tmp%5#0: Encoded((len+utf8[]),((len+uint8[]),uint8)) = bytes_encode<((len+utf8[]),((len+uint8[]),uint8))>(tmp%2#0, tmp%4#0)
-        let event%1#0: bytes = (concat method "Anonymous(string,(byte[],uint8))" tmp%5#0)
+        let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
+        let tmp%4#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f32)
+        let tmp%5#0: Encoded(uint8) = bytes_encode<uint8>(42u)
+        let tmp%6#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%4#0, tmp%5#0)
+        let tmp%7#0: Encoded((len+utf8[]),((len+uint8[]),uint8)) = bytes_encode<((len+utf8[]),((len+uint8[]),uint8))>(tmp%3#0, tmp%6#0)
+        let event%1#0: bytes = (concat method "Anonymous(string,(byte[],uint8))" tmp%7#0)
         (log event%1#0)
         return 
 
@@ -468,11 +471,14 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit(should_emit: boo
     block@0: // L113
         goto should_emit#0 ? block@1 : block@2
     block@1: // if_body_L116
-        let tmp%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(0x000000000000002a, 0x000000000000002b)
-        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f33)
-        let tmp%2#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%1#0, 0x2a)
-        let tmp%3#0: Encoded((uint64,uint64),((len+uint8[]),uint8)) = bytes_encode<((uint64,uint64),((len+uint8[]),uint8))>(tmp%0#0, tmp%2#0)
-        let event%0#0: bytes = (concat method "Anonymous2((uint64,uint64),(byte[],uint8))" tmp%3#0)
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(42u)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(43u)
+        let tmp%2#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%0#0, tmp%1#0)
+        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f33)
+        let tmp%4#0: Encoded(uint8) = bytes_encode<uint8>(42u)
+        let tmp%5#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%3#0, tmp%4#0)
+        let tmp%6#0: Encoded((uint64,uint64),((len+uint8[]),uint8)) = bytes_encode<((uint64,uint64),((len+uint8[]),uint8))>(tmp%2#0, tmp%5#0)
+        let event%0#0: bytes = (concat method "Anonymous2((uint64,uint64),(byte[],uint8))" tmp%6#0)
         (log event%0#0)
         goto block@2
     block@2: // after_if_else_L115

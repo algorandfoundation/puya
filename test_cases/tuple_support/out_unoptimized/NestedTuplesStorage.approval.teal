@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 10
-    bytecblock 0x "tup" 0x0000000000000000 "box" "glob" "loc"
+    bytecblock 0x "tup" "box" "glob" "loc"
     b main_block@0
 
 main_block@0:
@@ -224,10 +224,12 @@ __init__:
 __init___block@0:
     // tuple_support/tuple_storage.py:17
     // arr=arc4.DynamicArray(arc4.UInt64(0)),
+    intc_0 // 0
+    itob
     intc_1 // 1
     itob
     extract 6 2
-    bytec_2 // 0x0000000000000000
+    uncover 1
     concat
     // tuple_support/tuple_storage.py:16
     // self.tup = TupleWithMutable(
@@ -256,10 +258,12 @@ __init___block@0:
     app_global_put
     // tuple_support/tuple_storage.py:20
     // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_0 // 0
+    itob
     intc_1 // 1
     itob
     extract 6 2
-    bytec_2 // 0x0000000000000000
+    uncover 1
     concat
     intc_0 // 0
     bytec_1 // "tup"
@@ -280,15 +284,17 @@ __init___block@0:
     concat
     uncover 1
     concat
-    bytec 4 // "glob"
+    bytec_3 // "glob"
     uncover 1
     app_global_put
     // tuple_support/tuple_storage.py:21
     // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_0 // 0
+    itob
     intc_1 // 1
     itob
     extract 6 2
-    bytec_2 // 0x0000000000000000
+    uncover 1
     concat
     intc_0 // 0
     bytec_1 // "tup"
@@ -322,10 +328,12 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap:
 test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap_block@0:
     // tuple_support/tuple_storage.py:25
     // self.box.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_0 // 0
+    itob
     intc_1 // 1
     itob
     extract 6 2
-    bytec_2 // 0x0000000000000000
+    uncover 1
     concat
     intc_0 // 0
     bytec_1 // "tup"
@@ -346,18 +354,20 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap_block@0:
     concat
     uncover 1
     concat
-    bytec_3 // "box"
+    bytec_2 // "box"
     box_del
     pop
-    bytec_3 // "box"
+    bytec_2 // "box"
     uncover 1
     box_put
     // tuple_support/tuple_storage.py:26
     // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_0 // 0
+    itob
     intc_1 // 1
     itob
     extract 6 2
-    bytec_2 // 0x0000000000000000
+    uncover 1
     concat
     intc_0 // 0
     bytec_1 // "tup"
@@ -381,7 +391,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap_block@0:
     uncover 2
     concat
     uncover 1
-    bytec 5 // "loc"
+    bytec 4 // "loc"
     uncover 2
     app_local_put
     retsub
@@ -492,7 +502,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box:
 test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box_block@0:
     // tuple_support/tuple_storage.py:34
     // self.box.value.arr.append(val)
-    bytec_3 // "box"
+    bytec_2 // "box"
     box_get
     assert // check self.box exists
     dup
@@ -562,10 +572,10 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box_after_inli
     concat
     frame_dig 1
     concat
-    bytec_3 // "box"
+    bytec_2 // "box"
     box_del
     pop
-    bytec_3 // "box"
+    bytec_2 // "box"
     uncover 1
     box_put
     retsub
@@ -586,7 +596,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global_block@0
     // tuple_support/tuple_storage.py:38
     // self.glob.value.arr.append(val)
     intc_0 // 0
-    bytec 4 // "glob"
+    bytec_3 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     dup
@@ -656,7 +666,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global_after_i
     concat
     frame_dig 1
     concat
-    bytec 4 // "glob"
+    bytec_3 // "glob"
     uncover 1
     app_global_put
     retsub
@@ -679,7 +689,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local_block@0:
     txn Sender
     dup
     intc_0 // 0
-    bytec 5 // "loc"
+    bytec 4 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dup
@@ -750,7 +760,7 @@ test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local_after_in
     frame_dig 1
     concat
     frame_dig 3
-    bytec 5 // "loc"
+    bytec 4 // "loc"
     uncover 2
     app_local_put
     retsub
