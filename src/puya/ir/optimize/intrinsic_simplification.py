@@ -342,26 +342,24 @@ def _try_fold_intrinsic(
         left_arg, right_arg = intrinsic.args
         left_const = _get_byte_constant(register_assignments, left_arg)
         right_const = _get_byte_constant(register_assignments, right_arg)
-        if left_const is not None:
-            if left_const.value == b"":
-                return right_arg
-            if right_const is not None:
-                result_value = left_const.value + right_const.value
-                if len(result_value) > algo_constants.MAX_BYTES_LENGTH:
-                    return None  # would fail at runtime
-                # two constants, just fold
-                target_encoding = choose_encoding(
-                    left_const.encoding, right_const.encoding, is_concat=True
-                )
-                result = models.BytesConstant(
-                    value=result_value,
-                    encoding=target_encoding,
-                    source_location=op_loc,
-                )
-                return result
-        elif right_const is not None:
-            if right_const.value == b"":
-                return left_arg
+        if (
+            left_const is not None
+            and right_const is not None
+            and (left_const.value and right_const.value)
+        ):
+            result_value = left_const.value + right_const.value
+            if len(result_value) > algo_constants.MAX_BYTES_LENGTH:
+                return None  # would fail at runtime
+            # two constants, just fold
+            target_encoding = choose_encoding(
+                left_const.encoding, right_const.encoding, is_concat=True
+            )
+            result = models.BytesConstant(
+                value=result_value,
+                encoding=target_encoding,
+                source_location=op_loc,
+            )
+            return result
     elif intrinsic.op.code.startswith("extract"):
         match intrinsic:
             case (
