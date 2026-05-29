@@ -987,6 +987,12 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 concat_result,
                                 choose_encoding(first_enc, second_enc, is_concat=True),
                             )
+                    case [_BytesConstKey(value=b""), _]:
+                        # concat(b"", x) → x
+                        return (arg_vns[1],)
+                    case [_, _BytesConstKey(value=b"")]:
+                        # concat(x, b"") → x
+                        return (arg_vns[0],)
             case AVMOp.substring3:
                 match arg_defns:
                     case [
