@@ -755,12 +755,11 @@ subroutine buy:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         // ).submit()
         itxn_begin                                                                                    asset#0,quantity#0
+        l-load quantity#0 0                                                                           asset#0,quantity#0
+        itxn_field AssetAmount                                                                        asset#0
         // marketplace_demo/marketplace_with_mutable_struct.py:178
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
-        txn Sender                                                                                    asset#0,quantity#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
-        l-load quantity#0 1                                                                           asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0,quantity#0
-        itxn_field AssetAmount                                                                        asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
-        l-load inner_txn_params%0%%param_AssetReceiver_idx_0#0 0                                      asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
+        txn Sender                                                                                    asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver                                                                      asset#0
         l-load asset#0 0                                                                              asset#0
         itxn_field XferAsset
@@ -907,7 +906,6 @@ subroutine withdraw:
         // marketplace_demo/marketplace_with_mutable_struct.py:194
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
         // marketplace_demo/marketplace_with_mutable_struct.py:44-65
         // return UInt64(
         //     2_500
@@ -931,12 +929,12 @@ subroutine withdraw:
         //     # fmt: on
         //     400
         // )
-        int 50500                                                                                     inner_txn_params%1%%param_Receiver_idx_0#0,50500
-        itxn_field Amount                                                                             inner_txn_params%1%%param_Receiver_idx_0#0
-        l-load inner_txn_params%1%%param_Receiver_idx_0#0 0                                           inner_txn_params%1%%param_Receiver_idx_0#0
-        itxn_field Receiver
+        int 50500                                                                                     50500
+        itxn_field Amount
         // marketplace_demo/marketplace_with_mutable_struct.py:194
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
+        itxn_field Receiver
         int pay                                                                                       pay
         itxn_field TypeEnum
         int 0                                                                                         0
@@ -949,12 +947,11 @@ subroutine withdraw:
         itxn_begin
         // marketplace_demo/marketplace_with_mutable_struct.py:197
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
+        v-load listing#0                                                                              listing#0
+        int 0                                                                                         listing#0,0
+        extract_uint64                                                                                tmp%9#0
+        itxn_field AssetAmount
         txn Sender                                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0
-        v-load listing#0                                                                              inner_txn_params%2%%param_AssetReceiver_idx_0#0,listing#0
-        int 0                                                                                         inner_txn_params%2%%param_AssetReceiver_idx_0#0,listing#0,0
-        extract_uint64                                                                                inner_txn_params%2%%param_AssetReceiver_idx_0#0,tmp%9#0
-        itxn_field AssetAmount                                                                        inner_txn_params%2%%param_AssetReceiver_idx_0#0
-        l-load inner_txn_params%2%%param_AssetReceiver_idx_0#0 0                                      inner_txn_params%2%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
         itxn_field XferAsset
@@ -1368,10 +1365,9 @@ subroutine accept_bid:
         // marketplace_demo/marketplace_with_mutable_struct.py:249
         // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
         itxn_begin                                                                                    listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0
-        txn Sender                                                                                    listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0,inner_txn_params%0%%param_Receiver_idx_0#0
-        l-load amount_to_be_paid#0 1                                                                  listing#0,asset#0,price#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0,amount_to_be_paid#0
-        itxn_field Amount                                                                             listing#0,asset#0,price#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
-        l-load inner_txn_params%0%%param_Receiver_idx_0#0 0                                           listing#0,asset#0,price#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
+        l-load amount_to_be_paid#0 0                                                                  listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0
+        itxn_field Amount                                                                             listing#0,asset#0,price#0,min_quantity#0
+        txn Sender                                                                                    listing#0,asset#0,price#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
         itxn_field Receiver                                                                           listing#0,asset#0,price#0,min_quantity#0
         int pay                                                                                       listing#0,asset#0,price#0,min_quantity#0,pay
         itxn_field TypeEnum                                                                           listing#0,asset#0,price#0,min_quantity#0
