@@ -403,22 +403,7 @@ def _try_fold_intrinsic(
                     ],
                 )
             ):
-                byte_const = _get_byte_constant(register_assignments, byte_arg)
-                if byte_const is not None:
-                    # note there is a difference of behaviour between extract with stack args
-                    # and with immediates - zero is to the end with immediates,
-                    # and zero length with stacks
-                    if len(byte_const.value) < S + L:
-                        return None  # would fail at runtime
-                    if intrinsic.immediates and L == 0:
-                        extracted = byte_const.value[S:]
-                    else:
-                        extracted = byte_const.value[S : S + L]
-                    enc = chop_encoding(byte_const.encoding)
-                    return models.BytesConstant(
-                        value=extracted, encoding=enc, source_location=op_loc
-                    )
-                elif (
+                if (
                     (byte_arg_defn := register_assignments.get(byte_arg))
                     # don't do this optimisation for extract3 when the final argument is a constant
                     # zero, because of behaviour differences
