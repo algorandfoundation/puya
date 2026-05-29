@@ -1,0 +1,46 @@
+| PC | TEAL Bytes                         | TEAL                                   | Source                      | Location                                                                     |
+|--: | :----------------------------------| :--------------------------------------| :---------------------------| :----------------------------------------------------------------------------|
+|  0 | 0b                                 | #pragma version 11                     |                             |                                                                              |
+|    | # main                             | main:                                  |                             | test_cases.gvn.btoi_itob_vn.BtoiItobVNContract.approval_program() -> uint64: |
+|  1 | 42 00 00                           |     b main_block@0                     |                             |                                                                              |
+|    | # main_block@0                     | main_block@0:                          |                             |                                                                              |
+|    |                                    |                                        | test_through_phi(UInt64(7)) | gvn/btoi_itob_vn.py:13                                                       |
+|  4 | 81 07                              |     pushint 7                          |                  ---------  | gvn/btoi_itob_vn.py:13:25-34                                                 |
+|  6 | 88 00 08                           |     callsub test_through_phi           | --------------------------- | gvn/btoi_itob_vn.py:13:8-35                                                  |
+|    |                                    |                                        | test_through_phi(UInt64(0)) | gvn/btoi_itob_vn.py:14                                                       |
+|  9 | 81 00                              |     pushint 0                          |                  ---------  | gvn/btoi_itob_vn.py:14:25-34                                                 |
+| 11 | 88 00 03                           |     callsub test_through_phi           | --------------------------- | gvn/btoi_itob_vn.py:14:8-35                                                  |
+|    |                                    |                                        | return True                 | gvn/btoi_itob_vn.py:15                                                       |
+| 14 | 81 01                              |     pushint 1                          |        ----                 | gvn/btoi_itob_vn.py:15:15-19                                                 |
+| 16 | 43                                 |     return                             | -----------                 | gvn/btoi_itob_vn.py:15:8-19                                                  |
+|    | # test_through_phi                 | test_through_phi:                      |                             | test_cases.gvn.btoi_itob_vn.test_through_phi(x: uint64) -> void:             |
+| 17 | 8a 01 00                           |     proto 1 0                          |                             | gvn/btoi_itob_vn.py:21-22:1-26                                               |
+| 20 | 81 00                              |     pushint 0                          |                             |                                                                              |
+| 22 | 42 00 00                           |     b test_through_phi_block@0         |                             |                                                                              |
+|    | # test_through_phi_block@0         | test_through_phi_block@0:              |                             |                                                                              |
+|    |                                    |                                        | if x:                       | gvn/btoi_itob_vn.py:23                                                       |
+| 25 | 8b ff                              |     frame_dig -1                       |    -                        | gvn/btoi_itob_vn.py:23:7-8                                                   |
+| 27 | 81 00                              |     pushint 0                          |    -                        | gvn/btoi_itob_vn.py:23:7-8                                                   |
+| 29 | 13                                 |     !=                                 |    -                        | gvn/btoi_itob_vn.py:23:7-8                                                   |
+| 30 | 41 00 13                           |     bz test_through_phi_else_body@2    |                             | gvn/btoi_itob_vn.py:23                                                       |
+| 33 | 42 00 00                           |     b test_through_phi_if_body@1       |                             | gvn/btoi_itob_vn.py:23                                                       |
+|    | # test_through_phi_if_body@1       | test_through_phi_if_body@1:            |                             |                                                                              |
+|    |                                    |                                        | b = op.itob(x)              | gvn/btoi_itob_vn.py:24                                                       |
+| 36 | 8b ff                              |     frame_dig -1                       |     ----------              | gvn/btoi_itob_vn.py:24:12-22                                                 |
+| 38 | 16                                 |     itob                               |     ----------              | gvn/btoi_itob_vn.py:24:12-22                                                 |
+| 39 | 8c 00                              |     frame_bury 0                       | --------------              | gvn/btoi_itob_vn.py:24:8-22                                                  |
+| 41 | 42 00 00                           |     b test_through_phi_after_if_else@3 |                             |                                                                              |
+|    | # test_through_phi_after_if_else@3 | test_through_phi_after_if_else@3:      |                             |                                                                              |
+|    |                                    |                                        | assert op.btoi(b) == x      | gvn/btoi_itob_vn.py:29                                                       |
+| 44 | 8b 00                              |     frame_dig 0                        |        ----------           | gvn/btoi_itob_vn.py:29:11-21                                                 |
+| 46 | 17                                 |     btoi                               |        ----------           | gvn/btoi_itob_vn.py:29:11-21                                                 |
+| 47 | 8b ff                              |     frame_dig -1                       |        ---------------      | gvn/btoi_itob_vn.py:29:11-26                                                 |
+| 49 | 12                                 |     ==                                 |        ---------------      | gvn/btoi_itob_vn.py:29:11-26                                                 |
+| 50 | 44                                 |     assert                             | ----------------------      | gvn/btoi_itob_vn.py:29:4-26                                                  |
+| 51 | 89                                 |     retsub                             |                             |                                                                              |
+|    | # test_through_phi_else_body@2     | test_through_phi_else_body@2:          |                             |                                                                              |
+|    |                                    |                                        | b = op.itob(x)              | gvn/btoi_itob_vn.py:26                                                       |
+| 52 | 8b ff                              |     frame_dig -1                       |     ----------              | gvn/btoi_itob_vn.py:26:12-22                                                 |
+| 54 | 16                                 |     itob                               |     ----------              | gvn/btoi_itob_vn.py:26:12-22                                                 |
+| 55 | 8c 00                              |     frame_bury 0                       | --------------              | gvn/btoi_itob_vn.py:26:8-22                                                  |
+| 57 | 42 ff f0                           |     b test_through_phi_after_if_else@3 |                             |                                                                              |
