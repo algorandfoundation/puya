@@ -20,7 +20,6 @@ from puya.ir.optimize._intrinsics import (
     choose_encoding,
     chop_encoding,
     fold_extract_uint_n,
-    fold_getbit_bytes,
     fold_getbyte,
     fold_setbit_bytes,
     fold_setbit_uint64,
@@ -333,22 +332,6 @@ def _try_fold_intrinsic(
             case 0, 1:
                 zero_const = UInt64Constant(value=0, source_location=intrinsic.source_location)
                 return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
-    elif intrinsic.op is AVMOp.getbit:
-        match intrinsic.args:
-            case [
-                models.UInt64Constant(value=source, ir_type=PrimitiveIRType.uint64),
-                models.UInt64Constant(value=index),
-            ]:
-                if index < 64:
-                    getbit_result = 1 if (source & (1 << index)) else 0
-                    return models.UInt64Constant(value=getbit_result, source_location=op_loc)
-            case [
-                models.Value(atype=AVMType.bytes) as byte_arg,
-                models.UInt64Constant(value=index),
-            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                folded = fold_getbit_bytes(byte_const.value, index)
-                if folded is not None:
-                    return models.UInt64Constant(value=folded, source_location=op_loc)
     elif intrinsic.op is AVMOp.getbyte:
         match intrinsic.args:
             case [
