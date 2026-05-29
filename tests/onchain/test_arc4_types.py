@@ -63,7 +63,7 @@ def test_abi_mutations(deployer_o: Deployer) -> None:
 
 
 def test_abi_mutable_params(deployer_o: Deployer) -> None:
-    deployer_o.create_with_op_up(TEST_CASES_DIR / "arc4_types" / "mutable_params.py", num_op_ups=2)
+    deployer_o.create_with_op_up(TEST_CASES_DIR / "arc4_types" / "mutable_params.py", num_op_ups=3)
 
 
 def test_abi_bool_eval(deployer_o: Deployer) -> None:
