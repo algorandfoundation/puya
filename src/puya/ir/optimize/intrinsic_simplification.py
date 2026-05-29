@@ -105,25 +105,20 @@ def _try_simplify_bool_condition(
     register_assignments: _RegisterAssignments, cond: models.Value
 ) -> models.Value | None:
     if cond_defn := register_assignments.get(cond):
-        return _try_simplify_bool_intrinsic(cond_defn.source)
-    return None
-
-
-def _try_simplify_bool_intrinsic(cond_op: models.ValueProvider) -> models.Value | None:
-    match cond_op:
-        case (
-            models.Intrinsic(
-                args=[
-                    models.Value(atype=AVMType.uint64) as a,
-                    models.Value(atype=AVMType.uint64) as b,
-                ]
-            ) as intrinsic
-        ):
-            cond_maybe_simplified = _try_simplify_uint64_binary_op(
-                {}, intrinsic, a, b, bool_context=True
-            )
-            if isinstance(cond_maybe_simplified, models.Value):
-                return cond_maybe_simplified
+        match cond_defn.source:
+            case (
+                models.Intrinsic(
+                    args=[
+                        models.Value(atype=AVMType.uint64) as a,
+                        models.Value(atype=AVMType.uint64) as b,
+                    ]
+                ) as intrinsic
+            ):
+                cond_maybe_simplified = _try_simplify_uint64_binary_op(
+                    {}, intrinsic, a, b, bool_context=True
+                )
+                if isinstance(cond_maybe_simplified, models.Value):
+                    return cond_maybe_simplified
     return None
 
 
