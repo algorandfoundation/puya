@@ -350,7 +350,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[r
     block@0: // L94
         let new_items_bytes#1: bytes = (itob 42u)
         let arr#1: Encoded(len+uint64[]) = 0x0001000000000000002a
-        let arr#2: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(0x0001000000000000002a, 5u)
+        let arr#2: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#1, 5u)
         let array_length#2: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
         let tmp%12#0: bool = (== array_length#2 6u)
         (assert tmp%12#0)
@@ -1278,8 +1278,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return[
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%head%0#0: bytes = 0x00030000000000000001
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
-        let aggregate%head%1#0: bytes = 0x000300000000000000010000000000000002
-        let arr#0: Encoded(len+uint64[]) = 0x0003000000000000000100000000000000020000000000000003
+        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%val_as_bytes%1#0)
+        let arr#0: Encoded(len+uint64[]) = (concat aggregate%head%1#0 aggregate%as_bytes%0#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L371
@@ -1461,7 +1461,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_ar
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%head%0#0: bytes = 0x00020000000000000001
-        let prefix#0: Encoded(len+uint64[]) = 0x000200000000000000010000000000000002
+        let prefix#0: Encoded(len+uint64[]) = (concat aggregate%head%0#0 aggregate%val_as_bytes%1#0)
         let result#1: bytes = 0x000400000000000000010000000000000002
         let result#0: Encoded(len+uint64[]) = (concat result#1 arg#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
@@ -1479,7 +1479,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%head%0#0: bytes = 0x00020000000000000001
-        let prefix#0: Encoded(len+uint64[]) = 0x000200000000000000010000000000000002
+        let prefix#0: Encoded(len+uint64[]) = (concat aggregate%head%0#0 aggregate%val_as_bytes%1#0)
         let new_items_bytes#0: bytes = (concat arg.0#0 arg.1#0)
         let result#1: bytes = 0x000400000000000000010000000000000002
         let result#0: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#0)
@@ -1509,7 +1509,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let aggregate%concat%0#0: bytes = 0x000200040007000161
         let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let data%0#0: bytes = ((extract 4 0) arg#0)
-        let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, data%0#0, 2u)
+        let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, data%0#0, 2u)
         let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%2#0)
         exit 1u
@@ -1537,7 +1537,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let aggregate%concat%0#0: bytes = 0x000200040007000161
         let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let concat%1#0: bytes = (concat arg.0#0 arg.1#0)
-        let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, concat%1#0, 2u)
+        let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, concat%1#0, 2u)
         let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%4#0)
         exit 1u
@@ -1684,7 +1684,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[
         (assert tmp%14#0) // expected sum to be 15
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 0u)
         let aggregate%head%6#0: bytes = 0x00000000000000000000000000000000
-        let mut_arr#1: Encoded((uint64,uint64)[3]) = ((replace2 0) arr1#1 0x00000000000000000000000000000000) // on error: index access is out of bounds
+        let mut_arr#1: Encoded((uint64,uint64)[3]) = ((replace2 0) arr1#1 aggregate%head%6#0) // on error: index access is out of bounds
         let tmp%17#0: uint64 = test_cases.array.immutable.sum_imm_fixed(mut_arr#1)
         let tmp%18#0: bool = (== tmp%17#0 10u)
         (assert tmp%18#0) // expected sum to be 10

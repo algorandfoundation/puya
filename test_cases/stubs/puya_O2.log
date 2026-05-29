@@ -1216,7 +1216,7 @@ debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%30#0 0u) to (! tmp%30#0)
 debug: Simplified (select 0u 1u tmp%36#0) to tmp%36#0
-debug: Simplified (== tmp%36#0 0u) to (! tmp%36#0)
+debug: Simplified (== select%1#0 0u) to (! select%1#0)
 debug: Simplified (select 1u 0u tmp%38#0) to (! tmp%38#0)
 debug: Simplified (== select%2#0 0u) to (! select%2#0)
 debug: Simplified (select 0u 0u tmp%40#0) to (* tmp%40#0 0u)
@@ -1589,25 +1589,19 @@ debug: Simplified (concat "a" "b") to "ab"
 debug: Simplified (concat "a" "b") to "ab"
 debug: Simplified (concat "c" "d") to "cd"
 debug: Simplified (concat "abcdefg" "!") to "abcdefg!"
-debug: Simplified (len "abcdefg!") to 8u
 debug: Simplified (concat "!" "abcdefg") to "!abcdefg"
-debug: Simplified (len "!abcdefg") to 8u
 debug: Simplified (concat "d" ".") to "d."
-debug: Simplified (concat "d." "e") to "d.e"
-debug: Simplified (concat "d.e" ".") to "d.e."
-debug: Simplified (concat "d.e." "f") to "d.e.f"
+debug: Simplified (concat tmp%76#0 ".") to (concat tmp%75#0 "e.")
+debug: Simplified (concat tmp%77#0 "f") to (concat tmp%75#0 "e.f")
 debug: Simplified (concat "d" ".") to "d."
-debug: Simplified (concat "d." "e") to "d.e"
-debug: Simplified (concat "d.e" ".") to "d.e."
-debug: Simplified (concat "d.e." "f") to "d.e.f"
+debug: Simplified (concat tmp%81#0 ".") to (concat tmp%80#0 "e.")
+debug: Simplified (concat tmp%82#0 "f") to (concat tmp%80#0 "e.f")
 debug: Simplified (concat "d" ".") to "d."
-debug: Simplified (concat "d." "e") to "d.e"
-debug: Simplified (concat "d.e" ".") to "d.e."
-debug: Simplified (concat "d.e." "f") to "d.e.f"
+debug: Simplified (concat tmp%86#0 ".") to (concat tmp%85#0 "e.")
+debug: Simplified (concat tmp%87#0 "f") to (concat tmp%85#0 "e.f")
 debug: Simplified (concat "d" ".") to "d."
-debug: Simplified (concat "d." "e") to "d.e"
-debug: Simplified (concat "d.e" ".") to "d.e."
-debug: Simplified (concat "d.e." "f") to "d.e.f"
+debug: Simplified (concat tmp%91#0 ".") to (concat tmp%90#0 "e.")
+debug: Simplified (concat tmp%92#0 "f") to (concat tmp%90#0 "e.f")
 debug: Simplified (concat tmp%96#0 "") to (concat tmp%95#0 "e")
 debug: Simplified (concat tmp%97#0 "f") to (concat tmp%95#0 "ef")
 debug: Optimizer: Inner Txn Field Replacer
@@ -1633,8 +1627,12 @@ debug: removing redundant assert of tmp%94#0
 debug: removing redundant assert of tmp%99#0
 debug: removing redundant assert of tmp%100#0
 debug: removing redundant assert of tmp%101#0
+debug: GVN found equivalence set: (tmp%12#0, c#2), selected replacement: c#2
 debug: GVN found equivalence set: (ternary_result%3#2, ternary_result%9#2), selected replacement: ternary_result%3#2
-debug: GVN: 1 replacement(s) in test_cases.stubs.string.StringContract.approval_program
+debug: GVN found equivalence set: (tmp%76#0, tmp%81#0, tmp%86#0, tmp%91#0), selected replacement: tmp%76#0
+debug: GVN found equivalence set: (tmp%77#0, tmp%82#0, tmp%87#0, tmp%92#0), selected replacement: tmp%77#0
+debug: GVN found equivalence set: (tmp%78#0, tmp%83#0, tmp%88#0, tmp%93#0), selected replacement: tmp%78#0
+debug: GVN: 11 replacement(s) in test_cases.stubs.string.StringContract.approval_program
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1688,7 +1686,6 @@ debug: Removing unused variable tmp%9#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable tmp%11#0
 debug: Removing unused variable c#1
-debug: Removing unused variable tmp%12#0
 debug: Removing unused variable c#2
 debug: Removing unused variable tmp%13#0
 debug: Removing unused variable tmp%17#0
@@ -1754,19 +1751,10 @@ debug: Removing unused variable tmp%77#0
 debug: Removing unused variable tmp%78#0
 debug: Removing unused variable tmp%79#0
 debug: Removing unused variable tmp%80#0
-debug: Removing unused variable tmp%81#0
-debug: Removing unused variable tmp%82#0
-debug: Removing unused variable tmp%83#0
 debug: Removing unused variable tmp%84#0
 debug: Removing unused variable tmp%85#0
-debug: Removing unused variable tmp%86#0
-debug: Removing unused variable tmp%87#0
-debug: Removing unused variable tmp%88#0
 debug: Removing unused variable tmp%89#0
 debug: Removing unused variable tmp%90#0
-debug: Removing unused variable tmp%91#0
-debug: Removing unused variable tmp%92#0
-debug: Removing unused variable tmp%93#0
 debug: Removing unused variable tmp%94#0
 debug: Removing unused variable tmp%95#0
 debug: Removing unused variable tmp%96#0
@@ -2232,6 +2220,7 @@ debug: Simplified (extract3 0x616263 0u 1u) to ((extract 0 1) 0x616263)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len QmFzZSA2NCBlbmNvZGVk) to 15u
 debug: Simplified (len 0x) to 0u
+debug: Simplified (== tmp%5#0 0u) to (! tmp%5#0)
 debug: Simplified (concat 0x61 0x62) to 0x6162
 debug: Simplified (concat 0x63 0x64) to 0x6364
 debug: Simplified (len 0x616263) to 3u
@@ -2243,19 +2232,27 @@ debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x31323334353637) to 7u
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x31) to 1u
+debug: Simplified (== tmp%28#0 0u) to (! tmp%28#0)
 debug: Simplified (len 0x31) to 1u
+debug: Simplified (== tmp%31#0 0u) to (! tmp%31#0)
 debug: Simplified (len 0x31) to 1u
+debug: Simplified (== tmp%34#0 0u) to (! tmp%34#0)
 debug: Simplified (len 0x) to 0u
+debug: Simplified (== tmp%37#0 0u) to (! tmp%37#0)
 debug: Simplified (len 0x) to 0u
+debug: Simplified (== tmp%40#0 0u) to (! tmp%40#0)
 debug: Simplified (len 0x31) to 1u
+debug: Simplified (select 0x31 0x31 tmp%44#0) to (select 0x31 0x31 tmp%43#0)
 debug: Simplified (len 0x31) to 1u
+debug: Simplified (select 0x 0x31 tmp%47#0) to (select 0x 0x31 tmp%46#0)
 debug: Simplified (len 0x) to 0u
+debug: Simplified (select 0x31 0x tmp%50#0) to (select 0x31 0x tmp%49#0)
 debug: Simplified (len 0x) to 0u
+debug: Simplified (select 0x 0x tmp%53#0) to (select 0x 0x tmp%52#0)
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x616263) to 3u
-debug: Simplified (select 0u 3u is_out_of_bounds%6#1) to (* is_out_of_bounds%6#1 3u)
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x616263) to 3u
 debug: Simplified (len 0x616263) to 3u
@@ -2277,7 +2274,6 @@ debug: Optimizer: Global Value Numbering
 debug: GVN: test_cases.stubs.bytes.BytesContract.approval_program converged after 2 iteration(s)
 debug: removing redundant assert of tmp%1#0
 debug: removing redundant assert of tmp%2#0
-debug: removing redundant assert of tmp%4#0
 debug: removing redundant assert of tmp%6#0
 debug: removing redundant assert of tmp%8#0
 debug: removing redundant assert of tmp%10#0

@@ -212,12 +212,20 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
 
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.bootstrap[routing]() -> void:
     block@0: // L39
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 123u)
+        let aggregate%head%3#0: bytes = 0x000000000000002a80000000000000007b
+        let aggregate%head%4#0: bytes = 0x0001000000000000002a80000000000000007b
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 2u)
+        let aggregate%head%7#0: bytes = 0x000000000000000100120000000000000002
+        let aggregate%concat%0#0: bytes = 0x0000000000000001001200000000000000020001000000000000002a80000000000000007b
+        let aggregate%concat%1#0: bytes = 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b
+        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 0x0000)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%1#0 0x00000000)
         (box_del "box")
-        (box_put "box" 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b00000000)
+        (box_put "box" aggregate%concat%3#0)
         let aggregate%substring3%0#0: bytes = 0x0000
         let tmp%6#0: Encoded(len+((len+uint64[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%substring3%0#0, 0x000200020000, 1u)
-        let aggregate%data_up_to_item%0#0: bytes = 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000
-        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 tmp%6#0)
+        let aggregate%updated_data%0#0: bytes = (concat aggregate%concat%2#0 tmp%6#0)
         (box_del "box")
         (box_put "box" aggregate%updated_data%0#0)
         let tmp%7#0: bytes[4096] = (bzero 4096u)

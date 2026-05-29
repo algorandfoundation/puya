@@ -72,8 +72,15 @@ subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap[routing]() -> void:
     block@0: // L32
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 3u)
+        let aggregate%head%2#0: bytes = 0x000000000000000200120000000000000003
+        let aggregate%concat%0#0: bytes = 0x0000000000000002001200000000000000030000
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 4u)
+        let aggregate%head%5#0: bytes = 0x000000000000000100120000000000000004
+        let aggregate%concat%1#0: bytes = 0x0000000000000001001200000000000000040000000000000002001200000000000000030000
+        let aggregate%concat%4#0: bytes = 0x00060008000a000000000000000000000001001200000000000000040000000000000002001200000000000000030000
         (box_del "box")
-        (box_put "box" 0x00060008000a000000000000000000000001001200000000000000040000000000000002001200000000000000030000)
+        (box_put "box" aggregate%concat%4#0)
         let tmp%3#0: bytes[4096] = (bzero 4096u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 2u, 4096u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 4u, 4096u)

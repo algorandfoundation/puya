@@ -542,7 +542,29 @@ subroutine bootstrap:
         byte 0x000200020000                                                0x0000,0x000200020000
         int 1                                                              0x0000,0x000200020000,1
         callsub dynamic_array_concat_dynamic_element                       tmp%6#0
+        // large_box_operations/nested_item.py:41-59
+        // self.box.value = StructWithNestedArray(
+        //     grand=GrandParent(
+        //         a=UInt64(1),
+        //         arr=Array(
+        //             (
+        //                 Parent(
+        //                     child=Child(
+        //                         uint=UInt64(42),
+        //                         bool_=True,
+        //                     ),
+        //                     bar=UInt64(123),
+        //                 ),
+        //             )
+        //         ),
+        //         b=UInt64(2),
+        //     ),
+        //     padding=LargeBytes(),
+        //     items=Array[ItemWithArray](),
+        // )
         byte 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000 tmp%6#0,0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000
+        // large_box_operations/nested_item.py:60
+        // self.box.value.items.append(ItemWithArray(arr=Array[UInt64]()))
         l-load tmp%6#0 1                                                   0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000,tmp%6#0
         concat                                                             aggregate%updated_data%0#0
         byte "box"                                                         aggregate%updated_data%0#0,"box"
