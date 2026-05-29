@@ -18,7 +18,6 @@ from puya.ir.optimize._intrinsics import (
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
-    fold_extract_uint_n,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
@@ -329,13 +328,6 @@ def _try_fold_intrinsic(
                 return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
     elif intrinsic.op in EXTRACT_UINTN_BYTE_SIZE:
         match intrinsic.args:
-            case [
-                models.Value() as bytes_arg,
-                models.UInt64Constant(value=offset),
-            ] if (bytes_const := _get_byte_constant(register_assignments, bytes_arg)) is not None:
-                folded = fold_extract_uint_n(intrinsic.op, bytes_const.value, offset)
-                if folded is not None:
-                    return models.UInt64Constant(value=folded, source_location=op_loc)
             case [
                 models.Register() as bytes_arg,
                 models.UInt64Constant(value=offset) as offset_const,
