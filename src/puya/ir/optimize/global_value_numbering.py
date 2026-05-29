@@ -576,7 +576,7 @@ def _build_equivalence_sets(
                 condition = op.condition
                 if _assert_always_passes(condition, tables):
                     modified = True
-                    logger.debug(f"removing assert of non-zero constant {condition}")
+                    logger.debug(f"removing redundant assert of {condition}")
                     ops.pop()
                     ssa_reads.remove(op)
                 elif isinstance(condition, models.Register):
