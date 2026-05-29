@@ -43,8 +43,23 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
 
     modified = 0
     for block in subroutine.body:
+        new_ops = list[models.Op]()
         for op in block.ops:
             match op:
+                case models.Intrinsic() as intrinsic:
+                    # a bare intrinsic op means its result is unused or it doesn't return,
+                    # so the result is either the (possibly modified) op, or None to delete it
+                    visited = _visit_intrinsic_op(intrinsic)
+                    if visited is not intrinsic:
+                        modified += 1
+                    if visited is not None:
+                        new_ops.append(visited)
+                case models.Assert() as assert_:
+                    asserted = _simplify_assert(assert_, register_assignments)
+                    if asserted is not assert_:
+                        modified += 1
+                    if asserted is not None:
+                        new_ops.append(asserted)
                 case (
                     models.Assignment(
                         targets=[*targets], source=models.Intrinsic() as source
@@ -80,68 +95,24 @@ def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Sub
                                 op=AVMOp.box_len,
                                 types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
                             )
+                    new_ops.append(ass)
+                case _:
+                    new_ops.append(op)
+        block.ops[:] = new_ops
 
-    register_intrinsics = {
-        target: ass.source
-        for target, ass in register_assignments.items()
-        if isinstance(ass.source, models.Intrinsic)
-    }
-    modified += _simplify_conditional_branches(subroutine, register_intrinsics)
-    modified += _simplify_non_returning_intrinsics(subroutine, register_intrinsics)
+        match block.terminator:
+            case models.ConditionalBranch(condition=models.Register() as cond) as branch if (
+                cond_defn := register_assignments.get(cond)
+            ):
+                cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
+                if cond_maybe_simplified is not None:
+                    block.terminator = attrs.evolve(branch, condition=cond_maybe_simplified)
+                    modified += 1
     return modified > 0
 
 
-def _simplify_conditional_branches(
-    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Value, models.Intrinsic]
-) -> int:
-    modified = 0
-    branch_registers = dict[
-        models.Register, list[tuple[models.ConditionalBranch, models.BasicBlock]]
-    ]()
-    for block in subroutine.body:
-        match block.terminator:
-            case (
-                models.ConditionalBranch(condition=models.Register() as cond) as branch
-            ) if cond in register_intrinsics:
-                branch_registers.setdefault(cond, []).append((branch, block))
-    for target, usages in branch_registers.items():
-        intrinsic = register_intrinsics[target]
-        cond_maybe_simplified = _try_simplify_bool_intrinsic(intrinsic)
-        if cond_maybe_simplified is not None:
-            for branch, used_block in usages:
-                used_block.terminator = attrs.evolve(branch, condition=cond_maybe_simplified)
-                modified += 1
-    return modified
-
-
-def _simplify_non_returning_intrinsics(
-    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Value, models.Intrinsic]
-) -> int:
-    modified = 0
-    for block in subroutine.body:
-        ops = list[models.Op]()
-        result: models.Op | None
-        for op in block.ops:
-            if isinstance(op, models.Intrinsic):
-                result = _visit_intrinsic_op(op)
-                if result is not op:
-                    modified += 1
-                if result is not None:
-                    ops.append(result)
-            elif isinstance(op, models.Assert):
-                result = _simplify_assert(op, register_intrinsics)
-                if result is not op:
-                    modified += 1
-                if result is not None:
-                    ops.append(result)
-            else:
-                ops.append(op)
-        block.ops[:] = ops
-    return modified
-
-
 def _simplify_assert(
-    assert_: models.Assert, register_intrinsics: Mapping[models.Value, models.Intrinsic]
+    assert_: models.Assert, register_assignments: _RegisterAssignments
 ) -> models.Assert | None:
     result: models.Assert | None = assert_
     cond = assert_.condition
@@ -154,8 +125,8 @@ def _simplify_assert(
             # this would make it a ControlOp, so the block would
             # need to be restructured
             pass
-    elif cond_op := register_intrinsics.get(cond):
-        assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_op)
+    elif cond_defn := register_assignments.get(cond):
+        assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_defn.source)
         if assert_cond_maybe_simplified is not None:
             result = attrs.evolve(assert_, condition=assert_cond_maybe_simplified)
     return result
@@ -239,7 +210,7 @@ def _try_simplify_intrinsic(
             case [
                 models.Register() as bytes_arg,
                 models.UInt64Constant(value=offset) as offset_const,
-            ] if (bytes_arg_defn := register_assignments.get(bytes_arg)) is not None and (
+            ] if (bytes_arg_defn := register_assignments.get(bytes_arg)) and (
                 all(
                     isinstance(r, models.Assignment)
                     and isinstance(r.source, models.Intrinsic)
