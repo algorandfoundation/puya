@@ -61,104 +61,25 @@ class OneConstSimplificationContract(ARC4Contract):
         # x b/ 1 -> x
         return arc4.UInt256(x.as_biguint() // BigUInt(1))
 
-    # bool-context one-const folds: an arithmetic-with-const expression used directly as
-    # a branch condition. intrinsic_simplification (which runs before GVN at O1) folds
-    # these via the bool-context simplifier. Each returns 1 iff the condition is truthy.
-
-    @public
-    def cond_mul_one_l(self, x: UInt64) -> UInt64:
-        # 1 * x as a condition -> x
-        if UInt64(1) * x:
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_mul_one_r(self, x: UInt64) -> UInt64:
-        # x * 1 as a condition -> x
-        if x * UInt64(1):
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_mul_zero(self, x: UInt64) -> UInt64:
-        # x * 0 as a condition -> 0 (always false)
-        if x * UInt64(0):
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_div_one(self, x: UInt64) -> UInt64:
-        # x // 1 as a condition -> x
-        if x // UInt64(1):
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_mod_one(self, x: UInt64) -> UInt64:
-        # x % 1 as a condition -> 0 (always false)
-        if x % UInt64(1):
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_add_zero_l(self, x: UInt64) -> UInt64:
-        # 0 + x as a condition -> x
-        if UInt64(0) + x:
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_add_zero_r(self, x: UInt64) -> UInt64:
-        # x + 0 as a condition -> x
-        if x + UInt64(0):
-            return UInt64(1)
-        return UInt64(0)
-
-    @public
-    def cond_sub_zero(self, x: UInt64) -> UInt64:
-        # x - 0 as a condition -> x
-        if x - UInt64(0):
-            return UInt64(1)
-        return UInt64(0)
-
     @public
     def cond_gt_zero(self, b: UInt64) -> UInt64:
-        # 0 > b as a condition -> 0 (always false)
+        # bool context: `0 > b` used directly as a branch condition folds to 0 (a uint64
+        # is never negative). Returns 0 for every b.
         if UInt64(0) > b:
             return UInt64(1)
         return UInt64(0)
 
-    @public
-    def cond_and_false(self, a: bool) -> UInt64:
-        # `a and False` materialises &&(a, 0); as a condition -> 0 (always false)
-        cond = a and False
-        if cond:
-            return UInt64(1)
-        return UInt64(0)
-
-    # value-context one-const folds where the surviving operand is a bool and the
-    # comparison result is used as a value (not a branch condition), so GVN folds it.
-
-    @public
-    def val_gte_one(self, a: bool) -> bool:
-        # (a >= 1) -> a   (a is a bool)
-        r = a >= UInt64(1)
-        return r
+    # value context: a comparison whose surviving operand is a bool and whose result is
+    # used as a value (not a branch condition) — GVN folds these to the bool operand.
 
     @public
     def val_lte_one(self, b: bool) -> bool:
-        # (1 <= b) -> b   (b is a bool)
+        # (1 <= b) -> b
         r = UInt64(1) <= b
         return r
 
     @public
     def val_lt_zero(self, b: bool) -> bool:
-        # (0 < b) -> b   (b is a bool)
+        # (0 < b) -> b
         r = UInt64(0) < b
-        return r
-
-    @public
-    def val_gt_zero(self, a: bool) -> bool:
-        # (a > 0) -> a   (a is a bool)
-        r = a > UInt64(0)
         return r

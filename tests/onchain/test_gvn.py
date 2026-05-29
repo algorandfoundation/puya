@@ -160,6 +160,12 @@ def test_one_const_simplification(deployer_o: Deployer) -> None:
     assert call("lte_one", [99]) == 1
     assert call("or_false", [True]) == 1  # (a or False) -> a
     assert call("or_false", [False]) == 0
+    assert call("cond_gt_zero", [0]) == 0  # `0 > b` as a condition -> 0
+    assert call("cond_gt_zero", [5]) == 0
+    assert call("val_lte_one", [True]) is True  # (1 <= b) -> b
+    assert call("val_lte_one", [False]) is False
+    assert call("val_lt_zero", [True]) is True  # (0 < b) -> b
+    assert call("val_lt_zero", [False]) is False
 
     # biguint one-const algebra: x b* 0 -> 0, and 0/1 identities preserve x
     for x in (0, 1, 12345, 2**200):
