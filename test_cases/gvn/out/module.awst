@@ -416,6 +416,84 @@ subroutine test(a: uint64, b: uint64, cond: bool): uint64
   return result
 }
 
+contract OneConstSimplificationContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.mul_zero(x: uint64): uint64
+  {
+    return x * 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.gt_zero(b: uint64): bool
+  {
+    return 0u > b
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one(x: uint64): uint64
+  {
+    if (1u <= x) {
+      return 1u
+    }
+    return 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false(a: bool): uint64
+  {
+    cond: bool = a or false
+    if (cond) {
+      return 1u
+    }
+    return 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bmul_zero(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b* 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_left(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(0n b+ arc4_decode(x, biguint), arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_right(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b+ 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bsub_zero(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b- 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bdiv_one(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b// 1n, arc4.uint256)
+  }
+  
+  baremethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract NegatedComparisonContract
 {
   method_resolution_order: (
@@ -624,6 +702,86 @@ subroutine test_through_phi(selector: uint64): void
     b: bytes = hex<"4142">
   }
   assert(getbyte(b, 1u) == 66u)
+}
+
+contract DeclinedConstFoldContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.expw_zero_zero(): uint64
+  {
+    (hi, lo): tuple<uint64,uint64> = expw(0u, 0u)
+    return hi + lo
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.expw_overflow(): uint64
+  {
+    (hi, lo): tuple<uint64,uint64> = expw(2u, 128u)
+    return hi + lo
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.divw_div_zero(): uint64
+  {
+    return divw(0u, 5u, 0u)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.divw_overflow(): uint64
+  {
+    return divw(1u, 0u, 1u)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.divmodw_div_zero(): uint64
+  {
+    (qh, ql, rh, rl): tuple<uint64,uint64,uint64,uint64> = divmodw(0u, 5u, 0u, 0u)
+    return qh + ql + rh + rl
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.setbyte_value_oob(): bytes
+  {
+    return setbyte(hex<"4142">, 0u, 256u)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.bsqrt_too_long(): arc4.uint512
+  {
+    arg: biguint = hex<"0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">
+    return arc4_encode(bsqrt(arg), arc4.uint512)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.div_by_zero(): uint64
+  {
+    return 5u // btoi(hex<"00">)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.mod_by_zero(): uint64
+  {
+    return 5u % btoi(hex<"00">)
+  }
+  
+  abimethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.biguint_mod_by_zero(): arc4.uint256
+  {
+    return arc4_encode(5n b% reinterpret_cast<biguint>(bzero(1u)), arc4.uint256)
+  }
+  
+  baremethod test_cases.gvn.declined_const_fold.DeclinedConstFoldContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract GVNConstFolding
