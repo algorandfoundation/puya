@@ -1,0 +1,171 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@15
+    block@2: // abi_routing_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "select_neq(uint64)uint64" => block@4, method "chained_extract(byte[])uint64" => block@5, method "biguint_add_fold(uint512)uint512" => block@6, method "biguint_mul_fold(uint512)uint512" => block@7, method "biguint_add_no_fold(uint512,uint512,uint512)uint512" => block@8, method "biguint_add_bytes_const(uint512)uint512" => block@9, method "biguint_add_oversized(uint512)uint512" => block@10, method "biguint_add_double_oversized(uint512,uint512)uint512" => block@11, * => block@14}
+    block@4: // select_neq_route_L5
+        test_cases.intrinsics.simplifications.Simplifications.select_neq[routing]()
+        goto block@14
+    block@5: // chained_extract_route_L11
+        test_cases.intrinsics.simplifications.Simplifications.chained_extract[routing]()
+        goto block@14
+    block@6: // biguint_add_fold_route_L17
+        test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold[routing]()
+        goto block@14
+    block@7: // biguint_mul_fold_route_L22
+        test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold[routing]()
+        goto block@14
+    block@8: // biguint_add_no_fold_route_L27
+        test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold[routing]()
+        goto block@14
+    block@9: // biguint_add_bytes_const_route_L32
+        test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const[routing]()
+        goto block@14
+    block@10: // biguint_add_oversized_route_L38
+        test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized[routing]()
+        goto block@14
+    block@11: // biguint_add_double_oversized_route_L44
+        test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized[routing]()
+        goto block@14
+    block@14: // after_if_else_L4
+        fail
+    block@15: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.select_neq[routing]() -> void:
+    block@0: // L5
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let x#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        let tmp%0#1: uint64 = (!= x#0 0u)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.chained_extract[routing]() -> void:
+    block@0: // L11
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let src#0: bytes = decode_bytes<bytes>(tmp%0#0)
+        let middle#0: bytes = ((extract 2 0) src#0)
+        let tmp%1#1: uint64 = (extract_uint16 src#0 3u)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold[routing]() -> void:
+    block@0: // L17
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%1#1: biguint = (b+ x#0 8b)
+        let tmp%3#0: Encoded(uint512) = bytes_encode<uint512>(tmp%1#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold[routing]() -> void:
+    block@0: // L22
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%1#1: biguint = (b* x#0 15b)
+        let tmp%3#0: Encoded(uint512) = bytes_encode<uint512>(tmp%1#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold[routing]() -> void:
+    block@0: // L27
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 64u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint512
+        let y#0: biguint = decode_bytes<biguint>(tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 64u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint512
+        let z#0: biguint = decode_bytes<biguint>(tmp%4#0)
+        let tmp%0#1: biguint = (b+ x#0 y#0)
+        let tmp%1#1: biguint = (b+ tmp%0#1 z#0)
+        let tmp%7#0: Encoded(uint512) = bytes_encode<uint512>(tmp%1#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
+        (log tmp%8#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const[routing]() -> void:
+    block@0: // L32
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%1#1: biguint = (b+ x#0 8b)
+        let tmp%3#0: Encoded(uint512) = bytes_encode<uint512>(tmp%1#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized[routing]() -> void:
+    block@0: // L38
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%1#1: biguint = (b+ x#0 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+        let tmp%2#1: biguint = (b+ tmp%1#1 3b)
+        let tmp%3#0: Encoded(uint512) = bytes_encode<uint512>(tmp%2#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized[routing]() -> void:
+    block@0: // L44
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 64u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint512
+        let y#0: biguint = decode_bytes<biguint>(tmp%2#0)
+        let tmp%1#1: biguint = (b+ x#0 26815615859885194199148049996411692254958731641184786755447122887443528060147093953603748596333806855380063716372972101707507765623893139892867298012168190b)
+        let tmp%2#1: biguint = (b+ tmp%1#1 y#0)
+        let tmp%5#0: Encoded(uint512) = bytes_encode<uint512>(tmp%2#1)
+        let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
+        (log tmp%6#0)
+        exit 1u
