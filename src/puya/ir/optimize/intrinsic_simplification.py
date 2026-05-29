@@ -22,7 +22,6 @@ from puya.ir.optimize._intrinsics import (
     fold_extract_uint_n,
     fold_getbit_bytes,
     fold_getbyte,
-    fold_replace2,
     fold_setbit_bytes,
     fold_setbit_uint64,
     fold_setbyte,
@@ -334,40 +333,6 @@ def _try_fold_intrinsic(
             case 0, 1:
                 zero_const = UInt64Constant(value=0, source_location=intrinsic.source_location)
                 return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
-    elif intrinsic.op is AVMOp.replace2:
-        (start,) = intrinsic.immediates
-        assert isinstance(start, int)
-        byte_arg_a, byte_arg_b = intrinsic.args
-        if (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None and (
-            byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
-        ) is not None:
-            folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
-            if folded_bytes is not None:
-                enc = choose_encoding(byte_const_a.encoding, byte_const_b.encoding)
-                return models.BytesConstant(
-                    value=folded_bytes, encoding=enc, source_location=op_loc
-                )
-    elif intrinsic.op is AVMOp.replace3:
-        match intrinsic.args:
-            case [
-                models.Value(atype=AVMType.bytes) as byte_arg_a,
-                models.UInt64Constant(value=start),
-                models.Value(atype=AVMType.bytes) as byte_arg_b,
-            ] if (
-                (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None
-                and (byte_const_b := _get_byte_constant(register_assignments, byte_arg_b))
-                is not None
-            ):
-                folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
-                if folded_bytes is not None:
-                    enc = choose_encoding(byte_const_a.encoding, byte_const_b.encoding)
-                    return models.BytesConstant(
-                        value=folded_bytes, encoding=enc, source_location=op_loc
-                    )
-    # replace3 with a constant start arg ≤ 255 is converted to replace2 by
-    # stack-to-immediate conversion (so the replace2 branch above handles it on a
-    # subsequent pass); the replace3 branch directly above handles starts > 255 and
-    # the pre-conversion case.
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
