@@ -27,7 +27,6 @@ from puya.ir.optimize._intrinsics import (
     fold_setbit_bytes,
     fold_setbit_uint64,
     fold_setbyte,
-    fold_uint64_const_unary_op,
     hash_eval_funcs,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
@@ -590,12 +589,29 @@ def _try_fold_intrinsic(
                     args=[byte_arg],
                     source_location=intrinsic.source_location,
                 )
+    elif intrinsic.op is AVMOp.itob:
+        (arg,) = intrinsic.args
+        # TODO: expand to other extract sizes, but will need to pad result
+        # extract_uint64 BYTES, START; itob -> extract3 BYTES, START, 8
+        match register_assignments.get(arg):
+            case models.Assignment(
+                targets=[arg_reg],
+                source=models.Intrinsic(
+                    op=AVMOp.extract_uint64, args=[byte_arg, start_idx], immediates=[]
+                ),
+            ) if ssa_reads.count(arg_reg) == 1:
+                assert arg_reg == arg
+                return attrs.evolve(
+                    intrinsic,
+                    op=AVMOp.extract3,
+                    args=[
+                        byte_arg,
+                        start_idx,
+                        models.UInt64Constant(value=8, source_location=None),
+                    ],
+                )
     elif not intrinsic.immediates:
         match intrinsic.args:
-            case [models.Value(atype=AVMType.uint64) as x]:
-                return _try_simplify_uint64_unary_op(
-                    context, ssa_reads, register_assignments, intrinsic, x
-                )
             case [
                 models.Value(atype=AVMType.uint64) as a,
                 models.Value(atype=AVMType.uint64) as b,
@@ -964,54 +980,6 @@ def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | 
             encoding=AVMBytesEncoding.base16,
             source_location=loc,
         )
-    return None
-
-
-def _try_simplify_uint64_unary_op(
-    context: IROptimizationContext,
-    ssa_reads: SSAReadTracker,
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    arg: models.Value,
-) -> models.Value | models.Intrinsic | None:
-    op_loc = intrinsic.source_location
-
-    if intrinsic.op is AVMOp.itob:
-        # TODO: expand to other extract sizes, but will need to pad result
-        # extract_uint64 BYTES, START; itob -> extract3 BYTES, START, 8
-        match register_assignments.get(arg):
-            case models.Assignment(
-                targets=[arg_reg],
-                source=models.Intrinsic(
-                    op=AVMOp.extract_uint64, args=[byte_arg, start_idx], immediates=[]
-                ),
-            ) if ssa_reads.count(arg_reg) == 1:
-                assert arg_reg == arg
-                return attrs.evolve(
-                    intrinsic,
-                    op=AVMOp.extract3,
-                    args=[
-                        byte_arg,
-                        start_idx,
-                        models.UInt64Constant(value=8, source_location=None),
-                    ],
-                )
-
-    x = _get_int_constant(arg)
-    if x is not None:
-        folded = fold_uint64_const_unary_op(intrinsic.op, x)
-        if folded is not None:
-            return models.UInt64Constant(value=folded, source_location=op_loc)
-        match intrinsic.op:
-            case AVMOp.itob:
-                if context.expand_all_bytes:
-                    return _eval_itob(x, op_loc)
-            case AVMOp.bzero:
-                if context.expand_all_bytes:
-                    return _eval_bzero(x, op_loc)
-            case _:
-                logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
-
     return None
 
 
