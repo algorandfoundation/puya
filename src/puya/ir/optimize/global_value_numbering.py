@@ -1159,16 +1159,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         return (arg_vns[1],)
                     case None:
                         pass
-            a_bg = (
-                int.from_bytes(a_def.value, "big")
-                if isinstance(a_def, _BytesConstKey) and len(a_def.value) <= 64
-                else None
-            )
-            b_bg = (
-                int.from_bytes(b_def.value, "big")
-                if isinstance(b_def, _BytesConstKey) and len(b_def.value) <= 64
-                else None
-            )
+            a_bg = a_def.as_biguint if isinstance(a_def, _BytesConstKey) else None
+            b_bg = b_def.as_biguint if isinstance(b_def, _BytesConstKey) else None
             if a_bg is not None or b_bg is not None:
                 match simplify_bytes_binary_op_one_const(op, a_bg, b_bg):
                     case int(v):
