@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_AVM_STRING TMPL_STRUCT TMPL_ARC4_UINT8
+    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     intc_0 // 0
     dupn 5
     bytec_0 // ""
@@ -280,16 +280,18 @@ main_bool_false@36:
     b main_bool_merge@37
 
 main_template_value_route@13:
-    bytec_1 // 0x151f7c75
-    bytec_2 // TMPL_AVM_STRING
-    bytec_3 // TMPL_STRUCT
+    bytec_2 // TMPL_ARC4_UINT8
+    bytec_3 // TMPL_AVM_STRING
+    intc 4 // TMPL_AVM_UINT64
+    bytec 4 // TMPL_STRUCT
     dup
     len
     pushint 13
     +
-    pushbytes 0x000d
-    intc 4 // TMPL_AVM_UINT64
+    uncover 2
     itob
+    pushbytes 0x000d
+    swap
     concat
     dig 3
     len
@@ -303,12 +305,14 @@ main_template_value_route@13:
     uncover 2
     swap
     concat
-    bytec 4 // TMPL_ARC4_UINT8
+    uncover 3
     concat
     uncover 2
     concat
     swap
     concat
+    bytec_1 // 0x151f7c75
+    swap
     concat
     log
     intc_1 // 1
@@ -395,7 +399,6 @@ main_emits_error_route@10:
     return
 
 main_struct_return_route@9:
-    bytec_1 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -447,6 +450,8 @@ main_struct_return_route@9:
     uncover 2
     ==
     assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+    bytec_1 // 0x151f7c75
+    swap
     concat
     log
     intc_1 // 1

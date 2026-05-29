@@ -171,7 +171,6 @@ main_opt_in_route@8:
     return
 
 main_start_auction_route@7:
-    bytec_1 // "previous_bid"
     txna ApplicationArgs 1
     dup
     len
@@ -179,7 +178,6 @@ main_start_auction_route@7:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bytec_0 // "auction_end"
     txna ApplicationArgs 2
     dup
     len
@@ -187,7 +185,6 @@ main_start_auction_route@7:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bytec_3 // "asa_amount"
     txn GroupIndex
     intc_1 // 1
     -
@@ -212,10 +209,16 @@ main_start_auction_route@7:
     ==
     assert // axfer must transfer to this app
     gtxns AssetAmount
+    bytec_3 // "asa_amount"
+    swap
     app_global_put
     global LatestTimestamp
     +
+    bytec_0 // "auction_end"
+    swap
     app_global_put
+    bytec_1 // "previous_bid"
+    swap
     app_global_put
     intc_1 // 1
     return

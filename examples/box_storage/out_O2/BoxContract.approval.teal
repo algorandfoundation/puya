@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 2 8 0 4098 4096 5000 4138
-    bytecblock "box" "dynamic_arr_struct" 0x151f7c75 0x424f585f43 "blob" "dynamic_box" "box_large" "box_d" "box_a" "b" "too_many_bools" "big_bytes" "many_ints" "big_fixed_bytes" 0x68656c6c6f "0" 0x00023432 "default" "box_ref" 0x0014 0x068101
+    bytecblock "box" "dynamic_arr_struct" 0x151f7c75 0x424f585f43 "blob" "dynamic_box" "box_large" "box_a" "box_d" "b" "too_many_bools" "big_bytes" "many_ints" "big_fixed_bytes" 0x68656c6c6f "0" 0x00023432 "default" "box_ref" 0x0014 0x068101
     intc_3 // 0
     dupn 3
     pushbytes ""
@@ -22,7 +22,6 @@ main:
     err
 
 main_box_map_exists_route@48:
-    bytec_2 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -37,6 +36,8 @@ main_box_map_exists_route@48:
     intc_3 // 0
     uncover 2
     setbit
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -57,7 +58,6 @@ main_box_map_del_route@47:
     return
 
 main_box_map_get_route@46:
-    bytec_2 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -74,6 +74,8 @@ main_box_map_get_route@46:
     extract 6 2
     swap
     concat
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -152,7 +154,6 @@ main_test_box_ref_route@43:
     pushint 32
     box_create
     assert
-    bytec 4 // "blob"
     txn Sender
     global CurrentApplicationAddress
     bytec 4 // "blob"
@@ -204,6 +205,8 @@ main_test_box_ref_route@43:
     bytec 4 // "blob"
     box_del
     pop
+    bytec 4 // "blob"
+    swap
     box_put
     bytec 4 // "blob"
     box_len
@@ -391,13 +394,14 @@ main_for_header@81:
     b main_for_header@81
 
 main_after_for@83:
-    bytec_2 // 0x151f7c75
     bytec 5 // "dynamic_box"
     intc_3 // 0
     intc_1 // 2
     box_extract
     btoi
     itob
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -435,13 +439,14 @@ main_for_header@86:
     b main_for_header@86
 
 main_after_for@88:
-    bytec_2 // 0x151f7c75
     bytec 5 // "dynamic_box"
     intc_3 // 0
     intc_1 // 2
     box_extract
     btoi
     itob
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -528,7 +533,6 @@ main_after_for@101:
     return
 
 main_set_bool_route@32:
-    bytec 10 // "too_many_bools"
     txna ApplicationArgs 1
     dup
     len
@@ -561,6 +565,8 @@ main_set_bool_route@32:
     swap
     uncover 3
     setbit
+    bytec 10 // "too_many_bools"
+    cover 2
     box_replace // on error: index out of bounds
     intc_0 // 1
     return
@@ -638,11 +644,12 @@ main_for_header@108:
 
 main_after_for@110:
     bytec_1 // "dynamic_arr_struct"
-    dup
     pushint 18
     intc_1 // 2
     box_extract
     btoi
+    bytec_1 // "dynamic_arr_struct"
+    swap
     intc_1 // 2
     box_extract
     btoi
@@ -692,7 +699,6 @@ main_after_for@113:
     return
 
 main_nested_read_route@29:
-    bytec_2 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -853,6 +859,8 @@ main_nested_read_route@29:
     +
     +
     itob
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1290,13 +1298,14 @@ main_for_header@131:
     b main_for_header@131
 
 main_after_for@133:
-    bytec_2 // 0x151f7c75
     bytec_1 // "dynamic_arr_struct"
     pushint 20
     intc_1 // 2
     box_extract
     btoi
     itob
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1347,13 +1356,14 @@ main_for_header@136:
     b main_for_header@136
 
 main_after_for@138:
-    bytec_2 // 0x151f7c75
     bytec_1 // "dynamic_arr_struct"
     pushint 20
     intc_1 // 2
     box_extract
     btoi
     itob
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1367,7 +1377,6 @@ main_delete_dynamic_arr_struct_route@24:
     return
 
 main_create_dynamic_arr_struct_route@23:
-    bytec_1 // "dynamic_arr_struct"
     txn NumAppArgs
     intc_1 // 2
     *
@@ -1383,13 +1392,14 @@ main_create_dynamic_arr_struct_route@23:
     bytec_1 // "dynamic_arr_struct"
     box_del
     pop
+    bytec_1 // "dynamic_arr_struct"
+    swap
     box_put
     intc_0 // 1
     return
 
 main_boxes_exist_route@22:
-    bytec_2 // 0x151f7c75
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     box_len
     bury 1
     bytec 9 // "b"
@@ -1417,14 +1427,15 @@ main_boxes_exist_route@22:
     pushint 3
     uncover 2
     setbit
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
     return
 
 main_read_boxes_route@21:
-    bytec_2 // 0x151f7c75
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     box_get
     assert // check Box exists
     btoi
@@ -1469,6 +1480,8 @@ main_read_boxes_route@21:
     concat
     swap
     concat
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1491,7 +1504,7 @@ main_indirect_extract_and_replace_route@20:
     return
 
 main_delete_boxes_route@19:
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     box_del
     pop
     bytec 9 // "b"
@@ -1500,7 +1513,7 @@ main_delete_boxes_route@19:
     bytec_3 // 0x424f585f43
     box_del
     pop
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     box_get
     swap
     btoi
@@ -1511,17 +1524,19 @@ main_delete_boxes_route@19:
     pushint 42
     ==
     assert
-    bytec 16 // 0x00023432
     bytec 9 // "b"
     box_get
+    bytec 16 // 0x00023432
+    cover 2
     select
     extract 2 0
     pushbytes 0x3432
     ==
     assert
-    bytec 16 // 0x00023432
     bytec_3 // 0x424f585f43
     box_get
+    bytec 16 // 0x00023432
+    cover 2
     select
     bytec 16 // 0x00023432
     ==
@@ -1599,8 +1614,6 @@ main_after_for@155:
     return
 
 main_slice_big_bytes_route@17:
-    bytec_2 // 0x151f7c75
-    bytec 11 // "big_bytes"
     txna ApplicationArgs 1
     dup
     len
@@ -1639,6 +1652,8 @@ main_slice_big_bytes_route@17:
     select
     dig 1
     -
+    bytec 11 // "big_bytes"
+    cover 2
     box_extract
     dup
     len
@@ -1646,6 +1661,8 @@ main_slice_big_bytes_route@17:
     extract 6 2
     swap
     concat
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1708,7 +1725,6 @@ main_update_big_bytes_route@15:
     return
 
 main_create_big_bytes_route@14:
-    bytec 11 // "big_bytes"
     txna ApplicationArgs 1
     dup
     len
@@ -1716,14 +1732,14 @@ main_create_big_bytes_route@14:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    bytec 11 // "big_bytes"
+    swap
     box_create
     pop
     intc_0 // 1
     return
 
 main_slice_big_fixed_bytes_route@13:
-    bytec_2 // 0x151f7c75
-    bytec 13 // "big_fixed_bytes"
     txna ApplicationArgs 1
     dup
     len
@@ -1760,6 +1776,8 @@ main_slice_big_fixed_bytes_route@13:
     select
     dig 1
     -
+    bytec 13 // "big_fixed_bytes"
+    cover 2
     box_extract
     dup
     len
@@ -1767,6 +1785,8 @@ main_slice_big_fixed_bytes_route@13:
     extract 6 2
     swap
     concat
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -1906,7 +1926,7 @@ main_set_boxes_route@6:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     uncover 4
     itob
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     swap
     box_put
     bytec 9 // "b"
@@ -1923,10 +1943,10 @@ main_set_boxes_route@6:
     box_put
     dig 3
     extract 2 0
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     box_del
     pop
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     dig 1
     box_put
     bytec 6 // "box_large"
@@ -1943,16 +1963,17 @@ main_set_boxes_route@6:
     intc 5 // 4096
     uncover 2
     box_replace
-    bytec 8 // "box_a"
-    dup
+    bytec 7 // "box_a"
     box_get
     assert // check self.box_a exists
     btoi
     pushint 3
     +
     itob
+    bytec 7 // "box_a"
+    swap
     box_put
-    bytec 8 // "box_a"
+    bytec 7 // "box_a"
     box_len
     pop
     intc_2 // 8
@@ -1971,7 +1992,7 @@ main_set_boxes_route@6:
     dig 3
     ==
     assert
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     box_len
     pop
     dig 2
@@ -2057,7 +2078,7 @@ main_set_boxes_route@6:
     substring3
     ==
     assert
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     intc_3 // 0
     intc_0 // 1
     box_extract
@@ -2068,7 +2089,7 @@ main_set_boxes_route@6:
     dig 1
     intc_0 // 1
     -
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     swap
     intc_0 // 1
     box_extract
@@ -2091,7 +2112,7 @@ main_set_boxes_route@6:
     dig 2
     swap
     -
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
@@ -2118,7 +2139,7 @@ main_set_boxes_route@6:
     dig 3
     uncover 2
     select
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
@@ -2142,7 +2163,7 @@ main_set_boxes_route@6:
     uncover 3
     uncover 2
     select
-    bytec 7 // "box_d"
+    bytec 8 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
@@ -2181,7 +2202,6 @@ main___algopy_default_create@52:
 box_dynamic_array_pop_fixed_size:
     proto 3 0
     frame_dig -3
-    dup
     frame_dig -2
     intc_1 // 2
     box_extract
@@ -2202,15 +2222,18 @@ box_dynamic_array_pop_fixed_size:
     frame_dig -1
     *
     +
+    frame_dig -3
+    swap
     frame_dig -1
     pushbytes 0x
     box_splice
     frame_dig -3
-    dup
     box_len
     pop
     frame_dig -1
     -
+    frame_dig -3
+    swap
     box_resize
     retsub
 
@@ -2219,19 +2242,19 @@ box_dynamic_array_pop_fixed_size:
 box_dynamic_array_concat_fixed:
     proto 5 0
     frame_dig -5
-    dup
     frame_dig -4
     intc_1 // 2
     box_extract
     btoi
     frame_dig -5
-    dup
     box_len
     pop
     frame_dig -2
     frame_dig -1
     *
     +
+    frame_dig -5
+    swap
     box_resize
     dup
     frame_dig -2
@@ -2249,6 +2272,8 @@ box_dynamic_array_concat_fixed:
     frame_dig -1
     *
     +
+    frame_dig -5
+    swap
     intc_3 // 0
     frame_dig -3
     box_splice

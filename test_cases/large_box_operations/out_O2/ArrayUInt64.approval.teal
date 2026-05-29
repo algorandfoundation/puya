@@ -106,8 +106,6 @@ main_set_route@11:
     return
 
 main_get_route@10:
-    bytec_2 // 0x151f7c75
-    bytec_0 // "box"
     txna ApplicationArgs 1
     dup
     len
@@ -119,15 +117,18 @@ main_get_route@10:
     *
     intc_2 // 2
     +
+    bytec_0 // "box"
+    swap
     intc_0 // 8
     box_extract // on error: index out of bounds
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_3 // 1
     return
 
 main_pop_route@9:
-    bytec_2 // 0x151f7c75
     bytec_0 // "box"
     intc_1 // 0
     intc_2 // 2
@@ -157,12 +158,15 @@ main_pop_route@9:
     bytec_1 // 0x
     box_splice
     bytec_0 // "box"
-    dup
     box_len
     pop
     intc_0 // 8
     -
+    bytec_0 // "box"
+    swap
     box_resize
+    bytec_2 // 0x151f7c75
+    swap
     concat
     log
     intc_3 // 1
@@ -234,19 +238,19 @@ main___algopy_default_create@16:
 box_dynamic_array_concat_fixed:
     proto 5 0
     frame_dig -5
-    dup
     frame_dig -4
     intc_2 // 2
     box_extract
     btoi
     frame_dig -5
-    dup
     box_len
     pop
     frame_dig -2
     frame_dig -1
     *
     +
+    frame_dig -5
+    swap
     box_resize
     dup
     frame_dig -2
@@ -264,6 +268,8 @@ box_dynamic_array_concat_fixed:
     frame_dig -1
     *
     +
+    frame_dig -5
+    swap
     intc_1 // 0
     frame_dig -3
     box_splice

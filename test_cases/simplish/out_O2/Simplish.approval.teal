@@ -42,12 +42,13 @@ main_if_body@6:
     pushint 5 // DeleteApplication
     ==
     bz main_after_if_else@8
-    pushbytes 0x4920776173207573656420
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     callsub itoa
+    pushbytes 0x4920776173207573656420
+    swap
     concat
     pushbytes 0x2074696d65287329206265666f726520492064696564
     concat
@@ -116,13 +117,14 @@ main_after_if_else@24:
     log
     pushbytes "Incrementing counter!"
     log
-    bytec_0 // "counter"
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     intc_1 // 1
     +
+    bytec_0 // "counter"
+    swap
     app_global_put
     return
 
@@ -232,10 +234,11 @@ itoa_after_if_else@2:
     pushint 10
     /
     callsub itoa
-    bytec_1 // 0x30313233343536373839
     frame_dig -1
     pushint 10
     %
+    bytec_1 // 0x30313233343536373839
+    swap
     intc_1 // 1
     extract3
     concat

@@ -365,7 +365,7 @@ main_test_arc4_struct_route@21:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    dupn 2
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -390,6 +390,8 @@ main_test_arc4_struct_route@21:
     +
     ==
     assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+    itxn LastLog
+    swap
     bytec 6 // 0x0000000000000001000a00056c6f672031
     ==
     assert // expected output to match input
@@ -537,8 +539,6 @@ main_test_no_args_route@19:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    pushint 42
-    itob
     itxn LastLog
     dup
     extract 0 4
@@ -551,6 +551,9 @@ main_test_no_args_route@19:
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    pushint 42
+    itob
+    swap
     dig 1
     b==
     assert
@@ -1427,12 +1430,13 @@ main_test_native_tuple_route@16:
     assert // invalid number of bytes for arc4.uint64
     btoi
     itxn_begin
+    intc_2 // 2
+    itob
     pushint 1
     itob
     pushint 64
     bzero
-    intc_2 // 2
-    itob
+    uncover 2
     b|
     dig 2
     itxn_field ApplicationID
@@ -2156,7 +2160,6 @@ main_test_native_string_route@12:
     return
 
 main_test_account_to_address_route@11:
-    global CurrentApplicationAddress
     txna ApplicationArgs 1
     dup
     len
@@ -2165,6 +2168,8 @@ main_test_account_to_address_route@11:
     assert // invalid number of bytes for arc4.uint64
     btoi
     itxn_begin
+    global CurrentApplicationAddress
+    swap
     itxn_field ApplicationID
     pushbytes 0x0437b17e // method "log(address)void"
     itxn_field ApplicationArgs
@@ -2581,7 +2586,7 @@ main_test_method_overload_route@6:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    dupn 2
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2596,6 +2601,8 @@ main_test_method_overload_route@6:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    itxn LastLog
+    swap
     bytec 27 // 0x000b6563686f3a207475706c65
     ==
     assert

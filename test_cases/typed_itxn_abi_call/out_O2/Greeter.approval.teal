@@ -509,8 +509,6 @@ main_test_no_args_route@19:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    pushint 42
-    itob
     itxn LastLog
     dup
     extract 0 4
@@ -523,6 +521,9 @@ main_test_no_args_route@19:
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    pushint 42
+    itob
+    swap
     dig 1
     b==
     assert
@@ -1388,12 +1389,13 @@ main_test_native_tuple_route@16:
     assert // invalid number of bytes for arc4.uint64
     btoi
     itxn_begin
+    intc_2 // 2
+    itob
     pushint 1
     itob
     pushint 64
     bzero
-    intc_2 // 2
-    itob
+    uncover 2
     b|
     dig 2
     itxn_field ApplicationID
@@ -2198,7 +2200,6 @@ main_test_native_string_route@12:
     return
 
 main_test_account_to_address_route@11:
-    global CurrentApplicationAddress
     txna ApplicationArgs 1
     dup
     len
@@ -2207,6 +2208,8 @@ main_test_account_to_address_route@11:
     assert // invalid number of bytes for arc4.uint64
     btoi
     itxn_begin
+    global CurrentApplicationAddress
+    swap
     itxn_field ApplicationID
     pushbytes 0x0437b17e // method "log(address)void"
     itxn_field ApplicationArgs

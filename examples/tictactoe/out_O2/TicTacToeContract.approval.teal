@@ -76,7 +76,6 @@ main_else_body@15:
     b main_after_if_else@16
 
 main_whose_turn_route@8:
-    pushbytes 0x151f7c75
     intc_0 // 0
     bytec_0 // "turns"
     app_global_get_ex
@@ -87,13 +86,14 @@ main_whose_turn_route@8:
     bytec 4 // 0x01
     uncover 2
     select
+    pushbytes 0x151f7c75
+    swap
     concat
     log
     intc_1 // 1
     return
 
 main_join_game_route@7:
-    bytec 5 // 0x02
     txna ApplicationArgs 1
     dup
     len
@@ -115,6 +115,8 @@ main_join_game_route@7:
     bytec_3 // "challenger"
     txn Sender
     app_global_put
+    bytec 5 // 0x02
+    cover 2
     callsub make_move
     intc_1 // 1
     return
@@ -156,9 +158,10 @@ main_after_if_else@26:
     bytec 6 // "host"
     txn Sender
     app_global_put
-    bytec_1 // "game"
     pushint 9
     bzero
+    bytec_1 // "game"
+    swap
     app_global_put
     dig 1
     intc_2 // 3
@@ -244,13 +247,14 @@ make_move_bool_merge@4:
     bytec_1 // "game"
     swap
     app_global_put
-    bytec_0 // "turns"
     intc_0 // 0
     bytec_0 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     intc_1 // 1
     +
+    bytec_0 // "turns"
+    swap
     app_global_put
     intc_0 // 0
     bytec_1 // "game"
