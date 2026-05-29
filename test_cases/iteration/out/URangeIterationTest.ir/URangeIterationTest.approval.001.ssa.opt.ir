@@ -184,7 +184,20 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@42
     block@45: // after_for_L74
         let should_loop%0#4: bool = 0u
-        goto block@50
+        goto should_loop%0#4 ? block@46 : block@50
+    block@46: // for_header_L76
+        let range_length%0#4: uint64 = 0u
+        let i#33: uint64 = (- range_length%0#4 1u)
+        goto block@47
+    block@47: // for_body_L77
+        let i#34: uint64 = φ(i#33 <- block@46, i#35 <- block@49)
+        let tmp%1#6: bytes = (itob i#34)
+        (log tmp%1#6)
+        let continue_looping%1#0: bool = (< 0u i#34)
+        goto i#34 ? block@49 : block@50
+    block@49: // for_increment_L76
+        let i#35: uint64 = (- i#34 1u)
+        goto block@47
     block@50: // after_for_L76
         let value_internal%1#0: uint64 = 0u
         let item_index_internal%0#3: uint64 = 0u
@@ -201,13 +214,63 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@51
     block@54: // after_for_L78
         let should_loop%1#0: bool = 0u
-        goto block@59
+        goto should_loop%1#0 ? block@55 : block@59
+    block@55: // for_header_L80
+        let range_length%1#0: uint64 = 0u
+        let idx#23: uint64 = (- range_length%1#0 1u)
+        let i#37: uint64 = 0u
+        goto block@56
+    block@56: // for_body_L81
+        let i#38: uint64 = φ(i#37 <- block@55, i#39 <- block@58)
+        let idx#24: uint64 = φ(idx#23 <- block@55, idx#25 <- block@58)
+        let tmp%6#0: bytes = (itob idx#24)
+        let tmp%8#0: bytes = (itob i#38)
+        let tmp%9#0: bytes = (concat tmp%6#0 tmp%8#0)
+        (log tmp%9#0)
+        let continue_looping%3#0: bool = (< i#38 idx#23)
+        goto continue_looping%3#0 ? block@58 : block@59
+    block@58: // for_increment_L80
+        let i#39: uint64 = (+ i#38 1u)
+        let idx#25: uint64 = (- idx#24 1u)
+        goto block@56
     block@59: // after_for_L80
         let should_loop%2#0: bool = 0u
-        goto block@64
+        goto should_loop%2#0 ? block@60 : block@64
+    block@60: // for_header_L82
+        let range_length%2#0: uint64 = 0u
+        let i#40: uint64 = (- range_length%2#0 1u)
+        let idx#26: uint64 = 0u
+        goto block@61
+    block@61: // for_body_L83
+        let i#41: uint64 = φ(i#40 <- block@60, i#42 <- block@63)
+        let idx#27: uint64 = φ(idx#26 <- block@60, idx#28 <- block@63)
+        let tmp%10#0: bytes = (itob idx#27)
+        let tmp%12#0: bytes = (itob i#41)
+        let tmp%13#0: bytes = (concat tmp%10#0 tmp%12#0)
+        (log tmp%13#0)
+        let continue_looping%4#0: bool = (< 0u i#41)
+        goto i#41 ? block@63 : block@64
+    block@63: // for_increment_L82
+        let i#42: uint64 = (- i#41 1u)
+        let idx#28: uint64 = (+ idx#27 1u)
+        goto block@61
     block@64: // after_for_L82
         let should_loop%3#0: bool = 0u
-        goto block@69
+        goto should_loop%3#0 ? block@65 : block@69
+    block@65: // for_header_L84
+        let range_length%3#0: uint64 = 0u
+        let i#43: uint64 = (- range_length%3#0 1u)
+        goto block@66
+    block@66: // for_body_L85
+        let i#44: uint64 = φ(i#43 <- block@65, i#45 <- block@68)
+        let tmp%14#0: bytes = (itob i#44)
+        let tmp%17#0: bytes = (concat tmp%14#0 tmp%14#0)
+        (log tmp%17#0)
+        let continue_looping%5#0: bool = (< 0u i#44)
+        goto i#44 ? block@68 : block@69
+    block@68: // for_increment_L84
+        let i#45: uint64 = (- i#44 1u)
+        goto block@66
     block@69: // after_for_L84
         (log "test_break")
         let i#48: uint64 = undefined
