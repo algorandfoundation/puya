@@ -18,7 +18,6 @@ from puya.ir.optimize._intrinsics import (
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
-    chop_encoding,
     fold_extract_uint_n,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
@@ -439,26 +438,6 @@ def _try_fold_intrinsic(
                             # else we cant safely optimize this
     elif intrinsic.op.code.startswith("substring"):
         match intrinsic:
-            case (
-                models.Intrinsic(
-                    immediates=[int(S), int(E)],
-                    args=[byte_arg],
-                )
-                | models.Intrinsic(
-                    immediates=[],
-                    args=[
-                        byte_arg,
-                        models.UInt64Constant(value=S),
-                        models.UInt64Constant(value=E),
-                    ],
-                )
-            ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                if S <= E <= len(byte_const.value):
-                    extracted = byte_const.value[S:E]
-                    enc = chop_encoding(byte_const.encoding)
-                    return models.BytesConstant(
-                        value=extracted, encoding=enc, source_location=op_loc
-                    )
             case models.Intrinsic(
                 args=[byte_arg, models.UInt64Constant(value=S), maybe_len_arg]
             ) if (
