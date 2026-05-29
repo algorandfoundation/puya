@@ -141,3 +141,51 @@ def test_scc_vn_merged_externals(deployer_o: Deployer) -> None:
 
 def test_wide_math_const_fold(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "wide_math_const_fold.py")
+
+
+def test_one_const_simplification(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "one_const_simplification.py").client
+
+    def call(method: str, args: list[object]) -> object:
+        return client.send.call(
+            au.AppClientMethodCallParams(method=method, args=args, note=random.randbytes(8))
+        ).abi_return
+
+    assert call("mul_zero", [7]) == 0  # x * 0 -> 0
+    assert call("mul_zero", [0]) == 0
+    assert call("gt_zero", [0]) is False  # 0 > b -> 0
+    assert call("gt_zero", [5]) is False
+    assert call("lte_one", [0]) == 0  # (1 <= x) -> x; so 1 iff x != 0
+    assert call("lte_one", [1]) == 1
+    assert call("lte_one", [99]) == 1
+    assert call("or_false", [True]) == 1  # (a or False) -> a
+    assert call("or_false", [False]) == 0
+
+    # biguint one-const algebra: x b* 0 -> 0, and 0/1 identities preserve x
+    for x in (0, 1, 12345, 2**200):
+        assert call("bmul_zero", [x]) == 0
+        assert call("badd_zero_left", [x]) == x
+        assert call("badd_zero_right", [x]) == x
+        assert call("bsub_zero", [x]) == x
+        assert call("bdiv_one", [x]) == x
+
+
+def test_declined_const_fold(deployer_o: Deployer) -> None:
+    # GVN sees constant operands but declines to fold because the op would fail at
+    # runtime, so the op is left in place and every method traps when called.
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "declined_const_fold.py").client
+
+    for method in (
+        "expw_zero_zero",
+        "expw_overflow",
+        "divw_div_zero",
+        "divw_overflow",
+        "divmodw_div_zero",
+        "setbyte_value_oob",
+        "bsqrt_too_long",
+        "div_by_zero",
+        "mod_by_zero",
+        "biguint_mod_by_zero",
+    ):
+        with pytest.raises(au.LogicError):
+            client.send.call(au.AppClientMethodCallParams(method=method, note=random.randbytes(8)))
