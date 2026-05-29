@@ -942,12 +942,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         folded = fold_getbyte(bv, index)
                         if folded is not None:
                             return self._const_uint64(folded)
-            case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
-                match arg_defns:
-                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
-                        folded = fold_extract_uint_n(op, bv, offset)
-                        if folded is not None:
-                            return self._const_uint64(folded)
             case AVMOp.select:
                 # arg layout: [false_branch, true_branch, selector]
                 if arg_vns[0] == arg_vns[1]:
