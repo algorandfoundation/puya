@@ -602,7 +602,7 @@ def _try_simplify_triple_concat(
     normalised_args = list(map(_try_normalise_bytes_constant, args))
     match normalised_args:
         case (
-            models.Value() as reg,
+            models.Register() as reg,
             models.BytesConstant() as bytes_const1,
             models.BytesConstant() as bytes_const2,
         ):
@@ -626,7 +626,7 @@ def _try_simplify_triple_concat(
         case (
             models.BytesConstant() as bytes_const1,
             models.BytesConstant() as bytes_const2,
-            models.Value() as reg,
+            models.Register() as reg,
         ):
             new_const_value = bytes_const1.value + bytes_const2.value
             if len(new_const_value) > algo_constants.MAX_BYTES_LENGTH:
