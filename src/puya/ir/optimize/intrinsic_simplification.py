@@ -19,7 +19,6 @@ from puya.ir.optimize._intrinsics import (
     BinarySimplification,
     choose_encoding,
     chop_encoding,
-    fold_bytes_const_unary_op,
     fold_extract_uint_n,
     fold_getbit_bytes,
     fold_getbyte,
@@ -27,7 +26,6 @@ from puya.ir.optimize._intrinsics import (
     fold_setbit_bytes,
     fold_setbit_uint64,
     fold_setbyte,
-    hash_eval_funcs,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
@@ -999,28 +997,7 @@ def _try_simplify_bytes_unary_op(
         and (safe_num_bytes := _get_bytes_length_safe(register_assignments, arg)) is not None
     ):
         return models.UInt64Constant(value=safe_num_bytes, source_location=op_loc)
-    byte_const = _get_byte_constant(register_assignments, arg)
-    if byte_const is not None:
-        match fold_bytes_const_unary_op(op, byte_const.value):
-            case bytes(result_bytes):
-                enc = chop_encoding(byte_const.encoding)
-                return models.BytesConstant(
-                    value=result_bytes, encoding=enc, source_location=op_loc
-                )
-            case int(v):
-                return _wrap_biguint_or_uint64(v, intrinsic)
-            case other:
-                typing.assert_type(other, None)
-        if hash_eval := hash_eval_funcs.get(op):
-            return models.BytesConstant(
-                value=hash_eval(byte_const.value),
-                encoding=AVMBytesEncoding.base16,
-                source_location=op_loc,
-            )
-        if op is AVMOp.len_:
-            return models.UInt64Constant(value=len(byte_const.value), source_location=op_loc)
-        logger.debug(f"Don't know how to simplify {op.code} of {byte_const}")
-    elif op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
+    if op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
         match arg_defn.source:
             # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
             case models.Intrinsic(
@@ -1040,9 +1017,6 @@ def _try_simplify_bytes_unary_op(
                     op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
                     args=[bites, start_arg],
                 )
-            # btoi(itob(x)) = x
-            case models.Intrinsic(op=AVMOp.itob, args=[source_uint64], immediates=[]):
-                return source_uint64
     return None
 
 
