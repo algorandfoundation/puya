@@ -1,8 +1,7 @@
 import functools
 import operator
 import typing
-from collections import deque
-from collections.abc import Callable, Container, Mapping
+from collections.abc import Callable, Mapping
 
 import attrs
 
@@ -13,7 +12,6 @@ from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._intrinsics import (
-    COMPILE_TIME_CONSTANT_OPS,
     EXTRACT_UINTN_BYTE_SIZE,
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
@@ -24,93 +22,65 @@ from puya.ir.optimize._intrinsics import (
 from puya.ir.optimize._utils import SSAReadTracker
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
-from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import Address, biguint_bytes_length, set_add
+from puya.utils import Address, biguint_bytes_length
 
 logger = log.get_logger(__name__)
 
 _RegisterAssignments = Mapping[models.Value, models.Assignment]
 
 
-def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
-    work_list = _AssignmentWorkQueue(COMPILE_TIME_CONSTANT_OPS)
+def intrinsic_simplifier(_context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
     ssa_reads = SSAReadTracker()
 
     register_assignments = dict[models.Value, models.Assignment]()
     for block in subroutine.body:
         for op in block.all_ops:
             ssa_reads.add(op)
-            if isinstance(op, models.Assignment):
-                work_list.enqueue(op)
-                if len(op.targets) == 1:
-                    (target,) = op.targets
-                    register_assignments[target] = op
+            if isinstance(op, models.Assignment) and len(op.targets) == 1:
+                (target,) = op.targets
+                register_assignments[target] = op
 
     modified = 0
-    while work_list:
-        ass, source = work_list.dequeue()
-        simplified = _try_fold_intrinsic(ssa_reads, register_assignments, source)
-        if simplified is None:
-            simplified = _try_simplify_repeated_binary_op(
-                register_assignments, ass, source, ssa_reads
-            )
-        if simplified is not None:
-            logger.debug(f"Simplified {source} to {simplified}")
-            with ssa_reads.update(ass):
-                ass.source = simplified
-            modified += 1
-            # if it became a Value, propagate to any assignment-readers and add to work list
-            if isinstance(simplified, models.Value):
-                (target,) = ass.targets
-                replacer = _RegisterValueReplacer(register=target, replacement=simplified)
-                for target_read in ssa_reads.get(target, copy=True):
-                    if isinstance(target_read, models.Assignment):
-                        work_list.enqueue(target_read)
-                        # special case for indirection of otherwise non-inlined constants
-                        match target_read:
-                            case models.Assignment(
-                                targets=[target_read_target],
-                                source=models.Intrinsic(op=(AVMOp.bzero | AVMOp.itob)),
-                            ) if not context.expand_all_bytes:
-                                for indirect_target_read in ssa_reads.get(target_read_target):
-                                    if isinstance(indirect_target_read, models.Assignment):
-                                        work_list.enqueue(indirect_target_read)
-                    with ssa_reads.update(target_read):
-                        target_read.accept(replacer)
-                modified += replacer.modified
-            else:
-                typing.assert_type(simplified, models.Intrinsic)
-                # source is still an intrinsic, add it back to the work list
-                work_list.enqueue(ass)
-                # add any assignment-readers to the work list
-                for target in ass.targets:
-                    for target_read in ssa_reads.get(target):
-                        if isinstance(target_read, models.Assignment):
-                            work_list.enqueue(target_read)
-
     for block in subroutine.body:
         for op in block.ops:
             match op:
                 case (
                     models.Assignment(
-                        source=models.Intrinsic(op=AVMOp.box_get) as intrinsic
+                        targets=[*targets], source=models.Intrinsic() as source
                     ) as ass
                 ):
-                    maybe_value, exists = ass.targets
-                    if ssa_reads.count(maybe_value) == 0:
-                        logger.debug(
-                            f"replacing box_get with box_len"
-                            f" because {maybe_value.local_id} is unused"
+                    if len(targets) == 1:
+                        simplified = _try_simplify_intrinsic(
+                            ssa_reads, register_assignments, source
                         )
-                        modified += 1
-                        # we've checked this isn't used, so it's safe to just change it's type
-                        ass.targets[0] = attrs.evolve(maybe_value, ir_type=PrimitiveIRType.uint64)
-                        ass.source = attrs.evolve(
-                            intrinsic,
-                            op=AVMOp.box_len,
-                            types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
-                        )
+                        if simplified is None:
+                            simplified = _try_simplify_repeated_binary_op(
+                                register_assignments, ass, source, ssa_reads
+                            )
+                        if simplified is not None:
+                            logger.debug(f"Simplified {source} to {simplified}")
+                            with ssa_reads.update(ass):
+                                ass.source = simplified
+                            modified += 1
+                    elif source.op is AVMOp.box_get:
+                        maybe_value, exists = ass.targets
+                        if ssa_reads.count(maybe_value) == 0:
+                            logger.debug(
+                                f"replacing box_get with box_len"
+                                f" because {maybe_value.local_id} is unused"
+                            )
+                            modified += 1
+                            # we've checked this isn't used, so it's safe to just change it's type
+                            ass.targets[0] = attrs.evolve(
+                                maybe_value, ir_type=PrimitiveIRType.uint64
+                            )
+                            ass.source = attrs.evolve(
+                                source,
+                                op=AVMOp.box_len,
+                                types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
+                            )
+
     register_intrinsics = {
         target: ass.source
         for target, ass in register_assignments.items()
@@ -119,58 +89,6 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     modified += _simplify_conditional_branches(subroutine, register_intrinsics)
     modified += _simplify_non_returning_intrinsics(subroutine, register_intrinsics)
     return modified > 0
-
-
-class _AssignmentWorkQueue:
-    def __init__(self, constant_evaluable: Container[str]) -> None:
-        self._constant_evaluable = constant_evaluable
-        self._dq = deque[tuple[models.Assignment, models.Intrinsic]]()
-        self._set = set[models.Assignment]()
-
-    def enqueue(self, op: models.Assignment) -> bool:
-        if (
-            # TODO: currently, only single-value returning intrinsics are supported,
-            #       but ops such as addw could be constant folded as well
-            len(op.targets) == 1
-            and isinstance(op.source, models.Intrinsic)
-            and op.source.op.code in self._constant_evaluable
-            and set_add(self._set, op)
-        ):
-            self._dq.append((op, op.source))
-            return True
-        return False
-
-    def dequeue(self) -> tuple[models.Assignment, models.Intrinsic]:
-        op, source = self._dq.popleft()
-        assert source is op.source
-        self._set.remove(op)
-        return op, source
-
-    def __bool__(self) -> int:
-        return bool(self._dq)
-
-
-@attrs.define(kw_only=True)
-class _RegisterValueReplacer(IRMutator):
-    register: models.Register
-    replacement: models.Value
-    modified: int = 0
-
-    @typing.override
-    def visit_register_define(self, _reg: models.Register) -> None:
-        pass
-
-    @typing.override
-    def visit_phi(self, phi: models.Phi) -> None:
-        # don't visit phi nodes / args, needs to stay as Register
-        pass
-
-    @typing.override
-    def visit_register(self, reg: models.Register) -> models.Value | None:
-        if reg != self.register:
-            return None
-        self.modified += 1
-        return self.replacement
 
 
 def _simplify_conditional_branches(
@@ -246,7 +164,7 @@ def _simplify_assert(
 def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
     # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
     # in either case, the result has to be either an Op or None (ie delete),
-    # so we don't invoke _try_fold_intrinsic here
+    # so we don't invoke _try_simplify_intrinsic here
     if intrinsic.op == AVMOp.itxn_field:
         (field_im,) = intrinsic.immediates
         if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
@@ -293,7 +211,7 @@ _EXTRACT_UINT_OPS_BY_LENGTH = {
 }
 
 
-def _try_fold_intrinsic(
+def _try_simplify_intrinsic(
     ssa_reads: SSAReadTracker,
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
