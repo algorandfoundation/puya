@@ -1,12 +1,22 @@
 import enum
 import itertools
-import struct
 import typing
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
 from puya.algo_constants import HASH_PREFIX_PROGRAM
+from puya.avm_encoding import (
+    encode_bytes,
+    encode_bytes_array,
+    encode_int8,
+    encode_label,
+    encode_label_array,
+    encode_signed_varint,
+    encode_uint8,
+    encode_varuint,
+    encode_varuint_array,
+)
 from puya.compilation_artifacts import DebugEvent
 from puya.errors import InternalError
 from puya.parse import SourceLocation
@@ -59,7 +69,7 @@ assert _STACK_OPS <= OP_SPECS.keys(), "invalid stack op"  # noqa: SIM300
 def assemble_bytecode_and_debug_info(
     ctx: AssembleContext, program: teal.TealProgram
 ) -> models.AssembledProgram:
-    version_bytes = _encode_varuint(program.avm_version)
+    version_bytes = encode_varuint(program.avm_version)
     use_varint_branches = program.avm_version >= _AVM_VARINT_BRANCH_VERSION
     pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
 
@@ -393,7 +403,7 @@ def _compute_pcs(
             # back jumps are measured from the op start, forward jumps from the op end
             jump = (dest - op_start) if dest < op_start else (dest - op_end)
             branch_offsets[index] = jump
-            needed = len(_encode_signed_varint(jump))
+            needed = len(encode_signed_varint(jump))
             if needed > _VARINT_BRANCH_INITIAL_SIZE:
                 raise InternalError(
                     f"branch target for {op.op_code} is too far away",
@@ -418,84 +428,38 @@ def _encode_op(
     varint_label_immediates: bool,
 ) -> bytes:
     op_spec = op.op_spec
-    bytecode = _encode_uint8(op_spec.code)
+    bytecode = encode_uint8(op_spec.code)
     if op_spec.sub_code is not None:
-        bytecode += _encode_uint8(op_spec.sub_code)
+        bytecode += encode_uint8(op_spec.sub_code)
     for immediate_kind, immediate in zip(op_spec.immediates, op.immediates, strict=True):
         match immediate_kind:
             case ImmediateKind.uint8 if isinstance(immediate, int):
-                bytecode += _encode_uint8(immediate)
+                bytecode += encode_uint8(immediate)
             case ImmediateKind.int8 if isinstance(immediate, int):
-                bytecode += _encode_int8(immediate)
+                bytecode += encode_int8(immediate)
             case ImmediateEnum(codes=enum_codes) if isinstance(immediate, str):
                 immediate_code = enum_codes[immediate]
-                bytecode += _encode_uint8(immediate_code)
+                bytecode += encode_uint8(immediate_code)
             case ImmediateKind.bytes if isinstance(immediate, bytes):
-                bytecode += _encode_bytes(immediate)
+                bytecode += encode_bytes(immediate)
             case ImmediateKind.varuint if isinstance(immediate, int):
-                bytecode += _encode_varuint(immediate)
+                bytecode += encode_varuint(immediate)
             case ImmediateKind.varuint_array if _is_sequence(immediate, int):
-                bytecode += _encode_varuint_array(immediate)
+                bytecode += encode_varuint_array(immediate)
             case ImmediateKind.bytes_array if _is_sequence(immediate, bytes):
-                bytecode += _encode_bytes_array(immediate)
+                bytecode += encode_bytes_array(immediate)
             case ImmediateKind.label if isinstance(immediate, models.Label):
                 offset = get_label_offset(immediate)
                 if varint_label_immediates:
-                    bytecode += _encode_signed_varint(offset)
+                    bytecode += encode_signed_varint(offset)
                 else:
-                    bytecode += _encode_label(offset)
+                    bytecode += encode_label(offset)
             case ImmediateKind.label_array if _is_sequence(immediate, models.Label):
                 offsets = [get_label_offset(label) for label in immediate]
-                bytecode += _encode_label_array(offsets)
+                bytecode += encode_label_array(offsets)
             case _:
                 raise InternalError(f"Invalid op: {op}")
     return bytecode
-
-
-_encode_uint8 = struct.Struct(">B").pack
-_encode_int8 = struct.Struct(">b").pack
-_encode_label = struct.Struct(">h").pack
-
-
-def _encode_varuint(value: int) -> bytes:
-    bits = value & 0x7F
-    value >>= 7
-    result = b""
-    while value:
-        result += _encode_uint8(0x80 | bits)
-        bits = value & 0x7F
-        value >>= 7
-    return result + _encode_uint8(bits)
-
-
-def _encode_signed_varint(value: int) -> bytes:
-    # Go binary.Varint (zig-zag+ULEB128)
-    zig_zag = (value << 1) ^ (value >> 63)
-    return _encode_varuint(zig_zag)
-
-
-def _encode_bytes(value: bytes) -> bytes:
-    return _encode_varuint(len(value)) + value
-
-
-def _encode_varuint_array(values: Sequence[int]) -> bytes:
-    return b"".join((_encode_varuint(len(values)), *map(_encode_varuint, values)))
-
-
-def _encode_label_array(values: Sequence[int]) -> bytes:
-    # note: op spec describes a label array size as a varuint
-    #       however actual algod go implementation is just a single byte
-    #       additionally max number of labels is 255
-    return b"".join((_encode_uint8(len(values)), *map(_encode_label, values)))
-
-
-def _encode_bytes_array(values: Sequence[bytes]) -> bytes:
-    return b"".join(
-        (
-            _encode_varuint(len(values)),
-            *map(_encode_bytes, values),
-        ),
-    )
 
 
 def _is_sequence[T](maybe: object, typ: type[T]) -> typing.TypeGuard[Sequence[T]]:
