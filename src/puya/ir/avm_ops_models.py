@@ -51,3 +51,4 @@ class AVMOpData:
     cost: int | None
     min_avm_version: int
     supported_modes: RunMode
+    size: int
