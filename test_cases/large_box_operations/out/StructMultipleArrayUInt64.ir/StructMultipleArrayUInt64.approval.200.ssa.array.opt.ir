@@ -54,7 +54,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, a
         let tmp%4#0: uint64 = (* new_arr_len#0 fixed_byte_size#0)
         let popped_item_offset#0: uint64 = (+ tmp%3#0 tmp%4#0)
         (box_splice box_key#0 popped_item_offset#0 fixed_byte_size#0 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len box_key#0)
         let new_size#0: uint64 = (- box_size#0 fixed_byte_size#0)
         (box_resize box_key#0 new_size#0)
         return 
@@ -63,7 +63,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -112,7 +112,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.inc_arra
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) new#1)
         let aggregate%bytes_offset%0#0: uint64 = (* idx#0 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%1#0: uint64 = (extract_uint64 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0)
+        let tmp%1#0: uint64 = (btoi aggregate%encoded_element%0#0)
         let tmp%2#0: uint64 = (+ tmp%1#0 inc#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%bytes_offset%0#0 2u)
@@ -126,39 +126,40 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
     block@0: // L36
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = 0x0000
+        let aggregate%as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = aggregate%len_u16%0#0
         let aggregate%len_u16%1#0: bytes = 0x0000
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%as_bytes%2#0: bytes[8] = (itob 24u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0018
-        let aggregate%head%1#0: bytes = 0x00000000000000010018
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%offset_as_uint16%0#0)
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 26u
-        let aggregate%as_bytes%3#0: bytes[8] = (itob 26u)
+        let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x001a
-        let aggregate%head%2#0: bytes = 0x00000000000000010018001a
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 28u
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 28u)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001c
-        let aggregate%head%3#0: bytes = 0x00000000000000010018001a001c
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%2#0)
         let aggregate%data_length%2#0: uint64 = 2u
         let aggregate%current_tail_offset%2#0: uint64 = 30u
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
-        let aggregate%head%4#0: bytes = 0x00000000000000010018001a001c0000000000000002
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 30u)
+        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 aggregate%val_as_bytes%1#0)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x001e
-        let aggregate%head%5#0: bytes = 0x00000000000000010018001a001c0000000000000002001e
-        let aggregate%concat%0#0: bytes = 0x00000000000000010018001a001c0000000000000002001e0000
-        let aggregate%concat%1#0: bytes = 0x00000000000000010018001a001c0000000000000002001e00000000
-        let aggregate%concat%2#0: bytes = 0x00000000000000010018001a001c0000000000000002001e000000000000
-        let aggregate%concat%3#0: bytes = 0x00000000000000010018001a001c0000000000000002001e0000000000000000
+        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%offset_as_uint16%3#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(len+uint64[])%0#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+uint64[])%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%as_Encoded(len+uint64[])%0#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%as_Encoded(len+uint64[])%0#0)
         (box_del "box")
-        (box_put "box" 0x00000000000000010018001a001c0000000000000002001e0000000000000000)
+        (box_put "box" aggregate%concat%3#0)
         let tmp%1#0: bytes[4096] = (bzero 4096u)
         let box%box_extract%4#0: bytes = (box_extract "box" 22u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%3#0, tmp%1#0, 1u, 4096u)
-        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify(0x0000)
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify(aggregate%as_Encoded(len+uint64[])%0#0)
         exit 1u
 
 subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.append[routing]() -> void:
@@ -169,14 +170,12 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let value#0: uint64 = (btoi tmp%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob value#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         _puya_lib.box_arc4.box_update_offset_inc("box", 10u, 8u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 12u, 8u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, 8u)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 24u, aggregate%val_as_bytes%0#0, 1u, 8u)
         let tmp%2#0: uint64 = (+ value#0 1u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
-        let aggregate%head%1#0: bytes = aggregate%val_as_bytes%1#0
         let box%box_extract%6#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%4#0: uint64 = (btoi box%box_extract%6#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 12u, 8u)
@@ -184,7 +183,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%4#0, aggregate%val_as_bytes%1#0, 1u, 8u)
         let tmp%5#0: uint64 = (+ value#0 2u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%5#0)
-        let aggregate%head%2#0: bytes = aggregate%val_as_bytes%2#0
         let box%box_extract%11#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%11#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, 8u)
@@ -207,21 +205,21 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 24u, extract_to_end%0#0, aggregate%array_length%0#0, 8u)
         let (inc_array%0#0: Encoded(len+uint64[]), array#1: Encoded(len+uint64[])) = test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array#0, 1u)
         let extract_to_end%1#0: bytes = ((extract 2 0) inc_array%0#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 inc_array%0#0 0u) // on error: invalid array length header
-        let box%mul%1#0: uint64 = (* aggregate%array_length%2#0 8u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 inc_array%0#0 0u) // on error: invalid array length header
+        let box%mul%1#0: uint64 = (* aggregate%array_length%1#0 8u)
         let box%box_extract%6#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%4#0: uint64 = (btoi box%box_extract%6#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 12u, box%mul%1#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, box%mul%1#0)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%4#0, extract_to_end%1#0, aggregate%array_length%2#0, 8u)
-        let (inc_array%2#0: Encoded(len+uint64[]), array#2: Encoded(len+uint64[])) = test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array#1, 2u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%4#0, extract_to_end%1#0, aggregate%array_length%1#0, 8u)
+        let (inc_array%2#0: Encoded(len+uint64[]), inc_array%3#0: Encoded(len+uint64[])) = test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array#1, 2u)
         let extract_to_end%2#0: bytes = ((extract 2 0) inc_array%2#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 inc_array%2#0 0u) // on error: invalid array length header
-        let box%mul%2#0: uint64 = (* aggregate%array_length%3#0 8u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 inc_array%2#0 0u) // on error: invalid array length header
+        let box%mul%2#0: uint64 = (* aggregate%array_length%2#0 8u)
         let box%box_extract%11#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%11#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, box%mul%2#0)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%8#0, extract_to_end%2#0, aggregate%array_length%3#0, 8u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%8#0, extract_to_end%2#0, aggregate%array_length%2#0, 8u)
         exit 1u
 
 subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.pop[routing]() -> void:

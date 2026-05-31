@@ -15,7 +15,7 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         (assert tmp%8#1)
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let tmp%3#0: bool = (!= tmp%2#0 0u)
-        let select%0#0: bool = (! tmp%2#0)
+        let select%0#0: bool = (select 1u 0u tmp%2#0)
         let tmp%4#0: Encoded(bool8) = bytes_encode<bool8>(select%0#0)
         let tmp%5#0: bool = select%0#0
         (assert tmp%5#0) // conditional expr
@@ -27,7 +27,7 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let tmp%21#0: bool = (== tmp%19#0 true#0)
         (assert tmp%21#0) // Single boolean can be unpacked
         let tmp%22#0: uint64 = 11u
-        let array_item%1#0: bool = extract_value(static_boolean_array#0, 11u)
+        let array_item%1#0: bool = extract_value(static_boolean_array#0, tmp%22#0)
         let tmp%23#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(array_item%1#0)
         let tmp%25#0: bool = (== tmp%23#0 true#0)
         (assert tmp%25#0) // Single boolean can be unpacked
@@ -49,7 +49,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -193,11 +193,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
         let tail_offset#0: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
-        let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
+        let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#2)
         let tmp%5#1: uint64 = 0u
+        let value_internal%0#0: uint64 = tmp%5#1
         goto block@4
     block@4: // for_header_L412
-        let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
+        let head_offset#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
         let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)

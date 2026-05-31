@@ -918,13 +918,13 @@ subroutine test_arg_conversion:
         // typed_abi_call/typed_c2c.py:68
         // txn = arc4.abi_call(Logger.log_uint64, 2, app_id=app)
         itxn_begin
+        int 2                                                                                        2
+        itob                                                                                         aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         method log(uint64)void                                                                       Method(log(uint64)void)
         itxn_field ApplicationArgs
-        int 2                                                                                        2
-        itob                                                                                         aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
         int appl                                                                                     appl
@@ -945,11 +945,18 @@ subroutine test_arg_conversion:
         // typed_abi_call/typed_c2c.py:71
         // txn = arc4.abi_call(Logger.log_uint512, 3, app_id=app)
         itxn_begin
+        int 64                                                                                       64
+        bzero                                                                                        aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x03                                                                                    0x03
+        v-load aggregate%bzero%0#0                                                                   0x03,aggregate%bzero%0#0
+        b|                                                                                           aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         method log(uint512)void                                                                      Method(log(uint512)void)
         itxn_field ApplicationArgs
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -2163,11 +2170,18 @@ subroutine test_native_biguint:
         // typed_abi_call/typed_c2c.py:182
         // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
         itxn_begin
+        int 64                                                                                       64
+        bzero                                                                                        aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x02                                                                                    0x02
+        v-load aggregate%bzero%0#0                                                                   0x02,aggregate%bzero%0#0
+        b|                                                                                           aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                   Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -2212,12 +2226,8 @@ subroutine test_native_biguint:
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                   Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:182
-        // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:185
-        // result2, _txn = arc4.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app)
         int appl                                                                                     appl
         itxn_field TypeEnum
         int 0                                                                                        0
@@ -2261,12 +2271,8 @@ subroutine test_native_biguint:
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                   Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:182
-        // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:188
-        // result3, _txn = arc4.abi_call(Logger.echo_native_biguint, arc4.UInt512(2), app_id=app)
         int appl                                                                                     appl
         itxn_field TypeEnum
         int 0                                                                                        0
@@ -2340,11 +2346,25 @@ subroutine test_native_tuple:
         //     app_id=app,
         // )
         itxn_begin
+        // typed_abi_call/typed_c2c.py:198
+        // "s1",
+        int 2                                                                                        2
+        itob                                                                                         aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
         // typed_abi_call/typed_c2c.py:200
         // 1,
         int 1                                                                                        1
         itob                                                                                         aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        // typed_abi_call/typed_c2c.py:201
+        // 2,
+        int 64                                                                                       64
+        bzero                                                                                        aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        v-load aggregate%as_bytes%0#0                                                                aggregate%as_bytes%0#0
+        v-load aggregate%bzero%0#0                                                                   aggregate%as_bytes%0#0,aggregate%bzero%0#0
+        b|                                                                                           aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         // typed_abi_call/typed_c2c.py:194-203
@@ -2370,9 +2390,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:201
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:194-203
         // result1, txn = arc4.abi_call[
@@ -2541,9 +2559,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:218
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:211-220
         // result2, txn = arc4.abi_call[
@@ -2668,9 +2684,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:218
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:224-233
         // result3, txn = arc4.abi_call[
@@ -2793,9 +2807,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:218
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:237-244
         // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -2974,6 +2986,15 @@ subroutine test_native_tuple_method_ref:
         int 1                                                                                        1
         itob                                                                                         aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        // typed_abi_call/typed_c2c.py:258
+        // 2,
+        int 64                                                                                       64
+        bzero                                                                                        aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x02                                                                                    0x02
+        v-load aggregate%bzero%0#0                                                                   0x02,aggregate%bzero%0#0
+        b|                                                                                           aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         // typed_abi_call/typed_c2c.py:254
@@ -2990,9 +3011,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:258
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:253-260
         // result, txn = arc4.abi_call(
@@ -3157,9 +3176,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:258
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:268-275
         // result_2, txn = arc4.abi_call(
@@ -3324,9 +3341,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:258
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:279-286
         // result_3, txn = arc4.abi_call(
@@ -3489,9 +3504,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:258
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                            aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:290-297
         // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -4647,8 +4660,6 @@ subroutine test_named_tuples:
         // (UInt64(1), String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                    0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:361
-        // LogMessage(level=UInt64(1), message=String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                    0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:358-363
@@ -4712,8 +4723,8 @@ subroutine test_named_tuples:
         // (UInt64(2), String("log 2")),
         byte 0x0000000000000002000a00056c6f672032                                                    0x0000000000000002000a00056c6f672032
         itxn_field ApplicationArgs
-        // typed_abi_call/typed_c2c.py:361
-        // LogMessage(level=UInt64(1), message=String("log 1")),
+        // typed_abi_call/typed_c2c.py:360
+        // (UInt64(1), String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                    0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
         // typed_abi_call/typed_c2c.py:365-370

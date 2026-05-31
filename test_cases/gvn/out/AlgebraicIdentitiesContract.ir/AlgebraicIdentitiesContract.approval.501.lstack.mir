@@ -1,396 +1,209 @@
-// Op                                                               Stack (out)
+// Op                                                          Stack (out)
 // test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // gvn/algebraic_identities.py:12
         // test_self_sub(BigUInt(42), UInt64(42))
-        byte 0x2a                                                   0x2a
-        int 42                                                      0x2a,42
+        byte 0x2a                                              0x2a
+        int 42                                                 0x2a,42
         callsub test_self_sub
         // gvn/algebraic_identities.py:13
         // test_self_bitwise(UInt64(42))
-        int 42                                                      42
+        int 42                                                 42
         callsub test_self_bitwise
         // gvn/algebraic_identities.py:14
         // test_one_const(BigUInt(42), selector=True)
-        byte 0x2a                                                   0x2a
-        int 1                                                       0x2a,1
+        byte 0x2a                                              0x2a
+        int 1                                                  0x2a,1
         callsub test_one_const
         // gvn/algebraic_identities.py:15
         // test_one_const(BigUInt(42), selector=False)
-        byte 0x2a                                                   0x2a
-        int 0                                                       0x2a,0
+        byte 0x2a                                              0x2a
+        int 0                                                  0x2a,0
         callsub test_one_const
         // gvn/algebraic_identities.py:16
         // a = Txn.num_app_args
-        txn NumAppArgs                                              a#0
+        txn NumAppArgs                                         a#0
         // gvn/algebraic_identities.py:17
         // b = a + 1  # a < b always holds
-        l-load-copy a#0 0                                           a#0,a#0 (copy)
-        int 1                                                       a#0,a#0 (copy),1
-        +                                                           a#0,b#0
+        l-load-copy a#0 0                                      a#0,a#0 (copy)
+        int 1                                                  a#0,a#0 (copy),1
+        +                                                      a#0,b#0
         // gvn/algebraic_identities.py:18
         // test_uint64_swaps(a, b)
-        l-load-copy a#0 1                                           a#0,b#0,a#0 (copy)
-        l-load-copy b#0 1                                           a#0,b#0,a#0 (copy),b#0 (copy)
-        callsub test_uint64_swaps                                   a#0,b#0
+        l-load-copy a#0 1                                      a#0,b#0,a#0 (copy)
+        l-load-copy b#0 1                                      a#0,b#0,a#0 (copy),b#0 (copy)
+        callsub test_uint64_swaps                              a#0,b#0
         // gvn/algebraic_identities.py:19
         // test_biguint_swaps(BigUInt(1), BigUInt(2))
-        byte 0x01                                                   a#0,b#0,0x01
-        byte 0x02                                                   a#0,b#0,0x01,0x02
-        callsub test_biguint_swaps                                  a#0,b#0
+        byte 0x01                                              a#0,b#0,0x01
+        byte 0x02                                              a#0,b#0,0x01,0x02
+        callsub test_biguint_swaps                             a#0,b#0
         // gvn/algebraic_identities.py:20
         // test_uint64_negated(a, b)
-        l-load-copy a#0 1                                           a#0,b#0,a#0 (copy)
-        l-load-copy b#0 1                                           a#0,b#0,a#0 (copy),b#0 (copy)
-        callsub test_uint64_negated                                 a#0,b#0
+        l-load-copy a#0 1                                      a#0,b#0,a#0 (copy)
+        l-load-copy b#0 1                                      a#0,b#0,a#0 (copy),b#0 (copy)
+        callsub test_uint64_negated                            a#0,b#0
         // gvn/algebraic_identities.py:21
         // test_biguint_negated(BigUInt(a), BigUInt(b))
-        l-load-copy a#0 1                                           a#0,b#0,a#0 (copy)
-        itob                                                        a#0,b#0,tmp%2#0
-        l-load-copy b#0 1                                           a#0,b#0,tmp%2#0,b#0 (copy)
-        itob                                                        a#0,b#0,tmp%2#0,tmp%3#0
-        l-load-copy tmp%2#0 1                                       a#0,b#0,tmp%2#0,tmp%3#0,tmp%2#0 (copy)
-        l-load-copy tmp%3#0 1                                       a#0,b#0,tmp%2#0,tmp%3#0,tmp%2#0 (copy),tmp%3#0 (copy)
-        callsub test_biguint_negated                                a#0,b#0,tmp%2#0,tmp%3#0
+        l-load-copy a#0 1                                      a#0,b#0,a#0 (copy)
+        itob                                                   a#0,b#0,tmp%2#0
+        l-load-copy b#0 1                                      a#0,b#0,tmp%2#0,b#0 (copy)
+        itob                                                   a#0,b#0,tmp%2#0,tmp%3#0
+        l-load-copy tmp%2#0 1                                  a#0,b#0,tmp%2#0,tmp%3#0,tmp%2#0 (copy)
+        l-load-copy tmp%3#0 1                                  a#0,b#0,tmp%2#0,tmp%3#0,tmp%2#0 (copy),tmp%3#0 (copy)
+        callsub test_biguint_negated                           a#0,b#0,tmp%2#0,tmp%3#0
         // gvn/algebraic_identities.py:22
         // test_uint64_double_negated(a, b)
-        l-load a#0 3                                                b#0,tmp%2#0,tmp%3#0,a#0
-        l-load b#0 3                                                tmp%2#0,tmp%3#0,a#0,b#0
-        callsub test_uint64_double_negated                          tmp%2#0,tmp%3#0
+        l-load a#0 3                                           b#0,tmp%2#0,tmp%3#0,a#0
+        l-load b#0 3                                           tmp%2#0,tmp%3#0,a#0,b#0
+        callsub test_uint64_double_negated                     tmp%2#0,tmp%3#0
         // gvn/algebraic_identities.py:23
         // test_biguint_double_negated(BigUInt(a), BigUInt(b))
-        l-load tmp%2#0 1                                            tmp%3#0,tmp%2#0
-        l-load tmp%3#0 1                                            tmp%2#0,tmp%3#0
+        l-load tmp%2#0 1                                       tmp%3#0,tmp%2#0
+        l-load tmp%3#0 1                                       tmp%2#0,tmp%3#0
         callsub test_biguint_double_negated
         // gvn/algebraic_identities.py:24
         // return True
-        int 1                                                       1
+        int 1                                                  1
         return
 
 
 // test_cases.gvn.algebraic_identities.test_self_sub(x: bytes, y: uint64) -> void:
 subroutine test_self_sub:
-    test_self_sub_block@0:                                          (𝕡) x#0,y#0 |
+    test_self_sub_block@0:                                     (𝕡) x#0,y#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_self_bitwise(y: uint64) -> void:
 subroutine test_self_bitwise:
-    test_self_bitwise_block@0:                                      (𝕡) y#0 |
+    test_self_bitwise_block@0:                                 (𝕡) y#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_one_const(x: bytes, selector: uint64) -> void:
 subroutine test_one_const:
-    test_one_const_block@0:                                         (𝕡) x#0,selector#0 |
-        // gvn/algebraic_identities.py:45
-        // if selector:
-        p-load selector#0                                           (𝕡) x#0,selector#0 | selector#0 (copy)
-        bz test_one_const_else_body@2 ; b test_one_const_if_body@1  (𝕡) x#0,selector#0 |
-
-    test_one_const_if_body@1:                                       (𝕡) x#0,selector#0 |
-        // gvn/algebraic_identities.py:46
-        // one = BigUInt.from_bytes((op.bzero(65) + b"\x01")[-10:])
-        int 65                                                      (𝕡) x#0,selector#0 | 65
-        bzero                                                       (𝕡) x#0,selector#0 | tmp%0#0
-        l-load tmp%0#0 0                                            (𝕡) x#0,selector#0 | tmp%0#0
-        byte 0x01                                                   (𝕡) x#0,selector#0 | tmp%0#0,0x01
-        concat                                                      (𝕡) x#0,selector#0 | tmp%1#0
-        l-load-copy tmp%1#0 0                                       (𝕡) x#0,selector#0 | tmp%1#0,tmp%1#0 (copy)
-        len                                                         (𝕡) x#0,selector#0 | tmp%1#0,length%0#0
-        int 10                                                      (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,10
-        l-load-copy length%0#0 1                                    (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,10,length%0#0 (copy)
-        >=                                                          (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,is_out_of_bounds%0#0
-        int 10                                                      (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,is_out_of_bounds%0#0,10
-        l-load-copy length%0#0 2                                    (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,is_out_of_bounds%0#0,10,length%0#0 (copy)
-        l-load is_out_of_bounds%0#0 2                               (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,10,length%0#0 (copy),is_out_of_bounds%0#0
-        select                                                      (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,bounded_offset%0#0
-        l-load-copy length%0#0 1                                    (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,bounded_offset%0#0,length%0#0 (copy)
-        l-load bounded_offset%0#0 1                                 (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,length%0#0 (copy),bounded_offset%0#0
-        -                                                           (𝕡) x#0,selector#0 | tmp%1#0,length%0#0,bounded_index%0#0
-        l-load tmp%1#0 2                                            (𝕡) x#0,selector#0 | length%0#0,bounded_index%0#0,tmp%1#0
-        l-load bounded_index%0#0 1                                  (𝕡) x#0,selector#0 | length%0#0,tmp%1#0,bounded_index%0#0
-        l-load length%0#0 2                                         (𝕡) x#0,selector#0 | tmp%1#0,bounded_index%0#0,length%0#0
-        substring3                                                  (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                               (𝕡) x#0,selector#0 |
-        b test_one_const_after_if_else@3                            (𝕡) x#0,selector#0 |
-
-    test_one_const_else_body@2:                                     (𝕡) x#0,selector#0 |
-        // gvn/algebraic_identities.py:48
-        // one = BigUInt.from_bytes((op.bzero(66) + b"\x01")[-10:])
-        int 66                                                      (𝕡) x#0,selector#0 | 66
-        bzero                                                       (𝕡) x#0,selector#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) x#0,selector#0 | tmp%3#0
-        byte 0x01                                                   (𝕡) x#0,selector#0 | tmp%3#0,0x01
-        concat                                                      (𝕡) x#0,selector#0 | tmp%4#0
-        l-load-copy tmp%4#0 0                                       (𝕡) x#0,selector#0 | tmp%4#0,tmp%4#0 (copy)
-        len                                                         (𝕡) x#0,selector#0 | tmp%4#0,length%1#0
-        int 10                                                      (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,10
-        l-load-copy length%1#0 1                                    (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,10,length%1#0 (copy)
-        >=                                                          (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,is_out_of_bounds%1#0
-        int 10                                                      (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,is_out_of_bounds%1#0,10
-        l-load-copy length%1#0 2                                    (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,is_out_of_bounds%1#0,10,length%1#0 (copy)
-        l-load is_out_of_bounds%1#0 2                               (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,10,length%1#0 (copy),is_out_of_bounds%1#0
-        select                                                      (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,bounded_offset%1#0
-        l-load-copy length%1#0 1                                    (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,bounded_offset%1#0,length%1#0 (copy)
-        l-load bounded_offset%1#0 1                                 (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,length%1#0 (copy),bounded_offset%1#0
-        -                                                           (𝕡) x#0,selector#0 | tmp%4#0,length%1#0,bounded_index%1#0
-        l-load tmp%4#0 2                                            (𝕡) x#0,selector#0 | length%1#0,bounded_index%1#0,tmp%4#0
-        l-load bounded_index%1#0 1                                  (𝕡) x#0,selector#0 | length%1#0,tmp%4#0,bounded_index%1#0
-        l-load length%1#0 2                                         (𝕡) x#0,selector#0 | tmp%4#0,bounded_index%1#0,length%1#0
-        substring3                                                  (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                               (𝕡) x#0,selector#0 |
-        b test_one_const_after_if_else@3                            (𝕡) x#0,selector#0 |
-
-    test_one_const_after_if_else@3:                                 (𝕡) x#0,selector#0 |
-        // gvn/algebraic_identities.py:49
-        // assert x * one == x
-        p-load x#0                                                  (𝕡) x#0,selector#0 | x#0 (copy)
-        v-load one#0                                                (𝕡) x#0,selector#0 | x#0 (copy),one#0
-        l-store-copy one#0 1                                        (𝕡) x#0,selector#0 | one#0,x#0 (copy),one#0 (copy)
-        b*                                                          (𝕡) x#0,selector#0 | one#0,tmp%6#0
-        l-load tmp%6#0 0                                            (𝕡) x#0,selector#0 | one#0,tmp%6#0
-        p-load x#0                                                  (𝕡) x#0,selector#0 | one#0,tmp%6#0,x#0 (copy)
-        b==                                                         (𝕡) x#0,selector#0 | one#0,tmp%7#0
-        l-load tmp%7#0 0                                            (𝕡) x#0,selector#0 | one#0,tmp%7#0
-        assert                                                      (𝕡) x#0,selector#0 | one#0
-        // gvn/algebraic_identities.py:50
-        // assert one * x == x
-        l-load one#0 0                                              (𝕡) x#0,selector#0 | one#0
-        p-load x#0                                                  (𝕡) x#0,selector#0 | one#0,x#0 (copy)
-        b*                                                          (𝕡) x#0,selector#0 | tmp%8#0
-        l-load tmp%8#0 0                                            (𝕡) x#0,selector#0 | tmp%8#0
-        p-load x#0                                                  (𝕡) x#0,selector#0 | tmp%8#0,x#0 (copy)
-        b==                                                         (𝕡) x#0,selector#0 | tmp%9#0
-        l-load tmp%9#0 0                                            (𝕡) x#0,selector#0 | tmp%9#0
-        assert                                                      (𝕡) x#0,selector#0 |
+    test_one_const_block@0:                                    (𝕡) x#0,selector#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_uint64_swaps(a: uint64, b: uint64) -> void:
 subroutine test_uint64_swaps:
-    test_uint64_swaps_block@0:                                      (𝕡) a#0,b#0 |
+    test_uint64_swaps_block@0:                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:55
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <                                                           (𝕡) a#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:56
-        // assert b > a
-        p-load b#0                                                  (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                  (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        >                                                           (𝕡) a#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                            (𝕡) a#0,b#0 | tmp%1#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <                                                      (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:57
         // assert a <= b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <=                                                          (𝕡) a#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                            (𝕡) a#0,b#0 | tmp%2#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:58
-        // assert b >= a
-        p-load b#0                                                  (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                  (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        >=                                                          (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <=                                                     (𝕡) a#0,b#0 | tmp%2#0
+        l-load tmp%2#0 0                                       (𝕡) a#0,b#0 | tmp%2#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_biguint_swaps(a: bytes, b: bytes) -> void:
 subroutine test_biguint_swaps:
-    test_biguint_swaps_block@0:                                     (𝕡) a#0,b#0 |
+    test_biguint_swaps_block@0:                                (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:63
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<                                                          (𝕡) a#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:64
-        // assert b > a
-        p-load b#0                                                  (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                  (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        b>                                                          (𝕡) a#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                            (𝕡) a#0,b#0 | tmp%1#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<                                                     (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:65
         // assert a <= b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<=                                                         (𝕡) a#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                            (𝕡) a#0,b#0 | tmp%2#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:66
-        // assert b >= a
-        p-load b#0                                                  (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                  (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        b>=                                                         (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<=                                                    (𝕡) a#0,b#0 | tmp%2#0
+        l-load tmp%2#0 0                                       (𝕡) a#0,b#0 | tmp%2#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_uint64_negated(a: uint64, b: uint64) -> void:
 subroutine test_uint64_negated:
-    test_uint64_negated_block@0:                                    (𝕡) a#0,b#0 |
+    test_uint64_negated_block@0:                               (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:71
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <                                                           (𝕡) a#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:72
-        // assert not (a >= b)
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        >=                                                          (𝕡) a#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                            (𝕡) a#0,b#0 | tmp%1#0
-        !                                                           (𝕡) a#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                            (𝕡) a#0,b#0 | tmp%2#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <                                                      (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:73
         // assert a <= b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <=                                                          (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:74
-        // assert not (a > b)
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        >                                                           (𝕡) a#0,b#0 | tmp%4#0
-        l-load tmp%4#0 0                                            (𝕡) a#0,b#0 | tmp%4#0
-        !                                                           (𝕡) a#0,b#0 | tmp%5#0
-        l-load tmp%5#0 0                                            (𝕡) a#0,b#0 | tmp%5#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <=                                                     (𝕡) a#0,b#0 | tmp%3#0
+        l-load tmp%3#0 0                                       (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:75
         // assert a != b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        !=                                                          (𝕡) a#0,b#0 | tmp%6#0
-        l-load tmp%6#0 0                                            (𝕡) a#0,b#0 | tmp%6#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:76
-        // eq_result = a == b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        ==                                                          (𝕡) a#0,b#0 | eq_result#0
-        // gvn/algebraic_identities.py:77
-        // assert not eq_result
-        l-load eq_result#0 0                                        (𝕡) a#0,b#0 | eq_result#0
-        !                                                           (𝕡) a#0,b#0 | tmp%8#0
-        l-load tmp%8#0 0                                            (𝕡) a#0,b#0 | tmp%8#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        !=                                                     (𝕡) a#0,b#0 | tmp%6#0
+        l-load tmp%6#0 0                                       (𝕡) a#0,b#0 | tmp%6#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_biguint_negated(a: bytes, b: bytes) -> void:
 subroutine test_biguint_negated:
-    test_biguint_negated_block@0:                                   (𝕡) a#0,b#0 |
+    test_biguint_negated_block@0:                              (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:82
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<                                                          (𝕡) a#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:83
-        // assert not (a >= b)
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b>=                                                         (𝕡) a#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                            (𝕡) a#0,b#0 | tmp%1#0
-        !                                                           (𝕡) a#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                            (𝕡) a#0,b#0 | tmp%2#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<                                                     (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:84
         // assert a <= b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<=                                                         (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:85
-        // assert not (a > b)
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b>                                                          (𝕡) a#0,b#0 | tmp%4#0
-        l-load tmp%4#0 0                                            (𝕡) a#0,b#0 | tmp%4#0
-        !                                                           (𝕡) a#0,b#0 | tmp%5#0
-        l-load tmp%5#0 0                                            (𝕡) a#0,b#0 | tmp%5#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<=                                                    (𝕡) a#0,b#0 | tmp%3#0
+        l-load tmp%3#0 0                                       (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:86
         // assert a != b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b!=                                                         (𝕡) a#0,b#0 | tmp%6#0
-        l-load tmp%6#0 0                                            (𝕡) a#0,b#0 | tmp%6#0
-        assert                                                      (𝕡) a#0,b#0 |
-        // gvn/algebraic_identities.py:87
-        // eq_result = a == b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b==                                                         (𝕡) a#0,b#0 | eq_result#0
-        // gvn/algebraic_identities.py:88
-        // assert not eq_result
-        l-load eq_result#0 0                                        (𝕡) a#0,b#0 | eq_result#0
-        !                                                           (𝕡) a#0,b#0 | tmp%8#0
-        l-load tmp%8#0 0                                            (𝕡) a#0,b#0 | tmp%8#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b!=                                                    (𝕡) a#0,b#0 | tmp%6#0
+        l-load tmp%6#0 0                                       (𝕡) a#0,b#0 | tmp%6#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_uint64_double_negated(a: uint64, b: uint64) -> void:
 subroutine test_uint64_double_negated:
-    test_uint64_double_negated_block@0:                             (𝕡) a#0,b#0 |
+    test_uint64_double_negated_block@0:                        (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:93
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <                                                           (𝕡) a#0,b#0 | tmp%0#0
-        l-load-copy tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0,tmp%0#0 (copy)
-        assert                                                      (𝕡) a#0,b#0 | tmp%0#0
-        // gvn/algebraic_identities.py:94
-        // neg = not (a < b)
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        !                                                           (𝕡) a#0,b#0 | neg#0
-        // gvn/algebraic_identities.py:95
-        // assert not neg
-        l-load neg#0 0                                              (𝕡) a#0,b#0 | neg#0
-        !                                                           (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <                                                      (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.algebraic_identities.test_biguint_double_negated(a: bytes, b: bytes) -> void:
 subroutine test_biguint_double_negated:
-    test_biguint_double_negated_block@0:                            (𝕡) a#0,b#0 |
+    test_biguint_double_negated_block@0:                       (𝕡) a#0,b#0 |
         // gvn/algebraic_identities.py:100
         // assert a < b
-        p-load a#0                                                  (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                  (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<                                                          (𝕡) a#0,b#0 | tmp%0#0
-        l-load-copy tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0,tmp%0#0 (copy)
-        assert                                                      (𝕡) a#0,b#0 | tmp%0#0
-        // gvn/algebraic_identities.py:101
-        // neg = not (a < b)
-        l-load tmp%0#0 0                                            (𝕡) a#0,b#0 | tmp%0#0
-        !                                                           (𝕡) a#0,b#0 | neg#0
-        // gvn/algebraic_identities.py:102
-        // assert not neg
-        l-load neg#0 0                                              (𝕡) a#0,b#0 | neg#0
-        !                                                           (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                            (𝕡) a#0,b#0 | tmp%3#0
-        assert                                                      (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<                                                     (𝕡) a#0,b#0 | tmp%0#0
+        l-load tmp%0#0 0                                       (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 

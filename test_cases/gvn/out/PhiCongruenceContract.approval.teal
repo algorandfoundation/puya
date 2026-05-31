@@ -39,11 +39,6 @@ test_redundant_phi:
     frame_dig -2
     frame_dig -1
     |
-    // gvn/phi_congruence.py:59
-    // val2 = b | a
-    frame_dig -1
-    frame_dig -2
-    |
     // gvn/phi_congruence.py:60
     // if a > b:
     frame_dig -2
@@ -55,12 +50,12 @@ test_redundant_phi:
     frame_dig -2
     itob
     log
-    frame_dig 0
 
 test_redundant_phi_after_if_else@3:
     // gvn/phi_congruence.py:66
     // return result
-    frame_bury 0
+    frame_dig 0
+    swap
     retsub
 
 test_redundant_phi_else_body@2:
@@ -69,7 +64,6 @@ test_redundant_phi_else_body@2:
     frame_dig -1
     itob
     log
-    frame_dig 1
     b test_redundant_phi_after_if_else@3
 
 
@@ -79,8 +73,6 @@ test_cross_assignment:
     // @subroutine(inline=False)
     // def test_cross_assignment(n: UInt64) -> UInt64:
     proto 1 1
-    frame_dig -1
-    dup
     // gvn/phi_congruence.py:73
     // for _i in urange(10):
     intc_1 // 0
@@ -88,27 +80,23 @@ test_cross_assignment:
 test_cross_assignment_for_header@1:
     // gvn/phi_congruence.py:73
     // for _i in urange(10):
-    frame_dig 2
+    frame_dig 0
     intc_3 // 10
     <
     bz test_cross_assignment_after_for@4
-    frame_dig 2
+    frame_dig 0
     intc_0 // 1
     +
-    frame_bury 2
-    frame_dig 0
-    frame_dig 1
     frame_bury 0
-    frame_bury 1
     b test_cross_assignment_for_header@1
 
 test_cross_assignment_after_for@4:
     // gvn/phi_congruence.py:77
     // return x + y
-    frame_dig 1
-    frame_dig 0
+    frame_dig -1
+    dup
     +
-    frame_bury 0
+    swap
     retsub
 
 
@@ -118,8 +106,6 @@ test_triple_cycle:
     // @subroutine(inline=False)
     // def test_triple_cycle(n: UInt64) -> UInt64:
     proto 1 1
-    frame_dig -1
-    dupn 2
     // gvn/phi_congruence.py:85
     // for _i in urange(5):
     intc_1 // 0
@@ -127,31 +113,25 @@ test_triple_cycle:
 test_triple_cycle_for_header@1:
     // gvn/phi_congruence.py:85
     // for _i in urange(5):
-    frame_dig 3
+    frame_dig 0
     pushint 5
     <
     bz test_triple_cycle_after_for@4
-    frame_dig 3
+    frame_dig 0
     intc_0 // 1
     +
-    frame_bury 3
-    frame_dig 0
-    frame_dig 1
     frame_bury 0
-    frame_dig 2
-    frame_bury 1
-    frame_bury 2
     b test_triple_cycle_for_header@1
 
 test_triple_cycle_after_for@4:
     // gvn/phi_congruence.py:91
     // return a + b + c
-    frame_dig 2
-    frame_dig 1
+    frame_dig -1
+    dup
     +
-    frame_dig 0
+    frame_dig -1
     +
-    frame_bury 0
+    swap
     retsub
 
 
@@ -161,48 +141,29 @@ test_replacement_chain:
     // @subroutine(inline=False)
     // def test_replacement_chain(n: UInt64) -> UInt64:
     proto 1 1
-    frame_dig -1
-    dup
 
 test_replacement_chain_while_top@1:
-    // gvn/phi_congruence.py:100
-    // if not n:
-    frame_dig -1
-    bnz test_replacement_chain_after_if_else@4
-    frame_dig -1
-    dup
-    frame_bury 0
-    frame_bury 1
-
-test_replacement_chain_after_if_else@4:
     // gvn/phi_congruence.py:103
     // log(a)
-    frame_dig 1
+    frame_dig -1
     itob
+    dup
     log
     // gvn/phi_congruence.py:104
     // log(b)
-    frame_dig 0
-    itob
     log
     // gvn/phi_congruence.py:107
     // if n % 2 == 0:
     frame_dig -1
     pushint 2
     %
-    bnz test_replacement_chain_after_if_else@6
+    bnz test_replacement_chain_while_top@1
     // gvn/phi_congruence.py:109
     // return a + b
-    frame_dig 1
+    frame_dig -1
     dup
     +
-    frame_bury 0
     retsub
-
-test_replacement_chain_after_if_else@6:
-    frame_dig 1
-    frame_bury 0
-    b test_replacement_chain_while_top@1
 
 
 // test_cases.gvn.phi_congruence.alternating(a: uint64, b: uint64, n: uint64) -> uint64:
@@ -269,52 +230,42 @@ alternating_with_commutative_inits:
     frame_dig -3
     frame_dig -2
     |
-    // gvn/phi_congruence.py:126
-    // e2 = b | a
-    frame_dig -2
-    frame_dig -3
-    |
     // gvn/phi_congruence.py:129
     // s = UInt64(0)
     intc_1 // 0
-    cover 2
     // gvn/phi_congruence.py:130
     // for i in urange(n):
-    intc_1 // 0
+    dup
 
 alternating_with_commutative_inits_for_header@1:
     // gvn/phi_congruence.py:130
     // for i in urange(n):
-    frame_dig 3
+    frame_dig 2
     frame_dig -1
     <
     bz alternating_with_commutative_inits_after_for@4
     // gvn/phi_congruence.py:132
     // s += i
-    frame_dig 0
-    frame_dig 3
+    frame_dig 1
+    frame_dig 2
     dup
     cover 2
     +
-    frame_bury 0
+    frame_bury 1
     // gvn/phi_congruence.py:130
     // for i in urange(n):
     intc_0 // 1
     +
-    frame_bury 3
-    frame_dig 1
-    frame_dig 2
-    frame_bury 1
     frame_bury 2
     b alternating_with_commutative_inits_for_header@1
 
 alternating_with_commutative_inits_after_for@4:
     // gvn/phi_congruence.py:133
     // return x + y + s
-    frame_dig 1
-    frame_dig 2
-    +
     frame_dig 0
+    dup
+    +
+    frame_dig 1
     +
     frame_bury 0
     retsub
@@ -384,21 +335,21 @@ loop_invariant_phi_aliasing:
     // @subroutine(inline=False)
     // def loop_invariant_phi_aliasing(x: UInt64, y: UInt64) -> UInt64:
     proto 2 1
-    frame_dig -2
     // gvn/phi_congruence.py:153
     // for _i in urange(10):
     intc_1 // 0
+    frame_dig -2
 
 loop_invariant_phi_aliasing_for_header@1:
     // gvn/phi_congruence.py:153
     // for _i in urange(10):
-    frame_dig 1
+    frame_dig 0
     intc_3 // 10
     <
     bz loop_invariant_phi_aliasing_after_for@4
     // gvn/phi_congruence.py:154
     // a = z + y
-    frame_dig 0
+    frame_dig 1
     frame_dig -1
     +
     // gvn/phi_congruence.py:155
@@ -409,18 +360,20 @@ loop_invariant_phi_aliasing_for_header@1:
     // gvn/phi_congruence.py:156
     // z = a + b
     +
-    frame_bury 0
+    frame_bury 1
     // gvn/phi_congruence.py:153
     // for _i in urange(10):
-    frame_dig 1
+    frame_dig 0
     intc_0 // 1
     +
-    frame_bury 1
+    frame_bury 0
     b loop_invariant_phi_aliasing_for_header@1
 
 loop_invariant_phi_aliasing_after_for@4:
     // gvn/phi_congruence.py:157
     // return z
+    frame_dig 1
+    frame_bury 0
     retsub
 
 
@@ -923,16 +876,6 @@ commutative_add_assert:
     swap
     concat
     log
-
-commutative_add_assert_after_if_else@3:
-    // gvn/phi_congruence.py:208
-    // assert result == (b + a)
-    frame_dig -2
-    frame_dig -3
-    +
-    dig 1
-    ==
-    assert
     // gvn/phi_congruence.py:209
     // return result
     retsub
@@ -951,7 +894,9 @@ commutative_add_assert_else_body@2:
     swap
     concat
     log
-    b commutative_add_assert_after_if_else@3
+    // gvn/phi_congruence.py:209
+    // return result
+    retsub
 
 
 // test_cases.gvn.phi_congruence.nested_scc_collapse(n: uint64, p: uint64, q: uint64) -> uint64:
@@ -964,7 +909,6 @@ nested_scc_collapse:
     // gvn/phi_congruence.py:218
     // i = UInt64(0)
     intc_1 // 0
-    frame_dig -3
 
 nested_scc_collapse_while_top@1:
     // gvn/phi_congruence.py:219
@@ -991,8 +935,6 @@ nested_scc_collapse_while_top@3:
     intc_0 // 1
     +
     frame_bury 0
-    frame_dig -3
-    frame_bury 2
     b nested_scc_collapse_while_top@3
 
 nested_scc_collapse_after_while@5:
@@ -1007,7 +949,7 @@ nested_scc_collapse_after_while@5:
 nested_scc_collapse_after_while@6:
     // gvn/phi_congruence.py:225
     // return v
-    frame_dig 2
+    frame_dig -3
     frame_bury 0
     retsub
 

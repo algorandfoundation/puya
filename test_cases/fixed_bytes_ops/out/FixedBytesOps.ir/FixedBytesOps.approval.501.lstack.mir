@@ -279,11 +279,6 @@ subroutine main:
         //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
         // )
         callsub test_sequence_ops
-        // fixed_bytes_ops/contract.py:518
-        // empty_1 = FixedBytes[typing.Literal[4]]()
-        int 4                                                                                   4
-        bzero                                                                                   empty_1#0
-        v-store empty_1#0
         // fixed_bytes_ops/contract.py:524
         // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
         txn ApplicationID                                                                       tmp%12#6
@@ -388,25 +383,14 @@ subroutine main:
         assert // expected bytes to be length 1                                                 idx#0,byte#0
         // fixed_bytes_ops/contract.py:545
         // assert byte in val
-        l-load-copy byte#0 0                                                                    idx#0,byte#0,byte#0 (copy)
-        // fixed_bytes_ops/contract.py:534
-        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-        byte 0xabcdef                                                                           idx#0,byte#0,byte#0 (copy),0xabcdef
-        // fixed_bytes_ops/contract.py:545
-        // assert byte in val
-        callsub is_substring                                                                    idx#0,byte#0,tmp%6#0
-        l-load tmp%6#0 0                                                                        idx#0,byte#0,tmp%6#0
-        assert                                                                                  idx#0,byte#0
-        // fixed_bytes_ops/contract.py:546
-        // assert FB1(byte) in val
         l-load byte#0 0                                                                         idx#0,byte#0
         // fixed_bytes_ops/contract.py:534
         // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
         byte 0xabcdef                                                                           idx#0,byte#0,0xabcdef
-        // fixed_bytes_ops/contract.py:546
-        // assert FB1(byte) in val
-        callsub is_substring                                                                    idx#0,tmp%9#0
-        l-load tmp%9#0 0                                                                        idx#0,tmp%9#0
+        // fixed_bytes_ops/contract.py:545
+        // assert byte in val
+        callsub is_substring                                                                    idx#0,tmp%6#0
+        l-load tmp%6#0 0                                                                        idx#0,tmp%6#0
         assert                                                                                  idx#0
         l-load idx#0 0                                                                          idx#0
         int 1                                                                                   idx#0,1
@@ -448,7 +432,11 @@ subroutine main:
         // fixed_bytes_ops/contract.py:580
         // assert v == FixedBytes[typing.Literal[4]]()
         l-load v#0 0                                                                            item_index_internal%0#0,v#0
-        v-load empty_1#0                                                                        item_index_internal%0#0,v#0,empty_1#0
+        // fixed_bytes_ops/contract.py:321
+        // val2 &= other
+        byte 0x00000000                                                                         item_index_internal%0#0,v#0,0x00000000
+        // fixed_bytes_ops/contract.py:580
+        // assert v == FixedBytes[typing.Literal[4]]()
         ==                                                                                      item_index_internal%0#0,tmp%16#1
         l-load tmp%16#1 0                                                                       item_index_internal%0#0,tmp%16#1
         assert                                                                                  item_index_internal%0#0
@@ -466,134 +454,43 @@ subroutine main:
         // fixed_bytes_ops/contract.py:608
         // assert x in x  # noqa: PLR0124
         callsub is_substring                                                                    tmp%0#15
-        l-load tmp%0#15 0                                                                       tmp%0#15
-        assert
+        l-load-copy tmp%0#15 0                                                                  tmp%0#15,tmp%0#15 (copy)
+        assert                                                                                  tmp%0#15
         // fixed_bytes_ops/contract.py:105
         // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-        byte 0xcd12                                                                             0xcd12
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        byte 0xcd12                                                                             tmp%0#15,0xcd12
+        byte 0xabcd1234                                                                         tmp%0#15,0xcd12,0xabcd1234
         // fixed_bytes_ops/contract.py:609
         // assert y in x
-        callsub is_substring                                                                    tmp%1#12
-        l-load tmp%1#12 0                                                                       tmp%1#12
-        assert
+        callsub is_substring                                                                    tmp%0#15,tmp%1#12
+        l-load-copy tmp%1#12 0                                                                  tmp%0#15,tmp%1#12,tmp%1#12 (copy)
+        assert                                                                                  tmp%0#15,tmp%1#12
         // fixed_bytes_ops/contract.py:105
         // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-        byte 0xabcd1234                                                                         0xabcd1234
-        byte 0xcd12                                                                             0xabcd1234,0xcd12
+        byte 0xabcd1234                                                                         tmp%0#15,tmp%1#12,0xabcd1234
+        byte 0xcd12                                                                             tmp%0#15,tmp%1#12,0xabcd1234,0xcd12
         // fixed_bytes_ops/contract.py:610
         // assert x not in y
-        callsub is_substring                                                                    tmp%2#14
-        l-load tmp%2#14 0                                                                       tmp%2#14
-        !                                                                                       tmp%3#14
-        l-load tmp%3#14 0                                                                       tmp%3#14
-        assert
-        // fixed_bytes_ops/contract.py:105
-        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-        byte 0xabcd1234                                                                         0xabcd1234
-        byte 0xabcd1234                                                                         0xabcd1234,0xabcd1234
+        callsub is_substring                                                                    tmp%0#15,tmp%1#12,tmp%2#14
+        l-load tmp%2#14 0                                                                       tmp%0#15,tmp%1#12,tmp%2#14
+        !                                                                                       tmp%0#15,tmp%1#12,tmp%3#14
+        l-load tmp%3#14 0                                                                       tmp%0#15,tmp%1#12,tmp%3#14
+        assert                                                                                  tmp%0#15,tmp%1#12
         // fixed_bytes_ops/contract.py:612
         // assert (x not in x) == False  # noqa: E712, PLR0124
-        callsub is_substring                                                                    tmp%4#11
-        l-load tmp%4#11 0                                                                       tmp%4#11
-        !                                                                                       tmp%5#0
-        l-load tmp%5#0 0                                                                        tmp%5#0
-        !                                                                                       tmp%6#0
-        l-load tmp%6#0 0                                                                        tmp%6#0
-        assert
-        // fixed_bytes_ops/contract.py:105
-        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-        byte 0xcd12                                                                             0xcd12
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        l-load tmp%0#15 1                                                                       tmp%1#12,tmp%0#15
+        !                                                                                       tmp%1#12,tmp%5#0
+        l-load tmp%5#0 0                                                                        tmp%1#12,tmp%5#0
+        !                                                                                       tmp%1#12,tmp%6#0
+        l-load tmp%6#0 0                                                                        tmp%1#12,tmp%6#0
+        assert                                                                                  tmp%1#12
         // fixed_bytes_ops/contract.py:613
         // assert (y not in x) == False  # noqa: E712
-        callsub is_substring                                                                    tmp%7#12
-        l-load tmp%7#12 0                                                                       tmp%7#12
+        l-load tmp%1#12 0                                                                       tmp%1#12
         !                                                                                       tmp%8#12
         l-load tmp%8#12 0                                                                       tmp%8#12
         !                                                                                       tmp%9#0
         l-load tmp%9#0 0                                                                        tmp%9#0
-        assert
-        // fixed_bytes_ops/contract.py:105
-        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-        byte 0xabcd1234                                                                         0xabcd1234
-        byte 0xcd12                                                                             0xabcd1234,0xcd12
-        // fixed_bytes_ops/contract.py:614
-        // assert (x in y) == False  # noqa: E712
-        callsub is_substring                                                                    tmp%10#11
-        l-load tmp%10#11 0                                                                      tmp%10#11
-        !                                                                                       tmp%11#0
-        l-load tmp%11#0 0                                                                       tmp%11#0
-        assert
-        // fixed_bytes_ops/contract.py:108
-        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-        byte 0xcd12                                                                             0xcd12
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
-        // fixed_bytes_ops/contract.py:619
-        // assert y in x
-        callsub is_substring                                                                    tmp%0#15
-        l-load tmp%0#15 0                                                                       tmp%0#15
-        assert
-        // fixed_bytes_ops/contract.py:108
-        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-        byte 0xabcd1234                                                                         0xabcd1234
-        byte 0xcd12                                                                             0xabcd1234,0xcd12
-        // fixed_bytes_ops/contract.py:620
-        // assert x not in y
-        callsub is_substring                                                                    tmp%1#12
-        l-load tmp%1#12 0                                                                       tmp%1#12
-        !                                                                                       tmp%2#14
-        l-load tmp%2#14 0                                                                       tmp%2#14
-        assert
-        // fixed_bytes_ops/contract.py:108
-        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-        byte 0xcd12                                                                             0xcd12
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
-        // fixed_bytes_ops/contract.py:622
-        // assert (y not in x) == False  # noqa: E712
-        callsub is_substring                                                                    tmp%3#14
-        l-load tmp%3#14 0                                                                       tmp%3#14
-        !                                                                                       tmp%4#11
-        l-load tmp%4#11 0                                                                       tmp%4#11
-        !                                                                                       tmp%5#0
-        l-load tmp%5#0 0                                                                        tmp%5#0
-        assert
-        // fixed_bytes_ops/contract.py:108
-        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-        byte 0xabcd1234                                                                         0xabcd1234
-        byte 0xcd12                                                                             0xabcd1234,0xcd12
-        // fixed_bytes_ops/contract.py:623
-        // assert (x in y) == False  # noqa: E712
-        callsub is_substring                                                                    tmp%6#0
-        l-load tmp%6#0 0                                                                        tmp%6#0
-        !                                                                                       tmp%7#12
-        l-load tmp%7#12 0                                                                       tmp%7#12
-        assert
-        // fixed_bytes_ops/contract.py:628
-        // assert b"\xcd\x12" in x
-        byte 0xcd12                                                                             0xcd12
-        // fixed_bytes_ops/contract.py:110
-        // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
-        // fixed_bytes_ops/contract.py:628
-        // assert b"\xcd\x12" in x
-        callsub is_substring                                                                    tmp%0#15
-        l-load tmp%0#15 0                                                                       tmp%0#15
-        assert
-        // fixed_bytes_ops/contract.py:630
-        // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-        byte 0xcd12                                                                             0xcd12
-        // fixed_bytes_ops/contract.py:110
-        // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
-        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
-        // fixed_bytes_ops/contract.py:630
-        // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-        callsub is_substring                                                                    tmp%1#12
-        l-load tmp%1#12 0                                                                       tmp%1#12
-        !                                                                                       tmp%2#14
-        l-load tmp%2#14 0                                                                       tmp%2#14
-        !                                                                                       tmp%3#14
-        l-load tmp%3#14 0                                                                       tmp%3#14
         assert
         // fixed_bytes_ops/contract.py:111
         // result = FixedBytes[typing.Literal[5]](b"hello")
@@ -729,19 +626,17 @@ subroutine test_sequence_ops:
         ==                                                                                      (𝕡) val#0 | tmp%12#0
         l-load tmp%12#0 0                                                                       (𝕡) val#0 | tmp%12#0
         assert                                                                                  (𝕡) val#0 |
-        // fixed_bytes_ops/contract.py:476
-        // count = UInt64(0)
         int 0                                                                                   (𝕡) val#0 | 0
-        v-store count#0                                                                         (𝕡) val#0 |
-        int 0                                                                                   (𝕡) val#0 | 0
-        v-store item_index_internal%0#0                                                         (𝕡) val#0 |
+        l-store item_index_internal%0#0 0                                                       (𝕡) val#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        (𝕡) val#0 | item_index_internal%0#0
+        v-store count#1                                                                         (𝕡) val#0 |
         b test_sequence_ops_for_header@1                                                        (𝕡) val#0 |
 
     test_sequence_ops_for_header@1:                                                             (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:477
         // for _byte in val:
-        v-load item_index_internal%0#0                                                          (𝕡) val#0 | item_index_internal%0#0
-        int 4                                                                                   (𝕡) val#0 | item_index_internal%0#0,4
+        v-load count#1                                                                          (𝕡) val#0 | count#1
+        int 4                                                                                   (𝕡) val#0 | count#1,4
         <                                                                                       (𝕡) val#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                           (𝕡) val#0 | continue_looping%0#0
         bz test_sequence_ops_after_for@4 ; b test_sequence_ops_for_body@2                       (𝕡) val#0 |
@@ -749,28 +644,24 @@ subroutine test_sequence_ops:
     test_sequence_ops_for_body@2:                                                               (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:478
         // count += 1
-        v-load count#0                                                                          (𝕡) val#0 | count#0
-        int 1                                                                                   (𝕡) val#0 | count#0,1
-        +                                                                                       (𝕡) val#0 | count#0
-        v-store count#0                                                                         (𝕡) val#0 |
-        v-load item_index_internal%0#0                                                          (𝕡) val#0 | item_index_internal%0#0
-        int 1                                                                                   (𝕡) val#0 | item_index_internal%0#0,1
-        +                                                                                       (𝕡) val#0 | item_index_internal%0#0
-        v-store item_index_internal%0#0                                                         (𝕡) val#0 |
+        v-load count#1                                                                          (𝕡) val#0 | count#1
+        int 1                                                                                   (𝕡) val#0 | count#1,1
+        +                                                                                       (𝕡) val#0 | count#1
+        v-store count#1                                                                         (𝕡) val#0 |
         b test_sequence_ops_for_header@1                                                        (𝕡) val#0 |
 
     test_sequence_ops_after_for@4:                                                              (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:479
         // assert count == 4
-        v-load count#0                                                                          (𝕡) val#0 | count#0
-        int 4                                                                                   (𝕡) val#0 | count#0,4
+        v-load count#1                                                                          (𝕡) val#0 | count#1
+        int 4                                                                                   (𝕡) val#0 | count#1,4
         ==                                                                                      (𝕡) val#0 | tmp%18#0
         l-load tmp%18#0 0                                                                       (𝕡) val#0 | tmp%18#0
         assert                                                                                  (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:482
         // count = UInt64(0)
         int 0                                                                                   (𝕡) val#0 | 0
-        v-store count#0                                                                         (𝕡) val#0 |
+        v-store count#1                                                                         (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:483
         // for _byte in reversed(val):
         int 4                                                                                   (𝕡) val#0 | 4
@@ -790,17 +681,17 @@ subroutine test_sequence_ops:
         v-store reverse_index_internal%1#0                                                      (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:484
         // count += 1
-        v-load count#0                                                                          (𝕡) val#0 | count#0
-        int 1                                                                                   (𝕡) val#0 | count#0,1
-        +                                                                                       (𝕡) val#0 | count#0
-        v-store count#0                                                                         (𝕡) val#0 |
+        v-load count#1                                                                          (𝕡) val#0 | count#1
+        int 1                                                                                   (𝕡) val#0 | count#1,1
+        +                                                                                       (𝕡) val#0 | count#1
+        v-store count#1                                                                         (𝕡) val#0 |
         b test_sequence_ops_for_header@5                                                        (𝕡) val#0 |
 
     test_sequence_ops_after_for@8:                                                              (𝕡) val#0 |
         // fixed_bytes_ops/contract.py:485
         // assert count == 4
-        v-load count#0                                                                          (𝕡) val#0 | count#0
-        int 4                                                                                   (𝕡) val#0 | count#0,4
+        v-load count#1                                                                          (𝕡) val#0 | count#1
+        int 4                                                                                   (𝕡) val#0 | count#1,4
         ==                                                                                      (𝕡) val#0 | tmp%20#0
         l-load tmp%20#0 0                                                                       (𝕡) val#0 | tmp%20#0
         assert                                                                                  (𝕡) val#0 |

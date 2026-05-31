@@ -6,13 +6,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: uint64 = (global LatestTimestamp)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#2)
         let aggregate%length%0#0: uint64 = 0u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0000
         let aggregate%encoded_value%0#0: bytes = 0x0000
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 0x000a)
-        let default#0: Encoded(uint64,(len+utf8[])) = (concat aggregate%val_as_bytes%0#0 0x000a0000)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%offset_as_uint16%0#0)
+        let default#0: Encoded(uint64,(len+utf8[])) = (concat aggregate%head%1#0 aggregate%as_Encoded(len+utf8[])%0#0)
         let aggregate%as_bytes%2#0: bytes[8] = (itob 6u)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0006
         let aggregate%head%2#0: bytes = 0x0006
@@ -20,7 +21,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%current_tail_offset%1#0: uint64 = (+ 6u aggregate%data_length%1#0)
         let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%head%3#0: bytes = (concat 0x0006 aggregate%offset_as_uint16%2#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%2#0)
         let aggregate%current_tail_offset%2#0: uint64 = (+ aggregate%current_tail_offset%1#0 aggregate%data_length%1#0)
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
@@ -74,14 +75,13 @@ subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArr
         let value#0: string = ((extract 2 0) tmp%2#0)
         let tmp%0#1: uint64 = (global LatestTimestamp)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%length%0#0: uint64 = (len value#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 value#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 0x000a)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%offset_as_uint16%0#0)
         let new_item#0: bytes = (concat aggregate%head%1#0 aggregate%encoded_value%0#0)
         let (array_head_and_tail#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "data")
         (assert maybe_exists%0#0) // check self.data exists
@@ -105,7 +105,7 @@ subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArr
     block@2: // for_header_L350
         let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#0 6u)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L351
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)

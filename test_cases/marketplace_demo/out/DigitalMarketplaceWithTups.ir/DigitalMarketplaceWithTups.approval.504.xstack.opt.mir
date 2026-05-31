@@ -395,39 +395,38 @@ subroutine deposit:
         btoi                                                                                          xfer#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:123
         // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
-        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0
-        l-load-copy xfer#0 2                                                                          xfer#0,nonce#0,key.owner#0,xfer#0 (copy)
-        gtxns XferAsset                                                                               xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 1                                                                          xfer#0,nonce#0,xfer#0 (copy)
+        gtxns XferAsset                                                                               xfer#0,nonce#0,key.asset#0
         // marketplace_demo/marketplace_with_tups.py:125
         // assert xfer.sender == Txn.sender
-        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.owner#0,key.asset#0,xfer#0 (copy)
-        gtxns Sender                                                                                  xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1
-        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
-        l-load tmp%2#1 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%3#0,tmp%2#1
-        l-load tmp%3#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
-        ==                                                                                            xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%4#0
-        assert                                                                                        xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 2                                                                          xfer#0,nonce#0,key.asset#0,xfer#0 (copy)
+        gtxns Sender                                                                                  xfer#0,nonce#0,key.asset#0,tmp%2#1
+        txn Sender                                                                                    xfer#0,nonce#0,key.asset#0,tmp%2#1,tmp%3#0
+        l-load tmp%2#1 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%2#1
+        l-load-copy tmp%3#0 1                                                                         xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%2#1,tmp%3#0 (copy)
+        ==                                                                                            xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%4#0
+        assert                                                                                        xfer#0,nonce#0,key.asset#0,tmp%3#0
         // marketplace_demo/marketplace_with_tups.py:126
         // assert xfer.asset_receiver == Global.current_application_address
-        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.owner#0,key.asset#0,xfer#0 (copy)
-        gtxns AssetReceiver                                                                           xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0
-        global CurrentApplicationAddress                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0,tmp%6#0
-        l-load tmp%5#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%6#0,tmp%5#0
-        l-load tmp%6#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0,tmp%6#0
-        ==                                                                                            xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%7#0
-        assert                                                                                        xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.asset#0,tmp%3#0,xfer#0 (copy)
+        gtxns AssetReceiver                                                                           xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0
+        global CurrentApplicationAddress                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0,tmp%6#0
+        l-load tmp%5#0 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%6#0,tmp%5#0
+        l-load tmp%6#0 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0,tmp%6#0
+        ==                                                                                            xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%7#0
+        assert                                                                                        xfer#0,nonce#0,key.asset#0,tmp%3#0
         // marketplace_demo/marketplace_with_tups.py:127
         // assert xfer.asset_amount > 0
-        l-load xfer#0 3                                                                               nonce#0,key.owner#0,key.asset#0,xfer#0
-        gtxns AssetAmount                                                                             nonce#0,key.owner#0,key.asset#0,tmp%8#0
-        l-load-copy tmp%8#0 0                                                                         nonce#0,key.owner#0,key.asset#0,tmp%8#0,tmp%8#0 (copy)
-        assert                                                                                        nonce#0,key.owner#0,key.asset#0,tmp%8#0
+        l-load xfer#0 3                                                                               nonce#0,key.asset#0,tmp%3#0,xfer#0
+        gtxns AssetAmount                                                                             nonce#0,key.asset#0,tmp%3#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                                         nonce#0,key.asset#0,tmp%3#0,tmp%8#0,tmp%8#0 (copy)
+        assert                                                                                        nonce#0,key.asset#0,tmp%3#0,tmp%8#0
         // marketplace_demo/marketplace_with_tups.py:129
         // existing = self.listings[key]
-        l-load key.asset#0 1                                                                          nonce#0,key.owner#0,tmp%8#0,key.asset#0
-        itob                                                                                          nonce#0,key.owner#0,tmp%8#0,aggregate%val_as_bytes%0#0
-        l-load key.owner#0 2                                                                          nonce#0,tmp%8#0,aggregate%val_as_bytes%0#0,key.owner#0
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%8#0,key.owner#0,aggregate%val_as_bytes%0#0
+        l-load key.asset#0 2                                                                          nonce#0,tmp%3#0,tmp%8#0,key.asset#0
+        itob                                                                                          nonce#0,tmp%3#0,tmp%8#0,aggregate%val_as_bytes%0#0
+        l-load tmp%3#0 2                                                                              nonce#0,tmp%8#0,aggregate%val_as_bytes%0#0,tmp%3#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%8#0,tmp%3#0,aggregate%val_as_bytes%0#0
         concat                                                                                        nonce#0,tmp%8#0,aggregate%head%1#0
         l-load nonce#0 2                                                                              tmp%8#0,aggregate%head%1#0,nonce#0
         itob                                                                                          tmp%8#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
@@ -669,8 +668,8 @@ subroutine buy:
         l-load amount_not_scaled_low#0 3                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0
+        divmodw                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,tmp%6#0,tmp%7#2
+        pop 1                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,tmp%6#0
         pop 1                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1
         l-store amount_to_be_paid#1 1                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,_quotient_high#0
         l-store _quotient_high#0 0                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,_quotient_high#0
@@ -862,8 +861,8 @@ subroutine withdraw:
         l-load amount_not_scaled_low#0 3                                                              scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0,tmp%6#1
         pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    amount_to_be_paid#0,_quotient_high#0
@@ -1091,8 +1090,8 @@ subroutine bid:
         l-load amount_not_scaled_low#0 3                                                              scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0,tmp%6#0
         pop 1                                                                                         _quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    amount_to_be_paid#0,_quotient_high#0
@@ -1141,8 +1140,8 @@ subroutine bid:
         l-load amount_not_scaled_low#0 3                                                              unitary_price#0,quantity#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                unitary_price#0,quantity#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 unitary_price#0,quantity#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0
+        divmodw                                                                                       unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        pop 1                                                                                         unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#0
         pop 1                                                                                         unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 unitary_price#0,quantity#0,amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,_quotient_high#0
@@ -1338,8 +1337,8 @@ subroutine accept_bid:
         l-load amount_not_scaled_low#0 3                                                              listing.bidUnitaryPrice#0,asset#0,min_quantity#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                listing.bidUnitaryPrice#0,asset#0,min_quantity#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0
+        divmodw                                                                                       listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        pop 1                                                                                         listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#1
         pop 1                                                                                         listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0,_quotient_high#0

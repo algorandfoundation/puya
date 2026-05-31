@@ -1030,32 +1030,6 @@ subroutine mutate_tuple_in_storage_currently_supported_method:
 subroutine run_tests:
     declare uint64 a#2
     run_tests_block@0:                                                                            (𝕗) a#2 |
-        // tuple_support/nested_tuples.py:136
-        // test_intrinsics(UInt64(1), UInt64(2))
-        int 1                                                                                     (𝕗) a#2 | 1
-        int 2                                                                                     (𝕗) a#2 | 1,2
-        // tuple_support/nested_tuples.py:214
-        // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
-        addw                                                                                      (𝕗) a#2 | nt.1.0#0,nt.1.1#0
-        // tuple_support/nested_tuples.py:217
-        // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
-        l-load nt.1.0#0 1                                                                         (𝕗) a#2 | nt.1.1#0,nt.1.0#0
-        !                                                                                         (𝕗) a#2 | nt.1.1#0,tmp%4#0
-        l-load nt.1.1#0 1                                                                         (𝕗) a#2 | tmp%4#0,nt.1.1#0
-        int 3                                                                                     (𝕗) a#2 | tmp%4#0,nt.1.1#0,3
-        ==                                                                                        (𝕗) a#2 | tmp%4#0,tmp%6#0
-        l-load-copy tmp%4#0 1                                                                     (𝕗) a#2 | tmp%4#0,tmp%6#0,tmp%4#0 (copy)
-        l-load-copy tmp%6#0 1                                                                     (𝕗) a#2 | tmp%4#0,tmp%6#0,tmp%4#0 (copy),tmp%6#0 (copy)
-        &&                                                                                        (𝕗) a#2 | tmp%4#0,tmp%6#0,tmp%7#0
-        assert                                                                                    (𝕗) a#2 | tmp%4#0,tmp%6#0
-        // tuple_support/nested_tuples.py:218
-        // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
-        l-load tmp%4#0 1                                                                          (𝕗) a#2 | tmp%6#0,tmp%4#0
-        assert                                                                                    (𝕗) a#2 | tmp%6#0
-        // tuple_support/nested_tuples.py:219
-        // assert nt[1][1:] == (num1 + num2,)
-        l-load tmp%6#0 0                                                                          (𝕗) a#2 | tmp%6#0
-        assert                                                                                    (𝕗) a#2 |
         // tuple_support/nested_tuples.py:138
         // test_nested_singles(UInt64(1), reassign=True)
         int 1                                                                                     (𝕗) a#2 | 1

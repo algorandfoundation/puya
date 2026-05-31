@@ -1,34 +1,34 @@
-// Op                                                                  Stack (out)
+// Op                                              Stack (out)
 // test_cases.gvn.const_folding.GVNConstFolding.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // gvn/const_folding.py:12
         // test_setbyte(True)
-        int 1                                                          1
+        int 1                                      1
         callsub test_setbyte
         // gvn/const_folding.py:13
         // test_uint64_mod(UInt64(42), False)
-        int 42                                                         42
-        int 0                                                          42,0
+        int 42                                     42
+        int 0                                      42,0
         callsub test_uint64_mod
         // gvn/const_folding.py:14
         // test_biguint_mod(BigUInt(42**64), True)
         byte 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000
-        int 1                                                          0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000,1
+        int 1                                      0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000,1
         callsub test_biguint_mod
         // gvn/const_folding.py:15
         // test_getbyte_direct()
         callsub test_getbyte_direct
         // gvn/const_folding.py:16
         // test_getbyte_through_phi(UInt64(0))
-        int 0                                                          0
+        int 0                                      0
         callsub test_getbyte_through_phi
         // gvn/const_folding.py:17
         // test_replace3_large_index()
         callsub test_replace3_large_index
         // gvn/const_folding.py:18
         // test_replace3_through_phi(UInt64(0))
-        int 0                                                          0
+        int 0                                      0
         callsub test_replace3_through_phi
         // gvn/const_folding.py:19
         // test_addw()
@@ -47,467 +47,93 @@ subroutine main:
         callsub test_divmodw
         // gvn/const_folding.py:24
         // test_btoi_itob_through_phi(UInt64(7))
-        int 7                                                          7
+        int 7                                      7
         callsub test_btoi_itob_through_phi
         // gvn/const_folding.py:25
         // test_btoi_itob_through_phi(UInt64(0))
-        int 0                                                          0
+        int 0                                      0
         callsub test_btoi_itob_through_phi
         // gvn/const_folding.py:26
         // return True
-        int 1                                                          1
+        int 1                                      1
         return
 
 
 // test_cases.gvn.const_folding.test_setbyte(selector: uint64) -> void:
 subroutine test_setbyte:
-    test_setbyte_block@0:                                              (𝕡) selector#0 |
-        // gvn/const_folding.py:34
-        // assert op.setbyte(b"AB", 0, 90) == b"ZB"
-        byte 0x4142                                                    (𝕡) selector#0 | 0x4142
-        int 0                                                          (𝕡) selector#0 | 0x4142,0
-        int 90                                                         (𝕡) selector#0 | 0x4142,0,90
-        setbyte                                                        (𝕡) selector#0 | tmp%0#0
-        byte 0x5a42                                                    (𝕡) selector#0 | tmp%0#0,0x5a42
-        ==                                                             (𝕡) selector#0 | tmp%1#0
-        assert                                                         (𝕡) selector#0 |
-        // gvn/const_folding.py:35
-        // assert op.setbyte(b"AB", 1, 90) == b"AZ"
-        byte 0x4142                                                    (𝕡) selector#0 | 0x4142
-        int 1                                                          (𝕡) selector#0 | 0x4142,1
-        int 90                                                         (𝕡) selector#0 | 0x4142,1,90
-        setbyte                                                        (𝕡) selector#0 | tmp%2#0
-        byte 0x415a                                                    (𝕡) selector#0 | tmp%2#0,0x415a
-        ==                                                             (𝕡) selector#0 | tmp%3#0
-        assert                                                         (𝕡) selector#0 |
-        // gvn/const_folding.py:36
-        // if selector:
-        p-load selector#0                                              (𝕡) selector#0 | selector#0 (copy)
-        bz test_setbyte_else_body@2 ; b test_setbyte_if_body@1         (𝕡) selector#0 |
-
-    test_setbyte_if_body@1:                                            (𝕡) selector#0 |
-        // gvn/const_folding.py:37
-        // ab = op.bzero(100) + Bytes(b"AB")
-        int 100                                                        (𝕡) selector#0 | 100
-        bzero                                                          (𝕡) selector#0 | tmp%4#0
-        byte 0x4142                                                    (𝕡) selector#0 | tmp%4#0,0x4142
-        concat                                                         (𝕡) selector#0 | ab#0
-        x-store ab#0                                                   (𝕡) selector#0 | (𝕏) ab#0 |
-        b test_setbyte_after_if_else@3                                 (𝕡) selector#0 | (𝕏) ab#0 |
-
-    test_setbyte_else_body@2:                                          (𝕡) selector#0 |
-        // gvn/const_folding.py:39
-        // ab = op.bzero(100) + Bytes(b"AB")
-        int 100                                                        (𝕡) selector#0 | 100
-        bzero                                                          (𝕡) selector#0 | tmp%6#0
-        byte 0x4142                                                    (𝕡) selector#0 | tmp%6#0,0x4142
-        concat                                                         (𝕡) selector#0 | ab#0
-        x-store ab#0                                                   (𝕡) selector#0 | (𝕏) ab#0 |
-        b test_setbyte_after_if_else@3                                 (𝕡) selector#0 | (𝕏) ab#0 |
-
-    test_setbyte_after_if_else@3:                                      (𝕡) selector#0 | (𝕏) ab#0 |
-        // gvn/const_folding.py:40
-        // assert op.setbyte(ab, 100, 67) == op.bzero(100) + b"CB"
-        x-load ab#0                                                    (𝕡) selector#0 | ab#0
-        int 100                                                        (𝕡) selector#0 | ab#0,100
-        int 67                                                         (𝕡) selector#0 | ab#0,100,67
-        setbyte                                                        (𝕡) selector#0 | tmp%8#0
-        int 100                                                        (𝕡) selector#0 | tmp%8#0,100
-        bzero                                                          (𝕡) selector#0 | tmp%8#0,tmp%9#0
-        byte 0x4342                                                    (𝕡) selector#0 | tmp%8#0,tmp%9#0,0x4342
-        concat                                                         (𝕡) selector#0 | tmp%8#0,tmp%10#0
-        l-load tmp%8#0 1                                               (𝕡) selector#0 | tmp%10#0,tmp%8#0
-        l-load tmp%10#0 1                                              (𝕡) selector#0 | tmp%8#0,tmp%10#0
-        ==                                                             (𝕡) selector#0 | tmp%11#0
-        assert                                                         (𝕡) selector#0 |
+    test_setbyte_block@0:                          (𝕡) selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_uint64_mod(x: uint64, selector: uint64) -> void:
 subroutine test_uint64_mod:
-    test_uint64_mod_block@0:                                           (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:45
-        // assert x % 1 == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        int 1                                                          (𝕡) x#0,selector#0 | x#0 (copy),1
-        %                                                              (𝕡) x#0,selector#0 | tmp%0#0
-        !                                                              (𝕡) x#0,selector#0 | tmp%1#0
-        assert                                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:46
-        // if selector:
-        p-load selector#0                                              (𝕡) x#0,selector#0 | selector#0 (copy)
-        bz test_uint64_mod_else_body@2 ; b test_uint64_mod_if_body@1   (𝕡) x#0,selector#0 |
-
-    test_uint64_mod_if_body@1:                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:47
-        // one = op.btoi((op.bzero(65) + b"\x01")[-7:])
-        int 65                                                         (𝕡) x#0,selector#0 | 65
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%2#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%2#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%3#0
-        l-load-copy tmp%3#0 0                                          (𝕡) x#0,selector#0 | tmp%3#0,tmp%3#0 (copy)
-        len                                                            (𝕡) x#0,selector#0 | tmp%3#0,length%0#0
-        int 7                                                          (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,7
-        l-load-copy length%0#0 1                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,7,length%0#0 (copy)
-        >=                                                             (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0
-        int 7                                                          (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0,7
-        l-load-copy length%0#0 2                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0,7,length%0#0 (copy)
-        l-load is_out_of_bounds%0#0 2                                  (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,7,length%0#0 (copy),is_out_of_bounds%0#0
-        select                                                         (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_offset%0#0
-        l-load-copy length%0#0 1                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_offset%0#0,length%0#0 (copy)
-        l-load bounded_offset%0#0 1                                    (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,length%0#0 (copy),bounded_offset%0#0
-        -                                                              (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_index%0#0
-        l-load tmp%3#0 2                                               (𝕡) x#0,selector#0 | length%0#0,bounded_index%0#0,tmp%3#0
-        l-load bounded_index%0#0 1                                     (𝕡) x#0,selector#0 | length%0#0,tmp%3#0,bounded_index%0#0
-        l-load length%0#0 2                                            (𝕡) x#0,selector#0 | tmp%3#0,bounded_index%0#0,length%0#0
-        substring3                                                     (𝕡) x#0,selector#0 | tmp%4#0
-        btoi                                                           (𝕡) x#0,selector#0 | one#0
-        x-store one#0                                                  (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        b test_uint64_mod_after_if_else@3                              (𝕡) x#0,selector#0 | (𝕏) one#0 |
-
-    test_uint64_mod_else_body@2:                                       (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:49
-        // one = op.btoi((op.bzero(66) + b"\x01")[-7:])
-        int 66                                                         (𝕡) x#0,selector#0 | 66
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%6#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%6#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%7#0
-        l-load-copy tmp%7#0 0                                          (𝕡) x#0,selector#0 | tmp%7#0,tmp%7#0 (copy)
-        len                                                            (𝕡) x#0,selector#0 | tmp%7#0,length%1#0
-        int 7                                                          (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,7
-        l-load-copy length%1#0 1                                       (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,7,length%1#0 (copy)
-        >=                                                             (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,is_out_of_bounds%1#0
-        int 7                                                          (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,is_out_of_bounds%1#0,7
-        l-load-copy length%1#0 2                                       (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,is_out_of_bounds%1#0,7,length%1#0 (copy)
-        l-load is_out_of_bounds%1#0 2                                  (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,7,length%1#0 (copy),is_out_of_bounds%1#0
-        select                                                         (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,bounded_offset%1#0
-        l-load-copy length%1#0 1                                       (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,bounded_offset%1#0,length%1#0 (copy)
-        l-load bounded_offset%1#0 1                                    (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,length%1#0 (copy),bounded_offset%1#0
-        -                                                              (𝕡) x#0,selector#0 | tmp%7#0,length%1#0,bounded_index%1#0
-        l-load tmp%7#0 2                                               (𝕡) x#0,selector#0 | length%1#0,bounded_index%1#0,tmp%7#0
-        l-load bounded_index%1#0 1                                     (𝕡) x#0,selector#0 | length%1#0,tmp%7#0,bounded_index%1#0
-        l-load length%1#0 2                                            (𝕡) x#0,selector#0 | tmp%7#0,bounded_index%1#0,length%1#0
-        substring3                                                     (𝕡) x#0,selector#0 | tmp%8#0
-        btoi                                                           (𝕡) x#0,selector#0 | one#0
-        x-store one#0                                                  (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        b test_uint64_mod_after_if_else@3                              (𝕡) x#0,selector#0 | (𝕏) one#0 |
-
-    test_uint64_mod_after_if_else@3:                                   (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        // gvn/const_folding.py:50
-        // assert x % one == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | (𝕏) one#0 | x#0 (copy)
-        x-load one#0                                                   (𝕡) x#0,selector#0 | x#0 (copy),one#0
-        %                                                              (𝕡) x#0,selector#0 | tmp%10#0
-        !                                                              (𝕡) x#0,selector#0 | tmp%11#0
-        assert                                                         (𝕡) x#0,selector#0 |
+    test_uint64_mod_block@0:                       (𝕡) x#0,selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_biguint_mod(x: bytes, selector: uint64) -> void:
 subroutine test_biguint_mod:
-    test_biguint_mod_block@0:                                          (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:55
-        // assert x % 1 == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        byte 0x01                                                      (𝕡) x#0,selector#0 | x#0 (copy),0x01
-        b%                                                             (𝕡) x#0,selector#0 | tmp%0#0
-        byte 0x                                                        (𝕡) x#0,selector#0 | tmp%0#0,0x
-        b==                                                            (𝕡) x#0,selector#0 | tmp%1#0
-        assert                                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:56
-        // if selector:
-        p-load selector#0                                              (𝕡) x#0,selector#0 | selector#0 (copy)
-        bz test_biguint_mod_else_body@2 ; b test_biguint_mod_if_body@1 (𝕡) x#0,selector#0 |
-
-    test_biguint_mod_if_body@1:                                        (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:57
-        // one = (op.bzero(65) + b"\x01")[-10:]
-        int 65                                                         (𝕡) x#0,selector#0 | 65
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%2#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%2#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%3#0
-        l-load-copy tmp%3#0 0                                          (𝕡) x#0,selector#0 | tmp%3#0,tmp%3#0 (copy)
-        len                                                            (𝕡) x#0,selector#0 | tmp%3#0,length%0#0
-        int 10                                                         (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,10
-        l-load-copy length%0#0 1                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,10,length%0#0 (copy)
-        >=                                                             (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0
-        int 10                                                         (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0,10
-        l-load-copy length%0#0 2                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,is_out_of_bounds%0#0,10,length%0#0 (copy)
-        l-load is_out_of_bounds%0#0 2                                  (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,10,length%0#0 (copy),is_out_of_bounds%0#0
-        select                                                         (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_offset%0#0
-        l-load-copy length%0#0 1                                       (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_offset%0#0,length%0#0 (copy)
-        l-load bounded_offset%0#0 1                                    (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,length%0#0 (copy),bounded_offset%0#0
-        -                                                              (𝕡) x#0,selector#0 | tmp%3#0,length%0#0,bounded_index%0#0
-        l-load tmp%3#0 2                                               (𝕡) x#0,selector#0 | length%0#0,bounded_index%0#0,tmp%3#0
-        l-load bounded_index%0#0 1                                     (𝕡) x#0,selector#0 | length%0#0,tmp%3#0,bounded_index%0#0
-        l-load length%0#0 2                                            (𝕡) x#0,selector#0 | tmp%3#0,bounded_index%0#0,length%0#0
-        substring3                                                     (𝕡) x#0,selector#0 | one#0
-        x-store one#0                                                  (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        b test_biguint_mod_after_if_else@3                             (𝕡) x#0,selector#0 | (𝕏) one#0 |
-
-    test_biguint_mod_else_body@2:                                      (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:59
-        // one = (op.bzero(66) + b"\x01")[-10:]
-        int 66                                                         (𝕡) x#0,selector#0 | 66
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%5#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%5#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%6#0
-        l-load-copy tmp%6#0 0                                          (𝕡) x#0,selector#0 | tmp%6#0,tmp%6#0 (copy)
-        len                                                            (𝕡) x#0,selector#0 | tmp%6#0,length%1#0
-        int 10                                                         (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,10
-        l-load-copy length%1#0 1                                       (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,10,length%1#0 (copy)
-        >=                                                             (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,is_out_of_bounds%1#0
-        int 10                                                         (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,is_out_of_bounds%1#0,10
-        l-load-copy length%1#0 2                                       (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,is_out_of_bounds%1#0,10,length%1#0 (copy)
-        l-load is_out_of_bounds%1#0 2                                  (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,10,length%1#0 (copy),is_out_of_bounds%1#0
-        select                                                         (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,bounded_offset%1#0
-        l-load-copy length%1#0 1                                       (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,bounded_offset%1#0,length%1#0 (copy)
-        l-load bounded_offset%1#0 1                                    (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,length%1#0 (copy),bounded_offset%1#0
-        -                                                              (𝕡) x#0,selector#0 | tmp%6#0,length%1#0,bounded_index%1#0
-        l-load tmp%6#0 2                                               (𝕡) x#0,selector#0 | length%1#0,bounded_index%1#0,tmp%6#0
-        l-load bounded_index%1#0 1                                     (𝕡) x#0,selector#0 | length%1#0,tmp%6#0,bounded_index%1#0
-        l-load length%1#0 2                                            (𝕡) x#0,selector#0 | tmp%6#0,bounded_index%1#0,length%1#0
-        substring3                                                     (𝕡) x#0,selector#0 | one#0
-        x-store one#0                                                  (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        b test_biguint_mod_after_if_else@3                             (𝕡) x#0,selector#0 | (𝕏) one#0 |
-
-    test_biguint_mod_after_if_else@3:                                  (𝕡) x#0,selector#0 | (𝕏) one#0 |
-        // gvn/const_folding.py:60
-        // assert x % BigUInt.from_bytes(one) == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | (𝕏) one#0 | x#0 (copy)
-        x-load one#0                                                   (𝕡) x#0,selector#0 | x#0 (copy),one#0
-        b%                                                             (𝕡) x#0,selector#0 | tmp%8#0
-        byte 0x                                                        (𝕡) x#0,selector#0 | tmp%8#0,0x
-        b==                                                            (𝕡) x#0,selector#0 | tmp%9#0
-        assert                                                         (𝕡) x#0,selector#0 |
+    test_biguint_mod_block@0:                      (𝕡) x#0,selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_getbyte_direct() -> void:
 subroutine test_getbyte_direct:
     test_getbyte_direct_block@0:
-        // gvn/const_folding.py:65
-        // assert op.getbyte(Bytes(b"hello"), 0) == 104
-        byte 0x68656c6c6f                                              0x68656c6c6f
-        int 0                                                          0x68656c6c6f,0
-        getbyte                                                        tmp%0#0
-        int 104                                                        tmp%0#0,104
-        ==                                                             tmp%1#0
-        assert
-        // gvn/const_folding.py:66
-        // assert op.getbyte(Bytes(b"hello"), 4) == 111
-        byte 0x68656c6c6f                                              0x68656c6c6f
-        int 4                                                          0x68656c6c6f,4
-        getbyte                                                        tmp%2#0
-        int 111                                                        tmp%2#0,111
-        ==                                                             tmp%3#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_getbyte_through_phi(selector: uint64) -> void:
 subroutine test_getbyte_through_phi:
-    test_getbyte_through_phi_block@0:                                  (𝕡) selector#0 |
-        // gvn/const_folding.py:72
-        // b = Bytes(b"AB")
-        byte 0x4142                                                    (𝕡) selector#0 | 0x4142
-        // gvn/const_folding.py:75
-        // assert op.getbyte(b, 1) == 66
-        int 1                                                          (𝕡) selector#0 | 0x4142,1
-        getbyte                                                        (𝕡) selector#0 | tmp%1#0
-        int 66                                                         (𝕡) selector#0 | tmp%1#0,66
-        ==                                                             (𝕡) selector#0 | tmp%2#0
-        assert                                                         (𝕡) selector#0 |
+    test_getbyte_through_phi_block@0:              (𝕡) selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_replace3_large_index() -> void:
 subroutine test_replace3_large_index:
     test_replace3_large_index_block@0:
-        // gvn/const_folding.py:81
-        // src = op.bzero(300)
-        int 300                                                        300
-        bzero                                                          src#0
-        // gvn/const_folding.py:82
-        // patched = op.replace(src, 256, Bytes(b"XYZ"))
-        int 256                                                        src#0,256
-        byte 0x58595a                                                  src#0,256,0x58595a
-        replace3                                                       patched#0
-        // gvn/const_folding.py:83
-        // assert op.getbyte(patched, 256) == 88  # ord('X')
-        int 256                                                        patched#0,256
-        getbyte                                                        tmp%2#0
-        int 88                                                         tmp%2#0,88
-        ==                                                             tmp%3#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_replace3_through_phi(selector: uint64) -> void:
 subroutine test_replace3_through_phi:
-    test_replace3_through_phi_block@0:                                 (𝕡) selector#0 |
-        // gvn/const_folding.py:92
-        // out = op.replace(Bytes(b"0000"), 1, repl)
-        byte 0x30414230                                                (𝕡) selector#0 | 0x30414230
-        // gvn/const_folding.py:93
-        // assert op.getbyte(out, 1) == 65
-        int 1                                                          (𝕡) selector#0 | 0x30414230,1
-        getbyte                                                        (𝕡) selector#0 | tmp%2#0
-        int 65                                                         (𝕡) selector#0 | tmp%2#0,65
-        ==                                                             (𝕡) selector#0 | tmp%3#0
-        assert                                                         (𝕡) selector#0 |
+    test_replace3_through_phi_block@0:             (𝕡) selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_addw() -> void:
 subroutine test_addw:
     test_addw_block@0:
-        // gvn/const_folding.py:98
-        // carry, lo = op.addw(2**63, 2**63)
-        int 9223372036854775808                                        9223372036854775808
-        int 9223372036854775808                                        9223372036854775808,9223372036854775808
-        addw                                                           carry#0,lo#0
-        // gvn/const_folding.py:99
-        // assert carry == 1
-        l-load carry#0 1                                               lo#0,carry#0
-        int 1                                                          lo#0,carry#0,1
-        ==                                                             lo#0,tmp%2#0
-        assert                                                         lo#0
-        // gvn/const_folding.py:100
-        // assert lo == 0
-        l-load lo#0 0                                                  lo#0
-        !                                                              tmp%3#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_mulw() -> void:
 subroutine test_mulw:
     test_mulw_block@0:
-        // gvn/const_folding.py:105
-        // hi, lo = op.mulw(2**32, 2**32)
-        int 4294967296                                                 4294967296
-        int 4294967296                                                 4294967296,4294967296
-        mulw                                                           hi#0,lo#0
-        // gvn/const_folding.py:106
-        // assert hi == 1
-        l-load hi#0 1                                                  lo#0,hi#0
-        int 1                                                          lo#0,hi#0,1
-        ==                                                             lo#0,tmp%2#0
-        assert                                                         lo#0
-        // gvn/const_folding.py:107
-        // assert lo == 0
-        l-load lo#0 0                                                  lo#0
-        !                                                              tmp%3#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_expw() -> void:
 subroutine test_expw:
     test_expw_block@0:
-        // gvn/const_folding.py:112
-        // hi, lo = op.expw(2, 80)
-        int 2                                                          2
-        int 80                                                         2,80
-        expw                                                           hi#0,lo#0
-        // gvn/const_folding.py:113
-        // assert hi == 1 << 16
-        l-load hi#0 1                                                  lo#0,hi#0
-        int 65536                                                      lo#0,hi#0,65536
-        ==                                                             lo#0,tmp%2#0
-        assert                                                         lo#0
-        // gvn/const_folding.py:114
-        // assert lo == 0
-        l-load lo#0 0                                                  lo#0
-        !                                                              tmp%3#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_divw() -> void:
 subroutine test_divw:
     test_divw_block@0:
-        // gvn/const_folding.py:119
-        // q = op.divw(1, 0, 2)
-        int 1                                                          1
-        int 0                                                          1,0
-        int 2                                                          1,0,2
-        divw                                                           q#0
-        // gvn/const_folding.py:120
-        // assert q == 1 << 63
-        int 9223372036854775808                                        q#0,9223372036854775808
-        ==                                                             tmp%1#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_divmodw() -> void:
 subroutine test_divmodw:
     test_divmodw_block@0:
-        // gvn/const_folding.py:125
-        // qh, ql, rh, rl = op.divmodw(1, 2, 0, 3)
-        int 1                                                          1
-        int 2                                                          1,2
-        int 0                                                          1,2,0
-        int 3                                                          1,2,0,3
-        divmodw                                                        qh#0,ql#0,rh#0,rl#0
-        // gvn/const_folding.py:126
-        // assert qh == 0
-        l-load qh#0 3                                                  ql#0,rh#0,rl#0,qh#0
-        !                                                              ql#0,rh#0,rl#0,tmp%4#0
-        assert                                                         ql#0,rh#0,rl#0
-        // gvn/const_folding.py:127
-        // assert ql == ((1 << 64) + 2) // 3
-        l-load ql#0 2                                                  rh#0,rl#0,ql#0
-        int 6148914691236517206                                        rh#0,rl#0,ql#0,6148914691236517206
-        ==                                                             rh#0,rl#0,tmp%5#0
-        assert                                                         rh#0,rl#0
-        // gvn/const_folding.py:128
-        // assert rh == 0
-        l-load rh#0 1                                                  rl#0,rh#0
-        !                                                              rl#0,tmp%6#0
-        assert                                                         rl#0
-        // gvn/const_folding.py:129
-        // assert rl == ((1 << 64) + 2) % 3
-        l-load rl#0 0                                                  rl#0
-        !                                                              tmp%7#0
-        assert
         retsub
 
 
 // test_cases.gvn.const_folding.test_btoi_itob_through_phi(x: uint64) -> void:
 subroutine test_btoi_itob_through_phi:
-    test_btoi_itob_through_phi_block@0:                                (𝕡) x#0 |
-        // gvn/const_folding.py:134
-        // if x:
-        p-load x#0                                                     (𝕡) x#0 | x#0 (copy)
-        bz test_btoi_itob_through_phi_else_body@2 ; b test_btoi_itob_through_phi_if_body@1 (𝕡) x#0 | 
-
-    test_btoi_itob_through_phi_if_body@1:                              (𝕡) x#0 |
-        // gvn/const_folding.py:135
-        // b = op.itob(x)
-        p-load x#0                                                     (𝕡) x#0 | x#0 (copy)
-        itob                                                           (𝕡) x#0 | b#0
-        x-store b#0                                                    (𝕡) x#0 | (𝕏) b#0 |
-        b test_btoi_itob_through_phi_after_if_else@3                   (𝕡) x#0 | (𝕏) b#0 |
-
-    test_btoi_itob_through_phi_else_body@2:                            (𝕡) x#0 |
-        // gvn/const_folding.py:137
-        // b = op.itob(x)
-        p-load x#0                                                     (𝕡) x#0 | x#0 (copy)
-        itob                                                           (𝕡) x#0 | b#0
-        x-store b#0                                                    (𝕡) x#0 | (𝕏) b#0 |
-        b test_btoi_itob_through_phi_after_if_else@3                   (𝕡) x#0 | (𝕏) b#0 |
-
-    test_btoi_itob_through_phi_after_if_else@3:                        (𝕡) x#0 | (𝕏) b#0 |
-        // gvn/const_folding.py:138
-        // assert op.btoi(b) == x
-        x-load b#0                                                     (𝕡) x#0 | b#0
-        btoi                                                           (𝕡) x#0 | tmp%3#0
-        p-load x#0                                                     (𝕡) x#0 | tmp%3#0,x#0 (copy)
-        ==                                                             (𝕡) x#0 | tmp%4#0
-        assert                                                         (𝕡) x#0 |
+    test_btoi_itob_through_phi_block@0:            (𝕡) x#0 |
         retsub
 
 

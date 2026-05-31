@@ -11,8 +11,8 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%5#0: bool = (! two_false#0)
         (assert tmp%5#0) // Should be false
         let three_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(32323423423423b, 32323423423423b, 8439439483934b)
-        let tmp%7#0: biguint = 64646846846846b
-        let three_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(64646846846846b, 32323423423423b, 8439439483934b)
+        let tmp%7#0: biguint = 0x3acbc457977e
+        let three_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(tmp%7#0, 32323423423423b, 8439439483934b)
         (assert three_true#0) // Should be true
         let tmp%9#0: bool = (! three_false#0)
         (assert tmp%9#0) // Should be false
@@ -306,6 +306,8 @@ main test_cases.contains.contract.MyContract.approval_program:
         goto tmp%24#1 ? block@68 : block@66
     block@66: // or_contd_L93
         let tmp%25#1: bool = 0u
+        goto tmp%25#1 ? block@68 : block@67
+    block@67: // or_contd_L93
         let tmp%27#1: bool = (b== tmp%22#1 tmp%23#1)
         goto tmp%27#1 ? block@68 : block@69
     block@68: // bool_true_L93
@@ -451,13 +453,15 @@ main test_cases.contains.contract.MyContract.approval_program:
         goto tmp%65#1 ? block@102 : block@101
     block@101: // or_contd_L102
         let tmp%66#1: bool = 0u
-        let or_result%12#1: bool = 0u
-        goto block@104
+        goto tmp%66#1 ? block@102 : block@103
     block@102: // bool_true_L102
         let or_result%12#0: bool = 1u
         goto block@104
+    block@103: // bool_false_L102
+        let or_result%12#1: bool = 0u
+        goto block@104
     block@104: // bool_merge_L102
-        let or_result%12#2: bool = φ(or_result%12#0 <- block@102, or_result%12#1 <- block@101)
+        let or_result%12#2: bool = φ(or_result%12#0 <- block@102, or_result%12#1 <- block@103)
         let tmp%67#1: bool = (! or_result%12#2)
         (assert tmp%67#1) // 2 not in (1, 3)
         let awst_tmp%11#0: Encoded(uint8) = test_cases.contains.contract.two_u8()
@@ -572,6 +576,8 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%102#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
         let tmp%103#0: Encoded(uint8) = test_cases.contains.contract.two_u8()
         let tmp%104#0: bool = 0u
+        goto tmp%104#0 ? block@131 : block@130
+    block@130: // or_contd_L115
         let tmp%106#0: bool = (b== tmp%103#0 tmp%23#1)
         goto tmp%106#0 ? block@131 : block@132
     block@131: // bool_true_L115

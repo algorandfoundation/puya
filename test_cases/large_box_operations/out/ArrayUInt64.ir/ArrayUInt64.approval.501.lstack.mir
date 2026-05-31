@@ -103,8 +103,8 @@ subroutine box_dynamic_array_concat_fixed:
         l-load arr_len_bytes#0 0                                         (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len_bytes#0
         btoi                                                             (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0
         p-load box_key#0                                                 (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_key#0 (copy)
-        box_len                                                          (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,_exists#0
-        v-store _exists#0                                                (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0
+        box_len                                                          (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,tmp%2#0
+        v-store tmp%2#0                                                  (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0
         l-store box_size#0 0                                             (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0
         p-load new_items_count#0                                         (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,new_items_count#0 (copy)
         p-load fixed_element_size#0                                      (𝕡) box_key#0,array_offset#0,new_items_bytes#0,new_items_count#0,fixed_element_size#0 | arr_len#0,box_size#0,new_items_count#0 (copy),fixed_element_size#0 (copy)
@@ -246,8 +246,8 @@ subroutine pop:
         l-load-copy new_arr_len#0 0                                      new_arr_len#0,new_arr_len#0 (copy)
         int 8                                                            new_arr_len#0,new_arr_len#0 (copy),8
         *                                                                new_arr_len#0,box%element_offset%0#0
+        l-load box%element_offset%0#0 0                                  new_arr_len#0,box%element_offset%0#0
         int 2                                                            new_arr_len#0,box%element_offset%0#0,2
-        l-load box%element_offset%0#0 1                                  new_arr_len#0,2,box%element_offset%0#0
         +                                                                new_arr_len#0,popped_item_offset#0
         byte "box"                                                       new_arr_len#0,popped_item_offset#0,"box"
         l-load-copy popped_item_offset#0 1                               new_arr_len#0,popped_item_offset#0,"box",popped_item_offset#0 (copy)
@@ -275,8 +275,8 @@ subroutine pop:
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
         byte "box"                                                       box%box_extract%1#0,"box"
-        box_len                                                          box%box_extract%1#0,box_size#0,_exists#0
-        v-store _exists#0                                                box%box_extract%1#0,box_size#0
+        box_len                                                          box%box_extract%1#0,box_size#0,tmp%7#0
+        v-store tmp%7#0                                                  box%box_extract%1#0,box_size#0
         l-store box_size#0 0                                             box%box_extract%1#0,box_size#0
         l-load box_size#0 0                                              box%box_extract%1#0,box_size#0
         // large_box_operations/array_uint64.py:28
@@ -319,8 +319,8 @@ subroutine get:
         l-load idx#0 0                                                   idx#0
         int 8                                                            idx#0,8
         *                                                                box%element_offset%0#0
+        l-load box%element_offset%0#0 0                                  box%element_offset%0#0
         int 2                                                            box%element_offset%0#0,2
-        l-load box%element_offset%0#0 1                                  2,box%element_offset%0#0
         +                                                                box%offset%0#0
         byte "box"                                                       box%offset%0#0,"box"
         l-load box%offset%0#0 1                                          "box",box%offset%0#0
@@ -365,8 +365,8 @@ subroutine set:
         l-load idx#0 1                                                   tmp%2#0,idx#0
         int 8                                                            tmp%2#0,idx#0,8
         *                                                                tmp%2#0,box%element_offset%0#0
+        l-load box%element_offset%0#0 0                                  tmp%2#0,box%element_offset%0#0
         int 2                                                            tmp%2#0,box%element_offset%0#0,2
-        l-load box%element_offset%0#0 1                                  tmp%2#0,2,box%element_offset%0#0
         +                                                                tmp%2#0,box%offset%0#0
         byte "box"                                                       tmp%2#0,box%offset%0#0,"box"
         l-load box%offset%0#0 1                                          tmp%2#0,"box",box%offset%0#0
@@ -441,8 +441,8 @@ subroutine verify:
         l-store-copy i#0 0                                               i#0,i#0 (copy)
         int 8                                                            i#0,i#0 (copy),8
         *                                                                i#0,box%element_offset%0#0
-        int 2                                                            i#0,box%element_offset%0#0,2
-        l-load-copy box%element_offset%0#0 1                             i#0,box%element_offset%0#0,2,box%element_offset%0#0 (copy)
+        l-load-copy box%element_offset%0#0 0                             i#0,box%element_offset%0#0,box%element_offset%0#0 (copy)
+        int 2                                                            i#0,box%element_offset%0#0,box%element_offset%0#0 (copy),2
         +                                                                i#0,box%element_offset%0#0,box%offset%0#0
         byte "box"                                                       i#0,box%element_offset%0#0,box%offset%0#0,"box"
         l-load box%offset%0#0 1                                          i#0,box%element_offset%0#0,"box",box%offset%0#0

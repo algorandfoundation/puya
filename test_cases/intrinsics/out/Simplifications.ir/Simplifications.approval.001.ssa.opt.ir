@@ -66,7 +66,6 @@ subroutine test_cases.intrinsics.simplifications.Simplifications.chained_extract
     block@0: // L11
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -152,8 +151,9 @@ subroutine test_cases.intrinsics.simplifications.Simplifications.biguint_add_ove
         let eq%0#0: bool = (== len%0#0 64u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let x#0: biguint = decode_bytes<biguint>(tmp%0#0)
-        let too_big#0: biguint = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096b
-        let tmp%1#1: biguint = (b+ x#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096b)
+        let tmp%0#1: biguint = 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        let too_big#0: biguint = tmp%0#1
+        let tmp%1#1: biguint = (b+ x#0 too_big#0)
         let tmp%2#1: biguint = (b+ tmp%1#1 3b)
         let tmp%3#0: Encoded(uint512) = bytes_encode<uint512>(tmp%2#1)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
