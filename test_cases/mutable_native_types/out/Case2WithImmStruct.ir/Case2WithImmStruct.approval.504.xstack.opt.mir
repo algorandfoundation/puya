@@ -288,12 +288,7 @@ subroutine sum:
         // mutable_native_types/case2_with_immutable_struct.py:66
         // total += tup.a
         l-load-copy aggregate%encoded_element%0#0 0                                                 i#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
-        // mutable_native_types/case2_with_immutable_struct.py:65-66
-        // tup = self.tup_bag.value.items[i]
-        // total += tup.a
         int 0                                                                                       i#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
-        // mutable_native_types/case2_with_immutable_struct.py:66
-        // total += tup.a
         extract_uint64                                                                              i#0,aggregate%encoded_element%0#0,tmp%1#1
         v-load total#0                                                                              i#0,aggregate%encoded_element%0#0,tmp%1#1,total#0
         l-load tmp%1#1 1                                                                            i#0,aggregate%encoded_element%0#0,total#0,tmp%1#1
@@ -499,12 +494,14 @@ subroutine set_a:
         l-load-copy aggregate%bytes_offset%0#0 1                                                    i#0,aggregate%bytes_offset%0#0,box%box_extract%3#0,aggregate%bytes_offset%0#0 (copy)
         int 16                                                                                      i#0,aggregate%bytes_offset%0#0,box%box_extract%3#0,aggregate%bytes_offset%0#0 (copy),16
         extract3 // on error: index access is out of bounds                                         i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        extract 8 8                                                                                 i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0
         // mutable_native_types/case2_with_immutable_struct.py:85
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        v-load a#0                                                                                  i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,a#0
-        itob                                                                                        i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%extract%0#0 1                                                              i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%extract%0#0
+        v-load a#0                                                                                  i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,a#0
+        itob                                                                                        i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%encoded_element%0#0 1                                                      i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%encoded_element%0#0
+        extract 8 8                                                                                 i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                         i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                         i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                      i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0
         l-load-copy i#0 2                                                                           i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy)
         int 8                                                                                       i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy),8
@@ -587,13 +584,13 @@ subroutine set_b:
         l-load-copy aggregate%bytes_offset%0#0 1                                                    i#0,aggregate%bytes_offset%0#0,box%box_extract%3#0,aggregate%bytes_offset%0#0 (copy)
         int 16                                                                                      i#0,aggregate%bytes_offset%0#0,box%box_extract%3#0,aggregate%bytes_offset%0#0 (copy),16
         extract3 // on error: index access is out of bounds                                         i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        extract 0 8                                                                                 i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0
         // mutable_native_types/case2_with_immutable_struct.py:92
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        v-load b#0                                                                                  i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,b#0
-        itob                                                                                        i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%extract%0#0 1                                                              i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%extract%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                         i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
+        extract 0 8                                                                                 i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0
+        v-load b#0                                                                                  i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,b#0
+        itob                                                                                        i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                         i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                         i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                      i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0
         l-load-copy i#0 2                                                                           i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy)
         int 8                                                                                       i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy),8

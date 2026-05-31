@@ -6,7 +6,7 @@ main:
     intcblock 1 8 0 4 50500
     bytecblock 0x6c697374696e6773
     intc_2 // 0
-    dupn 4
+    dupn 3
     pushbytes ""
     dupn 6
     txn ApplicationID
@@ -57,6 +57,10 @@ main_acceptBid_route@14:
     dup
     bury 9
     box_get
+    swap
+    dup
+    cover 2
+    bury 13
     assert // check self.listings entry exists
     dup
     intc_2 // 0
@@ -64,9 +68,6 @@ main_acceptBid_route@14:
     dup
     cover 2
     bury 5
-    dup
-    extract 8 8
-    bury 12
     dup
     extract 16 32
     dup
@@ -139,7 +140,8 @@ main_ternary_merge@24:
     -
     swap
     itob
-    dig 13
+    dig 14
+    extract 8 8
     concat
     uncover 2
     concat
@@ -221,13 +223,11 @@ main_bid_route@13:
     dup
     bury 9
     box_get
-    assert // check self.listings entry exists
+    swap
     dup
-    extract 0 8
-    bury 13
-    dup
-    extract 8 8
+    cover 2
     bury 12
+    assert // check self.listings entry exists
     dup
     extract 16 32
     dup
@@ -307,8 +307,11 @@ main_after_if_else@28:
     ==
     assert
     txn Sender
-    dig 14
-    dig 14
+    dig 12
+    dup
+    extract 0 8
+    swap
+    extract 8 8
     concat
     swap
     concat
@@ -485,15 +488,11 @@ main_buy_route@11:
     extract_uint64
     dig 2
     extract 16 32
-    dig 3
-    extract 48 8
-    uncover 4
-    extract 56 8
-    dig 8
+    dig 7
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 4
-    dig 8
+    dig 2
+    dig 7
     mulw
     pushint 10
     uncover 3
@@ -503,32 +502,34 @@ main_buy_route@11:
     swap
     !
     assert
-    dig 8
+    dig 7
     gtxns Sender
     txn Sender
     ==
     assert
-    dig 8
+    dig 7
     gtxns Receiver
-    uncover 11
+    uncover 10
     ==
     assert
-    uncover 8
+    uncover 7
     gtxns Amount
     ==
     assert
-    uncover 4
-    dig 6
+    uncover 2
+    dig 5
     -
     itob
-    uncover 4
+    uncover 2
     itob
     concat
-    uncover 3
+    swap
     concat
-    uncover 2
+    dig 1
+    extract 48 8
     concat
     swap
+    extract 56 8
     concat
     box_put
     itxn_begin
@@ -580,23 +581,19 @@ main_setPrice_route@10:
     box_get
     assert // check self.listings entry exists
     dup
-    extract 0 8
-    dig 1
     extract 16 32
-    dig 2
-    extract 48 8
-    uncover 3
-    extract 56 8
-    uncover 5
-    itob
+    dig 1
+    extract 0 8
     uncover 4
-    swap
-    concat
-    uncover 3
-    concat
-    uncover 2
+    itob
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     box_put
     intc_0 // 1
@@ -653,24 +650,21 @@ main_deposit_route@9:
     intc_2 // 0
     extract_uint64
     dig 1
-    extract 8 8
-    dig 2
     extract 16 32
-    dig 3
-    extract 48 8
+    swap
     uncover 4
-    extract 56 8
-    uncover 4
-    uncover 6
     +
     itob
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
+    dig 2
+    extract 8 8
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     box_put
     intc_0 // 1
