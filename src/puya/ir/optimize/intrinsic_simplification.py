@@ -17,7 +17,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._utils import SSAReadTracker
 from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -301,13 +300,7 @@ def _simplify_non_returning_intrinsics(
         ops = list[models.Op]()
         result: models.Op | None
         for op in block.ops:
-            if isinstance(op, models.Intrinsic):
-                result = _visit_intrinsic_op(op)
-                if result is not op:
-                    modified += 1
-                if result is not None:
-                    ops.append(result)
-            elif isinstance(op, models.Assert):
+            if isinstance(op, models.Assert):
                 result = _simplify_assert(op, register_intrinsics)
                 if result is not op:
                     modified += 1
@@ -338,24 +331,6 @@ def _simplify_assert(
         if assert_cond_maybe_simplified is not None:
             result = attrs.evolve(assert_, condition=assert_cond_maybe_simplified)
     return result
-
-
-def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
-    # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
-    # in either case, the result has to be either an Op or None (ie delete),
-    # so we don't invoke _try_fold_intrinsic here
-    if intrinsic.op == AVMOp.itxn_field:
-        (field_im,) = intrinsic.immediates
-        if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
-            (page_value,) = intrinsic.args
-            if isinstance(page_value, models.BytesConstant) and page_value.value == b"":
-                return None
-        return intrinsic
-    elif intrinsic.op.code in SIDE_EFFECT_FREE_AVM_OPS:
-        logger.debug(f"Removing unused pure op {intrinsic}")
-        return None
-    else:
-        return intrinsic
 
 
 def _try_simplify_bool_condition(
