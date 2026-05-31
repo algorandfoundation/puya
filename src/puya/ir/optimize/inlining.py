@@ -10,9 +10,9 @@ import networkx as nx  # type: ignore[import-untyped]
 from puya import log
 from puya.ir import models
 from puya.ir.optimize._call_graph import CallGraph
+from puya.ir.optimize._intrinsics import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.utils import lazy_setdefault, not_none
