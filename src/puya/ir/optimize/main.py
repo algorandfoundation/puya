@@ -8,7 +8,6 @@ from puya.errors import InternalError
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
-from puya.ir.optimize.assignments import encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import merge_blocks, remove_linear_jumps
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
@@ -22,6 +21,7 @@ from puya.ir.optimize.dead_code_elimination import (
     remove_unused_variables,
 )
 from puya.ir.optimize.eliminate_box_asserts import minimize_box_exist_asserts
+from puya.ir.optimize.encode_decode_pair_elimination import encode_decode_pair_elimination
 from puya.ir.optimize.global_value_numbering import global_value_numbering
 from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
