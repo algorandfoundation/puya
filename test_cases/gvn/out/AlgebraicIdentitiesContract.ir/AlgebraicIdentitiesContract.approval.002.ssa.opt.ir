@@ -1,0 +1,136 @@
+main test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program:
+    block@0: // L11
+        test_cases.gvn.algebraic_identities.test_self_sub(42b, 42u)
+        test_cases.gvn.algebraic_identities.test_self_bitwise(42u)
+        test_cases.gvn.algebraic_identities.test_one_const(42b, 1u)
+        test_cases.gvn.algebraic_identities.test_one_const(42b, 0u)
+        let a#0: uint64 = (txn NumAppArgs)
+        let b#0: uint64 = (+ a#0 1u)
+        test_cases.gvn.algebraic_identities.test_uint64_swaps(a#0, b#0)
+        test_cases.gvn.algebraic_identities.test_biguint_swaps(1b, 2b)
+        test_cases.gvn.algebraic_identities.test_uint64_negated(a#0, b#0)
+        let tmp%2#0: biguint = (itob a#0)
+        let tmp%3#0: biguint = (itob b#0)
+        test_cases.gvn.algebraic_identities.test_biguint_negated(tmp%2#0, tmp%3#0)
+        test_cases.gvn.algebraic_identities.test_uint64_double_negated(a#0, b#0)
+        test_cases.gvn.algebraic_identities.test_biguint_double_negated(tmp%2#0, tmp%3#0)
+        return 1u
+
+subroutine test_cases.gvn.algebraic_identities.test_self_sub(x: biguint, y: uint64) -> void:
+    block@0: // L30
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_self_bitwise(y: uint64) -> void:
+    block@0: // L36
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_one_const(x: biguint, selector: bool) -> void:
+    block@0: // L42
+        goto selector#0 ? block@1 : block@2
+    block@1: // if_body_L46
+        let tmp%0#0: bytes = (bzero 65u)
+        let tmp%1#0: bytes = (concat tmp%0#0 0x01)
+        let length%0#0: uint64 = (len tmp%1#0)
+        let is_out_of_bounds%0#0: bool = (>= 10u length%0#0)
+        let bounded_offset%0#0: uint64 = (select 10u length%0#0 is_out_of_bounds%0#0)
+        let bounded_index%0#0: uint64 = (- length%0#0 bounded_offset%0#0)
+        let one#0: biguint = (substring3 tmp%1#0 bounded_index%0#0 length%0#0)
+        goto block@3
+    block@2: // else_body_L48
+        let tmp%3#0: bytes = (bzero 66u)
+        let tmp%4#0: bytes = (concat tmp%3#0 0x01)
+        let length%1#0: uint64 = (len tmp%4#0)
+        let is_out_of_bounds%1#0: bool = (>= 10u length%1#0)
+        let bounded_offset%1#0: uint64 = (select 10u length%1#0 is_out_of_bounds%1#0)
+        let bounded_index%1#0: uint64 = (- length%1#0 bounded_offset%1#0)
+        let one#1: biguint = (substring3 tmp%4#0 bounded_index%1#0 length%1#0)
+        goto block@3
+    block@3: // after_if_else_L45
+        let one#2: biguint = φ(one#0 <- block@1, one#1 <- block@2)
+        let tmp%6#0: biguint = (b* x#0 one#2)
+        let tmp%7#0: bool = (b== tmp%6#0 x#0)
+        (assert tmp%7#0)
+        let tmp%8#0: biguint = (b* one#2 x#0)
+        let tmp%9#0: bool = (b== tmp%8#0 x#0)
+        (assert tmp%9#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_uint64_swaps(a: uint64, b: uint64) -> void:
+    block@0: // L53
+        let tmp%0#0: bool = (< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (> b#0 a#0)
+        (assert tmp%1#0)
+        let tmp%2#0: bool = (<= a#0 b#0)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (>= b#0 a#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_biguint_swaps(a: biguint, b: biguint) -> void:
+    block@0: // L61
+        let tmp%0#0: bool = (b< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (b> b#0 a#0)
+        (assert tmp%1#0)
+        let tmp%2#0: bool = (b<= a#0 b#0)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (b>= b#0 a#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_uint64_negated(a: uint64, b: uint64) -> void:
+    block@0: // L69
+        let tmp%0#0: bool = (< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (>= a#0 b#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (<= a#0 b#0)
+        (assert tmp%3#0)
+        let tmp%4#0: bool = (> a#0 b#0)
+        let tmp%5#0: bool = (! tmp%4#0)
+        (assert tmp%5#0)
+        let tmp%6#0: bool = (!= a#0 b#0)
+        (assert tmp%6#0)
+        let eq_result#0: bool = (== a#0 b#0)
+        let tmp%8#0: bool = (! eq_result#0)
+        (assert tmp%8#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_biguint_negated(a: biguint, b: biguint) -> void:
+    block@0: // L80
+        let tmp%0#0: bool = (b< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (b>= a#0 b#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (b<= a#0 b#0)
+        (assert tmp%3#0)
+        let tmp%4#0: bool = (b> a#0 b#0)
+        let tmp%5#0: bool = (! tmp%4#0)
+        (assert tmp%5#0)
+        let tmp%6#0: bool = (b!= a#0 b#0)
+        (assert tmp%6#0)
+        let eq_result#0: bool = (b== a#0 b#0)
+        let tmp%8#0: bool = (! eq_result#0)
+        (assert tmp%8#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+    block@0: // L91
+        let tmp%0#0: bool = (< a#0 b#0)
+        (assert tmp%0#0)
+        let neg#0: bool = (! tmp%0#0)
+        let tmp%3#0: bool = (! neg#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.algebraic_identities.test_biguint_double_negated(a: biguint, b: biguint) -> void:
+    block@0: // L98
+        let tmp%0#0: bool = (b< a#0 b#0)
+        (assert tmp%0#0)
+        let neg#0: bool = (! tmp%0#0)
+        let tmp%3#0: bool = (! neg#0)
+        (assert tmp%3#0)
+        return 

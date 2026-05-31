@@ -1,0 +1,138 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@17
+    block@2: // abi_routing_L69
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "expw_zero_zero()uint64" => block@4, method "expw_overflow()uint64" => block@5, method "divw_div_zero()uint64" => block@6, method "divw_overflow()uint64" => block@7, method "divmodw_div_zero()uint64" => block@8, method "setbyte_value_oob()byte[]" => block@9, method "bsqrt_too_long()uint512" => block@10, method "div_by_zero()uint64" => block@11, method "mod_by_zero()uint64" => block@12, method "biguint_mod_by_zero()uint256" => block@13, * => block@16}
+    block@4: // expw_zero_zero_route_L76
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_zero_zero[routing]()
+        goto block@16
+    block@5: // expw_overflow_route_L81
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_overflow[routing]()
+        goto block@16
+    block@6: // divw_div_zero_route_L86
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_div_zero[routing]()
+        goto block@16
+    block@7: // divw_overflow_route_L90
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_overflow[routing]()
+        goto block@16
+    block@8: // divmodw_div_zero_route_L94
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divmodw_div_zero[routing]()
+        goto block@16
+    block@9: // setbyte_value_oob_route_L99
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.setbyte_value_oob[routing]()
+        goto block@16
+    block@10: // bsqrt_too_long_route_L103
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.bsqrt_too_long[routing]()
+        goto block@16
+    block@11: // div_by_zero_route_L108
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.div_by_zero[routing]()
+        goto block@16
+    block@12: // mod_by_zero_route_L112
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.mod_by_zero[routing]()
+        goto block@16
+    block@13: // biguint_mod_by_zero_route_L116
+        test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.biguint_mod_by_zero[routing]()
+        goto block@16
+    block@16: // after_if_else_L69
+        fail
+    block@17: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_zero_zero[routing]() -> void:
+    block@0: // L76
+        let (hi#0: uint64, lo#0: uint64) = (expw 0u 0u)
+        let tmp%2#1: uint64 = (+ hi#0 lo#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_overflow[routing]() -> void:
+    block@0: // L81
+        let (hi#0: uint64, lo#0: uint64) = (expw 2u 128u)
+        let tmp%2#1: uint64 = (+ hi#0 lo#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_div_zero[routing]() -> void:
+    block@0: // L86
+        let tmp%0#1: uint64 = (divw 0u 5u 0u)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_overflow[routing]() -> void:
+    block@0: // L90
+        let tmp%0#1: uint64 = (divw 1u 0u 1u)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divmodw_div_zero[routing]() -> void:
+    block@0: // L94
+        let (qh#0: uint64, ql#0: uint64, rh#0: uint64, rl#0: uint64) = (divmodw 0u 5u 0u 0u)
+        let tmp%4#0: uint64 = (+ qh#0 ql#0)
+        let tmp%5#0: uint64 = (+ tmp%4#0 rh#0)
+        let tmp%6#0: uint64 = (+ tmp%5#0 rl#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%6#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.setbyte_value_oob[routing]() -> void:
+    block@0: // L99
+        let tmp%0#1: bytes = (setbyte 0x4142 0u 256u)
+        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.bsqrt_too_long[routing]() -> void:
+    block@0: // L103
+        let tmp%0#1: biguint = (bsqrt 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+        let tmp%1#1: Encoded(uint512) = bytes_encode<uint512>(tmp%0#1)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%1#1)
+        (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.div_by_zero[routing]() -> void:
+    block@0: // L108
+        let tmp%1#1: uint64 = (/ 5u 0u)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.mod_by_zero[routing]() -> void:
+    block@0: // L112
+        let tmp%1#1: uint64 = (% 5u 0u)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.biguint_mod_by_zero[routing]() -> void:
+    block@0: // L116
+        let tmp%0#1: bytes = (bzero 1u)
+        let tmp%1#1: biguint = (b% 5b tmp%0#1)
+        let tmp%2#0: Encoded(uint256) = bytes_encode<uint256>(tmp%1#1)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%1#0)
+        exit 1u

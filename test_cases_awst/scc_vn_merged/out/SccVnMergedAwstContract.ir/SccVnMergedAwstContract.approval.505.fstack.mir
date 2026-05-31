@@ -1,0 +1,154 @@
+// Op                                                                        Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        txn NumAppArgs                                                       tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        txna ApplicationArgs 0                                               tmp%2#0
+        method run(uint64,uint64,uint64,uint64)uint64                        tmp%2#0,Method(run(uint64,uint64,uint64,uint64)uint64)
+        l-load tmp%2#0 1                                                     Method(run(uint64,uint64,uint64,uint64)uint64),tmp%2#0
+        match main_run_route@3 ; b main_switch_case_next@4
+
+    main_run_route@3:
+        txn OnCompletion                                                     tmp%3#0
+        !                                                                    tmp%4#0
+        txn ApplicationID                                                    tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                     tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                     tmp%4#0,tmp%5#0
+        &&                                                                   tmp%7#0
+        assert
+        callsub run
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                     tmp%8#0
+        !                                                                    tmp%9#0
+        txn ApplicationID                                                    tmp%9#0,tmp%10#0
+        !                                                                    tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                     tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                    tmp%9#0,tmp%11#0
+        &&                                                                   tmp%12#0
+        assert
+        int 1                                                                1
+        return
+
+
+// stub.branchy_alternating(a: uint64, b: uint64, c: uint64, n: uint64) -> uint64:
+subroutine branchy_alternating:
+    declare uint64 x#1, y#1
+    branchy_alternating_block@0:                                             (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1 |
+        int 0                                                                (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1 | 0
+        f-store s#0                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0 |
+        int 0                                                                (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0 | 0
+        f-store i#0                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        p-load c#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | c#0 (copy)
+        bz branchy_alternating_else_body@2 ; b branchy_alternating_if_body@1 (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+
+    branchy_alternating_if_body@1:                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        p-load a#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | a#0 (copy)
+        p-load b#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | a#0 (copy),b#0 (copy)
+        |                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | x#1
+        f-store x#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        p-load b#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | b#0 (copy)
+        p-load a#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | b#0 (copy),a#0 (copy)
+        |                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | y#1
+        f-store y#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        b branchy_alternating_block@3                                        (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+
+    branchy_alternating_else_body@2:                                         (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        p-load b#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | b#0 (copy)
+        p-load a#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | b#0 (copy),a#0 (copy)
+        |                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | x#1
+        f-store x#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        p-load a#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | a#0 (copy)
+        p-load b#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | a#0 (copy),b#0 (copy)
+        |                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | y#1
+        f-store y#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        b branchy_alternating_block@3                                        (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+
+    branchy_alternating_block@3:                                             (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        f-load i#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0
+        p-load n#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0,n#0 (copy)
+        <                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | tmp%5#0
+        bz branchy_alternating_else_body@5 ; b branchy_alternating_if_body@4 (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+
+    branchy_alternating_if_body@4:                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        f-load s#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | s#0
+        f-load i#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | s#0,i#0
+        l-store-copy i#0 1                                                   (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0,s#0,i#0 (copy)
+        +                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0,s#0
+        f-store s#0                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0
+        l-load i#0 0                                                         (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0
+        int 1                                                                (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0,1
+        +                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | i#0
+        f-store i#0                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        f-load y#1                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | parcopy%0#0
+        f-load x#1                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | parcopy%0#0,x#1
+        f-store y#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | parcopy%0#0
+        l-load parcopy%0#0 0                                                 (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | parcopy%0#0
+        f-store x#1                                                          (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        b branchy_alternating_block@3                                        (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+
+    branchy_alternating_else_body@5:                                         (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 |
+        f-load x#1                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | x#1
+        f-load y#1                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | x#1,y#1
+        +                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | tmp%8#0
+        f-load s#0                                                           (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | tmp%8#0,s#0
+        +                                                                    (𝕡) a#0,b#0,c#0,n#0 | (𝕗) x#1,y#1,s#0,i#0 | tmp%9#0
+        retsub                                                               tmp%9#0
+
+
+// stub.SccVnMergedAwstContract.run[routing]() -> void:
+subroutine run:
+    run_block@0:
+        txna ApplicationArgs 1                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                  tmp%0#0,len%0#0
+        int 8                                                                tmp%0#0,len%0#0,8
+        ==                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                    tmp%0#0
+        l-load tmp%0#0 0                                                     tmp%0#0
+        btoi                                                                 a#0
+        txna ApplicationArgs 2                                               a#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                a#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                  a#0,tmp%2#0,len%1#0
+        int 8                                                                a#0,tmp%2#0,len%1#0,8
+        ==                                                                   a#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.uint64                    a#0,tmp%2#0
+        l-load tmp%2#0 0                                                     a#0,tmp%2#0
+        btoi                                                                 a#0,b#0
+        txna ApplicationArgs 3                                               a#0,b#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                a#0,b#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                  a#0,b#0,tmp%4#0,len%2#0
+        int 8                                                                a#0,b#0,tmp%4#0,len%2#0,8
+        ==                                                                   a#0,b#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for arc4.uint64                    a#0,b#0,tmp%4#0
+        l-load tmp%4#0 0                                                     a#0,b#0,tmp%4#0
+        btoi                                                                 a#0,b#0,c#0
+        txna ApplicationArgs 4                                               a#0,b#0,c#0,tmp%6#0
+        l-load-copy tmp%6#0 0                                                a#0,b#0,c#0,tmp%6#0,tmp%6#0 (copy)
+        len                                                                  a#0,b#0,c#0,tmp%6#0,len%3#0
+        int 8                                                                a#0,b#0,c#0,tmp%6#0,len%3#0,8
+        ==                                                                   a#0,b#0,c#0,tmp%6#0,eq%3#0
+        assert // invalid number of bytes for arc4.uint64                    a#0,b#0,c#0,tmp%6#0
+        l-load tmp%6#0 0                                                     a#0,b#0,c#0,tmp%6#0
+        btoi                                                                 a#0,b#0,c#0,n#0
+        l-load a#0 3                                                         b#0,c#0,n#0,a#0
+        l-load b#0 3                                                         c#0,n#0,a#0,b#0
+        l-load c#0 3                                                         n#0,a#0,b#0,c#0
+        l-load n#0 3                                                         a#0,b#0,c#0,n#0
+        callsub branchy_alternating                                          tmp%0#1
+        itob                                                                 aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                      aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                  0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                               tmp%10#0
+        log
+        int 1                                                                1
+        return
+
+

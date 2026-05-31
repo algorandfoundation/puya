@@ -1,0 +1,127 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 1
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x9b5e61d8 // method "run(uint64,uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match main_run_route@3
+    err
+
+main_run_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b run
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// stub.branchy_alternating(a: uint64, b: uint64, c: uint64, n: uint64) -> uint64:
+branchy_alternating:
+    proto 4 1
+    pushbytes ""
+    dup
+    pushint 0
+    dup
+    frame_dig -2
+    bz branchy_alternating_else_body@2
+    frame_dig -4
+    frame_dig -3
+    |
+    frame_bury 0
+    frame_dig -3
+    frame_dig -4
+    |
+    frame_bury 1
+
+branchy_alternating_block@3:
+    frame_dig 3
+    frame_dig -1
+    <
+    bz branchy_alternating_else_body@5
+    frame_dig 2
+    frame_dig 3
+    dup
+    cover 2
+    +
+    frame_bury 2
+    intc_1 // 1
+    +
+    frame_bury 3
+    frame_dig 1
+    frame_dig 0
+    frame_bury 1
+    frame_bury 0
+    b branchy_alternating_block@3
+
+branchy_alternating_else_body@5:
+    frame_dig 0
+    frame_dig 1
+    +
+    frame_dig 2
+    +
+    frame_bury 0
+    retsub
+
+branchy_alternating_else_body@2:
+    frame_dig -3
+    frame_dig -4
+    |
+    frame_bury 0
+    frame_dig -4
+    frame_dig -3
+    |
+    frame_bury 1
+    b branchy_alternating_block@3
+
+
+// stub.SccVnMergedAwstContract.run[routing]() -> void:
+run:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub branchy_alternating
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

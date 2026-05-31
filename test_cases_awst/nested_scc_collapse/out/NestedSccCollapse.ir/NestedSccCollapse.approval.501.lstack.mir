@@ -1,0 +1,56 @@
+// Op                                               Stack (out)
+// nested_scc_collapse.NestedSccCollapse.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        txn NumAppArgs                              n#0
+        l-store-copy n#0 0                          n#0,n#0 (copy)
+        v-store n#0                                 n#0
+        int 0                                       n#0,0
+        v-store i#0                                 n#0
+        l-load n#0 0                                n#0
+        v-store v#2
+        b main_while_top@1
+
+    main_while_top@1:
+        v-load i#0                                  i#0
+        v-load n#0                                  i#0,n#0
+        <                                           tmp%1#0
+        l-load tmp%1#0 0                            tmp%1#0
+        bz main_after_while@6 ; b main_while_body@2
+
+    main_while_body@2:
+        int 0                                       0
+        v-store j#0
+        b main_while_top@3
+
+    main_while_top@3:
+        v-load j#0                                  j#0
+        v-load n#0                                  j#0,n#0
+        <                                           tmp%2#0
+        l-load tmp%2#0 0                            tmp%2#0
+        bz main_after_while@5 ; b main_while_body@4
+
+    main_while_body@4:
+        v-load j#0                                  j#0
+        int 1                                       j#0,1
+        +                                           j#0
+        v-store j#0
+        v-load n#0                                  n#0
+        v-store v#2
+        b main_while_top@3
+
+    main_after_while@5:
+        v-load i#0                                  i#0
+        int 1                                       i#0,1
+        +                                           i#0
+        v-store i#0
+        b main_while_top@1
+
+    main_after_while@6:
+        v-load v#2                                  v#2
+        v-load n#0                                  v#2,n#0
+        ==                                          tmp%5#0
+        l-load tmp%5#0 0                            tmp%5#0
+        return
+
+

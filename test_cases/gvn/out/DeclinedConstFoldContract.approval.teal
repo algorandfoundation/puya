@@ -1,0 +1,248 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0 5 64
+    bytecblock 0x151f7c75
+    // gvn/one_const_simplification.py:69
+    // class DeclinedConstFoldContract(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@17
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xc18ef914 0xd3128185 0x5329fdfd 0x718a779d 0x2a9b7188 0xe69fe50e 0x5988f057 0x53c84af5 0x172f6537 0x808bfffc // method "expw_zero_zero()uint64", method "expw_overflow()uint64", method "divw_div_zero()uint64", method "divw_overflow()uint64", method "divmodw_div_zero()uint64", method "setbyte_value_oob()byte[]", method "bsqrt_too_long()uint512", method "div_by_zero()uint64", method "mod_by_zero()uint64", method "biguint_mod_by_zero()uint256"
+    txna ApplicationArgs 0
+    match expw_zero_zero expw_overflow divw_div_zero divw_overflow divmodw_div_zero setbyte_value_oob bsqrt_too_long div_by_zero mod_by_zero biguint_mod_by_zero
+    err
+
+main___algopy_default_create@17:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_zero_zero[routing]() -> void:
+expw_zero_zero:
+    // gvn/one_const_simplification.py:78
+    // hi, lo = op.expw(UInt64(0), UInt64(0))
+    intc_1 // 0
+    dup
+    expw
+    // gvn/one_const_simplification.py:79
+    // return hi + lo
+    +
+    // gvn/one_const_simplification.py:76
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_overflow[routing]() -> void:
+expw_overflow:
+    // gvn/one_const_simplification.py:83
+    // hi, lo = op.expw(UInt64(2), UInt64(128))
+    pushints 2 128
+    expw
+    // gvn/one_const_simplification.py:84
+    // return hi + lo
+    +
+    // gvn/one_const_simplification.py:81
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_div_zero[routing]() -> void:
+divw_div_zero:
+    // gvn/one_const_simplification.py:88
+    // return op.divw(UInt64(0), UInt64(5), UInt64(0))
+    intc_1 // 0
+    intc_2 // 5
+    intc_1 // 0
+    divw
+    // gvn/one_const_simplification.py:86
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_overflow[routing]() -> void:
+divw_overflow:
+    // gvn/one_const_simplification.py:92
+    // return op.divw(UInt64(1), UInt64(0), UInt64(1))
+    intc_0 // 1
+    intc_1 // 0
+    intc_0 // 1
+    divw
+    // gvn/one_const_simplification.py:90
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divmodw_div_zero[routing]() -> void:
+divmodw_div_zero:
+    // gvn/one_const_simplification.py:96
+    // qh, ql, rh, rl = op.divmodw(UInt64(0), UInt64(5), UInt64(0), UInt64(0))
+    intc_1 // 0
+    intc_2 // 5
+    intc_1 // 0
+    dup
+    divmodw
+    // gvn/one_const_simplification.py:97
+    // return qh + ql + rh + rl
+    uncover 3
+    uncover 3
+    +
+    uncover 2
+    +
+    +
+    // gvn/one_const_simplification.py:94
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.setbyte_value_oob[routing]() -> void:
+setbyte_value_oob:
+    // gvn/one_const_simplification.py:101
+    // return op.setbyte(Bytes(b"AB"), UInt64(0), UInt64(256))
+    pushbytes 0x4142
+    intc_1 // 0
+    pushint 256
+    setbyte
+    // gvn/one_const_simplification.py:99
+    // @public
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.bsqrt_too_long[routing]() -> void:
+bsqrt_too_long:
+    // gvn/one_const_simplification.py:105
+    // arg = BigUInt.from_bytes(Bytes(b"\x01" + b"\x00" * 64))
+    pushbytes 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    // gvn/one_const_simplification.py:106
+    // return arc4.UInt512(op.bsqrt(arg))
+    bsqrt
+    dup
+    len
+    intc_3 // 64
+    <=
+    assert // overflow
+    intc_3 // 64
+    bzero
+    b|
+    // gvn/one_const_simplification.py:103
+    // @public
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.div_by_zero[routing]() -> void:
+div_by_zero:
+    // gvn/one_const_simplification.py:110
+    // return UInt64(5) // op.btoi(Bytes(b"\x00"))
+    intc_2 // 5
+    intc_1 // 0
+    /
+    // gvn/one_const_simplification.py:108
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.mod_by_zero[routing]() -> void:
+mod_by_zero:
+    // gvn/one_const_simplification.py:114
+    // return UInt64(5) % op.btoi(Bytes(b"\x00"))
+    intc_2 // 5
+    intc_1 // 0
+    %
+    // gvn/one_const_simplification.py:112
+    // @public
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.biguint_mod_by_zero[routing]() -> void:
+biguint_mod_by_zero:
+    // gvn/one_const_simplification.py:118
+    // return arc4.UInt256(BigUInt(5) % BigUInt.from_bytes(op.bzero(UInt64(1))))
+    intc_0 // 1
+    bzero
+    pushbytes 0x05
+    swap
+    b%
+    dup
+    len
+    pushint 32
+    <=
+    assert // overflow
+    pushint 32
+    bzero
+    b|
+    // gvn/one_const_simplification.py:116
+    // @public
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

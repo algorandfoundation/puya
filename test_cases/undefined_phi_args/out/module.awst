@@ -1,3 +1,40 @@
+contract RuntimeDominance
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.approval_program(): bool
+  {
+    assert(test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(true) == 2u)
+    assert(test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(false) == 42u)
+    return true
+  }
+  
+  subroutine test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine runtime_dominance(cond: bool): uint64
+{
+  if (cond) {
+    x: uint64 = 1u
+  }
+  assert(txn<NumAppArgs>() == 0u)
+  if (cond) {
+    y: uint64 = x + 1u
+  } else {
+    y: uint64 = 42u
+  }
+  return y
+}
+
 contract Baddie
 {
   method_resolution_order: (
