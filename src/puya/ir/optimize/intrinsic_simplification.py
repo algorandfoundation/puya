@@ -191,12 +191,7 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
                 case (
                     models.Assignment(source=models.Intrinsic() as intrinsic) as ass
                 ) if intrinsic.args:
-                    with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
-                    if with_immediates is not None:
-                        logger.debug(f"Simplified {op.source} to {with_immediates}")
-                        op.source = with_immediates
-                        modified += 1
-                    elif intrinsic.op == AVMOp.box_get:
+                    if intrinsic.op == AVMOp.box_get:
                         maybe_value, exists = ass.targets
                         if ssa_reads.count(maybe_value) == 0:
                             logger.debug(
@@ -359,12 +354,6 @@ def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
     elif intrinsic.op.code in SIDE_EFFECT_FREE_AVM_OPS:
         logger.debug(f"Removing unused pure op {intrinsic}")
         return None
-    elif intrinsic.args:
-        simplified = _try_convert_stack_args_to_immediates(intrinsic)
-        if simplified is not None:
-            return simplified
-        else:
-            return intrinsic
     else:
         return intrinsic
 
