@@ -39,6 +39,7 @@ def elide_itxn_field_calls(_context: CompileContext, subroutine: models.Subrouti
 def _elide_within_block(block: models.BasicBlock) -> bool:
     groups = list[_ITxnGroup]()
     current_group: _ITxnGroup | None = None
+    remove_indexes = set[int]()
     for op_idx, op in enumerate(block.ops):
         if isinstance(op, models.Intrinsic):
             match op.op:
@@ -49,13 +50,15 @@ def _elide_within_block(block: models.BasicBlock) -> bool:
                 case AVMOp.itxn_field:
                     (field_im,) = op.immediates
                     assert isinstance(field_im, str)
-                    if field_im not in _ARRAY_FIELDS:
+                    if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
+                        # appending an empty page is a no-op, so the set can be removed
+                        match op.args:
+                            case [models.BytesConstant(value=b"")]:
+                                remove_indexes.add(op_idx)
+                    elif field_im not in _ARRAY_FIELDS:
                         if current_group is None:
                             groups.append(current_group := _ITxnGroup(has_start=False))
                         current_group.sets[field_im].append(op_idx)
-    if not groups:
-        return False
-    remove_indexes = set[int]()
     for group in groups:
         for field_im, indexes in group.sets.items():
             final_idx = indexes.pop()
