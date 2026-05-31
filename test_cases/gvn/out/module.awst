@@ -1,0 +1,692 @@
+contract PhiCongruenceContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi(a: uint64, b: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_redundant_phi(a, b)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_cross_assignment(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_triple_cycle(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_replacement_chain(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_alternating(a: uint64, b: uint64, n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.alternating(a, b, n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_externals(a: uint64, b: uint64, n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.alternating_with_commutative_inits(a, b, n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_moving_vn(n: uint64, y: uint64, cond: bool): uint64
+  {
+    return test_cases.gvn.phi_congruence.redundant_phi_moving_vn(n, y, cond=cond)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_loop_invariant(x: uint64, y: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.loop_invariant_phi_aliasing(x, y)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_deep_nesting(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.deep_nested_accumulator(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_add_assert(a: uint64, b: uint64, cond: bool): uint64
+  {
+    return test_cases.gvn.phi_congruence.commutative_add_assert(a, b, cond=cond)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.test_nested_scc_collapse(n: uint64, p: uint64, q: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.nested_scc_collapse(n, p, q)
+  }
+  
+  baremethod test_cases.gvn.phi_congruence.PhiCongruenceContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_redundant_phi(a: uint64, b: uint64): uint64
+{
+  val1: uint64 = a | b
+  val2: uint64 = b | a
+  if (a > b) {
+    log(itob(a))
+    result: uint64 = val1
+  } else {
+    log(itob(b))
+    result: uint64 = val2
+  }
+  return result
+}
+
+subroutine test_cross_assignment(n: uint64): uint64
+{
+  x: uint64 = n
+  y: uint64 = n
+  for _i in range(0u, 10u, 1u) {
+    tmp: uint64 = x
+    x: uint64 = y
+    y: uint64 = tmp
+  }
+  return x + y
+}
+
+subroutine test_triple_cycle(n: uint64): uint64
+{
+  a: uint64 = n
+  b: uint64 = n
+  c: uint64 = n
+  for _i in range(0u, 5u, 1u) {
+    tmp_a: uint64 = a
+    tmp_b: uint64 = b
+    a: uint64 = c
+    b: uint64 = tmp_a
+    c: uint64 = tmp_b
+  }
+  return a + b + c
+}
+
+subroutine test_replacement_chain(n: uint64): uint64
+{
+  a: uint64 = n
+  b: uint64 = n
+  while (true) {
+    if (n == 0u) {
+      a: uint64 = n
+      b: uint64 = n
+    }
+    log(itob(a))
+    log(itob(b))
+    b: uint64 = a
+    a: uint64 = b
+    if (n % 2u == 0u) {
+      break
+    }
+  }
+  return a + b
+}
+
+subroutine alternating(a: uint64, b: uint64, n: uint64): uint64
+{
+  x: uint64 = a
+  y: uint64 = b
+  s: uint64 = 0u
+  for i in range(0u, n, 1u) {
+    (x, y): tuple<uint64,uint64> = (y, x)
+    s += i
+  }
+  return x + y + s
+}
+
+subroutine alternating_with_commutative_inits(a: uint64, b: uint64, n: uint64): uint64
+{
+  e1: uint64 = a | b
+  e2: uint64 = b | a
+  x: uint64 = e1
+  y: uint64 = e2
+  s: uint64 = 0u
+  for i in range(0u, n, 1u) {
+    (x, y): tuple<uint64,uint64> = (y, x)
+    s += i
+  }
+  return x + y + s
+}
+
+subroutine redundant_phi_moving_vn(n: uint64, y: uint64, cond: bool): uint64
+{
+  z: uint64 = 0u
+  i: uint64 = 0u
+  while (i < n) {
+    if (cond) {
+      w: uint64 = z + y
+    } else {
+      w: uint64 = z + y
+    }
+    z: uint64 = w + 1u
+    i += 1u
+  }
+  return z
+}
+
+subroutine loop_invariant_phi_aliasing(x: uint64, y: uint64): uint64
+{
+  z: uint64 = x
+  for _i in range(0u, 10u, 1u) {
+    a: uint64 = z + y
+    b: uint64 = x + y
+    z: uint64 = a + b
+  }
+  return z
+}
+
+subroutine deep_nested_accumulator(n: uint64): uint64
+{
+  x: uint64 = 0u
+  for a1 in range(0u, n, 1u) {
+    for a2 in range(0u, n, 1u) {
+      for a3 in range(0u, n, 1u) {
+        for a4 in range(0u, n, 1u) {
+          for a5 in range(0u, n, 1u) {
+            for a6 in range(0u, n, 1u) {
+              for a7 in range(0u, n, 1u) {
+                for a8 in range(0u, n, 1u) {
+                  for a9 in range(0u, n, 1u) {
+                    for a10 in range(0u, n, 1u) {
+                      for a11 in range(0u, n, 1u) {
+                        for a12 in range(0u, n, 1u) {
+                          for a13 in range(0u, n, 1u) {
+                            for a14 in range(0u, n, 1u) {
+                              x += a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return x
+}
+
+subroutine commutative_add_assert(a: uint64, b: uint64, cond: bool): uint64
+{
+  if (cond) {
+    result: uint64 = a + b
+    log(concat(concat('cond: ', ''), itob(result)))
+  } else {
+    result: uint64 = a + b
+    log(concat(concat('!cond: ', ''), itob(result)))
+  }
+  assert(result == b + a)
+  return result
+}
+
+subroutine nested_scc_collapse(n: uint64, p: uint64, q: uint64): uint64
+{
+  v: uint64 = n
+  i: uint64 = 0u
+  while (i < p) {
+    j: uint64 = 0u
+    while (j < q) {
+      v: uint64 = n
+      j += 1u
+    }
+    i += 1u
+  }
+  return v
+}
+
+contract OneConstSimplificationContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.mul_zero(x: uint64): uint64
+  {
+    return x * 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.gt_zero(b: uint64): bool
+  {
+    return 0u > b
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.lte_one(x: uint64): uint64
+  {
+    if (1u <= x) {
+      return 1u
+    }
+    return 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.or_false(a: bool): uint64
+  {
+    cond: bool = a or false
+    if (cond) {
+      return 1u
+    }
+    return 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bmul_zero(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b* 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_left(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(0n b+ arc4_decode(x, biguint), arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.badd_zero_right(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b+ 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bsub_zero(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b- 0n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.bdiv_one(x: arc4.uint256): arc4.uint256
+  {
+    return arc4_encode(arc4_decode(x, biguint) b// 1n, arc4.uint256)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.cond_gt_zero(b: uint64): uint64
+  {
+    if (0u > b) {
+      return 1u
+    }
+    return 0u
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lte_one(b: bool): bool
+  {
+    r: bool = 1u <= reinterpret_cast<uint64>(b)
+    return r
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.val_lt_zero(b: bool): bool
+  {
+    r: bool = 0u < reinterpret_cast<uint64>(b)
+    return r
+  }
+  
+  baremethod test_cases.gvn.one_const_simplification.OneConstSimplificationContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DeclinedConstFoldContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_zero_zero(): uint64
+  {
+    (hi, lo): tuple<uint64,uint64> = expw(0u, 0u)
+    return hi + lo
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.expw_overflow(): uint64
+  {
+    (hi, lo): tuple<uint64,uint64> = expw(2u, 128u)
+    return hi + lo
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_div_zero(): uint64
+  {
+    return divw(0u, 5u, 0u)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divw_overflow(): uint64
+  {
+    return divw(1u, 0u, 1u)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.divmodw_div_zero(): uint64
+  {
+    (qh, ql, rh, rl): tuple<uint64,uint64,uint64,uint64> = divmodw(0u, 5u, 0u, 0u)
+    return qh + ql + rh + rl
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.setbyte_value_oob(): bytes
+  {
+    return setbyte(hex<"4142">, 0u, 256u)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.bsqrt_too_long(): arc4.uint512
+  {
+    arg: biguint = hex<"0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">
+    return arc4_encode(bsqrt(arg), arc4.uint512)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.div_by_zero(): uint64
+  {
+    return 5u // btoi(hex<"00">)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.mod_by_zero(): uint64
+  {
+    return 5u % btoi(hex<"00">)
+  }
+  
+  abimethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.biguint_mod_by_zero(): arc4.uint256
+  {
+    return arc4_encode(5n b% reinterpret_cast<biguint>(bzero(1u)), arc4.uint256)
+  }
+  
+  baremethod test_cases.gvn.one_const_simplification.DeclinedConstFoldContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract GVNConstFolding
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.const_folding.GVNConstFolding.approval_program(): bool
+  {
+    test_cases.gvn.const_folding.test_setbyte(true)
+    test_cases.gvn.const_folding.test_uint64_mod(42u, false)
+    test_cases.gvn.const_folding.test_biguint_mod(77259978947021905600184340317603197947481177389714460678206771900175196402510074614992658926100855914496n, true)
+    test_cases.gvn.const_folding.test_getbyte_direct()
+    test_cases.gvn.const_folding.test_getbyte_through_phi(0u)
+    test_cases.gvn.const_folding.test_replace3_large_index()
+    test_cases.gvn.const_folding.test_replace3_through_phi(0u)
+    test_cases.gvn.const_folding.test_addw()
+    test_cases.gvn.const_folding.test_mulw()
+    test_cases.gvn.const_folding.test_expw()
+    test_cases.gvn.const_folding.test_divw()
+    test_cases.gvn.const_folding.test_divmodw()
+    test_cases.gvn.const_folding.test_btoi_itob_through_phi(7u)
+    test_cases.gvn.const_folding.test_btoi_itob_through_phi(0u)
+    return true
+  }
+  
+  subroutine test_cases.gvn.const_folding.GVNConstFolding.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_setbyte(selector: bool): void
+{
+  assert(setbyte(hex<"4142">, 0u, 90u) == hex<"5A42">)
+  assert(setbyte(hex<"4142">, 1u, 90u) == hex<"415A">)
+  if (selector) {
+    ab: bytes = bzero(100u) + hex<"4142">
+  } else {
+    ab: bytes = bzero(100u) + hex<"4142">
+  }
+  assert(setbyte(ab, 100u, 67u) == bzero(100u) + hex<"4342">)
+}
+
+subroutine test_uint64_mod(x: uint64, selector: bool): void
+{
+  assert(x % 1u == 0u)
+  if (selector) {
+    one: uint64 = btoi(bzero(65u) + hex<"01">[-7:])
+  } else {
+    one: uint64 = btoi(bzero(66u) + hex<"01">[-7:])
+  }
+  assert(x % one == 0u)
+}
+
+subroutine test_biguint_mod(x: biguint, selector: bool): void
+{
+  assert(x b% 1n == 0n)
+  if (selector) {
+    one: bytes = bzero(65u) + hex<"01">[-10:]
+  } else {
+    one: bytes = bzero(66u) + hex<"01">[-10:]
+  }
+  assert(x b% reinterpret_cast<biguint>(one) == 0n)
+}
+
+subroutine test_getbyte_direct(): void
+{
+  assert(getbyte(hex<"68656C6C6F">, 0u) == 104u)
+  assert(getbyte(hex<"68656C6C6F">, 4u) == 111u)
+}
+
+subroutine test_getbyte_through_phi(selector: uint64): void
+{
+  if (selector != 0u) {
+    b: bytes = hex<"4142">
+  } else {
+    b: bytes = hex<"4142">
+  }
+  assert(getbyte(b, 1u) == 66u)
+}
+
+subroutine test_replace3_large_index(): void
+{
+  src: bytes = bzero(300u)
+  patched: bytes = replace3(src, 256u, hex<"58595A">)
+  assert(getbyte(patched, 256u) == 88u)
+}
+
+subroutine test_replace3_through_phi(selector: uint64): void
+{
+  if (selector != 0u) {
+    repl: bytes = hex<"4142">
+  } else {
+    repl: bytes = hex<"4142">
+  }
+  out: bytes = replace3(hex<"30303030">, 1u, repl)
+  assert(getbyte(out, 1u) == 65u)
+}
+
+subroutine test_addw(): void
+{
+  (carry, lo): tuple<uint64,uint64> = addw(9223372036854775808u, 9223372036854775808u)
+  assert(carry == 1u)
+  assert(lo == 0u)
+}
+
+subroutine test_mulw(): void
+{
+  (hi, lo): tuple<uint64,uint64> = mulw(4294967296u, 4294967296u)
+  assert(hi == 1u)
+  assert(lo == 0u)
+}
+
+subroutine test_expw(): void
+{
+  (hi, lo): tuple<uint64,uint64> = expw(2u, 80u)
+  assert(hi == 65536u)
+  assert(lo == 0u)
+}
+
+subroutine test_divw(): void
+{
+  q: uint64 = divw(1u, 0u, 2u)
+  assert(q == 9223372036854775808u)
+}
+
+subroutine test_divmodw(): void
+{
+  (qh, ql, rh, rl): tuple<uint64,uint64,uint64,uint64> = divmodw(1u, 2u, 0u, 3u)
+  assert(qh == 0u)
+  assert(ql == 6148914691236517206u)
+  assert(rh == 0u)
+  assert(rl == 0u)
+}
+
+subroutine test_btoi_itob_through_phi(x: uint64): void
+{
+  if (x != 0u) {
+    b: bytes = itob(x)
+  } else {
+    b: bytes = itob(x)
+  }
+  assert(btoi(b) == x)
+}
+
+contract AlgebraicIdentitiesContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program(): bool
+  {
+    test_cases.gvn.algebraic_identities.test_self_sub(42n, 42u)
+    test_cases.gvn.algebraic_identities.test_self_bitwise(42u)
+    test_cases.gvn.algebraic_identities.test_one_const(42n, selector=true)
+    test_cases.gvn.algebraic_identities.test_one_const(42n, selector=false)
+    a: uint64 = txn<NumAppArgs>()
+    b: uint64 = a + 1u
+    test_cases.gvn.algebraic_identities.test_uint64_swaps(a, b)
+    test_cases.gvn.algebraic_identities.test_biguint_swaps(1n, 2n)
+    test_cases.gvn.algebraic_identities.test_uint64_negated(a, b)
+    test_cases.gvn.algebraic_identities.test_biguint_negated(itob(a), itob(b))
+    test_cases.gvn.algebraic_identities.test_uint64_double_negated(a, b)
+    test_cases.gvn.algebraic_identities.test_biguint_double_negated(itob(a), itob(b))
+    return true
+  }
+  
+  subroutine test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_self_sub(x: biguint, y: uint64): void
+{
+  assert(x b- x == 0n)
+  assert(y - y == 0u)
+}
+
+subroutine test_self_bitwise(y: uint64): void
+{
+  assert(y & y == y)
+  assert(y | y == y)
+}
+
+subroutine test_one_const(x: biguint, selector: bool): void
+{
+  if (selector) {
+    one: biguint = reinterpret_cast<biguint>(bzero(65u) + hex<"01">[-10:])
+  } else {
+    one: biguint = reinterpret_cast<biguint>(bzero(66u) + hex<"01">[-10:])
+  }
+  assert(x b* one == x)
+  assert(one b* x == x)
+}
+
+subroutine test_uint64_swaps(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  assert(b > a)
+  assert(a <= b)
+  assert(b >= a)
+}
+
+subroutine test_biguint_swaps(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  assert(b > a)
+  assert(a <= b)
+  assert(b >= a)
+}
+
+subroutine test_uint64_negated(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  assert(!(a >= b))
+  assert(a <= b)
+  assert(!(a > b))
+  assert(a != b)
+  eq_result: bool = a == b
+  assert(!(eq_result))
+}
+
+subroutine test_biguint_negated(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  assert(!(a >= b))
+  assert(a <= b)
+  assert(!(a > b))
+  assert(a != b)
+  eq_result: bool = a == b
+  assert(!(eq_result))
+}
+
+subroutine test_uint64_double_negated(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  neg: bool = !(a < b)
+  assert(!(neg))
+}
+
+subroutine test_biguint_double_negated(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  neg: bool = !(a < b)
+  assert(!(neg))
+}

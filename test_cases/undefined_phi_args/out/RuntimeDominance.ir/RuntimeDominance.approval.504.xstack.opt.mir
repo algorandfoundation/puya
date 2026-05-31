@@ -1,0 +1,75 @@
+// Op                                                                        Stack (out)
+// test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // undefined_phi_args/runtime_dominance.py:6
+        // assert runtime_dominance(True) == 2
+        int 1                                                                1
+        callsub runtime_dominance                                            tmp%0#0
+        int 2                                                                tmp%0#0,2
+        ==                                                                   tmp%1#0
+        assert
+        // undefined_phi_args/runtime_dominance.py:7
+        // assert runtime_dominance(False) == 42
+        int 0                                                                0
+        callsub runtime_dominance                                            tmp%2#0
+        int 42                                                               tmp%2#0,42
+        ==                                                                   tmp%3#0
+        assert
+        // undefined_phi_args/runtime_dominance.py:8
+        // return True
+        int 1                                                                1
+        return
+
+
+// test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(cond: uint64) -> uint64:
+subroutine runtime_dominance:
+    runtime_dominance_block@0:                                               (𝕡) cond#0 |
+        undefined                                                            (𝕡) cond#0 | undefined
+        v-store x#0                                                          (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:16
+        // if cond:
+        p-load cond#0                                                        (𝕡) cond#0 | cond#0 (copy)
+        bz runtime_dominance_after_if_else@2 ; b runtime_dominance_if_body@1 (𝕡) cond#0 |
+
+    runtime_dominance_if_body@1:                                             (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:17
+        // x = UInt64(1)
+        int 1                                                                (𝕡) cond#0 | 1
+        v-store x#0                                                          (𝕡) cond#0 |
+        b runtime_dominance_after_if_else@2                                  (𝕡) cond#0 |
+
+    runtime_dominance_after_if_else@2:                                       (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:18
+        // assert Txn.num_app_args == 0
+        txn NumAppArgs                                                       (𝕡) cond#0 | tmp%0#0
+        !                                                                    (𝕡) cond#0 | tmp%1#0
+        assert                                                               (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:19
+        // if cond:
+        p-load cond#0                                                        (𝕡) cond#0 | cond#0 (copy)
+        bz runtime_dominance_else_body@4 ; b runtime_dominance_if_body@3     (𝕡) cond#0 |
+
+    runtime_dominance_if_body@3:                                             (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:20
+        // y = x + 1
+        v-load x#0                                                           (𝕡) cond#0 | x#0
+        int 1                                                                (𝕡) cond#0 | x#0,1
+        +                                                                    (𝕡) cond#0 | y#0
+        x-store y#0                                                          (𝕡) cond#0 | (𝕏) y#0 |
+        b runtime_dominance_after_if_else@5                                  (𝕡) cond#0 | (𝕏) y#0 |
+
+    runtime_dominance_else_body@4:                                           (𝕡) cond#0 |
+        // undefined_phi_args/runtime_dominance.py:22
+        // y = UInt64(42)
+        int 42                                                               (𝕡) cond#0 | y#0
+        x-store y#0                                                          (𝕡) cond#0 | (𝕏) y#0 |
+        b runtime_dominance_after_if_else@5                                  (𝕡) cond#0 | (𝕏) y#0 |
+
+    runtime_dominance_after_if_else@5:                                       (𝕡) cond#0 | (𝕏) y#0 |
+        // undefined_phi_args/runtime_dominance.py:23
+        // return y
+        x-load y#0                                                           (𝕡) cond#0 | y#0
+        retsub                                                               y#0
+
+
