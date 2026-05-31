@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import attrs
 import pytest
 
-from puya.ir.optimize.repeated_code_elimination import compute_dominator_tree
+from puya.ir.optimize._utils import compute_dominator_tree
 
 
 @attrs.frozen(kw_only=True)
@@ -70,5 +70,5 @@ def test_compute_dominators(data: ComputeDominatorData) -> None:
         )
     sub = Mock(body=list(blocks.values()), entry=blocks[data.start])
     result = compute_dominator_tree(sub)
-    result_ids = {b.id: [d.id for d in ds] for b, ds in result[1].items()}
+    result_ids = {b.id: [d.id for d in ds] for b, ds in result.tree.items()}
     assert result_ids == data.dom_tree
