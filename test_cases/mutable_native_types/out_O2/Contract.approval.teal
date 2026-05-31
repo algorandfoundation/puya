@@ -9,43 +9,21 @@ main:
     bnz main_after_if_else@2
     txn NumAppArgs
     itob
-    txn NumAppArgs
-    itob
+    dup
     concat
     txn NumAppArgs
     intc_1 // 1
     +
-    txn NumAppArgs
-    intc_1 // 1
-    +
+    itob
+    dup
+    concat
+    dup2
+    concat
     swap
-    itob
-    swap
-    itob
-    concat
-    txn NumAppArgs
-    intc_1 // 1
-    +
-    txn NumAppArgs
-    intc_1 // 1
-    +
-    uncover 3
-    uncover 3
-    concat
-    uncover 2
-    itob
-    uncover 2
-    itob
-    concat
     concat
     bytec_0 // "nested"
     swap
     app_global_put
-    txn NumAppArgs
-    itob
-    txn NumAppArgs
-    itob
-    concat
     pushbytes 0x00160018001a000000000000
     concat
     pushbytes "dyn"
@@ -198,13 +176,13 @@ main_test_arr_route@17:
     ==
     assert // expected arrays to be the same
     intc_0 // 0
+    swap
 
 main_for_header@33:
-    dup
+    dig 1
     pushint 3
     <
     bz main_after_for@35
-    swap
     dup
     intc_0 // 0
     extract_uint16
@@ -218,10 +196,11 @@ main_for_header@33:
     swap
     intc_1 // 1
     +
+    swap
     b main_for_header@33
 
 main_after_for@35:
-    pop
+    bury 1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header

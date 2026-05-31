@@ -4,7 +4,7 @@
 
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
-    intcblock 1 2 0 10
+    intcblock 1 0 10 2
     pushbytes ""
     arg_0
     dup
@@ -15,7 +15,7 @@ main:
     btoi
     dup
     txn GroupIndex
-    intc_1 // 2
+    intc_3 // 2
     -
     dup
     gtxns TypeEnum
@@ -24,28 +24,26 @@ main:
     assert // transaction type is pay
     arg_1
     dup
-    intc_2 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
+    intc_3 // 2
     +
     dig 1
     len
     ==
     assert // invalid number of bytes for bytes
     extract 2 0
-    dup
-    cover 3
+    cover 2
     arg_2
     dup
     len
     intc_0 // 1
     ==
     assert // invalid number of bytes for bool
-    intc_2 // 0
+    intc_1 // 0
     getbit
     dup
-    cover 2
-    cover 4
+    cover 3
     txn GroupIndex
     intc_0 // 1
     -
@@ -54,40 +52,26 @@ main:
     pushint 6 // appl
     ==
     assert // transaction type is appl
-    arg_0
-    btoi
-    dig 5
-    ==
-    assert
-    arg_1
-    extract 2 0
-    uncover 2
-    ==
-    assert
     arg_2
     btoi
-    intc_2 // 0
+    intc_1 // 0
     !=
     uncover 2
     ==
     assert
-    swap
+    dig 1
     gtxns GroupIndex
-    txn GroupIndex
-    intc_1 // 2
-    -
+    uncover 2
     ==
     assert
+    dup
     gtxns GroupIndex
-    txn GroupIndex
-    intc_0 // 1
-    -
     ==
     assert
-    intc_3 // 10
+    intc_2 // 10
     <
     bz main_after_if_else@2
-    intc_3 // 10
+    intc_2 // 10
     bury 3
 
 main_after_if_else@2:
@@ -95,7 +79,7 @@ main_after_if_else@2:
     pushbytes 0x737566666978
     concat
     dig 2
-    intc_3 // 10
+    intc_2 // 10
     >=
     assert
     len

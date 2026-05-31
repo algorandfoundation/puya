@@ -261,9 +261,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#6: bool = (== txn.LastLog#0 0x636f6e76657274656431)
         (assert tmp%1#6)
         itxn_begin
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(uint64)void")
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -272,9 +272,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#2: bool = (== txn.LastLog#0 aggregate%val_as_bytes%0#0)
         (assert tmp%4#2)
         itxn_begin
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| 3b aggregate%bzero%0#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(uint512)void")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -658,9 +660,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
+        let aggregate%bzero%1#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%1#0: bytes[64] = (b| 2b aggregate%bzero%1#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -677,7 +681,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -694,7 +698,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -716,13 +720,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
+        let aggregate%as_bytes%26#0: bytes[8] = (itob 2u)
         let aggregate%val_as_bytes%25#0: bytes[8] = (itob 1u)
+        let aggregate%bzero%2#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%2#0: bytes[64] = (b| aggregate%as_bytes%26#0 aggregate%bzero%2#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -766,7 +773,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -799,7 +806,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -832,7 +839,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -879,12 +886,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
         let aggregate%val_as_bytes%27#0: bytes[8] = (itob 1u)
+        let aggregate%bzero%4#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%4#0: bytes[64] = (b| 2b aggregate%bzero%4#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%27#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -928,7 +937,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%27#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -972,7 +981,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%27#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1016,7 +1025,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%27#0)
-        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field ApplicationArgs) aggregate%arc4_encoded%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

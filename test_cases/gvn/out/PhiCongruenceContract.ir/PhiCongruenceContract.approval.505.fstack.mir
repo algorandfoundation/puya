@@ -123,48 +123,34 @@ subroutine test_redundant_phi:
         p-load b#0                                                                               (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
         |                                                                                        (𝕡) a#0,b#0 | val1#0
         x-store val1#0                                                                           (𝕡) a#0,b#0 | (𝕏) val1#0 |
-        // gvn/phi_congruence.py:59
-        // val2 = b | a
-        p-load b#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | b#0 (copy)
-        p-load a#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | b#0 (copy),a#0 (copy)
-        |                                                                                        (𝕡) a#0,b#0 | (𝕏) val1#0 | val2#0
-        x-store val2#0                                                                           (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 |
         // gvn/phi_congruence.py:60
         // if a > b:
-        p-load a#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 | a#0 (copy)
-        p-load b#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 | a#0 (copy),b#0 (copy)
-        >                                                                                        (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 | tmp%2#0
-        bz test_redundant_phi_else_body@2 ; b test_redundant_phi_if_body@1                       (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 |
+        p-load a#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | a#0 (copy)
+        p-load b#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | a#0 (copy),b#0 (copy)
+        >                                                                                        (𝕡) a#0,b#0 | (𝕏) val1#0 | tmp%2#0
+        bz test_redundant_phi_else_body@2 ; b test_redundant_phi_if_body@1                       (𝕡) a#0,b#0 | (𝕏) val1#0 |
 
-    test_redundant_phi_if_body@1:                                                                (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 |
-        x-load val2#0                                                                            (𝕡) a#0,b#0 | (𝕏) val1#0 | val2#0
-        pop 1                                                                                    (𝕡) a#0,b#0 | (𝕏) val1#0 |
+    test_redundant_phi_if_body@1:                                                                (𝕡) a#0,b#0 | (𝕏) val1#0 |
         // gvn/phi_congruence.py:61
         // log(a)
         p-load a#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | a#0 (copy)
         itob                                                                                     (𝕡) a#0,b#0 | (𝕏) val1#0 | tmp%3#0
         log                                                                                      (𝕡) a#0,b#0 | (𝕏) val1#0 |
-        x-load val1#0                                                                            (𝕡) a#0,b#0 | result#2
-        x-store result#2                                                                         (𝕡) a#0,b#0 | (𝕏) result#2 |
-        b test_redundant_phi_after_if_else@3                                                     (𝕡) a#0,b#0 | (𝕏) result#2 |
+        b test_redundant_phi_after_if_else@3                                                     (𝕡) a#0,b#0 | (𝕏) val1#0 |
 
-    test_redundant_phi_else_body@2:                                                              (𝕡) a#0,b#0 | (𝕏) val1#0,val2#0 |
-        x-load val1#0                                                                            (𝕡) a#0,b#0 | (𝕏) val2#0 | val1#0
-        pop 1                                                                                    (𝕡) a#0,b#0 | (𝕏) val2#0 |
+    test_redundant_phi_else_body@2:                                                              (𝕡) a#0,b#0 | (𝕏) val1#0 |
         // gvn/phi_congruence.py:64
         // log(b)
-        p-load b#0                                                                               (𝕡) a#0,b#0 | (𝕏) val2#0 | b#0 (copy)
-        itob                                                                                     (𝕡) a#0,b#0 | (𝕏) val2#0 | tmp%4#0
-        log                                                                                      (𝕡) a#0,b#0 | (𝕏) val2#0 |
-        x-load val2#0                                                                            (𝕡) a#0,b#0 | result#2
-        x-store result#2                                                                         (𝕡) a#0,b#0 | (𝕏) result#2 |
-        b test_redundant_phi_after_if_else@3                                                     (𝕡) a#0,b#0 | (𝕏) result#2 |
+        p-load b#0                                                                               (𝕡) a#0,b#0 | (𝕏) val1#0 | b#0 (copy)
+        itob                                                                                     (𝕡) a#0,b#0 | (𝕏) val1#0 | tmp%4#0
+        log                                                                                      (𝕡) a#0,b#0 | (𝕏) val1#0 |
+        b test_redundant_phi_after_if_else@3                                                     (𝕡) a#0,b#0 | (𝕏) val1#0 |
 
-    test_redundant_phi_after_if_else@3:                                                          (𝕡) a#0,b#0 | (𝕏) result#2 |
+    test_redundant_phi_after_if_else@3:                                                          (𝕡) a#0,b#0 | (𝕏) val1#0 |
         // gvn/phi_congruence.py:66
         // return result
-        x-load result#2                                                                          (𝕡) a#0,b#0 | result#2
-        retsub                                                                                   result#2
+        x-load val1#0                                                                            (𝕡) a#0,b#0 | val1#0
+        retsub                                                                                   val1#0
 
 
 // test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
@@ -173,45 +159,32 @@ subroutine test_cross_assignment:
         // gvn/phi_congruence.py:73
         // for _i in urange(10):
         int 0                                                                                    (𝕡) n#0 | value_internal%0#0
-        p-load n#0                                                                               (𝕡) n#0 | value_internal%0#0,y#1
-        l-store-copy y#1 0                                                                       (𝕡) n#0 | value_internal%0#0,y#1,y#1
-        x-store y#1                                                                              (𝕡) n#0 | (𝕏) y#1 | value_internal%0#0,y#1
-        l-load y#1 0                                                                             (𝕡) n#0 | (𝕏) y#1 | value_internal%0#0,x#1
-        x-store x#1                                                                              (𝕡) n#0 | (𝕏) y#1,x#1 | value_internal%0#0
-        l-load value_internal%0#0 0                                                              (𝕡) n#0 | (𝕏) y#1,x#1 | _i#0
-        x-store _i#0                                                                             (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
-        b test_cross_assignment_for_header@1                                                     (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
+        x-store value_internal%0#0                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 |
+        b test_cross_assignment_for_header@1                                                     (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_cross_assignment_for_header@1:                                                          (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
+    test_cross_assignment_for_header@1:                                                          (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:73
         // for _i in urange(10):
-        x-load-copy _i#0                                                                         (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 | _i#0 (copy)
-        int 10                                                                                   (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 | _i#0 (copy),10
-        <                                                                                        (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 | continue_looping%0#0
-        bz test_cross_assignment_after_for@4 ; b test_cross_assignment_for_body@2                (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
+        x-load-copy value_internal%0#0                                                           (𝕡) n#0 | (𝕏) value_internal%0#0 | value_internal%0#0 (copy)
+        int 10                                                                                   (𝕡) n#0 | (𝕏) value_internal%0#0 | value_internal%0#0 (copy),10
+        <                                                                                        (𝕡) n#0 | (𝕏) value_internal%0#0 | continue_looping%0#0
+        bz test_cross_assignment_after_for@4 ; b test_cross_assignment_for_body@2                (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_cross_assignment_for_body@2:                                                            (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
+    test_cross_assignment_for_body@2:                                                            (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:73
         // for _i in urange(10):
-        x-load _i#0                                                                              (𝕡) n#0 | (𝕏) y#1,x#1 | _i#0
-        int 1                                                                                    (𝕡) n#0 | (𝕏) y#1,x#1 | _i#0,1
-        +                                                                                        (𝕡) n#0 | (𝕏) y#1,x#1 | _i#0
-        x-store _i#0                                                                             (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
-        x-load y#1                                                                               (𝕡) n#0 | (𝕏) x#1,_i#0 | y#1
-        x-load x#1                                                                               (𝕡) n#0 | (𝕏) _i#0 | y#1,y#1
-        x-store y#1                                                                              (𝕡) n#0 | (𝕏) y#1,_i#0 | y#1
-        l-load parcopy%0#0 0                                                                     (𝕡) n#0 | (𝕏) y#1,_i#0 | x#1
-        x-store x#1                                                                              (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
-        b test_cross_assignment_for_header@1                                                     (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
+        x-load value_internal%0#0                                                                (𝕡) n#0 | value_internal%0#0
+        int 1                                                                                    (𝕡) n#0 | value_internal%0#0,1
+        +                                                                                        (𝕡) n#0 | value_internal%0#0
+        x-store value_internal%0#0                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 |
+        b test_cross_assignment_for_header@1                                                     (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_cross_assignment_after_for@4:                                                           (𝕡) n#0 | (𝕏) y#1,x#1,_i#0 |
-        x-load _i#0                                                                              (𝕡) n#0 | (𝕏) y#1,x#1 | _i#0
-        pop 1                                                                                    (𝕡) n#0 | (𝕏) y#1,x#1 |
+    test_cross_assignment_after_for@4:                                                           (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:77
         // return x + y
-        x-load x#1                                                                               (𝕡) n#0 | (𝕏) y#1 | x#1
-        x-load y#1                                                                               (𝕡) n#0 | x#1,y#1
-        +                                                                                        (𝕡) n#0 | tmp%0#0
+        p-load n#0                                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 | n#0 (copy)
+        p-load n#0                                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 | n#0 (copy),n#0 (copy)
+        +                                                                                        (𝕡) n#0 | (𝕏) value_internal%0#0 | tmp%0#0
         retsub                                                                                   tmp%0#0
 
 
@@ -221,110 +194,64 @@ subroutine test_triple_cycle:
         // gvn/phi_congruence.py:85
         // for _i in urange(5):
         int 0                                                                                    (𝕡) n#0 | value_internal%0#0
-        p-load n#0                                                                               (𝕡) n#0 | value_internal%0#0,c#1
-        l-store-copy c#1 0                                                                       (𝕡) n#0 | value_internal%0#0,c#1,c#1
-        x-store c#1                                                                              (𝕡) n#0 | (𝕏) c#1 | value_internal%0#0,c#1
-        l-load c#1 0                                                                             (𝕡) n#0 | (𝕏) c#1 | value_internal%0#0,b#1
-        l-store-copy b#1 0                                                                       (𝕡) n#0 | (𝕏) c#1 | value_internal%0#0,b#1,b#1
-        x-store b#1                                                                              (𝕡) n#0 | (𝕏) c#1,b#1 | value_internal%0#0,b#1
-        l-load b#1 0                                                                             (𝕡) n#0 | (𝕏) c#1,b#1 | value_internal%0#0,a#1
-        x-store a#1                                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | value_internal%0#0
-        l-load value_internal%0#0 0                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | _i#0
-        x-store _i#0                                                                             (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
-        b test_triple_cycle_for_header@1                                                         (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
+        x-store value_internal%0#0                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 |
+        b test_triple_cycle_for_header@1                                                         (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_triple_cycle_for_header@1:                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
+    test_triple_cycle_for_header@1:                                                              (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:85
         // for _i in urange(5):
-        x-load-copy _i#0                                                                         (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 | _i#0 (copy)
-        int 5                                                                                    (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 | _i#0 (copy),5
-        <                                                                                        (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 | continue_looping%0#0
-        bz test_triple_cycle_after_for@4 ; b test_triple_cycle_for_body@2                        (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
+        x-load-copy value_internal%0#0                                                           (𝕡) n#0 | (𝕏) value_internal%0#0 | value_internal%0#0 (copy)
+        int 5                                                                                    (𝕡) n#0 | (𝕏) value_internal%0#0 | value_internal%0#0 (copy),5
+        <                                                                                        (𝕡) n#0 | (𝕏) value_internal%0#0 | continue_looping%0#0
+        bz test_triple_cycle_after_for@4 ; b test_triple_cycle_for_body@2                        (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_triple_cycle_for_body@2:                                                                (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
+    test_triple_cycle_for_body@2:                                                                (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:85
         // for _i in urange(5):
-        x-load _i#0                                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | _i#0
-        int 1                                                                                    (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | _i#0,1
-        +                                                                                        (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | _i#0
-        x-store _i#0                                                                             (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
-        x-load c#1                                                                               (𝕡) n#0 | (𝕏) b#1,a#1,_i#0 | c#1
-        x-load b#1                                                                               (𝕡) n#0 | (𝕏) a#1,_i#0 | c#1,c#1
-        x-store c#1                                                                              (𝕡) n#0 | (𝕏) c#1,a#1,_i#0 | c#1
-        x-load a#1                                                                               (𝕡) n#0 | (𝕏) c#1,_i#0 | c#1,b#1
-        x-store b#1                                                                              (𝕡) n#0 | (𝕏) c#1,b#1,_i#0 | c#1
-        l-load parcopy%0#0 0                                                                     (𝕡) n#0 | (𝕏) c#1,b#1,_i#0 | a#1
-        x-store a#1                                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
-        b test_triple_cycle_for_header@1                                                         (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
+        x-load value_internal%0#0                                                                (𝕡) n#0 | value_internal%0#0
+        int 1                                                                                    (𝕡) n#0 | value_internal%0#0,1
+        +                                                                                        (𝕡) n#0 | value_internal%0#0
+        x-store value_internal%0#0                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 |
+        b test_triple_cycle_for_header@1                                                         (𝕡) n#0 | (𝕏) value_internal%0#0 |
 
-    test_triple_cycle_after_for@4:                                                               (𝕡) n#0 | (𝕏) c#1,b#1,a#1,_i#0 |
-        x-load _i#0                                                                              (𝕡) n#0 | (𝕏) c#1,b#1,a#1 | _i#0
-        pop 1                                                                                    (𝕡) n#0 | (𝕏) c#1,b#1,a#1 |
+    test_triple_cycle_after_for@4:                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 |
         // gvn/phi_congruence.py:91
         // return a + b + c
-        x-load a#1                                                                               (𝕡) n#0 | (𝕏) c#1,b#1 | a#1
-        x-load b#1                                                                               (𝕡) n#0 | (𝕏) c#1 | a#1,b#1
-        +                                                                                        (𝕡) n#0 | (𝕏) c#1 | tmp%0#0
-        x-load c#1                                                                               (𝕡) n#0 | tmp%0#0,c#1
-        +                                                                                        (𝕡) n#0 | tmp%1#0
+        p-load n#0                                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 | n#0 (copy)
+        p-load n#0                                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 | n#0 (copy),n#0 (copy)
+        +                                                                                        (𝕡) n#0 | (𝕏) value_internal%0#0 | tmp%0#0
+        p-load n#0                                                                               (𝕡) n#0 | (𝕏) value_internal%0#0 | tmp%0#0,n#0 (copy)
+        +                                                                                        (𝕡) n#0 | (𝕏) value_internal%0#0 | tmp%1#0
         retsub                                                                                   tmp%1#0
 
 
 // test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
 subroutine test_replacement_chain:
-    test_replacement_chain_block@0:                                                              (𝕡) n#0 |
-        p-load n#0                                                                               (𝕡) n#0 | b#2
-        l-store-copy b#2 0                                                                       (𝕡) n#0 | b#2,b#2 (copy)
-        f-store b#2                                                                              (𝕡) n#0 | (𝕗) b#2 | b#2
-        l-load b#2 0                                                                             (𝕡) n#0 | (𝕗) b#2 | b#2
-        f-store a#2                                                                              (𝕡) n#0 | (𝕗) b#2,a#2 |
-        b test_replacement_chain_while_top@1                                                     (𝕡) n#0 | (𝕗) b#2,a#2 |
-
-    test_replacement_chain_while_top@1:                                                          (𝕡) n#0 | (𝕗) b#2,a#2 |
-        // gvn/phi_congruence.py:100
-        // if not n:
-        p-load n#0                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | n#0 (copy)
-        bz test_replacement_chain_if_body@3 ; b test_replacement_chain_after_if_else@4           (𝕡) n#0 | (𝕗) b#2,a#2 |
-
-    test_replacement_chain_if_body@3:                                                            (𝕡) n#0 | (𝕗) b#2,a#2 |
-        p-load n#0                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | b#2
-        l-store-copy b#2 0                                                                       (𝕡) n#0 | (𝕗) b#2,a#2 | b#2,b#2 (copy)
-        f-store b#2                                                                              (𝕡) n#0 | (𝕗) b#2,a#2 | b#2
-        l-load b#2 0                                                                             (𝕡) n#0 | (𝕗) b#2,a#2 | b#2
-        f-store a#2                                                                              (𝕡) n#0 | (𝕗) b#2,a#2 |
-        b test_replacement_chain_after_if_else@4                                                 (𝕡) n#0 | (𝕗) b#2,a#2 |
-
-    test_replacement_chain_after_if_else@4:                                                      (𝕡) n#0 | (𝕗) b#2,a#2 |
+    test_replacement_chain_while_top@1:                                                          (𝕡) n#0 |
         // gvn/phi_congruence.py:103
         // log(a)
-        f-load a#2                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | a#2
-        itob                                                                                     (𝕡) n#0 | (𝕗) b#2,a#2 | tmp%1#0
-        log                                                                                      (𝕡) n#0 | (𝕗) b#2,a#2 |
+        p-load n#0                                                                               (𝕡) n#0 | n#0 (copy)
+        itob                                                                                     (𝕡) n#0 | tmp%1#0
+        l-load-copy tmp%1#0 0                                                                    (𝕡) n#0 | tmp%1#0,tmp%1#0 (copy)
+        log                                                                                      (𝕡) n#0 | tmp%1#0
         // gvn/phi_congruence.py:104
         // log(b)
-        f-load b#2                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | b#2
-        itob                                                                                     (𝕡) n#0 | (𝕗) b#2,a#2 | tmp%2#0
-        log                                                                                      (𝕡) n#0 | (𝕗) b#2,a#2 |
+        l-load tmp%1#0 0                                                                         (𝕡) n#0 | tmp%1#0
+        log                                                                                      (𝕡) n#0 |
         // gvn/phi_congruence.py:107
         // if n % 2 == 0:
-        p-load n#0                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | n#0 (copy)
-        int 2                                                                                    (𝕡) n#0 | (𝕗) b#2,a#2 | n#0 (copy),2
-        %                                                                                        (𝕡) n#0 | (𝕗) b#2,a#2 | tmp%3#0
-        bz test_replacement_chain_if_body@5 ; b test_replacement_chain_after_if_else@6           (𝕡) n#0 | (𝕗) b#2,a#2 |
+        p-load n#0                                                                               (𝕡) n#0 | n#0 (copy)
+        int 2                                                                                    (𝕡) n#0 | n#0 (copy),2
+        %                                                                                        (𝕡) n#0 | tmp%3#0
+        bz test_replacement_chain_if_body@5 ; b test_replacement_chain_while_top@1               (𝕡) n#0 |
 
-    test_replacement_chain_if_body@5:                                                            (𝕡) n#0 | (𝕗) b#2,a#2 |
+    test_replacement_chain_if_body@5:                                                            (𝕡) n#0 |
         // gvn/phi_congruence.py:109
         // return a + b
-        f-load a#2                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | a#2
-        l-store-copy a#2 0                                                                       (𝕡) n#0 | (𝕗) b#2,a#2 | a#2,a#2 (copy)
-        l-load a#2 1                                                                             (𝕡) n#0 | (𝕗) b#2,a#2 | a#2 (copy),a#2
-        +                                                                                        (𝕡) n#0 | (𝕗) b#2,a#2 | tmp%5#0
+        p-load n#0                                                                               (𝕡) n#0 | n#0 (copy)
+        p-load n#0                                                                               (𝕡) n#0 | n#0 (copy),n#0 (copy)
+        +                                                                                        (𝕡) n#0 | tmp%5#0
         retsub                                                                                   tmp%5#0
-
-    test_replacement_chain_after_if_else@6:                                                      (𝕡) n#0 | (𝕗) b#2,a#2 |
-        f-load a#2                                                                               (𝕡) n#0 | (𝕗) b#2,a#2 | a#2
-        f-store b#2                                                                              (𝕡) n#0 | (𝕗) b#2,a#2 |
-        b test_replacement_chain_while_top@1                                                     (𝕡) n#0 | (𝕗) b#2,a#2 |
 
 
 // test_cases.gvn.phi_congruence.alternating(a: uint64, b: uint64, n: uint64) -> uint64:
@@ -395,62 +322,49 @@ subroutine alternating_with_commutative_inits:
         p-load a#0                                                                               (𝕡) a#0,b#0,n#0 | a#0 (copy)
         p-load b#0                                                                               (𝕡) a#0,b#0,n#0 | a#0 (copy),b#0 (copy)
         |                                                                                        (𝕡) a#0,b#0,n#0 | e1#0
-        // gvn/phi_congruence.py:126
-        // e2 = b | a
-        p-load b#0                                                                               (𝕡) a#0,b#0,n#0 | e1#0,b#0 (copy)
-        p-load a#0                                                                               (𝕡) a#0,b#0,n#0 | e1#0,b#0 (copy),a#0 (copy)
-        |                                                                                        (𝕡) a#0,b#0,n#0 | e1#0,e2#0
+        x-store e1#0                                                                             (𝕡) a#0,b#0,n#0 | (𝕏) e1#0 |
         // gvn/phi_congruence.py:129
         // s = UInt64(0)
-        int 0                                                                                    (𝕡) a#0,b#0,n#0 | e1#0,e2#0,s#0
-        x-store s#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e1#0,e2#0
+        int 0                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) e1#0 | s#0
+        x-store s#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 |
         // gvn/phi_congruence.py:130
         // for i in urange(n):
-        int 0                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e1#0,e2#0,value_internal%0#0
-        l-load e1#0 2                                                                            (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e2#0,value_internal%0#0,x#1
-        x-store x#1                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1 | e2#0,value_internal%0#0
-        l-load e2#0 1                                                                            (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1 | value_internal%0#0,y#1
-        x-store y#1                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | value_internal%0#0
-        l-load value_internal%0#0 0                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0
-        x-store i#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
-        b alternating_with_commutative_inits_for_header@1                                        (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
+        int 0                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0
+        x-store i#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
+        b alternating_with_commutative_inits_for_header@1                                        (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
 
-    alternating_with_commutative_inits_for_header@1:                                             (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
+    alternating_with_commutative_inits_for_header@1:                                             (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
         // gvn/phi_congruence.py:130
         // for i in urange(n):
-        x-load-copy i#0                                                                          (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 | i#0 (copy)
-        p-load n#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 | i#0 (copy),n#0 (copy)
-        <                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 | continue_looping%0#0
-        bz alternating_with_commutative_inits_after_for@4 ; b alternating_with_commutative_inits_for_body@2 (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 | 
+        x-load-copy i#0                                                                          (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 | i#0 (copy)
+        p-load n#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 | i#0 (copy),n#0 (copy)
+        <                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 | continue_looping%0#0
+        bz alternating_with_commutative_inits_after_for@4 ; b alternating_with_commutative_inits_for_body@2 (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 | 
 
-    alternating_with_commutative_inits_for_body@2:                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
+    alternating_with_commutative_inits_for_body@2:                                               (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
         // gvn/phi_congruence.py:132
         // s += i
-        x-load s#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) x#1,y#1,i#0 | s#0
-        x-load i#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) x#1,y#1 | s#0,i#0
-        l-store-copy i#0 1                                                                       (𝕡) a#0,b#0,n#0 | (𝕏) x#1,y#1 | i#0,s#0,i#0 (copy)
-        +                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) x#1,y#1 | i#0,s#0
-        x-store s#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0
+        x-load s#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,i#0 | s#0
+        x-load i#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) e1#0 | s#0,i#0
+        l-store-copy i#0 1                                                                       (𝕡) a#0,b#0,n#0 | (𝕏) e1#0 | i#0,s#0,i#0 (copy)
+        +                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) e1#0 | i#0,s#0
+        x-store s#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0
         // gvn/phi_congruence.py:130
         // for i in urange(n):
-        l-load i#0 0                                                                             (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0
-        int 1                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0,1
-        +                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0
-        x-store i#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
-        x-load x#1                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,y#1,i#0 | x#1
-        x-load y#1                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,i#0 | x#1,x#1
-        x-store x#1                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,i#0 | x#1
-        l-load parcopy%0#0 0                                                                     (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,i#0 | y#1
-        x-store y#1                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
-        b alternating_with_commutative_inits_for_header@1                                        (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
+        l-load i#0 0                                                                             (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0
+        int 1                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0,1
+        +                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0
+        x-store i#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
+        b alternating_with_commutative_inits_for_header@1                                        (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
 
-    alternating_with_commutative_inits_after_for@4:                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1,i#0 |
-        x-load i#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 | i#0
-        pop 1                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) s#0,x#1,y#1 |
+    alternating_with_commutative_inits_after_for@4:                                              (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0,i#0 |
+        x-load i#0                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 | i#0
+        pop 1                                                                                    (𝕡) a#0,b#0,n#0 | (𝕏) e1#0,s#0 |
         // gvn/phi_congruence.py:133
         // return x + y + s
-        x-load x#1                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0,y#1 | x#1
-        x-load y#1                                                                               (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | x#1,y#1
+        x-load e1#0                                                                              (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e1#0
+        l-store-copy e1#0 0                                                                      (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e1#0,e1#0 (copy)
+        l-load e1#0 1                                                                            (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | e1#0 (copy),e1#0
         +                                                                                        (𝕡) a#0,b#0,n#0 | (𝕏) s#0 | tmp%3#0
         x-load s#0                                                                               (𝕡) a#0,b#0,n#0 | tmp%3#0,s#0
         +                                                                                        (𝕡) a#0,b#0,n#0 | tmp%4#0
@@ -532,51 +446,48 @@ subroutine loop_invariant_phi_aliasing:
         // gvn/phi_congruence.py:153
         // for _i in urange(10):
         int 0                                                                                    (𝕡) x#0,y#0 | value_internal%0#0
-        p-load x#0                                                                               (𝕡) x#0,y#0 | value_internal%0#0,z#1
-        x-store z#1                                                                              (𝕡) x#0,y#0 | (𝕏) z#1 | value_internal%0#0
-        l-load value_internal%0#0 0                                                              (𝕡) x#0,y#0 | (𝕏) z#1 | _i#0
-        x-store _i#0                                                                             (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
-        b loop_invariant_phi_aliasing_for_header@1                                               (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
+        x-store value_internal%0#0                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 |
+        p-load x#0                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | z#1
+        x-store z#1                                                                              (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
+        b loop_invariant_phi_aliasing_for_header@1                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
 
-    loop_invariant_phi_aliasing_for_header@1:                                                    (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
+    loop_invariant_phi_aliasing_for_header@1:                                                    (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
         // gvn/phi_congruence.py:153
         // for _i in urange(10):
-        x-load-copy _i#0                                                                         (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 | _i#0 (copy)
-        int 10                                                                                   (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 | _i#0 (copy),10
-        <                                                                                        (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 | continue_looping%0#0
-        bz loop_invariant_phi_aliasing_after_for@4 ; b loop_invariant_phi_aliasing_for_body@2 (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 | 
+        x-load-copy value_internal%0#0                                                           (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 | value_internal%0#0 (copy)
+        int 10                                                                                   (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 | value_internal%0#0 (copy),10
+        <                                                                                        (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 | continue_looping%0#0
+        bz loop_invariant_phi_aliasing_after_for@4 ; b loop_invariant_phi_aliasing_for_body@2 (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 | 
 
-    loop_invariant_phi_aliasing_for_body@2:                                                      (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
+    loop_invariant_phi_aliasing_for_body@2:                                                      (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
         // gvn/phi_congruence.py:154
         // a = z + y
-        x-load z#1                                                                               (𝕡) x#0,y#0 | (𝕏) _i#0 | z#1
-        p-load y#0                                                                               (𝕡) x#0,y#0 | (𝕏) _i#0 | z#1,y#0 (copy)
-        +                                                                                        (𝕡) x#0,y#0 | (𝕏) _i#0 | a#0
+        x-load z#1                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | z#1
+        p-load y#0                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | z#1,y#0 (copy)
+        +                                                                                        (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | a#0
         // gvn/phi_congruence.py:155
         // b = x + y
-        p-load x#0                                                                               (𝕡) x#0,y#0 | (𝕏) _i#0 | a#0,x#0 (copy)
-        p-load y#0                                                                               (𝕡) x#0,y#0 | (𝕏) _i#0 | a#0,x#0 (copy),y#0 (copy)
-        +                                                                                        (𝕡) x#0,y#0 | (𝕏) _i#0 | a#0,b#0
+        p-load x#0                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | a#0,x#0 (copy)
+        p-load y#0                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | a#0,x#0 (copy),y#0 (copy)
+        +                                                                                        (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | a#0,b#0
         // gvn/phi_congruence.py:156
         // z = a + b
-        l-load a#0 1                                                                             (𝕡) x#0,y#0 | (𝕏) _i#0 | b#0,a#0
-        l-load b#0 1                                                                             (𝕡) x#0,y#0 | (𝕏) _i#0 | a#0,b#0
-        +                                                                                        (𝕡) x#0,y#0 | (𝕏) _i#0 | z#1
-        x-store z#1                                                                              (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
+        l-load a#0 1                                                                             (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | b#0,a#0
+        l-load b#0 1                                                                             (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | a#0,b#0
+        +                                                                                        (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | z#1
+        x-store z#1                                                                              (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
         // gvn/phi_congruence.py:153
         // for _i in urange(10):
-        x-load _i#0                                                                              (𝕡) x#0,y#0 | (𝕏) z#1 | _i#0
-        int 1                                                                                    (𝕡) x#0,y#0 | (𝕏) z#1 | _i#0,1
-        +                                                                                        (𝕡) x#0,y#0 | (𝕏) z#1 | _i#0
-        x-store _i#0                                                                             (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
-        b loop_invariant_phi_aliasing_for_header@1                                               (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
+        x-load value_internal%0#0                                                                (𝕡) x#0,y#0 | (𝕏) z#1 | value_internal%0#0
+        int 1                                                                                    (𝕡) x#0,y#0 | (𝕏) z#1 | value_internal%0#0,1
+        +                                                                                        (𝕡) x#0,y#0 | (𝕏) z#1 | value_internal%0#0
+        x-store value_internal%0#0                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
+        b loop_invariant_phi_aliasing_for_header@1                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
 
-    loop_invariant_phi_aliasing_after_for@4:                                                     (𝕡) x#0,y#0 | (𝕏) z#1,_i#0 |
-        x-load _i#0                                                                              (𝕡) x#0,y#0 | (𝕏) z#1 | _i#0
-        pop 1                                                                                    (𝕡) x#0,y#0 | (𝕏) z#1 |
+    loop_invariant_phi_aliasing_after_for@4:                                                     (𝕡) x#0,y#0 | (𝕏) value_internal%0#0,z#1 |
         // gvn/phi_congruence.py:157
         // return z
-        x-load z#1                                                                               (𝕡) x#0,y#0 | z#1
+        x-load z#1                                                                               (𝕡) x#0,y#0 | (𝕏) value_internal%0#0 | z#1
         retsub                                                                                   z#1
 
 
@@ -1168,19 +1079,9 @@ subroutine commutative_add_assert:
         b commutative_add_assert_after_if_else@3                                                 (𝕡) a#0,b#0,cond#0 | (𝕏) result#0 |
 
     commutative_add_assert_after_if_else@3:                                                      (𝕡) a#0,b#0,cond#0 | (𝕏) result#0 |
-        // gvn/phi_congruence.py:208
-        // assert result == (b + a)
-        p-load b#0                                                                               (𝕡) a#0,b#0,cond#0 | (𝕏) result#0 | b#0 (copy)
-        p-load a#0                                                                               (𝕡) a#0,b#0,cond#0 | (𝕏) result#0 | b#0 (copy),a#0 (copy)
-        +                                                                                        (𝕡) a#0,b#0,cond#0 | (𝕏) result#0 | tmp%8#0
-        x-load result#0                                                                          (𝕡) a#0,b#0,cond#0 | tmp%8#0,result#0
-        l-store-copy result#0 1                                                                  (𝕡) a#0,b#0,cond#0 | result#0,tmp%8#0,result#0 (copy)
-        l-load tmp%8#0 1                                                                         (𝕡) a#0,b#0,cond#0 | result#0,result#0 (copy),tmp%8#0
-        ==                                                                                       (𝕡) a#0,b#0,cond#0 | result#0,tmp%9#0
-        assert                                                                                   (𝕡) a#0,b#0,cond#0 | result#0
         // gvn/phi_congruence.py:209
         // return result
-        l-load result#0 0                                                                        (𝕡) a#0,b#0,cond#0 | result#0
+        x-load result#0                                                                          (𝕡) a#0,b#0,cond#0 | result#0
         retsub                                                                                   result#0
 
 
@@ -1191,60 +1092,56 @@ subroutine nested_scc_collapse:
         // i = UInt64(0)
         int 0                                                                                    (𝕡) n#0,p#0,q#0 | i#0
         x-store i#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
-        p-load n#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | n#0 (copy)
-        f-store v#2                                                                              (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
-        b nested_scc_collapse_while_top@1                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+        b nested_scc_collapse_while_top@1                                                        (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
 
-    nested_scc_collapse_while_top@1:                                                             (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+    nested_scc_collapse_while_top@1:                                                             (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
         // gvn/phi_congruence.py:219
         // while i < p:
-        x-load-copy i#0                                                                          (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | i#0 (copy)
-        p-load p#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | i#0 (copy),p#0 (copy)
-        <                                                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | tmp%0#0
-        bz nested_scc_collapse_after_while@6 ; b nested_scc_collapse_while_body@2                (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+        x-load-copy i#0                                                                          (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | i#0 (copy)
+        p-load p#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | i#0 (copy),p#0 (copy)
+        <                                                                                        (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | tmp%0#0
+        bz nested_scc_collapse_after_while@6 ; b nested_scc_collapse_while_body@2                (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
 
-    nested_scc_collapse_while_body@2:                                                            (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+    nested_scc_collapse_while_body@2:                                                            (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
         // gvn/phi_congruence.py:220
         // j = UInt64(0)
-        int 0                                                                                    (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | j#0
-        x-store j#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
-        b nested_scc_collapse_while_top@3                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
+        int 0                                                                                    (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | j#0
+        x-store j#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
+        b nested_scc_collapse_while_top@3                                                        (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
 
-    nested_scc_collapse_while_top@3:                                                             (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
+    nested_scc_collapse_while_top@3:                                                             (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
         // gvn/phi_congruence.py:221
         // while j < q:
-        x-load-copy j#0                                                                          (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 | j#0 (copy)
-        p-load q#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 | j#0 (copy),q#0 (copy)
-        <                                                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 | tmp%1#0
-        bz nested_scc_collapse_after_while@5 ; b nested_scc_collapse_while_body@4                (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
+        x-load-copy j#0                                                                          (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 | j#0 (copy)
+        p-load q#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 | j#0 (copy),q#0 (copy)
+        <                                                                                        (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 | tmp%1#0
+        bz nested_scc_collapse_after_while@5 ; b nested_scc_collapse_while_body@4                (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
 
-    nested_scc_collapse_while_body@4:                                                            (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
+    nested_scc_collapse_while_body@4:                                                            (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
         // gvn/phi_congruence.py:223
         // j += 1
-        x-load j#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | j#0
-        int 1                                                                                    (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | j#0,1
-        +                                                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | j#0
-        x-store j#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
-        p-load n#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 | n#0 (copy)
-        f-store v#2                                                                              (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
-        b nested_scc_collapse_while_top@3                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
+        x-load j#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | j#0
+        int 1                                                                                    (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | j#0,1
+        +                                                                                        (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | j#0
+        x-store j#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
+        b nested_scc_collapse_while_top@3                                                        (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
 
-    nested_scc_collapse_after_while@5:                                                           (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) j#0,i#0 |
-        x-load j#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | j#0
-        pop 1                                                                                    (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+    nested_scc_collapse_after_while@5:                                                           (𝕡) n#0,p#0,q#0 | (𝕏) j#0,i#0 |
+        x-load j#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | j#0
+        pop 1                                                                                    (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
         // gvn/phi_congruence.py:224
         // i += 1
-        x-load i#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | i#0
-        int 1                                                                                    (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | i#0,1
-        +                                                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | i#0
-        x-store i#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
-        b nested_scc_collapse_while_top@1                                                        (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+        x-load i#0                                                                               (𝕡) n#0,p#0,q#0 | i#0
+        int 1                                                                                    (𝕡) n#0,p#0,q#0 | i#0,1
+        +                                                                                        (𝕡) n#0,p#0,q#0 | i#0
+        x-store i#0                                                                              (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
+        b nested_scc_collapse_while_top@1                                                        (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
 
-    nested_scc_collapse_after_while@6:                                                           (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 |
+    nested_scc_collapse_after_while@6:                                                           (𝕡) n#0,p#0,q#0 | (𝕏) i#0 |
         // gvn/phi_congruence.py:225
         // return v
-        f-load v#2                                                                               (𝕡) n#0,p#0,q#0 | (𝕗) v#2 | (𝕏) i#0 | v#2
-        retsub                                                                                   v#2
+        p-load n#0                                                                               (𝕡) n#0,p#0,q#0 | (𝕏) i#0 | n#0 (copy)
+        retsub                                                                                   n#0 (copy)
 
 
 // test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing]() -> void:

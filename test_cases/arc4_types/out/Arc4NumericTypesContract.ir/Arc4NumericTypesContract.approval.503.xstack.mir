@@ -16,21 +16,27 @@ subroutine main:
         // assert UInt512(1 if Txn.num_app_args else 2) == 2
         int 64                                                                                 64
         bzero                                                                                  aggregate%bzero%0#0
-        txn NumAppArgs                                                                         aggregate%bzero%0#0,tmp%26#0
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 aggregate%bzero%0#0,tmp%26#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 aggregate%bzero%0#0,tmp%26#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
-        l-load tmp%26#0 2                                                                      aggregate%bzero%0#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001,tmp%26#0
-        select                                                                                 aggregate%bzero%0#0,select%1#0
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 aggregate%bzero%0#0,select%1#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        byte 0x02                                                                              aggregate%bzero%0#0,0x02
+        l-load-copy aggregate%bzero%0#0 1                                                      aggregate%bzero%0#0,0x02,aggregate%bzero%0#0 (copy)
+        b|                                                                                     aggregate%bzero%0#0,arc4_biguint_dynamic#0
+        byte 0x01                                                                              aggregate%bzero%0#0,arc4_biguint_dynamic#0,0x01
+        l-load-copy aggregate%bzero%0#0 2                                                      aggregate%bzero%0#0,arc4_biguint_dynamic#0,0x01,aggregate%bzero%0#0 (copy)
+        b|                                                                                     aggregate%bzero%0#0,arc4_biguint_dynamic#0,arc4_biguint_const#0
+        txn NumAppArgs                                                                         aggregate%bzero%0#0,arc4_biguint_dynamic#0,arc4_biguint_const#0,tmp%26#0
+        l-load-copy arc4_biguint_dynamic#0 2                                                   aggregate%bzero%0#0,arc4_biguint_dynamic#0,arc4_biguint_const#0,tmp%26#0,arc4_biguint_dynamic#0 (copy)
+        l-load arc4_biguint_const#0 2                                                          aggregate%bzero%0#0,arc4_biguint_dynamic#0,tmp%26#0,arc4_biguint_dynamic#0 (copy),arc4_biguint_const#0
+        l-load tmp%26#0 2                                                                      aggregate%bzero%0#0,arc4_biguint_dynamic#0,arc4_biguint_dynamic#0 (copy),arc4_biguint_const#0,tmp%26#0
+        select                                                                                 aggregate%bzero%0#0,arc4_biguint_dynamic#0,select%1#0
+        l-load arc4_biguint_dynamic#0 1                                                        aggregate%bzero%0#0,select%1#0,arc4_biguint_dynamic#0
         b==                                                                                    aggregate%bzero%0#0,tmp%29#0
         assert                                                                                 aggregate%bzero%0#0
         // arc4_types/numeric.py:49
         // assert UInt512(Txn.num_app_args) == 0
         txn NumAppArgs                                                                         aggregate%bzero%0#0,tmp%30#0
         itob                                                                                   aggregate%bzero%0#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%bzero%0#0 1                                                           aggregate%val_as_bytes%3#0,aggregate%bzero%0#0
-        b|                                                                                     aggregate%arc4_encoded%2#0
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 aggregate%arc4_encoded%2#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        l-load-copy aggregate%bzero%0#0 1                                                      aggregate%bzero%0#0,aggregate%val_as_bytes%3#0,aggregate%bzero%0#0 (copy)
+        b|                                                                                     aggregate%bzero%0#0,aggregate%arc4_encoded%2#0
+        l-load aggregate%bzero%0#0 1                                                           aggregate%arc4_encoded%2#0,aggregate%bzero%0#0
         b==                                                                                    tmp%33#0
         assert
         // arc4_types/numeric.py:96

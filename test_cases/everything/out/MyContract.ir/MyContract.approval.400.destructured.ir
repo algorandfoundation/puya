@@ -68,7 +68,7 @@ subroutine test_cases.everything.contract.Everything.register[routing]() -> void
         let tmp%1#0: bool = (== tmp%0#1 OptIn)
         goto tmp%1#0 ? block@2 : block@5
     block@2: // if_body_L51
-        let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
+        let (maybe_value%0#0: bytes, sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
         goto sender_name_existed#0 ? block@5 : block@3
     block@3: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
@@ -88,8 +88,8 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let (name#0: Encoded(len+utf8[]), exists#0: bool) = (app_local_get_ex 0u 0u "name")
         goto exists#0 ? block@3 : block@2
     block@2: // if_body_L61
-        let aggregate%encoded_value%0#0: bytes = 0x000f486f77647920737472616e67657221
-        let tmp%0#0: bytes = aggregate%encoded_value%0#0
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = 0x000f486f77647920737472616e67657221
+        let tmp%0#0: bytes = aggregate%as_Encoded(len+utf8[])%0#0
         goto block@4
     block@3: // after_if_else_L60
         let new_items_bytes#0: bytes = ((extract 2 0) name#0)
@@ -104,7 +104,7 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let tmp%0#0: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#0)
         let result#0: bytes = ((replace2 0) array#1 new_len_u16#0)
-        let tmp%4#2: bytes = (concat result#0 0x21)
+        let tmp%4#2: bytes = (concat result#0 "!")
         let tmp%0#0: bytes = tmp%4#2
         goto block@4
     block@4: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56

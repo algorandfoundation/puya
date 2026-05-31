@@ -569,7 +569,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -582,7 +581,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -592,10 +591,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.itoa
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, radix#0
-debug: selected radix#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable digits#0
@@ -610,7 +605,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -620,7 +615,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.fibonacci
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -633,7 +627,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -644,14 +638,6 @@ debug: Optimizer: Perform Subroutine Inlining
 with_reentrancy/contract.py:35:14 debug: inlining call to test_cases.with_reentrancy.contract.silly2 in test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, x#1, x#2
-debug: selected x#1 from equivalence set
-debug: Found equivalence set: tmp%0#1, x#3
-debug: selected x#3 from equivalence set
-debug: Found equivalence set: tmp%1#1, result#1, tmp%1#0, result#0
-debug: selected result#1 from equivalence set
-debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -667,7 +653,11 @@ debug: Merged linear block@1 into block@0
 debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN found equivalence set: (tmp%0#0, x#1, x#2), selected replacement: x#1
+debug: GVN found equivalence set: (tmp%0#1, x#3), selected replacement: x#3
+debug: GVN found equivalence set: (tmp%1#1, result#1, tmp%1#0, result#0), selected replacement: result#1
+debug: GVN: 6 replacement(s) in test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -678,24 +668,6 @@ debug: Optimizer: Perform Subroutine Inlining
 with_reentrancy/contract.py:43:14 debug: inlining call to test_cases.with_reentrancy.contract.silly3 in test_cases.with_reentrancy.contract.silly2
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, x#1, x#2
-debug: selected x#1 from equivalence set
-debug: Found equivalence set: tmp%1#1, is_even#0
-debug: selected is_even#0 from equivalence set
-debug: Found equivalence set: tmp%2#1, a#0
-debug: selected a#0 from equivalence set
-debug: Found equivalence set: tmp%3#1, result#1
-debug: selected result#1 from equivalence set
-debug: Found equivalence set: tmp%5#0, a#1
-debug: selected a#1 from equivalence set
-debug: Found equivalence set: tmp%6#0, result#2
-debug: selected result#2 from equivalence set
-debug: Found equivalence set: a#2, result#3
-debug: selected a#2 from equivalence set
-debug: Found equivalence set: result#4, tmp%1#0, result#0
-debug: selected result#4 from equivalence set
-debug: Copy propagation made 12 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -705,20 +677,25 @@ debug: Simplified (== tmp%0#1 0u) to (! tmp%0#1)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@1 from goto is_even#0 ? block@2 : block@3 to goto tmp%0#1 ? block@3 : block@2
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@4 from goto is_even#0 ? block@5 : block@6 to goto tmp%0#1 ? block@6 : block@5
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Replaced predecessor block@1 with block@0 in block@3
+debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
 debug: Merged linear block@7 into block@6
 debug: Optimizer: Remove Linear Jumps
-debug: Not removing empty block block@5 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly2 converged after 2 iteration(s)
+debug: GVN found equivalence set: (tmp%0#0, x#1, x#2), selected replacement: x#1
+debug: GVN found equivalence set: (tmp%1#1, is_even#0), selected replacement: is_even#0
+debug: GVN found equivalence set: (tmp%2#1, a#0), selected replacement: a#0
+debug: GVN found equivalence set: (tmp%3#1, result#1), selected replacement: result#1
+debug: GVN found equivalence set: (tmp%5#0, a#1), selected replacement: a#1
+debug: GVN found equivalence set: (tmp%6#0, result#2), selected replacement: result#2
+debug: GVN found equivalence set: (a#2, result#3), selected replacement: a#2
+debug: GVN found equivalence set: (result#4, tmp%1#0, result#0), selected replacement: result#4
+debug: GVN: 10 replacement(s) in test_cases.with_reentrancy.contract.silly2
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -728,20 +705,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly3
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%1#0, is_even#0
-debug: selected is_even#0 from equivalence set
-debug: Found equivalence set: tmp%2#0, a#0
-debug: selected a#0 from equivalence set
-debug: Found equivalence set: tmp%3#0, result#0
-debug: selected result#0 from equivalence set
-debug: Found equivalence set: tmp%5#0, a#1
-debug: selected a#1 from equivalence set
-debug: Found equivalence set: tmp%6#0, result#1
-debug: selected result#1 from equivalence set
-debug: Found equivalence set: a#2, result#2
-debug: selected a#2 from equivalence set
-debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -751,16 +714,19 @@ debug: Simplified (== tmp%0#0 0u) to (! tmp%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@0 from goto is_even#0 ? block@1 : block@2 to goto tmp%0#0 ? block@2 : block@1
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@3 from goto is_even#0 ? block@4 : block@5 to goto tmp%0#0 ? block@5 : block@4
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
-debug: Not removing empty block block@4 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly3 converged after 2 iteration(s)
+debug: GVN found equivalence set: (tmp%1#0, is_even#0), selected replacement: is_even#0
+debug: GVN found equivalence set: (tmp%2#0, a#0), selected replacement: a#0
+debug: GVN found equivalence set: (tmp%3#0, result#0), selected replacement: result#0
+debug: GVN found equivalence set: (tmp%5#0, a#1), selected replacement: a#1
+debug: GVN found equivalence set: (tmp%6#0, result#1), selected replacement: result#1
+debug: GVN found equivalence set: (a#2, result#2), selected replacement: a#2
+debug: GVN: 6 replacement(s) in test_cases.with_reentrancy.contract.silly3
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -775,7 +741,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -788,7 +753,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -798,9 +763,9 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.itoa
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%0#0
 debug: Removing unused variable radix#0
 debug: Optimizer: Remove Unused Intrinsics
 debug: Optimizer: Convert Stack Args To Immediates
@@ -812,7 +777,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -822,7 +787,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.fibonacci
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -835,7 +799,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -846,21 +810,18 @@ debug: Optimizer: Perform Subroutine Inlining
 with_reentrancy/contract.py:43:14 debug: inlining call to test_cases.with_reentrancy.contract.silly3 in test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: x#3, x#4
-debug: selected x#3 from equivalence set
-debug: Found equivalence set: result#5, result#1
-debug: selected result#5 from equivalence set
-debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable is_even#0
 debug: Optimizer: Remove Unused Intrinsics
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@1 from goto is_even#0 ? block@2 : block@3 to goto tmp%0#0 ? block@3 : block@2
+debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@4 from goto is_even#0 ? block@5 : block@6 to goto tmp%0#0 ? block@6 : block@5
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@1 with block@0 in block@2
@@ -870,7 +831,11 @@ debug: Merged linear block@7 into block@6
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@5 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly converged after 2 iteration(s)
+debug: GVN found equivalence set: (x#3, x#4), selected replacement: x#3
+debug: GVN found equivalence set: (result#5, result#1), selected replacement: result#5
+debug: GVN: 2 replacement(s) in test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -880,22 +845,25 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly3
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable is_even#0
 debug: Optimizer: Remove Unused Intrinsics
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@0 from goto is_even#0 ? block@1 : block@2 to goto tmp%0#0 ? block@2 : block@1
+debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@3 from goto is_even#0 ? block@4 : block@5 to goto tmp%0#0 ? block@5 : block@4
 debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@4 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly3 converged after 2 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -910,7 +878,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -923,7 +890,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -933,7 +900,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.itoa
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -946,7 +912,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -956,7 +922,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.fibonacci
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -969,7 +934,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -979,7 +944,99 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable is_even#0
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Not removing empty block block@5 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly converged after 2 iteration(s)
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Output IR to with_reentrancy/out/WithReentrancy.ir/WithReentrancy.approval.003.ssa.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.with_reentrancy.contract.itoa
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.with_reentrancy.contract.fibonacci
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -993,20 +1050,20 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@5 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly converged after 2 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.with_reentrancy.contract.WithReentrancy at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.clear_state_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1019,7 +1076,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1036,7 +1093,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1049,7 +1105,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1059,7 +1115,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.itoa
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1072,7 +1127,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1082,7 +1137,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.fibonacci
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1095,7 +1149,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1105,7 +1159,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1119,7 +1172,8 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@5 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.with_reentrancy.contract.silly converged after 2 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1132,7 +1186,6 @@ debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Intrinsics
@@ -1145,7 +1198,7 @@ debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops

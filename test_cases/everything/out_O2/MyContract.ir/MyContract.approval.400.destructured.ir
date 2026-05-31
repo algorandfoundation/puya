@@ -22,7 +22,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#6: bool = (== tmp%0#5 OptIn)
         goto tmp%1#6 ? block@27 : block@29
     block@27: // if_body_L51
-        let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
+        let (maybe_value%0#0: bytes, sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
         goto sender_name_existed#0 ? block@29 : block@28
     block@28: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
@@ -39,9 +39,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%12#0: bool = (&& tmp%9#0 tmp%10#0)
         (assert tmp%12#0)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
+        let (maybe_value%0#1: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let tmp%1#1: uint64 = (- maybe_value%0#0 1u)
+        let tmp%1#1: uint64 = (- maybe_value%0#1 1u)
         (app_global_put "counter" tmp%1#1)
         exit 1u
     block@6: // switch_case_next_L37
@@ -60,8 +60,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let (name#0: Encoded(len+utf8[]), exists#0: bool) = (app_local_get_ex 0u 0u "name")
         goto exists#0 ? block@21 : block@20
     block@20: // if_body_L61
-        let aggregate%encoded_value%0#0: bytes = 0x000f486f77647920737472616e67657221
-        let tmp%0#1: bytes = aggregate%encoded_value%0#0
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = 0x000f486f77647920737472616e67657221
+        let tmp%0#1: bytes = aggregate%as_Encoded(len+utf8[])%0#0
         goto block@22
     block@21: // after_if_else_L60
         let new_items_bytes#0: bytes = ((extract 2 0) name#0)
@@ -76,7 +76,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#1)
         let result#0: bytes = ((replace2 0) array#1 new_len_u16#0)
-        let tmp%4#4: bytes = (concat result#0 0x21)
+        let tmp%4#4: bytes = (concat result#0 "!")
         let tmp%0#1: bytes = tmp%4#4
         goto block@22
     block@22: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56

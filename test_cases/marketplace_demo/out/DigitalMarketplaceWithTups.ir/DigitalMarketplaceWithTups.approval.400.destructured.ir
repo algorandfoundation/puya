@@ -164,7 +164,6 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let nonce#0: uint64 = (btoi tmp%1#0)
-        let key.owner#0: account = (txn Sender)
         let key.asset#0: uint64 = ((gtxns XferAsset) xfer#0)
         let tmp%2#1: account = ((gtxns Sender) xfer#0)
         let tmp%3#0: account = (txn Sender)
@@ -177,7 +176,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%8#0: uint64 = ((gtxns AssetAmount) xfer#0)
         (assert tmp%8#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob key.asset#0)
-        let aggregate%head%1#0: bytes = (concat key.owner#0 aggregate%val_as_bytes%0#0)
+        let aggregate%head%1#0: bytes = (concat tmp%3#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 aggregate%head%2#0)
@@ -274,7 +273,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.unitaryPrice#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#0: uint64, tmp%7#2: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#1: bool = (! _quotient_high#0)
         (assert tmp%8#1)
         let tmp%6#1: account = ((gtxns Sender) buy_pay#0)
@@ -339,7 +338,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 listing.bid#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#1: uint64, tmp%7#1: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
@@ -419,7 +418,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 listing.bid#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#0: uint64, tmp%7#2: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
@@ -434,7 +433,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         (assert check%1#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw unitary_price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#0: uint64, tmp%7#2: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         let tmp%10#1: account = ((gtxns Sender) bid_pay#0)
@@ -500,7 +499,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 min_quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#1: uint64, tmp%7#1: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin

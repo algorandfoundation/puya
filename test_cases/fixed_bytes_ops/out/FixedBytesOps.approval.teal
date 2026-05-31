@@ -4,9 +4,8 @@
 // test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
 main:
     intcblock 1 0 4 3
-    bytecblock 0xabcd1234 0xcd12 0xabcdef "local" "box"
+    bytecblock 0xabcd1234 0xabcdef 0xcd12 "local" "box"
     intc_1 // 0
-    dup
     // fixed_bytes_ops/contract.py:27
     // if Txn.num_app_args > 0:
     txn NumAppArgs
@@ -225,11 +224,6 @@ main_else_body@33:
     //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
     // )
     callsub test_sequence_ops
-    // fixed_bytes_ops/contract.py:518
-    // empty_1 = FixedBytes[typing.Literal[4]]()
-    intc_2 // 4
-    bzero
-    bury 2
     // fixed_bytes_ops/contract.py:524
     // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
     txn ApplicationID
@@ -259,7 +253,7 @@ main_for_header@58:
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
+    bytec_1 // 0xabcdef
     // fixed_bytes_ops/contract.py:537
     // for item in val:
     dig 1
@@ -280,7 +274,7 @@ main_after_for@61:
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
+    bytec_1 // 0xabcdef
     // fixed_bytes_ops/contract.py:539
     // assert result == val
     ==
@@ -297,7 +291,7 @@ main_for_header@62:
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
+    bytec_1 // 0xabcdef
     // fixed_bytes_ops/contract.py:541
     // for idx, byte in uenumerate(val):
     dig 1
@@ -310,23 +304,12 @@ main_for_header@62:
     intc_0 // 1
     ==
     assert // expected bytes to be length 1
-    // fixed_bytes_ops/contract.py:545
-    // assert byte in val
-    dup
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
+    bytec_1 // 0xabcdef
     // fixed_bytes_ops/contract.py:545
     // assert byte in val
-    callsub is_substring
-    assert
-    // fixed_bytes_ops/contract.py:533-534
-    // # from_hex
-    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
-    // fixed_bytes_ops/contract.py:546
-    // assert FB1(byte) in val
     callsub is_substring
     assert
     intc_0 // 1
@@ -355,9 +338,11 @@ main_for_header@68:
     swap
     intc_2 // 4
     extract3 // on error: index access is out of bounds
+    // fixed_bytes_ops/contract.py:321
+    // val2 &= other
+    pushbytes 0x00000000
     // fixed_bytes_ops/contract.py:580
     // assert v == FixedBytes[typing.Literal[4]]()
-    dig 4
     ==
     assert
     intc_0 // 1
@@ -373,108 +358,34 @@ main_after_for@71:
     // fixed_bytes_ops/contract.py:608
     // assert x in x  # noqa: PLR0124
     callsub is_substring
+    dup
     assert
     // fixed_bytes_ops/contract.py:105
     // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
+    bytec_2 // 0xcd12
     bytec_0 // 0xabcd1234
     // fixed_bytes_ops/contract.py:609
     // assert y in x
     callsub is_substring
+    dup
     assert
     // fixed_bytes_ops/contract.py:105
     // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
     bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
+    bytec_2 // 0xcd12
     // fixed_bytes_ops/contract.py:610
     // assert x not in y
     callsub is_substring
     !
     assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    dup
     // fixed_bytes_ops/contract.py:612
     // assert (x not in x) == False  # noqa: E712, PLR0124
-    callsub is_substring
+    swap
     !
     !
     assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
     // fixed_bytes_ops/contract.py:613
     // assert (y not in x) == False  # noqa: E712
-    callsub is_substring
-    !
-    !
-    assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:614
-    // assert (x in y) == False  # noqa: E712
-    callsub is_substring
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:619
-    // assert y in x
-    callsub is_substring
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:620
-    // assert x not in y
-    callsub is_substring
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:622
-    // assert (y not in x) == False  # noqa: E712
-    callsub is_substring
-    !
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:623
-    // assert (x in y) == False  # noqa: E712
-    callsub is_substring
-    !
-    assert
-    // fixed_bytes_ops/contract.py:628
-    // assert b"\xcd\x12" in x
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:110
-    // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:628
-    // assert b"\xcd\x12" in x
-    callsub is_substring
-    assert
-    // fixed_bytes_ops/contract.py:630
-    // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:110
-    // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:630
-    // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-    callsub is_substring
     !
     !
     assert
@@ -556,7 +467,7 @@ test_sequence_ops:
     substring 1 3
     // fixed_bytes_ops/contract.py:458
     // assert slice_result == Bytes.from_hex("CD12")
-    bytec_1 // 0xcd12
+    bytec_2 // 0xcd12
     ==
     assert
     // fixed_bytes_ops/contract.py:460
@@ -586,11 +497,7 @@ test_sequence_ops:
     pushbytes 0xabcd12
     ==
     assert
-    // fixed_bytes_ops/contract.py:475-476
-    // # Iteration
-    // count = UInt64(0)
     intc_1 // 0
-    dup
 
 test_sequence_ops_for_header@1:
     // fixed_bytes_ops/contract.py:477
@@ -601,46 +508,40 @@ test_sequence_ops_for_header@1:
     bz test_sequence_ops_after_for@4
     // fixed_bytes_ops/contract.py:478
     // count += 1
-    swap
-    intc_0 // 1
-    +
-    swap
     intc_0 // 1
     +
     b test_sequence_ops_for_header@1
 
 test_sequence_ops_after_for@4:
-    pop
     // fixed_bytes_ops/contract.py:479
     // assert count == 4
     intc_2 // 4
     ==
     assert
+    // fixed_bytes_ops/contract.py:483
+    // for _byte in reversed(val):
+    intc_2 // 4
     // fixed_bytes_ops/contract.py:481-482
     // # Reverse iteration
     // count = UInt64(0)
     intc_1 // 0
-    // fixed_bytes_ops/contract.py:483
-    // for _byte in reversed(val):
-    intc_2 // 4
 
 test_sequence_ops_for_header@5:
     // fixed_bytes_ops/contract.py:483
     // for _byte in reversed(val):
-    dup
+    dig 1
     bz test_sequence_ops_after_for@8
+    swap
     intc_0 // 1
     -
+    swap
     // fixed_bytes_ops/contract.py:484
     // count += 1
-    swap
     intc_0 // 1
     +
-    swap
     b test_sequence_ops_for_header@5
 
 test_sequence_ops_after_for@8:
-    pop
     // fixed_bytes_ops/contract.py:485
     // assert count == 4
     intc_2 // 4

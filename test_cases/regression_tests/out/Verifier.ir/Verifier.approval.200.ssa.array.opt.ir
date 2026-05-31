@@ -35,11 +35,11 @@ subroutine test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() ->
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) proof#0)
         let aggregate%bytes_offset%0#0: uint64 = 256u
-        let x#0: bytes = (extract3 proof#0 258u 32u)
+        let x#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 32u) // on error: index access is out of bounds
         let aggregate%bytes_offset%1#0: uint64 = 192u
-        let aggregate%encoded_element%1#0: bytes = ((extract 194 32) proof#0)
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 32u) // on error: index access is out of bounds
         let aggregate%bytes_offset%2#0: uint64 = 224u
-        let aggregate%encoded_element%2#0: bytes = ((extract 226 32) proof#0)
+        let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%2#0 32u) // on error: index access is out of bounds
         let y#0: bytes = (concat aggregate%encoded_element%1#0 aggregate%encoded_element%2#0)
         let z#0: bytes = (concat aggregate%encoded_element%2#0 x#0)
         let tmp%2#1: bytes = (concat x#0 y#0)

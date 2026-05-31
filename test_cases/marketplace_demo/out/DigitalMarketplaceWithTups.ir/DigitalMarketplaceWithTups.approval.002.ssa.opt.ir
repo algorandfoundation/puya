@@ -204,7 +204,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let encoded_for_storage%0#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(key.owner#0, asset#0, nonce#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 encoded_for_storage%0#0)
         let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
-        let (existing.deposited#0: uint64, existing.unitaryPrice#0: uint64, existing.bidder#0: account, existing.bid#0: uint64, existing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
+        let (existing.deposited#0: uint64, tmp%2#1: uint64, existing.bidder#0: account, existing.bid#0: uint64, existing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(existing.deposited#0, unitary_price#0, existing.bidder#0, existing.bid#0, existing.bidUnitaryPrice#0)
         box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
         exit 1u
@@ -282,7 +282,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let encoded_for_storage%0#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(key.owner#0, asset#0, nonce#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 encoded_for_storage%0#0)
         let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
-        let (listing.deposited#0: uint64, listing.unitaryPrice#0: uint64, listing.bidder#0: account, listing.bid#0: uint64, listing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
+        let (listing.deposited#0: uint64, tmp%2#1: uint64, listing.bidder#0: account, listing.bid#0: uint64, listing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
         let tmp%6#0: account = (global ZeroAddress)
         let tmp%7#0: bool = (!= listing.bidder#0 tmp%6#0)
         goto tmp%7#0 ? block@2 : block@4
@@ -443,7 +443,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
     block@0: // L68
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#0: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         return amount_to_be_paid#0

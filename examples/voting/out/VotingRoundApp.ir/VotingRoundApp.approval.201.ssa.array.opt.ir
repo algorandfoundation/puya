@@ -155,6 +155,7 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L224
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
+        let item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 item_index_internal%0#1 1u) // on error: index access is out of bounds
         let tmp%4#1: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#1)
         let total_options#2: uint64 = (+ total_options#1 tmp%4#1)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -384,10 +385,12 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L197
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) answer_ids#0)
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 question_index#0 1u) // on error: index access is out of bounds
         let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
         let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 question_index#0 1u) // on error: index access is out of bounds
         let options_count#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#0)
         let tmp%20#0: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%20#0) // Answer option index invalid

@@ -2,11 +2,6 @@
 // test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // bytes_backed_ops/contract.py:56
-        // assert op.sha256(arc4.UInt64(42))
-        int 42                                                                 42
-        itob                                                                   aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
         // bytes_backed_ops/contract.py:100
         // acct = Account(op.Txn.sender.bytes)
         txn Sender                                                             acct#1
@@ -38,49 +33,6 @@ subroutine main:
         len                                                                    tmp%10#1
         v-store tmp%10#1
         v-load tmp%10#1                                                        tmp%10#1
-        assert
-        // bytes_backed_ops/contract.py:124
-        // assert op.getbyte(arc4.UInt64(42), 7) == 42
-        v-load aggregate%val_as_bytes%0#0                                      aggregate%val_as_bytes%0#0
-        int 7                                                                  aggregate%val_as_bytes%0#0,7
-        getbyte                                                                tmp%47#1
-        v-store tmp%47#1
-        v-load tmp%47#1                                                        tmp%47#1
-        int 42                                                                 tmp%47#1,42
-        ==                                                                     tmp%48#1
-        v-store tmp%48#1
-        v-load tmp%48#1                                                        tmp%48#1
-        assert
-        // bytes_backed_ops/contract.py:99
-        // s = String("hello")
-        byte "hello"                                                           "hello"
-        // bytes_backed_ops/contract.py:126
-        // assert op.getbyte(s, 0) == 104  # 'h'
-        int 0                                                                  "hello",0
-        getbyte                                                                tmp%51#1
-        v-store tmp%51#1
-        v-load tmp%51#1                                                        tmp%51#1
-        int 104                                                                tmp%51#1,104
-        ==                                                                     tmp%52#1
-        v-store tmp%52#1
-        v-load tmp%52#1                                                        tmp%52#1
-        assert
-        // bytes_backed_ops/contract.py:98
-        // fb = FixedBytes[typing.Literal[5]](b"hello")
-        byte 0x68656c6c6f                                                      0x68656c6c6f
-        // bytes_backed_ops/contract.py:129
-        // modified = op.setbyte(fb, 0, 72)
-        int 0                                                                  0x68656c6c6f,0
-        int 72                                                                 0x68656c6c6f,0,72
-        setbyte                                                                modified#0
-        v-store modified#0
-        // bytes_backed_ops/contract.py:130
-        // assert modified == b"Hello"
-        v-load modified#0                                                      modified#0
-        byte 0x48656c6c6f                                                      modified#0,0x48656c6c6f
-        ==                                                                     tmp%54#1
-        v-store tmp%54#1
-        v-load tmp%54#1                                                        tmp%54#1
         assert
         // bytes_backed_ops/contract.py:136
         // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))

@@ -3,27 +3,26 @@
 
 // test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program() -> uint64:
 main:
-    intcblock 10 1 42
-    bytecblock 0x2a 0x01
+    intcblock 1 42
+    bytecblock 0x2a
     bytec_0 // 0x2a
-    intc_2 // 42
+    intc_1 // 42
     callsub test_self_sub
-    intc_2 // 42
+    intc_1 // 42
     callsub test_self_bitwise
     bytec_0 // 0x2a
-    intc_1 // 1
+    intc_0 // 1
     callsub test_one_const
     bytec_0 // 0x2a
     pushint 0
     callsub test_one_const
     txn NumAppArgs
     dup
-    intc_1 // 1
+    intc_0 // 1
     +
     dup2
     callsub test_uint64_swaps
-    bytec_1 // 0x01
-    pushbytes 0x02
+    pushbytess 0x01 0x02
     callsub test_biguint_swaps
     dup2
     callsub test_uint64_negated
@@ -37,7 +36,7 @@ main:
     uncover 3
     callsub test_uint64_double_negated
     callsub test_biguint_double_negated
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -56,61 +55,7 @@ test_self_bitwise:
 // test_cases.gvn.algebraic_identities.test_one_const(x: bytes, selector: uint64) -> void:
 test_one_const:
     proto 2 0
-    frame_dig -1
-    bz test_one_const_else_body@2
-    pushint 65
-    bzero
-    bytec_1 // 0x01
-    concat
-    dup
-    len
-    intc_0 // 10
-    dig 1
-    >=
-    intc_0 // 10
-    dig 2
-    uncover 2
-    select
-    dig 1
-    swap
-    -
-    swap
-    substring3
-
-test_one_const_after_if_else@3:
-    frame_dig -2
-    dig 1
-    b*
-    frame_dig -2
-    b==
-    assert
-    frame_dig -2
-    b*
-    frame_dig -2
-    b==
-    assert
     retsub
-
-test_one_const_else_body@2:
-    pushint 66
-    bzero
-    bytec_1 // 0x01
-    concat
-    dup
-    len
-    intc_0 // 10
-    dig 1
-    >=
-    intc_0 // 10
-    dig 2
-    uncover 2
-    select
-    dig 1
-    swap
-    -
-    swap
-    substring3
-    b test_one_const_after_if_else@3
 
 
 // test_cases.gvn.algebraic_identities.test_uint64_swaps(a: uint64, b: uint64) -> void:
@@ -120,17 +65,9 @@ test_uint64_swaps:
     frame_dig -1
     <
     assert
-    frame_dig -1
-    frame_dig -2
-    >
-    assert
     frame_dig -2
     frame_dig -1
     <=
-    assert
-    frame_dig -1
-    frame_dig -2
-    >=
     assert
     retsub
 
@@ -142,17 +79,9 @@ test_biguint_swaps:
     frame_dig -1
     b<
     assert
-    frame_dig -1
-    frame_dig -2
-    b>
-    assert
     frame_dig -2
     frame_dig -1
     b<=
-    assert
-    frame_dig -1
-    frame_dig -2
-    b>=
     assert
     retsub
 
@@ -166,26 +95,11 @@ test_uint64_negated:
     assert
     frame_dig -2
     frame_dig -1
-    >=
-    !
-    assert
-    frame_dig -2
-    frame_dig -1
     <=
     assert
     frame_dig -2
     frame_dig -1
-    >
-    !
-    assert
-    frame_dig -2
-    frame_dig -1
     !=
-    assert
-    frame_dig -2
-    frame_dig -1
-    ==
-    !
     assert
     retsub
 
@@ -199,26 +113,11 @@ test_biguint_negated:
     assert
     frame_dig -2
     frame_dig -1
-    b>=
-    !
-    assert
-    frame_dig -2
-    frame_dig -1
     b<=
     assert
     frame_dig -2
     frame_dig -1
-    b>
-    !
-    assert
-    frame_dig -2
-    frame_dig -1
     b!=
-    assert
-    frame_dig -2
-    frame_dig -1
-    b==
-    !
     assert
     retsub
 
@@ -229,10 +128,6 @@ test_uint64_double_negated:
     frame_dig -2
     frame_dig -1
     <
-    dup
-    assert
-    !
-    !
     assert
     retsub
 
@@ -243,9 +138,5 @@ test_biguint_double_negated:
     frame_dig -2
     frame_dig -1
     b<
-    dup
-    assert
-    !
-    !
     assert
     retsub

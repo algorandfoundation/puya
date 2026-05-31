@@ -143,8 +143,9 @@ main test_cases.simplish.contract.Simplish.approval_program:
 
 subroutine test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
     block@0: // L103
-        let two_pi#0: uint64 = 628318u
-        let tmp%1#0: uint64 = (* radius#0 628318u)
+        let tmp%0#0: uint64 = 628318u
+        let two_pi#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (* radius#0 two_pi#0)
         let tmp%2#0: uint64 = (/ tmp%1#0 100000u)
         return tmp%2#0
 
@@ -157,16 +158,17 @@ subroutine test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
 
 subroutine test_cases.simplish.contract.itoa(i: uint64) -> bytes:
     block@0: // L117
-        let radix#0: uint64 = 10u
-        let tmp%1#0: bool = (< i#0 10u)
+        let tmp%0#0: uint64 = 10u
+        let radix#0: uint64 = tmp%0#0
+        let tmp%1#0: bool = (< i#0 radix#0)
         goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L123
         let extract%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u)
         return extract%0#0
     block@2: // after_if_else_L122
-        let tmp%2#0: uint64 = (/ i#0 10u)
+        let tmp%2#0: uint64 = (/ i#0 radix#0)
         let tmp%3#0: bytes = test_cases.simplish.contract.itoa(tmp%2#0)
-        let tmp%4#0: uint64 = (% i#0 10u)
+        let tmp%4#0: uint64 = (% i#0 radix#0)
         let extract%1#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u)
         let tmp%5#0: bytes = (concat tmp%3#0 extract%1#0)
         return tmp%5#0

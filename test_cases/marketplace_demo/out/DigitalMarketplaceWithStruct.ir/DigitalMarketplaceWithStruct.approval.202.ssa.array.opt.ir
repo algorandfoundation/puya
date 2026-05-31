@@ -17,8 +17,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "getListingsMbr()uint64" => block@6, method "allowAsset(pay,uint64)void" => block@7, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@8, method "deposit(axfer,uint64)void" => block@9, method "setPrice(uint64,uint64,uint64)void" => block@10, method "buy(address,uint64,uint64,pay,uint64)void" => block@11, method "withdraw(uint64,uint64)void" => block@12, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@13, method "acceptBid(uint64,uint64)void" => block@14, * => block@17}
     block@6: // getListingsMbr_route_L78
-        (log 0x151f7c75000000000000c544)
-        exit 1u
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]()
+        goto block@17
     block@7: // allowAsset_route_L82
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
         goto block@17
@@ -52,6 +52,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: bool = (! tmp%9#0)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]() -> void:
+    block@0: // L78
+        (log 0x151f7c75000000000000c544)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]() -> void:
@@ -272,7 +277,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#1: uint64, tmp%6#2: uint64, tmp%7#2: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#2: bool = (! _quotient_high#0)
         (assert tmp%8#2)
         let tmp%3#1: account = ((gtxns Sender) buy_pay#0)
@@ -338,7 +343,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#1: uint64, tmp%7#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
@@ -419,7 +424,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#1: uint64, amount_not_scaled_low#1: uint64) = (mulw price#1 quantity#2)
         let (scaling_factor_high#1: uint64, scaling_factor_low#1: uint64) = (expw 10u asset_decimals#1)
-        let (_quotient_high#1: uint64, amount_to_be_paid#1: uint64, _remainder_high#1: uint64, _remainder_low#1: uint64) = (divmodw amount_not_scaled_high#1 amount_not_scaled_low#1 scaling_factor_high#1 scaling_factor_low#1)
+        let (_quotient_high#1: uint64, amount_to_be_paid#1: uint64, tmp%6#3: uint64, tmp%7#2: uint64) = (divmodw amount_not_scaled_high#1 amount_not_scaled_low#1 scaling_factor_high#1 scaling_factor_low#1)
         let tmp%8#1: bool = (! _quotient_high#1)
         (assert tmp%8#1)
         itxn_begin
@@ -434,7 +439,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         (assert check%1#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw unitary_price#0 quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#2: uint64, tmp%7#1: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         let tmp%11#0: account = ((gtxns Sender) bid_pay#0)
@@ -499,7 +504,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw price#0 min_quantity#0)
         let (scaling_factor_high#0: uint64, scaling_factor_low#0: uint64) = (expw 10u asset_decimals#0)
-        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, _remainder_high#0: uint64, _remainder_low#0: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
+        let (_quotient_high#0: uint64, amount_to_be_paid#0: uint64, tmp%6#1: uint64, tmp%7#1: uint64) = (divmodw amount_not_scaled_high#0 amount_not_scaled_low#0 scaling_factor_high#0 scaling_factor_low#0)
         let tmp%8#0: bool = (! _quotient_high#0)
         (assert tmp%8#0)
         itxn_begin
