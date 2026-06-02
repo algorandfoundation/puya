@@ -218,6 +218,29 @@ def test_gtxn_array_index_op_selection(deployer_o: Deployer) -> None:
         deployer_o.create_bare((_OP_SELECTION_PATH, "GTxnArrayIndexOpSelection"))
 
 
+def test_router_override_non_noop_oca(deployer_o: Deployer) -> None:
+    # The trigger for this bug was an overriden approval program and
+    # both noop and non-noop on completion methods present.
+    # The update call would fall through into a no-op check
+    # and always fail.
+    client = deployer_o.create_bare(
+        TEST_CASES_DIR / "regression_tests" / "router_override_non_noop_oca.py"
+    ).client
+
+    result = client.send.update(au.AppClientMethodCallParams(method="update_application"))
+    assert result.confirmation.confirmed_round
+    assert result.confirmation.logs == [b"update"]
+
+    # the noop methods should still route correctly alongside the non-noop method
+    noop_result = client.send.call(au.AppClientMethodCallParams(method="noop_method"))
+    assert noop_result.confirmation.logs == [b"noop"]
+
+    another_noop_result = client.send.call(
+        au.AppClientMethodCallParams(method="another_noop_method", args=[42])
+    )
+    assert another_noop_result.confirmation.logs == [b"another noop" + (42).to_bytes(8)]
+
+
 def test_branch_to_proto(deployer_o: Deployer) -> None:
     client = deployer_o.create(TEST_CASES_DIR / "regression_tests" / "branch_to_proto.py").client
 
