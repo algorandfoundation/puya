@@ -1,9 +1,9 @@
 from abc import ABC
 
-from algopy import Contract, UInt64, arc4, op, subroutine
+from algopy import BaseContract, UInt64, arc4, op, subroutine
 
 
-class MyBase(Contract, ABC):
+class MyBase(BaseContract, ABC):
     @subroutine
     def remember_creator(self) -> None:
         self.creator = op.Txn.sender

@@ -29,7 +29,7 @@ For example to require a payment transaction in an ARC-4 ABI method:
 import algopy
 
 
-class MyContract(algopy.ARC4Contract):
+class MyContract(algopy.Contract):
 
     @algopy.arc4.abimethod()
     def process_payment(self, payment: algopy.gtxn.PaymentTransaction) -> None:

@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, Txn, UInt64, log, subroutine
+from algopy import BaseContract, Bytes, Txn, UInt64, log, subroutine
 
 
-class BytesContract(Contract):
+class BytesContract(BaseContract):
     def approval_program(self) -> UInt64:
         base_64 = Bytes.from_base64("QmFzZSA2NCBlbmNvZGVk")
         assert base_64 == Bytes(b"Base 64 encoded")

@@ -1,7 +1,7 @@
-from algopy import Contract, Txn, UInt64, op
+from algopy import BaseContract, Txn, UInt64, op
 
 
-class Uint64Contract(Contract):
+class Uint64Contract(BaseContract):
     def approval_program(self) -> UInt64:
         zero = UInt64(0)
         one = UInt64(1)

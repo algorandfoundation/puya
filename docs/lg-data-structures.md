@@ -83,7 +83,7 @@ However Puya will support reading and writing parts of a box
 
 ```python
 import typing
-from algopy import Box, FixedArray, Struct, UInt64, arc4, size_of
+from algopy import Box, Contract, FixedArray, Struct, UInt64, arc4, size_of
 
 
 
@@ -91,7 +91,7 @@ class BigStruct(Struct):
     count: UInt64 # 8 bytes
     large_array: FixedArray[UInt64, typing.Literal[512]] # 4096 bytes
 
-class Contract(arc4.ARC4Contract):
+class Contract(Contract):
 
     def __init__(self) -> None:
         self.box = Box(BigStruct)
@@ -179,7 +179,7 @@ This is a regular python tuple
 ```python
 import algopy
 
-class SomeContract(algopy.arc4.ARC4Contract):
+class SomeContract(algopy.Contract):
     @algopy.arc4.abimethod()
     def get_array(self) -> algopy.ImmutableArray[algopy.UInt64]:
         arr = algopy.ReferenceArray[algopy.UInt64]()

@@ -7,7 +7,7 @@ from algopy import UInt64, urange
 class StateTotals:
     """
     Options class to manually define the total amount of global and local state contract will use,
-    used by [`Contract.__init_subclass__`](#algopy.Contract.__init_subclass__).
+    used by [`BaseContract.__init_subclass__`](#algopy.BaseContract.__init_subclass__).
 
     This is not required when all state is assigned to `self.`, but is required if a
     contract dynamically interacts with state via `AppGlobal.get_bytes` etc, or if you want
@@ -31,7 +31,7 @@ class StateTotals:
         at once.
         """
 
-class Contract(abc.ABC):
+class BaseContract(abc.ABC):
     """Base class for an Algorand Smart Contract"""
 
     def __init_subclass__(
@@ -43,11 +43,11 @@ class Contract(abc.ABC):
         avm_version: int = ...,
     ):
         """
-        When declaring a Contract subclass, options and configuration are passed in
+        When declaring a contract subclass, options and configuration are passed in
         the base class list:
 
         ```python
-        class MyContract(algopy.Contract, name="CustomName"):
+        class MyContract(algopy.BaseContract, name="CustomName"):
             ...
         ```
 
@@ -55,7 +55,7 @@ class Contract(abc.ABC):
          Will affect the output TEAL file name if there are multiple non-abstract contracts
          in the same file.
 
-         If the contract is a subclass of algopy.ARC4Contract, `name` will also be used as the
+         If the contract is a subclass of algopy.Contract, `name` will also be used as the
          contract name in the ARC-32 application.json, instead of the class name.
 
         :param scratch_slots:

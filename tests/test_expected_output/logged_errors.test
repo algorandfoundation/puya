@@ -4,10 +4,10 @@
 
 ## case: test_logged_assert_invalid_code
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "not-alnum!") ## W: error code should be alphanumeric
         return True
@@ -17,10 +17,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_colon_in_code
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "bad:code") ## E: error code must not contain domain separator ':'
         return True
@@ -30,10 +30,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_colon_in_message
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "01", error_message="bad:msg") ## E: error message must not contain domain separator ':'
         return True
@@ -43,10 +43,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_invalid_prefix
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "01", prefix="BAD") # type: ignore[arg-type] ## E: error prefix must be one of AER, ERR
         return True
@@ -56,10 +56,10 @@ class MyContract(Contract):
 
 ## case: test_logged_err_invalid_code
 
-from algopy import Contract, Txn, logged_err
+from algopy import BaseContract, Txn, logged_err
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         if Txn.num_app_args > 0:
             logged_err("not-alnum!") ## W: error code should be alphanumeric
@@ -70,10 +70,10 @@ class MyContract(Contract):
 
 ## case: test_logged_err_colon_in_code
 
-from algopy import Contract, Txn, logged_err
+from algopy import BaseContract, Txn, logged_err
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         if Txn.num_app_args > 0:
             logged_err("bad:code") ## E: error code must not contain domain separator ':'
@@ -84,10 +84,10 @@ class MyContract(Contract):
 
 ## case: test_logged_err_colon_in_message
 
-from algopy import Contract, Txn, logged_err
+from algopy import BaseContract, Txn, logged_err
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         if Txn.num_app_args > 0:
             logged_err("01", error_message="bad:msg") ## E: error message must not contain domain separator ':'
@@ -118,10 +118,10 @@ def my_sig() -> bool:
 
 ## case: test_logged_assert_camel_case_code
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "MyCode") ## W: error code should be in camelCase
         return True
@@ -131,10 +131,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_aer_prefix
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "01", prefix="AER") ## W: AER prefixed error messages are reserved for specific ARC errors
         return True
@@ -144,10 +144,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_long_message
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "01", error_message="I will now provide a succint description of the error. I guess it all started when I was 5...") ## W: error message is 100 bytes long, consider making it shorter
         return True
@@ -157,10 +157,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_8_byte_message
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "abcd") ## W: your final error message is 8 bytes long. Error messages exactly 8 or 32 bytes long are discouraged
         return True
@@ -170,10 +170,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_32_byte_message
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0, "01", error_message="aaaaaaaaaaaaaaaaaaaaaaaaa") ## W: your final error message is 32 bytes long. Error messages exactly 8 or 32 bytes long are discouraged
         return True
@@ -183,10 +183,10 @@ class MyContract(Contract):
 
 ## case: test_logged_err_missing_code
 
-from algopy import Contract, Txn, logged_err
+from algopy import BaseContract, Txn, logged_err
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         if Txn.num_app_args > 0:
             logged_err() # type: ignore[call-arg] ## E: missing required positional argument(s): error_code \
@@ -198,10 +198,10 @@ class MyContract(Contract):
 
 ## case: test_logged_assert_missing_code
 
-from algopy import Contract, Txn, logged_assert
+from algopy import BaseContract, Txn, logged_assert
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         logged_assert(Txn.num_app_args > 0) # type: ignore[call-arg] ## E: missing required positional argument(s): error_code \
                                                                        ## E: error code is mandatory in logged errors

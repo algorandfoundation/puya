@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, logicsig, op
+from algopy import BaseContract, Contract, UInt64, logicsig, op
 
 
 class ReplaceOpSelection(Contract):
@@ -34,7 +34,7 @@ class SubstringOpSelection(Contract):
         return True
 
 
-class GaidOpSelection(Contract):
+class GaidOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255 forces gaids (uint64 stack arg) over gaid (uint8 immediate).
         # Compile-only: runtime would fail since group indices are bounded by GroupIndex.
@@ -44,7 +44,7 @@ class GaidOpSelection(Contract):
         return True
 
 
-class GloadTOpSelection(Contract):
+class GloadTOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255, I <= 255 lets the optimizer downgrade gloadss -> gloads
         # (I as uint8 immediate, T on stack). At O0 it stays as gloadss.
@@ -55,7 +55,7 @@ class GloadTOpSelection(Contract):
         return True
 
 
-class GloadIOpSelection(Contract):
+class GloadIOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # I > 255 must leave gloadss alone: no AVM variant has T as immediate
         # with I on the stack. Compile-only: runtime would fail since I is not
@@ -77,7 +77,7 @@ class TxnArrayOpSelection(Contract):
         return True
 
 
-class GTxnOpSelection(Contract):
+class GTxnOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255 forces gtxns (uint64 stack arg) over gtxn (uint8 immediate).
         # Compile-only: runtime would fail since 256 is beyond the txn group.

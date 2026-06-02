@@ -2,8 +2,8 @@ from algopy import (
     Account,
     Application,
     Asset,
+    BaseContract,
     Bytes,
-    Contract,
     GlobalState,
     String,
     UInt64,
@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class AppStateContract(Contract):
+class AppStateContract(BaseContract):
     def __init__(self) -> None:
         self.global_int_full = GlobalState(UInt64(55))
         self.global_int_simplified = UInt64(33)

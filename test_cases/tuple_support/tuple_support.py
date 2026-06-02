@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, UInt64, log, op, subroutine, urange
+from algopy import BaseContract, Bytes, UInt64, log, op, subroutine, urange
 
 
-class TupleSupport(Contract):
+class TupleSupport(BaseContract):
     def __init__(self) -> None:
         self.state = UInt64(0)
 

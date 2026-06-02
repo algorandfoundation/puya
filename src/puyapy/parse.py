@@ -39,7 +39,7 @@ logger = log.get_logger(__name__)
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:project.version
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("3.6.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("4.1.0")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 

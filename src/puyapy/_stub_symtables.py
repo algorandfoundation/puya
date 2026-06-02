@@ -40,8 +40,12 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "compile_logicsig": SymbolData(
             fullname="algopy._compiled.compile_logicsig", module_public=True
         ),
-        "StateTotals": SymbolData(fullname="algopy._contract.StateTotals", module_public=True),
-        "Contract": SymbolData(fullname="algopy._contract.Contract", module_public=True),
+        "StateTotals": SymbolData(
+            fullname="algopy._base_contract.StateTotals", module_public=True
+        ),
+        "BaseContract": SymbolData(
+            fullname="algopy._base_contract.BaseContract", module_public=True
+        ),
         "subroutine": SymbolData(fullname="algopy._hints.subroutine", module_public=True),
         "ImmutableFixedArray": SymbolData(
             fullname="algopy._native.ImmutableFixedArray", module_public=True
@@ -75,13 +79,23 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "gtxn": SymbolData(fullname="algopy.gtxn", module_public=True),
         "itxn": SymbolData(fullname="algopy.itxn", module_public=True),
         "op": SymbolData(fullname="algopy.op", module_public=True),
+        "Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
         "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True),
         "ARC4Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
         "Global": SymbolData(fullname="algopy.op.Global", module_public=True),
         "Txn": SymbolData(fullname="algopy.op.Txn", module_public=True),
     },
     "algopy._aliases": {
-        "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True)
+        "Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
+        "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True),
+    },
+    "algopy._base_contract": {
+        "StateTotals": SymbolData(
+            fullname="algopy._base_contract.StateTotals", module_public=True
+        ),
+        "BaseContract": SymbolData(
+            fullname="algopy._base_contract.BaseContract", module_public=True
+        ),
     },
     "algopy._box": {
         "_TKey": SymbolData(fullname="algopy._box._TKey", module_public=True),
@@ -111,10 +125,6 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "TransactionType": SymbolData(
             fullname="algopy._constants.TransactionType", module_public=True
         ),
-    },
-    "algopy._contract": {
-        "StateTotals": SymbolData(fullname="algopy._contract.StateTotals", module_public=True),
-        "Contract": SymbolData(fullname="algopy._contract.Contract", module_public=True),
     },
     "algopy._hints": {
         "_P": SymbolData(fullname="algopy._hints._P", module_public=True),
@@ -460,10 +470,10 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
 STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
     "algopy": [
         "algopy._aliases",
+        "algopy._base_contract",
         "algopy._box",
         "algopy._compiled",
         "algopy._constants",
-        "algopy._contract",
         "algopy._hints",
         "algopy._interfaces",
         "algopy._logic_sig",
@@ -480,17 +490,17 @@ STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
         "algopy.op",
     ],
     "algopy._aliases": ["algopy.arc4"],
+    "algopy._base_contract": ["algopy", "algopy._primitives", "algopy._unsigned_builtins"],
     "algopy._box": ["algopy", "algopy._primitives"],
     "algopy._compiled": [
         "algopy",
-        "algopy._contract",
+        "algopy._base_contract",
         "algopy._interfaces",
         "algopy._logic_sig",
         "algopy._primitives",
         "algopy._reference",
     ],
     "algopy._constants": ["algopy", "algopy._primitives"],
-    "algopy._contract": ["algopy", "algopy._primitives", "algopy._unsigned_builtins"],
     "algopy._hints": [],
     "algopy._interfaces": [],
     "algopy._logic_sig": ["algopy", "algopy._primitives", "algopy._unsigned_builtins"],
@@ -509,9 +519,9 @@ STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
     "algopy._util": ["algopy", "algopy._primitives"],
     "algopy.arc4": [
         "algopy",
+        "algopy._base_contract",
         "algopy._compiled",
         "algopy._constants",
-        "algopy._contract",
         "algopy._interfaces",
         "algopy._native",
         "algopy._primitives",

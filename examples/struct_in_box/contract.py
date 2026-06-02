@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, Asset, arc4, op, subroutine
+from algopy import Asset, Contract, arc4, op, subroutine
 
 
 class UserStruct(arc4.Struct):
@@ -7,7 +7,7 @@ class UserStruct(arc4.Struct):
     asset: arc4.UInt64
 
 
-class ExampleContract(ARC4Contract):
+class ExampleContract(Contract):
     @subroutine
     def read_from_box(self, user_id: arc4.UInt64) -> UserStruct:
         box_data, exists = op.Box.get(user_id.bytes)

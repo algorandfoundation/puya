@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, UInt64, log, op
+from algopy import BaseContract, Bytes, UInt64, log, op
 
 
-class ByteConstantsContract(Contract):
+class ByteConstantsContract(BaseContract):
     def approval_program(self) -> UInt64:
         base_64 = Bytes.from_base64("QmFzZSA2NCBlbmNvZGVk")
         base_32 = Bytes.from_base32("IJQXGZJAGMZCAZLOMNXWIZLE")
