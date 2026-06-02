@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 3
-    bytecblock 0x01 0x 0x04 0x00
+    intcblock 1 0 8 7
+    bytecblock 0x
     b main_block@0
 
 main_block@0:
@@ -14,7 +14,7 @@ main_block@1:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn NumAppArgs
-    intc_0 // 0
+    intc_1 // 0
     !=
     bz main___algopy_default_create@5
     b main_abi_routing@2
@@ -40,10 +40,10 @@ main_test_array_rebinding_route@3:
     // arc4_types/mutable_params2.py:5
     // @arc4.abimethod()
     txn OnCompletion
-    intc_0 // NoOp
+    intc_1 // NoOp
     ==
     txn ApplicationID
-    intc_0 // 0
+    intc_1 // 0
     !=
     &&
     assert
@@ -52,10 +52,10 @@ main_test_array_rebinding_route@3:
 
 main___algopy_default_create@5:
     txn OnCompletion
-    intc_0 // NoOp
+    intc_1 // NoOp
     ==
     txn ApplicationID
-    intc_0 // 0
+    intc_1 // 0
     ==
     &&
     assert
@@ -65,7 +65,7 @@ main_block@8:
     b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@9
 
 main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@9:
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -77,7 +77,7 @@ test_array_rebinding_block@0:
     // arc4_types/mutable_params2.py:5
     // @arc4.abimethod()
     callsub test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -88,47 +88,117 @@ test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding:
 test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding_block@0:
     // arc4_types/mutable_params2.py:7
     // a = arc4.DynamicBytes(0)
-    intc_1 // 1
+    intc_1 // 0
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    intc_0 // 1
     itob
     extract 6 2
-    bytec_3 // 0x00
+    uncover 1
     concat
     // arc4_types/mutable_params2.py:8
     // self.maybe_modify_array(a, assign_local=True)
-    intc_1 // 1
+    intc_0 // 1
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:9
     // assert a == arc4.DynamicBytes(0, 1)
+    intc_1 // 0
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
     pushint 2
     itob
     extract 6 2
-    bytec_3 // 0x00
+    uncover 2
     concat
-    bytec_0 // 0x01
+    uncover 1
     concat
     ==
     assert
     // arc4_types/mutable_params2.py:11
     // a = arc4.DynamicBytes(1)
-    intc_1 // 1
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    intc_0 // 1
     itob
     extract 6 2
-    bytec_0 // 0x01
+    uncover 1
     concat
     // arc4_types/mutable_params2.py:12
     // self.maybe_modify_array(a, assign_local=False)
-    intc_0 // 0
+    intc_1 // 0
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:13
     // assert a == arc4.DynamicBytes(1, 42, 4)
-    intc_2 // 3
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 3
     itob
     extract 6 2
-    bytec_0 // 0x01
+    uncover 3
     concat
-    pushbytes 0x2a
+    uncover 2
     concat
-    bytec_2 // 0x04
+    uncover 1
     concat
     ==
     assert
@@ -141,18 +211,17 @@ maybe_modify_array:
     // @subroutine
     // def maybe_modify_array(self, a: arc4.DynamicBytes, *, assign_local: bool) -> None:  # v0
     proto 2 1
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    bytec_1 // ""
+    intc_1 // 0
+    intc_1 // 0
+    intc_1 // 0
+    intc_1 // 0
+    intc_1 // 0
+    intc_1 // 0
+    bytec_0 // ""
     b maybe_modify_array_block@0
 
 maybe_modify_array_block@0:
-    intc_1 // 1
+    intc_0 // 1
     frame_dig -2
     // arc4_types/mutable_params2.py:17
     // if assign_local:
@@ -163,8 +232,18 @@ maybe_modify_array_block@0:
 maybe_modify_array_if_body@1:
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
-    bytec_1 // 0x
-    bytec_0 // 0x01
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    bytec_0 // 0x
+    uncover 1
     concat
     frame_dig -2
     frame_bury 0
@@ -173,31 +252,31 @@ maybe_modify_array_if_body@1:
 
 maybe_modify_array_block@28:
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
-    intc_1 // 1
+    intc_0 // 1
     +
-    frame_bury 7
+    frame_bury 6
     b maybe_modify_array_block@29
 
 maybe_modify_array_block@29:
-    frame_dig 7
+    frame_dig 6
     itob
     extract 6 0
-    frame_bury 3
+    frame_bury 4
     b maybe_modify_array_after_inlined__puya_lib.arc4._itob16@30
 
 maybe_modify_array_after_inlined__puya_lib.arc4._itob16@30:
-    frame_dig 3
+    frame_dig 4
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     replace3
     frame_dig 1
     concat
-    frame_bury 2
+    frame_bury 4
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
     b maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@31
@@ -205,44 +284,84 @@ maybe_modify_array_after_inlined__puya_lib.arc4._itob16@30:
 maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@31:
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
-    frame_dig 2
+    frame_dig 4
     frame_bury -2
-    intc_1 // 1
+    intc_0 // 1
     bz maybe_modify_array_after_if_else@3
     b maybe_modify_array_if_body@2
 
 maybe_modify_array_if_body@2:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@3
 
 maybe_modify_array_after_if_else@3:
     // arc4_types/mutable_params2.py:19
     // a = arc4.DynamicBytes(1, 2, 3)  # v2: BOUNDARY
-    intc_2 // 3
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 3
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 3
     itob
     extract 6 2
-    bytec_0 // 0x01
+    uncover 3
     concat
-    pushbytes 0x02
+    uncover 2
     concat
-    pushbytes 0x03
+    uncover 1
     concat
     frame_bury -2
-    intc_0 // 0
+    intc_1 // 0
     bz maybe_modify_array_after_if_else@5
     b maybe_modify_array_if_body@4
 
 maybe_modify_array_if_body@4:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@5
 
 maybe_modify_array_after_if_else@5:
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
-    bytec_1 // 0x
-    bytec_2 // 0x04
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    bytec_0 // 0x
+    uncover 1
     concat
     frame_dig -2
     frame_bury 0
@@ -251,31 +370,31 @@ maybe_modify_array_after_if_else@5:
 
 maybe_modify_array_block@24:
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
-    intc_1 // 1
+    intc_0 // 1
     +
-    frame_bury 7
+    frame_bury 6
     b maybe_modify_array_block@25
 
 maybe_modify_array_block@25:
-    frame_dig 7
+    frame_dig 6
     itob
     extract 6 0
-    frame_bury 3
+    frame_bury 4
     b maybe_modify_array_after_inlined__puya_lib.arc4._itob16@26
 
 maybe_modify_array_after_inlined__puya_lib.arc4._itob16@26:
-    frame_dig 3
+    frame_dig 4
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     replace3
     frame_dig 1
     concat
-    frame_bury 4
+    frame_bury 5
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
     b maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@27
@@ -283,39 +402,69 @@ maybe_modify_array_after_inlined__puya_lib.arc4._itob16@26:
 maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@27:
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
-    frame_dig 4
+    frame_dig 5
     frame_bury -2
-    intc_0 // 0
+    intc_1 // 0
     bz maybe_modify_array_after_if_else@7
     b maybe_modify_array_if_body@6
 
 maybe_modify_array_if_body@6:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@7
 
 maybe_modify_array_after_if_else@7:
     // arc4_types/mutable_params2.py:21
     // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
-    intc_2 // 3
+    intc_0 // 1
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 2
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    pushint 3
     itob
     extract 6 2
-    bytec_0 // 0x01
+    uncover 3
     concat
-    pushbytes 0x02
+    uncover 2
     concat
-    bytec_2 // 0x04
+    uncover 1
     concat
-    intc_0 // 0
-    frame_bury 8
+    intc_1 // 0
+    frame_bury 7
     frame_bury -2
-    intc_0 // 0
+    intc_1 // 0
     bz maybe_modify_array_after_if_else@9
     b maybe_modify_array_if_body@8
 
 maybe_modify_array_if_body@8:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@9
 
 maybe_modify_array_after_if_else@9:
@@ -324,8 +473,18 @@ maybe_modify_array_after_if_else@9:
 maybe_modify_array_after_if_else@13:
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
-    bytec_1 // 0x
-    bytec_2 // 0x04
+    pushint 4
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    bytec_0 // 0x
+    uncover 1
     concat
     frame_dig -2
     frame_bury 0
@@ -334,31 +493,31 @@ maybe_modify_array_after_if_else@13:
 
 maybe_modify_array_block@16:
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
-    intc_1 // 1
+    intc_0 // 1
     +
-    frame_bury 7
+    frame_bury 6
     b maybe_modify_array_block@17
 
 maybe_modify_array_block@17:
-    frame_dig 7
+    frame_dig 6
     itob
     extract 6 0
-    frame_bury 3
+    frame_bury 4
     b maybe_modify_array_after_inlined__puya_lib.arc4._itob16@18
 
 maybe_modify_array_after_inlined__puya_lib.arc4._itob16@18:
-    frame_dig 3
+    frame_dig 4
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     replace3
     frame_dig 1
     concat
-    frame_bury 6
+    frame_bury 3
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
     b maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@19
@@ -366,27 +525,37 @@ maybe_modify_array_after_inlined__puya_lib.arc4._itob16@18:
 maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@19:
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
-    frame_dig 6
+    frame_dig 3
     frame_bury -2
-    frame_dig 8
+    frame_dig 7
     bz maybe_modify_array_after_if_else@15
     b maybe_modify_array_if_body@14
 
 maybe_modify_array_if_body@14:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@15
 
 maybe_modify_array_after_if_else@15:
-    frame_dig 9
+    frame_dig 8
     frame_bury 0
     retsub
 
 maybe_modify_array_else_body@10:
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
-    bytec_1 // 0x
-    pushbytes 0x2a
+    pushint 42
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    intc_3 // 7
+    intc_0 // 1
+    extract3
+    bytec_0 // 0x
+    uncover 1
     concat
     frame_dig -2
     frame_bury 0
@@ -395,31 +564,31 @@ maybe_modify_array_else_body@10:
 
 maybe_modify_array_block@20:
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
-    intc_1 // 1
+    intc_0 // 1
     +
-    frame_bury 7
+    frame_bury 6
     b maybe_modify_array_block@21
 
 maybe_modify_array_block@21:
-    frame_dig 7
+    frame_dig 6
     itob
     extract 6 0
-    frame_bury 3
+    frame_bury 4
     b maybe_modify_array_after_inlined__puya_lib.arc4._itob16@22
 
 maybe_modify_array_after_inlined__puya_lib.arc4._itob16@22:
-    frame_dig 3
+    frame_dig 4
     frame_dig 0
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     replace3
     frame_dig 1
     concat
-    frame_bury 5
+    frame_bury 2
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
     b maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@23
@@ -427,15 +596,15 @@ maybe_modify_array_after_inlined__puya_lib.arc4._itob16@22:
 maybe_modify_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@23:
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
-    frame_dig 5
+    frame_dig 2
     frame_bury -2
-    intc_1 // 1
+    intc_0 // 1
     bz maybe_modify_array_after_if_else@12
     b maybe_modify_array_if_body@11
 
 maybe_modify_array_if_body@11:
     frame_dig -2
-    frame_bury 9
+    frame_bury 8
     b maybe_modify_array_after_if_else@12
 
 maybe_modify_array_after_if_else@12:

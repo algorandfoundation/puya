@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 8 0 5 512
-    bytecblock 0x 0x0000000000000000 0x0000000000000004
+    bytecblock 0x
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
     // array/uint64.py:13
@@ -530,9 +530,9 @@ test_array_after_for@4:
     pushint 43
     ==
     assert
+    intc_2 // 0
     // array/uint64.py:34
     // assert arr[0] == 42
-    intc_2 // 0
     extract_uint64
     pushint 42
     ==
@@ -937,9 +937,9 @@ test_array_copy_and_extend_after_for@5:
     intc_3 // 5
     ==
     assert // expected 4
+    pushint 48
     // array/uint64.py:104
     // assert array[6] == 0, "expected 4"
-    pushint 48
     extract_uint64
     !
     assert // expected 4
@@ -1024,9 +1024,9 @@ test_array_evaluation_order:
     intc_0 // 1
     ==
     assert
+    pushint 40
     // array/uint64.py:117
     // assert arr[5] == 2
-    pushint 40
     extract_uint64
     pushint 2
     ==
@@ -1086,9 +1086,9 @@ test_array_evaluation_order:
     pushint 7
     ==
     assert
+    pushint 24
     // array/uint64.py:123
     // assert arr[3] == 6
-    pushint 24
     extract_uint64
     pushint 6
     ==
@@ -1140,9 +1140,9 @@ test_array_assignment_maximum_cursage:
     pushint 42
     ==
     assert
+    intc_1 // 8
     // array/uint64.py:132
     // assert arr[1] == 1
-    intc_1 // 8
     extract_uint64
     intc_0 // 1
     ==
@@ -1203,7 +1203,7 @@ test_allocations_after_for@5:
 // test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
 test_iteration:
     intc_2 // 0
-    dup
+    dupn 2
     bytec_0 // ""
     // array/uint64.py:142
     // arr = ReferenceArray[UInt64]()
@@ -1356,6 +1356,9 @@ test_iteration_for_header@14:
 test_iteration_after_for@17:
     // array/uint64.py:162
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
+    intc_2 // 0
+    itob
+    bury 12
     pushbytes 0x0000
     bury 11
     // array/uint64.py:142
@@ -1437,27 +1440,32 @@ test_iteration_after_for@21:
     // assert combined_arr[0] == 0
     dup
     extract 2 8
-    bytec_1 // 0x0000000000000000
+    dig 13
+    dup
+    cover 3
     b==
     assert
     // array/uint64.py:170
     // assert combined_arr[4] == 4
     dup
     extract 34 8
-    bytec_2 // 0x0000000000000004
+    pushint 4
+    itob
+    swap
+    dig 1
     b==
     assert
     // array/uint64.py:171
     // assert combined_arr[5] == 0
-    dup
+    dig 1
     extract 42 8
-    bytec_1 // 0x0000000000000000
+    uncover 3
     b==
     assert
     // array/uint64.py:172
     // assert combined_arr[9] == 4
+    swap
     extract 74 8
-    bytec_2 // 0x0000000000000004
     b==
     assert
     // array/uint64.py:140

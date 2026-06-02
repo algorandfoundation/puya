@@ -8,174 +8,10 @@ from puya.context import CompileContext
 from puya.ir import models, visitor
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
+from puya.ir.optimize._intrinsics import SIDE_EFFECT_FREE_AVM_OPS
 from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
-
-
-PURE_AVM_OPS = frozenset(
-    [
-        # group: ops that can't fail at runtime
-        # `txn FirstValidTime` technically could fail, but shouldn't happen on mainnet?
-        "txn",
-        "sha256",
-        "keccak256",
-        "sha3_256",
-        "sha512_256",
-        "bitlen",
-        # group: could only fail on a type error
-        "!",
-        "!=",
-        "&",
-        "&&",
-        "<",
-        "<=",
-        "==",
-        ">",
-        ">=",
-        "|",
-        "||",
-        "~",
-        "addw",
-        "mulw",
-        "itob",
-        "len",
-        "select",
-        "sqrt",
-        "shl",
-        "shr",
-        # group: fail if an input is zero
-        "%",
-        "/",
-        "expw",
-        "divmodw",
-        "divw",
-        # group: fail on over/underflow
-        "*",
-        "+",
-        "-",
-        "^",
-        "exp",
-        # group: fail on index out of bounds
-        "arg",
-        "arg_0",
-        "arg_1",
-        "arg_2",
-        "arg_3",
-        "args",
-        "extract",
-        "extract3",
-        "extract_uint16",
-        "extract_uint32",
-        "extract_uint64",
-        "replace2",
-        "replace3",
-        "setbit",
-        "setbyte",
-        "getbit",
-        "getbyte",
-        "gaid",
-        "gaids",
-        "gload",
-        "gloads",
-        "gloadss",
-        "substring",
-        "substring3",
-        "txna",
-        "txnas",
-        "gtxn",
-        "gtxna",
-        "gtxnas",
-        "gtxns",
-        "gtxnsa",
-        "gtxnsas",
-        "block",
-        # group: fail on input too large
-        "b%",
-        "b*",
-        "b+",
-        "b-",
-        "b/",
-        "b^",
-        "btoi",
-        # group: might fail on input too large? TODO: verify these
-        "b!=",
-        "b<",
-        "b<=",
-        "b==",
-        "b>",
-        "b>=",
-        "b&",
-        "b|",
-        "b~",
-        "bsqrt",
-        # group: fail on output too large
-        "concat",
-        "bzero",
-        # group: fail on input format / byte lengths
-        "base64_decode",
-        "json_ref",
-        "ecdsa_pk_decompress",
-        "ecdsa_pk_recover",
-        "ec_add",
-        "ec_pairing_check",
-        "ec_scalar_mul",
-        "ec_subgroup_check",
-        "ec_multi_scalar_mul",
-        "ec_map_to",
-        "ecdsa_verify",
-        "ed25519verify",
-        "ed25519verify_bare",
-        "vrf_verify",
-        # group: v11
-        "falcon_verify",
-        "sumhash512",
-    ]
-)
-
-# ops that have no observable side effects outside the function
-# note: originally generated basd on all ops that:
-#       - return a stack value (this, as of v10, yields no false negatives)
-#       - AND isn't in the generate_avm_ops.py list of exclusions (which are all control flow
-#             or pure stack manipulations)
-#       - AND isn't box_create or box_del, they were the only remaining false positives
-IMPURE_SIDE_EFFECT_FREE_AVM_OPS = frozenset(
-    [
-        # group: ops that can't fail at runtime
-        "global",  # OpcodeBudget is non-const, otherwise this could be pure
-        # group: could only fail on a type error
-        "app_global_get",
-        "app_global_get_ex",
-        "load",
-        # group: fail on resource not "available"
-        # TODO: determine if any of this group is pure
-        "acct_params_get",
-        "app_opted_in",
-        "app_params_get",
-        "asset_holding_get",
-        "asset_params_get",
-        "app_local_get",
-        "app_local_get_ex",
-        "balance",
-        "min_balance",
-        "box_extract",
-        "box_get",
-        "box_len",
-        # group: fail on index out of bounds
-        "loads",
-        # group: might fail depending on state
-        "itxn",
-        "itxna",
-        "itxnas",
-        "gitxn",
-        "gitxna",
-        "gitxnas",
-    ]
-)
-
-_should_be_empty = PURE_AVM_OPS & IMPURE_SIDE_EFFECT_FREE_AVM_OPS
-assert not _should_be_empty, _should_be_empty
-SIDE_EFFECT_FREE_AVM_OPS = frozenset([*PURE_AVM_OPS, *IMPURE_SIDE_EFFECT_FREE_AVM_OPS])
 
 
 @attrs.define
@@ -302,6 +138,25 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
                 f"Not removing unused assignment since source is not marked as pure: {ass}"
             )
     return modified > 0
+
+
+def remove_unused_intrinsics(_context: CompileContext, subroutine: models.Subroutine) -> bool:
+    modified = False
+    for block in subroutine.body:
+        new_ops = list[models.Op]()
+        for op in block.ops:
+            # a bare intrinsic op means its result is unused or it doesn't return,
+            # so if it's also side-effect free, it can be removed entirely
+            match op:
+                case models.Intrinsic(
+                    op=intrinsic_op
+                ) if intrinsic_op.code in SIDE_EFFECT_FREE_AVM_OPS:
+                    logger.debug(f"Removing unused pure op {op}")
+                    modified = True
+                case _:
+                    new_ops.append(op)
+        block.ops[:] = new_ops
+    return modified
 
 
 @attrs.define(kw_only=True)

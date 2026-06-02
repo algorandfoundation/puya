@@ -4,7 +4,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
         (app_global_put "build_nested_call_count" 0u)
-        (app_global_put "twm" 0x0004000600000000000000000000000c000e00000000)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
+        let aggregate%head%2#0: bytes = 0x0000000000000000000c
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 0x000e)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 0x000e0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 0x000e00000000)
+        let aggregate%concat%2#0: bytes = 0x000400060000
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%concat%1#0)
+        (app_global_put "twm" aggregate%concat%3#0)
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
@@ -204,12 +211,13 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let aggregate%extract%0#0: bytes = ((extract 0 8) tmp%0#0)
+        let key.a#0: uint64 = (extract_uint64 tmp%0#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%0#0 8u)
         let tmp%0#1: uint64 = (+ key.b#0 1u)
         let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (extract3 tmp%0#0 0u 8u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%0#1)
-        let aggregate%head%1#0: bytes = (concat aggregate%extract%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         (box_put map_prefixed_key%0#0 aggregate%head%1#0)
         exit 1u
 
@@ -326,6 +334,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]() -> void:
     block@0: // L95
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 0u)
+        let new_items_bytes#0: bytes = (itob 1u)
+        let twm.arr#0: Encoded(len+uint64[]) = 0x00010000000000000000
+        let new_items_bytes#1: bytes = (itob 2u)
+        let result#0: bytes = 0x00020000000000000000
+        let twm.arr#1: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#0)
+        let result#1: bytes = 0x000300000000000000000000000000000001
+        let twm.arr#2: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#1)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L107
@@ -333,15 +349,23 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L108
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) twm.arr#2)
         let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u)
-        let aggregate%encoded_element%0#0: bytes = (extract3 0x000000000000000000000000000000010000000000000002 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%4#1: biguint = (itob i#0)
-        let tmp%5#1: bool = (b== aggregate%encoded_element%0#0 tmp%4#1)
-        (assert tmp%5#1)
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let tmp%7#0: biguint = (itob i#0)
+        let tmp%8#0: bool = (b== aggregate%encoded_element%0#0 tmp%7#0)
+        (assert tmp%8#0)
         let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L107
-        (log 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000)
+        let aggregate%head%5#0: bytes = 0x0000000000000000000c
+        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 0x000e)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%5#0 0x000e0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%5#0 0x000e00000000)
+        let aggregate%concat%2#0: bytes = (concat 0x0004001e twm.arr#2)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%concat%1#0)
+        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%concat%3#0)
+        (log tmp%5#0)
         exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method[routing]() -> void:
@@ -351,15 +375,16 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
         let arr2#0: Encoded(len+uint64[]) = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let new_items_bytes#0: bytes = (itob 1u)
         let array_length#0: uint64 = (extract_uint16 arr2#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 1u)
         let tmp%0#1: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#1)
         let result#0: bytes = ((replace2 0) arr2#0 new_len_u16#0)
-        let arr2#1: Encoded(len+uint64[]) = (concat result#0 0x0000000000000001)
+        let arr2#1: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#0)
         let aggregate%len%2#0: uint64 = (len maybe_value%0#0)
         let aggregate%substring3%5#0: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%1#0 aggregate%len%2#0)
-        let aggregate%extract%1#0: bytes = ((extract 0 8) aggregate%substring3%5#0)
+        let aggregate%item0%1#0: uint64 = (extract_uint64 aggregate%substring3%5#0 0u)
         let aggregate%extract_uint16%9#0: uint64 = (extract_uint16 aggregate%substring3%5#0 8u)
         let aggregate%extract_uint16%10#0: uint64 = (extract_uint16 aggregate%substring3%5#0 10u)
         let aggregate%substring3%6#0: bytes = (substring3 aggregate%substring3%5#0 aggregate%extract_uint16%9#0 aggregate%extract_uint16%10#0)
@@ -369,11 +394,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let aggregate%item2%1#0: bytes = ((extract 2 0) aggregate%substring3%7#0)
         let aggregate%data_length%0#0: uint64 = (len arr2#1)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 4u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (extract3 aggregate%substring3%5#0 0u 8u)
         let aggregate%length%0#0: uint64 = (len aggregate%item1%1#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 aggregate%item1%1#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%extract%1#0 0x000c)
+        let aggregate%head%3#0: bytes = (concat aggregate%val_as_bytes%1#0 0x000c)
         let aggregate%data_length%1#0: uint64 = (len aggregate%encoded_value%0#0)
         let aggregate%current_tail_offset%1#0: uint64 = (+ 12u aggregate%data_length%1#0)
         let aggregate%length%1#0: uint64 = (len aggregate%item2%1#0)
@@ -395,13 +421,6 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing]() -> void:
     block@0: // L120
-        let (nt.1.0#0: uint64, nt.1.1#0: uint64) = (addw 1u 2u)
-        let tmp%4#0: bool = (! nt.1.0#0)
-        let tmp%6#0: bool = (== nt.1.1#0 3u)
-        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
-        (assert tmp%7#0)
-        (assert tmp%4#0)
-        (assert tmp%6#0)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 1u)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 0u)
         let total#0: uint64 = 0u
@@ -461,11 +480,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         let b#6: uint64 = 2u
         goto block@17
     block@21: // after_for_L301
-        let tmp%4#1: uint64 = (/ total#4 8u)
-        let tmp%5#1: bool = (== tmp%4#1 3u)
-        (assert tmp%5#1)
+        let tmp%4#2: uint64 = (/ total#4 8u)
+        let tmp%5#2: bool = (== tmp%4#2 3u)
+        (assert tmp%5#2)
         let tmp%0#4: uint64 = 1u
-        (app_global_put "build_nested_call_count" 1u)
+        (app_global_put "build_nested_call_count" tmp%0#4)
+        let maybe_value%0#0: uint64 = tmp%0#4
         let tmp%6#1: bool = 1u
         (log 0x151f7c7580)
         exit 1u
@@ -498,7 +518,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
         let args.0#0: string = ((extract 2 0) aggregate%substring3%0#0)
         let args.1.0#0: bytes = ((extract 2 0) substring3%2#0)
         let aggregate%extract%0#0: bytes = ((extract 2 8) substring3%1#0)
-        let aggregate%extract%1#0: bytes = ((extract 0 8) aggregate%extract%0#0)
+        let args.1.1.0#0: uint64 = (extract_uint64 aggregate%extract%0#0 0u)
         let aggregate%length%0#0: uint64 = (len args.1.0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
@@ -509,7 +529,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
         let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 args.0#0)
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%1#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (extract3 aggregate%extract%0#0 0u 8u)
+        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%val_as_bytes%0#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 aggregate%encoded_value%1#0)
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)

@@ -83,72 +83,140 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         goto block@4
     block@19: // after_for_L42
         let tmp%0#2: bool = 0u
-        let b#0: uint64 = OptIn
+        let select%0#0: uint64 = 1u
+        let b#0: uint64 = select%0#0
         let tmp%1#2: bool = 1u
         let tmp%2#2: bool = 1u
-        let c#0: uint64 = appl
+        goto tmp%2#2 ? block@22 : block@23
+    block@22: // ternary_true_L66
+        let ternary_result%0#0: uint64 = appl
+        goto block@24
+    block@23: // ternary_false_L66
+        let tmp%3#2: bool = 0u
+        let select%1#0: uint64 = 1u
         goto block@24
     block@24: // ternary_merge_L66
+        let c#0: uint64 = φ(ternary_result%0#0 <- block@22, b#0 <- block@23)
         let tmp%4#2: bool = (== c#0 appl)
         (assert tmp%4#2)
         let tmp%0#3: uint64 = 0u
         let tmp%1#3: bool = 0u
+        goto tmp%0#3 ? block@28 : block@27
+    block@27: // or_contd_L72
         let tmp%2#3: bool = 1u
-        let ok#0: bool = 1u
+        goto tmp%2#3 ? block@28 : block@29
+    block@28: // bool_true_L72
+        let or_result%0#3: bool = 1u
+        goto block@30
+    block@29: // bool_false_L72
+        let or_result%0#4: bool = 0u
         goto block@30
     block@30: // bool_merge_L72
+        let ok#0: bool = φ(or_result%0#3 <- block@28, or_result%0#4 <- block@29)
         (assert ok#0)
         let tmp%3#3: bool = 0u
+        goto tmp%3#3 ? block@34 : block@31
+    block@31: // or_contd_L78
         let tmp%4#3: uint64 = 1u
         let tmp%5#2: bool = 1u
-        goto block@34
+        goto tmp%4#3 ? block@34 : block@32
+    block@32: // or_contd_L78
+        let tmp%6#2: uint64 = 1u
+        let tmp%7#2: bool = 1u
+        goto tmp%6#2 ? block@34 : block@33
+    block@33: // or_contd_L78
+        let tmp%8#2: uint64 = 1u
+        let tmp%9#2: bool = 1u
+        goto tmp%8#2 ? block@34 : block@35
     block@34: // bool_true_L78
         let or_result%1#0: bool = 1u
         goto block@36
+    block@35: // bool_false_L78
+        let or_result%1#1: bool = 0u
+        goto block@36
     block@36: // bool_merge_L78
-        (assert or_result%1#0)
+        let or_result%1#2: bool = φ(or_result%1#0 <- block@34, or_result%1#1 <- block@35)
+        (assert or_result%1#2)
         let tmp%10#2: bool = 0u
+        goto tmp%10#2 ? block@38 : block@37
+    block@37: // or_contd_L79
         let tmp%11#2: uint64 = 1u
         let tmp%12#1: bool = 1u
+        goto tmp%11#2 ? block@38 : block@41
+    block@38: // and_contd_L79
         let tmp%13#1: bool = 0u
+        goto tmp%13#1 ? block@40 : block@39
+    block@39: // or_contd_L79
         let tmp%14#1: uint64 = 1u
         let tmp%15#1: bool = 1u
+        goto tmp%14#1 ? block@40 : block@41
+    block@40: // bool_true_L79
         let and_result%0#3: bool = 1u
         goto block@42
+    block@41: // bool_false_L79
+        let and_result%0#4: bool = 0u
+        goto block@42
     block@42: // bool_merge_L79
-        (assert and_result%0#3)
+        let and_result%0#5: bool = φ(and_result%0#3 <- block@40, and_result%0#4 <- block@41)
+        (assert and_result%0#5)
         let tmp%16#1: bool = 0u
+        goto tmp%16#1 ? block@45 : block@43
+    block@43: // or_contd_L80
         let tmp%17#1: uint64 = 1u
         let tmp%18#1: bool = 1u
-        goto block@45
+        goto tmp%17#1 ? block@45 : block@44
+    block@44: // or_contd_L80
+        let tmp%19#1: uint64 = 1u
+        let tmp%20#1: bool = 1u
+        goto tmp%19#1 ? block@45 : block@46
     block@45: // bool_true_L80
         let or_result%2#0: bool = 1u
         goto block@47
+    block@46: // bool_false_L80
+        let or_result%2#1: bool = 0u
+        goto block@47
     block@47: // bool_merge_L80
-        (assert or_result%2#0)
+        let or_result%2#2: bool = φ(or_result%2#0 <- block@45, or_result%2#1 <- block@46)
+        (assert or_result%2#2)
         let tmp%21#1: bool = 0u
+        goto tmp%21#1 ? block@50 : block@48
+    block@48: // or_contd_L81
         let tmp%22#0: uint64 = 1u
         let tmp%23#0: bool = 1u
-        goto block@50
+        goto tmp%22#0 ? block@50 : block@49
+    block@49: // or_contd_L81
+        let tmp%24#0: uint64 = 1u
+        let tmp%25#0: bool = 1u
+        goto tmp%24#0 ? block@50 : block@51
     block@50: // bool_true_L81
         let or_result%3#0: bool = 1u
         goto block@52
+    block@51: // bool_false_L81
+        let or_result%3#1: bool = 0u
+        goto block@52
     block@52: // bool_merge_L81
-        (assert or_result%3#0)
+        let or_result%3#2: bool = φ(or_result%3#0 <- block@50, or_result%3#1 <- block@51)
+        (assert or_result%3#2)
         let tmp%26#0: uint64 = 2u
         let tmp%27#0: uint64 = 4u
         let tmp%28#0: bool = 0u
+        goto tmp%27#0 ? block@54 : block@53
+    block@53: // ternary_true_L83
+        let ternary_result%1#0: string = "left"
+        goto block@55
+    block@54: // ternary_false_L83
         let ternary_result%1#1: string = "right"
         goto block@55
     block@55: // ternary_merge_L83
-        let tmp%29#0: uint64 = (len ternary_result%1#1)
-        let tmp%30#0: bool = (> 2u tmp%29#0)
+        let ternary_result%1#2: string = φ(ternary_result%1#0 <- block@53, ternary_result%1#1 <- block@54)
+        let tmp%29#0: uint64 = (len ternary_result%1#2)
+        let tmp%30#0: bool = (> tmp%26#0 tmp%29#0)
         goto tmp%30#0 ? block@56 : block@57
     block@56: // ternary_true_L83
         let ternary_result%0#3: bool = 0u
         goto block@58
     block@57: // ternary_false_L83
-        let tmp%31#0: string = ((extract 0 2) ternary_result%1#1)
+        let tmp%31#0: string = (extract3 ternary_result%1#2 0u tmp%26#0)
         let ternary_result%0#4: bool = (== tmp%31#0 "ri")
         goto block@58
     block@58: // ternary_merge_L83
@@ -156,12 +224,18 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         (assert ternary_result%0#5)
         let tmp%32#0: uint64 = 2u
         let tmp%33#0: bool = 0u
+        goto tmp%32#0 ? block@60 : block@59
+    block@59: // ternary_true_L84
+        let ternary_result%3#0: string = "le"
+        goto block@61
+    block@60: // ternary_false_L84
         let ternary_result%3#1: string = "ri"
         goto block@61
     block@61: // ternary_merge_L84
-        let tmp%34#0: uint64 = (len ternary_result%3#1)
+        let ternary_result%3#2: string = φ(ternary_result%3#0 <- block@59, ternary_result%3#1 <- block@60)
+        let tmp%34#0: uint64 = (len ternary_result%3#2)
         let tmp%35#0: uint64 = 5u
-        let tmp%36#0: bool = (> tmp%34#0 5u)
+        let tmp%36#0: bool = (> tmp%34#0 tmp%35#0)
         goto tmp%36#0 ? block@62 : block@63
     block@62: // ternary_true_L84
         let ternary_result%2#0: bool = 0u
@@ -170,10 +244,16 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let tmp%37#0: string = (extract3 "right" 0u tmp%34#0)
         let tmp%38#0: uint64 = 2u
         let tmp%39#0: bool = 0u
+        goto tmp%38#0 ? block@65 : block@64
+    block@64: // ternary_true_L84
+        let ternary_result%4#0: string = "le"
+        goto block@66
+    block@65: // ternary_false_L84
         let ternary_result%4#1: string = "ri"
         goto block@66
     block@66: // ternary_merge_L84
-        let ternary_result%2#1: bool = (== tmp%37#0 ternary_result%4#1)
+        let ternary_result%4#2: string = φ(ternary_result%4#0 <- block@64, ternary_result%4#1 <- block@65)
+        let ternary_result%2#1: bool = (== tmp%37#0 ternary_result%4#2)
         goto block@67
     block@67: // ternary_merge_L84
         let ternary_result%2#2: bool = φ(ternary_result%2#0 <- block@62, ternary_result%2#1 <- block@66)
@@ -186,36 +266,41 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         goto block@68
     block@68: // for_header_L87
         let idx#0: uint64 = φ(item_index_internal%0#0 <- block@67, item_index_internal%0#2 <- block@69)
-        let continue_looping%0#0: bool = (< idx#0 3u)
+        let continue_looping%0#0: bool = (< idx#0 bytes_length%0#0)
         goto continue_looping%0#0 ? block@69 : block@71
     block@69: // for_body_L88
-        let b#1: bytes = (extract3 0x616263 idx#0 1u)
-        let tmp%42#0: bool = (== b#1 b#1)
-        (assert tmp%42#0)
+        let b#1: bytes = (extract3 select%0#1 idx#0 1u)
+        let tmp%42#0: bool = 1u
         let item_index_internal%0#2: uint64 = (+ idx#0 1u)
         goto block@68
     block@71: // after_for_L87
         let tmp%43#0: uint64 = 4u
         let tmp%44#0: bool = 0u
-        let select%1#1: bytes = 0x7269676874
+        let select%1#1: bytes = "right"
         let extract%1#0: bytes = 0x69
         let tmp%45#0: bool = 1u
         let tmp%46#0: uint64 = 4u
         let tmp%47#0: bool = 1u
-        let select%2#0: bytes = 0x6c656674
+        let select%2#0: bytes = "left"
         let length%0#0: uint64 = 4u
         let is_out_of_bounds%0#0: bool = 0u
         let bounded_index%0#0: uint64 = 0u
         let is_out_of_bounds%1#0: bool = 0u
         let bounded_index%1#0: uint64 = 2u
-        let tmp%48#0: bytes = 0x6c65
+        let tmp%48#0: bytes = "le"
         let tmp%49#0: bool = 1u
         let tmp%50#0: uint64 = 4u
         let tmp%51#0: bool = 0u
+        goto tmp%50#0 ? block@73 : block@72
+    block@72: // ternary_true_L91
+        let ternary_result%5#0: string = "left"
+        goto block@74
+    block@73: // ternary_false_L91
         let ternary_result%5#1: string = "right"
         goto block@74
     block@74: // ternary_merge_L91
-        let tmp%52#0: bool = _puya_lib.bytes_.is_substring("ight", ternary_result%5#1)
+        let ternary_result%5#2: string = φ(ternary_result%5#0 <- block@72, ternary_result%5#1 <- block@73)
+        let tmp%52#0: bool = _puya_lib.bytes_.is_substring("ight", ternary_result%5#2)
         (assert tmp%52#0)
         let tmp%53#0: bool = 0u
         let select%3#0: uint64 = 2u
@@ -230,17 +315,31 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let tmp%1#4: bool = 1u
         let tmp%2#4: uint64 = 3u
         let tmp%3#4: bool = 1u
+        goto tmp%2#4 ? block@78 : block@79
+    block@78: // bool_true_L102
         let or_result%0#6: bool = 1u
         goto block@80
+    block@79: // bool_false_L102
+        let or_result%0#7: bool = 0u
+        goto block@80
     block@80: // bool_merge_L102
-        (assert or_result%0#6)
+        let or_result%0#8: bool = φ(or_result%0#6 <- block@78, or_result%0#7 <- block@79)
+        (assert or_result%0#8)
         let tmp%4#4: bool = 0u
-        let c#1: bool = 1u
+        let tmp%5#3: bool = 1u
         let tmp%6#3: uint64 = 3u
         let tmp%7#3: bool = 1u
-        let d#0: bool = 1u
+        goto tmp%6#3 ? block@82 : block@83
+    block@82: // bool_true_L107
+        let or_result%1#3: bool = 1u
+        goto block@84
+    block@83: // bool_false_L107
+        let or_result%1#4: bool = 0u
         goto block@84
     block@84: // bool_merge_L107
+        let d#0: bool = φ(or_result%1#3 <- block@82, or_result%1#4 <- block@83)
+        goto b#0 ? block@87 : block@89
+    block@87: // and_contd_L108
         goto d#0 ? block@88 : block@89
     block@88: // bool_true_L108
         let and_result%0#6: bool = 1u
@@ -252,8 +351,10 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let and_result%0#8: bool = φ(and_result%0#6 <- block@88, and_result%0#7 <- block@89)
         (assert and_result%0#8)
         let tmp%8#3: bool = 0u
+        let not%tmp%8#3: bool = 1u
         let tmp%9#3: uint64 = 0u
         let tmp%10#3: bool = 0u
+        let not%tmp%9#3: bool = 1u
         let tmp%11#3: bool = 1u
         let tmp%12#2: bool = 0u
         let select%0#2: uint64 = 4u
@@ -267,38 +368,55 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let select%0#3: bool = 0u
         let tmp%0#5: bool = 1u
         let select%1#3: bool = 1u
+        goto select%1#3 ? block@104 : block@105
+    block@104: // bool_true_L145
         let or_result%0#9: bool = 1u
         goto block@106
+    block@105: // bool_false_L145
+        let or_result%0#10: bool = 0u
+        goto block@106
     block@106: // bool_merge_L145
-        (assert or_result%0#9)
+        let or_result%0#11: bool = φ(or_result%0#9 <- block@104, or_result%0#10 <- block@105)
+        (assert or_result%0#11)
         goto block@108
     block@108: // bool_true_L146
         let or_result%1#6: bool = 1u
         goto block@110
     block@110: // bool_merge_L146
-        (assert or_result%1#6)
         let select%3#1: bool = 0u
         let tmp%1#5: bool = 1u
         let select%4#1: uint64 = 0u
         let tmp%2#5: bool = 0u
-        let y#1: uint64 = 4u
+        goto select%4#1 ? block@111 : block@112
+    block@111: // ternary_true_L148
+        let ternary_result%0#6: uint64 = select%4#1
+        goto block@113
+    block@112: // ternary_false_L148
+        let ternary_result%0#7: uint64 = 4u
         goto block@113
     block@113: // ternary_merge_L148
+        let y#1: uint64 = φ(ternary_result%0#6 <- block@111, ternary_result%0#7 <- block@112)
         let tmp%3#5: bool = (== y#1 4u)
         (assert tmp%3#5)
         let tmp%4#5: bool = 0u
-        let z#1: uint64 = 3u
+        goto tmp%4#5 ? block@114 : block@115
+    block@114: // ternary_true_L150
+        let ternary_result%1#3: uint64 = 0u
+        goto block@116
+    block@115: // ternary_false_L150
+        let select%5#0: uint64 = 3u
+        let ternary_result%1#4: uint64 = select%5#0
         goto block@116
     block@116: // ternary_merge_L150
+        let z#1: uint64 = φ(ternary_result%1#3 <- block@114, ternary_result%1#4 <- block@115)
         let tmp%5#4: bool = (== z#1 3u)
         (assert tmp%5#4)
         let r#0: uint64 = (global Round)
         let tmp%1#6: bool = 0u
         let tmp%2#6: bool = (!= r#0 0u)
-        let tmp%3#6: bool = (|| 0u r#0)
-        (assert r#0)
+        let tmp%3#6: bool = (|| tmp%1#6 r#0)
+        (assert tmp%3#6)
         let tmp%5#5: bool = 0u
-        let tmp%6#4: bool = (|| r#0 0u)
         let tmp%0#7: bool = 1u
         let tmp%1#7: bool = 1u
         let tmp%2#7: bool = 1u

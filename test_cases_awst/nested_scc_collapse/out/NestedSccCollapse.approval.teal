@@ -1,0 +1,39 @@
+#pragma version 11
+#pragma typetrack false
+
+// nested_scc_collapse.NestedSccCollapse.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    pushbytes ""
+    txn NumAppArgs
+    intc_1 // 0
+
+main_while_top@1:
+    dup
+    dig 2
+    <
+    bz main_after_while@6
+    intc_1 // 0
+    bury 3
+
+main_while_top@3:
+    dig 2
+    dig 2
+    <
+    bz main_after_while@5
+    dig 2
+    intc_0 // 1
+    +
+    bury 3
+    b main_while_top@3
+
+main_after_while@5:
+    dup
+    intc_0 // 1
+    +
+    bury 1
+    b main_while_top@1
+
+main_after_while@6:
+    intc_0 // 1
+    return

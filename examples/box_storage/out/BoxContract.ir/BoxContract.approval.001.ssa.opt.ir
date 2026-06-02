@@ -200,7 +200,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, a
         let tmp%4#0: uint64 = (* new_arr_len#0 fixed_byte_size#0)
         let popped_item_offset#0: uint64 = (+ tmp%3#0 tmp%4#0)
         (box_splice box_key#0 popped_item_offset#0 fixed_byte_size#0 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len box_key#0)
         let new_size#0: uint64 = (- box_size#0 fixed_byte_size#0)
         (box_resize box_key#0 new_size#0)
         return 
@@ -209,7 +209,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -687,54 +687,54 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let box%offset%0#0: uint64 = (+ 0u 4096u)
         (box_replace "box_large" box%offset%0#0 encoded_value%1#0) // on error: index out of bounds
         let tmp%1#1: uint64 = 4096u
-        (box_replace "box_large" 4096u 0x000000000000002a)
+        (box_replace "box_large" tmp%1#1 encoded_value%1#0)
         let b_value#0: Encoded(len+uint8[]) = box_read("b")
         let storage_value%2#0: bytes = box_read("b")
         let box%box_extract%0#0: bytes = (box_extract "b" 0u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%2#1: uint64 = box%btoi%0#0
+        let tmp%3#1: uint64 = box%btoi%0#0
         let box%box_extract%1#0: bytes = (box_extract "b" 0u 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%1#0)
-        let tmp%3#1: uint64 = box%btoi%1#0
-        let tmp%4#0: bool = (== tmp%2#1 tmp%3#1)
-        (assert tmp%4#0) // direct reference should match copy
+        let tmp%4#0: uint64 = box%btoi%1#0
+        let tmp%5#0: bool = (== tmp%3#1 tmp%4#0)
+        (assert tmp%5#0) // direct reference should match copy
         let storage_value%3#0: bytes = box_read("box_a")
         let maybe_value_converted%0#0: uint64 = (btoi storage_value%3#0)
-        let tmp%5#0: uint64 = (+ maybe_value_converted%0#0 3u)
-        let encoded_value%2#0: bytes[8] = (itob tmp%5#0)
+        let tmp%6#0: uint64 = (+ maybe_value_converted%0#0 3u)
+        let encoded_value%2#0: bytes[8] = (itob tmp%6#0)
         box_write("box_a", encoded_value%2#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
         (assert check%0#0) // check self.box_a exists
-        let tmp%6#0: bool = (== value%0#0 8u)
-        (assert tmp%6#0)
+        let tmp%7#0: bool = (== value%0#0 8u)
+        (assert tmp%7#0)
         let (value%1#0: uint64, check%1#0: bool) = (box_len "b")
-        let tmp%8#0: bool = (== value%1#0 len%1#0)
-        (assert tmp%8#0)
+        let tmp%9#0: bool = (== value%1#0 len%1#0)
+        (assert tmp%9#0)
         let (value%2#0: uint64, check%2#0: bool) = (box_len 0x424f585f43)
         (assert check%2#0) // check self.box_c exists
-        let tmp%10#0: bool = (== value%2#0 len%2#0)
-        (assert tmp%10#0)
+        let tmp%11#0: bool = (== value%2#0 len%2#0)
+        (assert tmp%11#0)
         let (value%3#0: uint64, check%3#0: bool) = (box_len "box_d")
         (assert check%3#0) // check self.box_d exists
-        let tmp%12#0: uint64 = (len tmp%0#1)
-        let tmp%13#0: bool = (== value%3#0 tmp%12#0)
-        (assert tmp%13#0)
+        let tmp%13#0: uint64 = (len tmp%0#1)
+        let tmp%14#0: bool = (== value%3#0 tmp%13#0)
+        (assert tmp%14#0)
         let storage_value%4#0: bytes = box_read(0x424f585f43)
         let box%box_extract%2#0: bytes = (box_extract 0x424f585f43 0u 1u)
         let extract%0#0: bytes = box%box_extract%2#0
         let extract%1#0: bytes = ((extract 0 1) c#0)
-        let tmp%14#0: bool = (== extract%0#0 extract%1#0)
-        (assert tmp%14#0)
+        let tmp%15#0: bool = (== extract%0#0 extract%1#0)
+        (assert tmp%15#0)
         let storage_value%5#0: bytes = box_read(0x424f585f43)
         let (box%box_len%0#0: uint64, box%exists%0#0: bool) = (box_len 0x424f585f43)
-        let tmp%15#0: uint64 = box%box_len%0#0
-        let tmp%16#0: uint64 = (- tmp%15#0 1u)
-        let box%box_extract%3#0: bytes = (box_extract 0x424f585f43 tmp%16#0 1u)
+        let tmp%16#0: uint64 = box%box_len%0#0
+        let tmp%17#0: uint64 = (- tmp%16#0 1u)
+        let box%box_extract%3#0: bytes = (box_extract 0x424f585f43 tmp%17#0 1u)
         let extract%2#0: bytes = box%box_extract%3#0
-        let tmp%18#0: uint64 = (- len%2#0 1u)
-        let extract%3#0: bytes = (extract3 c#0 tmp%18#0 1u)
-        let tmp%19#0: bool = (== extract%2#0 extract%3#0)
-        (assert tmp%19#0)
+        let tmp%19#0: uint64 = (- len%2#0 1u)
+        let extract%3#0: bytes = (extract3 c#0 tmp%19#0 1u)
+        let tmp%20#0: bool = (== extract%2#0 extract%3#0)
+        (assert tmp%20#0)
         let storage_value%6#0: bytes = box_read(0x424f585f43)
         let (box%box_len%1#0: uint64, box%exists%1#0: bool) = (box_len 0x424f585f43)
         let length%0#1: uint64 = box%box_len%1#0
@@ -743,13 +743,13 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let bounded_index%0#0: uint64 = (- length%0#1 bounded_offset%0#0)
         let box%substring3_length%0#0: uint64 = (- bounded_index%0#0 0u)
         let box%box_extract%4#0: bytes = (box_extract 0x424f585f43 0u box%substring3_length%0#0)
-        let tmp%20#0: bytes = box%box_extract%4#0
+        let tmp%21#0: bytes = box%box_extract%4#0
         let is_out_of_bounds%1#0: bool = (>= 1u len%2#0)
         let bounded_offset%1#0: uint64 = (select 1u len%2#0 is_out_of_bounds%1#0)
         let bounded_index%1#0: uint64 = (- len%2#0 bounded_offset%1#0)
-        let tmp%21#0: bytes = (substring3 c#0 0u bounded_index%1#0)
-        let tmp%22#0: bool = (== tmp%20#0 tmp%21#0)
-        (assert tmp%22#0)
+        let tmp%22#0: bytes = (substring3 c#0 0u bounded_index%1#0)
+        let tmp%23#0: bool = (== tmp%21#0 tmp%22#0)
+        (assert tmp%23#0)
         let storage_value%7#0: bytes = box_read(0x424f585f43)
         let (box%box_len%2#0: uint64, box%exists%2#0: bool) = (box_len 0x424f585f43)
         let length%2#0: uint64 = box%box_len%2#0
@@ -757,28 +757,28 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let bounded_index%2#0: uint64 = (select 2u length%2#0 is_out_of_bounds%2#0)
         let box%substring3_length%1#0: uint64 = (- bounded_index%2#0 0u)
         let box%box_extract%5#0: bytes = (box_extract 0x424f585f43 0u box%substring3_length%1#0)
-        let tmp%23#0: bytes = box%box_extract%5#0
+        let tmp%24#0: bytes = box%box_extract%5#0
         let is_out_of_bounds%3#0: bool = (>= 2u len%2#0)
         let bounded_index%3#0: uint64 = (select 2u len%2#0 is_out_of_bounds%3#0)
-        let tmp%24#0: bytes = (substring3 c#0 0u bounded_index%3#0)
-        let tmp%25#0: bool = (== tmp%23#0 tmp%24#0)
-        (assert tmp%25#0)
+        let tmp%25#0: bytes = (substring3 c#0 0u bounded_index%3#0)
+        let tmp%26#0: bool = (== tmp%24#0 tmp%25#0)
+        (assert tmp%26#0)
         let storage_value%8#0: bytes = box_read("box_d")
         let box%box_extract%6#0: bytes = (box_extract "box_d" 0u 1u)
         let extract%4#0: bytes = box%box_extract%6#0
         let extract%5#0: bytes = ((extract 0 1) tmp%0#1)
-        let tmp%27#0: bool = (== extract%4#0 extract%5#0)
-        (assert tmp%27#0)
+        let tmp%28#0: bool = (== extract%4#0 extract%5#0)
+        (assert tmp%28#0)
         let storage_value%9#0: bytes = box_read("box_d")
         let (box%box_len%3#0: uint64, box%exists%3#0: bool) = (box_len "box_d")
-        let tmp%28#0: uint64 = box%box_len%3#0
-        let tmp%29#0: uint64 = (- tmp%28#0 1u)
-        let box%box_extract%7#0: bytes = (box_extract "box_d" tmp%29#0 1u)
+        let tmp%29#0: uint64 = box%box_len%3#0
+        let tmp%30#0: uint64 = (- tmp%29#0 1u)
+        let box%box_extract%7#0: bytes = (box_extract "box_d" tmp%30#0 1u)
         let extract%6#0: bytes = box%box_extract%7#0
-        let tmp%32#0: uint64 = (- tmp%12#0 1u)
-        let extract%7#0: bytes = (extract3 tmp%0#1 tmp%32#0 1u)
-        let tmp%33#0: bool = (== extract%6#0 extract%7#0)
-        (assert tmp%33#0)
+        let tmp%33#0: uint64 = (- tmp%13#0 1u)
+        let extract%7#0: bytes = (extract3 tmp%0#1 tmp%33#0 1u)
+        let tmp%34#0: bool = (== extract%6#0 extract%7#0)
+        (assert tmp%34#0)
         let storage_value%10#0: bytes = box_read("box_d")
         let (box%box_len%4#0: uint64, box%exists%4#0: bool) = (box_len "box_d")
         let length%4#0: uint64 = box%box_len%4#0
@@ -787,13 +787,13 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let bounded_index%4#0: uint64 = (- length%4#0 bounded_offset%2#0)
         let box%substring3_length%2#0: uint64 = (- bounded_index%4#0 0u)
         let box%box_extract%8#0: bytes = (box_extract "box_d" 0u box%substring3_length%2#0)
-        let tmp%34#0: bytes = box%box_extract%8#0
-        let is_out_of_bounds%5#0: bool = (>= 1u tmp%12#0)
-        let bounded_offset%3#0: uint64 = (select 1u tmp%12#0 is_out_of_bounds%5#0)
-        let bounded_index%5#0: uint64 = (- tmp%12#0 bounded_offset%3#0)
-        let tmp%36#0: bytes = (substring3 tmp%0#1 0u bounded_index%5#0)
-        let tmp%37#0: bool = (== tmp%34#0 tmp%36#0)
-        (assert tmp%37#0)
+        let tmp%35#0: bytes = box%box_extract%8#0
+        let is_out_of_bounds%5#0: bool = (>= 1u tmp%13#0)
+        let bounded_offset%3#0: uint64 = (select 1u tmp%13#0 is_out_of_bounds%5#0)
+        let bounded_index%5#0: uint64 = (- tmp%13#0 bounded_offset%3#0)
+        let tmp%37#0: bytes = (substring3 tmp%0#1 0u bounded_index%5#0)
+        let tmp%38#0: bool = (== tmp%35#0 tmp%37#0)
+        (assert tmp%38#0)
         let storage_value%11#0: bytes = box_read("box_d")
         let (box%box_len%5#0: uint64, box%exists%5#0: bool) = (box_len "box_d")
         let length%6#0: uint64 = box%box_len%5#0
@@ -801,12 +801,12 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let bounded_index%6#0: uint64 = (select 5u length%6#0 is_out_of_bounds%6#0)
         let box%substring3_length%3#0: uint64 = (- bounded_index%6#0 0u)
         let box%box_extract%9#0: bytes = (box_extract "box_d" 0u box%substring3_length%3#0)
-        let tmp%38#0: bytes = box%box_extract%9#0
-        let is_out_of_bounds%7#0: bool = (>= 5u tmp%12#0)
-        let bounded_index%7#0: uint64 = (select 5u tmp%12#0 is_out_of_bounds%7#0)
-        let tmp%40#0: bytes = (substring3 tmp%0#1 0u bounded_index%7#0)
-        let tmp%41#0: bool = (== tmp%38#0 tmp%40#0)
-        (assert tmp%41#0)
+        let tmp%39#0: bytes = box%box_extract%9#0
+        let is_out_of_bounds%7#0: bool = (>= 5u tmp%13#0)
+        let bounded_index%7#0: uint64 = (select 5u tmp%13#0 is_out_of_bounds%7#0)
+        let tmp%41#0: bytes = (substring3 tmp%0#1 0u bounded_index%7#0)
+        let tmp%42#0: bool = (== tmp%39#0 tmp%41#0)
+        (assert tmp%42#0)
         let storage_value%12#0: bytes = box_read("box_d")
         let (box%box_len%6#0: uint64, box%exists%6#0: bool) = (box_len "box_d")
         let length%8#0: uint64 = box%box_len%6#0
@@ -814,15 +814,15 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let bounded_index%8#0: uint64 = (select 2u length%8#0 is_out_of_bounds%8#0)
         let box%substring3_length%4#0: uint64 = (- bounded_index%8#0 0u)
         let box%box_extract%10#0: bytes = (box_extract "box_d" 0u box%substring3_length%4#0)
-        let tmp%42#0: bytes = box%box_extract%10#0
-        let is_out_of_bounds%9#0: bool = (>= 2u tmp%12#0)
-        let bounded_index%9#0: uint64 = (select 2u tmp%12#0 is_out_of_bounds%9#0)
-        let tmp%44#0: bytes = (substring3 tmp%0#1 0u bounded_index%9#0)
-        let tmp%45#0: bool = (== tmp%42#0 tmp%44#0)
-        (assert tmp%45#0)
-        let (value%4#0: uint64, check%4#0: bool) = (box_len "box_large")
-        let tmp%46#0: bool = (== value%4#0 6160u)
+        let tmp%43#0: bytes = box%box_extract%10#0
+        let is_out_of_bounds%9#0: bool = (>= 2u tmp%13#0)
+        let bounded_index%9#0: uint64 = (select 2u tmp%13#0 is_out_of_bounds%9#0)
+        let tmp%45#0: bytes = (substring3 tmp%0#1 0u bounded_index%9#0)
+        let tmp%46#0: bool = (== tmp%43#0 tmp%45#0)
         (assert tmp%46#0)
+        let (value%4#0: uint64, check%4#0: bool) = (box_len "box_large")
+        let tmp%47#0: bool = (== value%4#0 6160u)
+        (assert tmp%47#0)
         exit 1u
 
 subroutine examples.box_storage.contract.BoxContract.check_keys[routing]() -> void:
@@ -872,7 +872,6 @@ subroutine examples.box_storage.contract.BoxContract.update_big_fixed_bytes[rout
         let start_index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%0#0: uint64 = array_len(tmp%2#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
@@ -891,7 +890,6 @@ subroutine examples.box_storage.contract.BoxContract.assert_big_fixed_bytes[rout
         let index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%0#0: uint64 = array_len(tmp%2#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
@@ -950,7 +948,6 @@ subroutine examples.box_storage.contract.BoxContract.update_big_bytes[routing]()
         let start_index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%0#0: uint64 = array_len(tmp%2#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
@@ -969,7 +966,6 @@ subroutine examples.box_storage.contract.BoxContract.assert_big_bytes[routing]()
         let index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%0#0: uint64 = array_len(tmp%2#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
@@ -1188,8 +1184,8 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L225
-        let _pop#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< _pop#0 times#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 times#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L226
         let storage_value%0#0: bytes = box_read("dynamic_arr_struct")
@@ -1207,7 +1203,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let box%offset%1#0: uint64 = (+ 0u 20u)
         _puya_lib.box_arc4.box_update_offset_dec("dynamic_arr_struct", box%add%0#0, 8u)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("dynamic_arr_struct", box%offset%1#0, 8u)
-        let value_internal%0#2: uint64 = (+ _pop#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@2
     block@5: // after_for_L225
         let storage_value%1#0: bytes = box_read("dynamic_arr_struct")
@@ -1230,11 +1226,11 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
 subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
     block@0: // L230
         let struct#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len struct#0)
+        let struct_size#0: uint64 = (len struct#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 struct#0 8u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 20u)
         (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
-        let substring3%0#0: bytes = (substring3 struct#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 struct#0 extract_uint16%0#0 struct_size#0)
         let tuple_len%1#0: uint64 = (len substring3%0#0)
         let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 8u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 18u)
@@ -1271,7 +1267,7 @@ subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing](
         let extract_uint16%2#0: uint64 = (extract_uint16 struct#0 10u) // on error: invalid tuple encoding
         let eq%2#0: bool = (== extract_uint16%2#0 add%2#0)
         (assert eq%2#0) // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
-        let substring3%2#0: bytes = (substring3 struct#0 extract_uint16%2#0 tuple_len%0#0)
+        let substring3%2#0: bytes = (substring3 struct#0 extract_uint16%2#0 struct_size#0)
         let length%2#0: uint64 = array_len(substring3%2#0)
         let num_bytes%2#0: uint64 = (* length%2#0 2u)
         let total_length%2#0: uint64 = (len substring3%2#0)
@@ -1328,19 +1324,18 @@ subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing](
     block@12: // after_for_L230
         let num_bytes%5#0: uint64 = (+ num_bytes%2#1 2u)
         let add%5#0: uint64 = (+ add%2#0 num_bytes%5#0)
-        let eq%4#0: bool = (== tuple_len%0#0 add%5#0)
+        let eq%4#0: bool = (== struct_size#0 add%5#0)
         (assert eq%4#0) // invalid number of bytes for examples.box_storage.contract.NestedStruct
         let tuple_item%0#0: Encoded(uint64) = extract_value(struct#0, 0)
         let tmp%0#1: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         (assert tmp%0#1) // struct.a is truthy
         let struct_bytes#0: bytes = (txna ApplicationArgs 1)
-        let struct_size#0: uint64 = (len struct_bytes#0)
         let tmp%4#0: uint64 = (+ 4098u struct_size#0)
         (box_create "box" tmp%4#0)
         let tmp%5#0: uint64 = 4096u
         let tmp%6#0: Encoded(uint16) = bytes_encode<uint16>(4098u)
-        (box_replace "box" 4096u tmp%6#0)
+        (box_replace "box" tmp%5#0 tmp%6#0)
         (box_replace "box" 4098u struct_bytes#0)
         exit 1u
 
@@ -1858,14 +1853,14 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]() 
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L311
-        let _pop#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< _pop#0 times#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 times#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L312
         let storage_value%0#0: bytes = box_read("dynamic_box")
         let tmp%3#1: Encoded(len+uint64[]) = array_pop(storage_value%0#0)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("dynamic_box", 0u, 8u)
-        let value_internal%0#2: uint64 = (+ _pop#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@2
     block@5: // after_for_L311
         let storage_value%1#0: bytes = box_read("dynamic_box")
@@ -1989,24 +1984,28 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
 
 subroutine examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void:
     block@0: // L340
-        let encoded_array%0#0: Encoded(uint8[4]) = bytes_encode<uint8[4]>(0x00, 0x01, 0x02, 0x03)
+        let tmp%0#0: Encoded(uint8) = bytes_encode<uint8>(0u)
+        let tmp%1#0: Encoded(uint8) = bytes_encode<uint8>(1u)
+        let tmp%2#0: Encoded(uint8) = bytes_encode<uint8>(2u)
+        let tmp%3#0: Encoded(uint8) = bytes_encode<uint8>(3u)
+        let encoded_array%0#0: Encoded(uint8[4]) = bytes_encode<uint8[4]>(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0)
         box_write(0x64, encoded_array%0#0)
         let storage_value%0#0: bytes = box_read(0x64)
         let array_item%0#0: Encoded(uint8) = extract_value(storage_value%0#0, 0u)
-        let tmp%0#0: bool = (b== array_item%0#0 0x00)
-        (assert tmp%0#0)
+        let tmp%5#0: bool = (b== array_item%0#0 tmp%0#0)
+        (assert tmp%5#0)
         let storage_value%1#0: bytes = box_read(0x64)
         let array_item%1#0: Encoded(uint8) = extract_value(storage_value%1#0, 1u)
-        let tmp%1#0: bool = (b== array_item%1#0 0x01)
-        (assert tmp%1#0)
+        let tmp%7#0: bool = (b== array_item%1#0 tmp%1#0)
+        (assert tmp%7#0)
         let storage_value%2#0: bytes = box_read(0x64)
         let array_item%2#0: Encoded(uint8) = extract_value(storage_value%2#0, 2u)
-        let tmp%2#0: bool = (b== array_item%2#0 0x02)
-        (assert tmp%2#0)
+        let tmp%9#0: bool = (b== array_item%2#0 tmp%2#0)
+        (assert tmp%9#0)
         let storage_value%3#0: bytes = box_read(0x64)
         let array_item%3#0: Encoded(uint8) = extract_value(storage_value%3#0, 3u)
-        let tmp%3#0: bool = (b== array_item%3#0 0x03)
-        (assert tmp%3#0)
+        let tmp%11#0: bool = (b== array_item%3#0 tmp%3#0)
+        (assert tmp%11#0)
         exit 1u
 
 subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> void:
@@ -2034,7 +2033,7 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> 
         (box_replace "blob" 64u 0x68656c6c6f)
         let tmp%7#0: uint64 = 5u
         let tmp%8#0: uint64 = 69u
-        let prefix#0: bytes = (box_extract "blob" 0u 69u)
+        let prefix#0: bytes = (box_extract "blob" 0u tmp%8#0)
         let tmp%10#0: bytes = (concat app_address#0 sender_bytes#0)
         let tmp%11#0: bytes = (concat tmp%10#0 0x68656c6c6f)
         let tmp%12#0: bool = (== prefix#0 tmp%11#0)
@@ -2074,7 +2073,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> 
         (assert box%exists%0#0) // check self.box_map entry exists
         let tmp%0#0: uint64 = box%box_len%0#0
         let tmp%1#0: uint64 = 6u
-        let tmp%2#0: bool = (== tmp%0#0 6u)
+        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0)
         let storage_value%1#0: bytes = box_read(box_0#0)
         let (box%box_len%1#0: uint64, box%exists%1#0: bool) = (box_len box_0#0)
@@ -2084,14 +2083,14 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> 
         (assert tmp%4#0)
         let (value%1#0: uint64, check%1#0: bool) = (box_len box_0#0)
         let tmp%5#0: uint64 = 6u
-        let tmp%6#0: bool = (== value%1#0 6u)
+        let tmp%6#0: bool = (== value%1#0 tmp%5#0)
         (assert tmp%6#0)
         let encoded_value%5#0: bytes[8] = (itob 1u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%5#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%7#0: bool = (== state_get%0#0 "default")
         (assert tmp%7#0)
-        let (value#1: uint64, exists#0: bool) = (box_len encoded_value%5#0)
+        let (maybe_value%1#0: uint64, exists#0: bool) = (box_len encoded_value%5#0)
         let tmp%8#0: bool = (! exists#0)
         (assert tmp%8#0)
         let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_0#0)
@@ -2112,14 +2111,12 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set[routing]() -> v
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%0#0: uint64 = array_len(tmp%2#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let value#0: string = decode_bytes<string>(tmp%2#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         box_write(encoded_value%0#0, value#0)
         exit 1u
 
@@ -2131,7 +2128,6 @@ subroutine examples.box_storage.contract.BoxContract.box_map_get[routing]() -> v
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         let storage_value%0#0: bytes = box_read(encoded_value%0#0)
         let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(storage_value%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
@@ -2146,7 +2142,6 @@ subroutine examples.box_storage.contract.BoxContract.box_map_del[routing]() -> v
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         (box_del encoded_value%0#0)
         exit 1u
 
@@ -2158,7 +2153,6 @@ subroutine examples.box_storage.contract.BoxContract.box_map_exists[routing]() -
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#0)
         let tmp%3#0: Encoded(bool8) = bytes_encode<bool8>(maybe_exists%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)

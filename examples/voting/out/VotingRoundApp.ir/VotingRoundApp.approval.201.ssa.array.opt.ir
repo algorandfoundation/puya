@@ -155,6 +155,7 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L224
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
+        let item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 item_index_internal%0#1 1u) // on error: index access is out of bounds
         let tmp%4#1: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#1)
         let total_options#2: uint64 = (+ total_options#1 tmp%4#1)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -245,18 +246,18 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         goto block@5
     block@5: // after_if_else_L133
         let note#3: string = φ(note#1 <- block@3, note#2 <- block@4)
-        let tmp%16#0: bool = (b> question_options#0 0x00)
-        goto tmp%16#0 ? block@6 : block@13
+        let tmp%17#0: bool = (b> question_options#0 0x00)
+        goto tmp%17#0 ? block@6 : block@13
     block@6: // if_body_L136
         let note#4: string = (concat note#3 "[")
-        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
+        let tmp%19#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let value_internal%0#0: uint64 = 0u
         goto block@7
     block@7: // for_header_L137
         let option_index#0: uint64 = φ(value_internal%0#0 <- block@6, value_internal%0#2 <- block@10)
         let note#5: string = φ(note#4 <- block@6, note#8 <- block@10)
         let current_index#2: uint64 = φ(current_index#5 <- block@6, current_index#3 <- block@10)
-        let continue_looping%1#0: bool = (< option_index#0 tmp%18#0)
+        let continue_looping%1#0: bool = (< option_index#0 tmp%19#0)
         goto continue_looping%1#0 ? block@8 : block@12
     block@8: // for_body_L138
         goto option_index#0 ? block@9 : block@10
@@ -267,8 +268,8 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         let note#7: string = φ(note#5 <- block@8, note#6 <- block@9)
         let tmp%0#1: bytes = (box_extract "V" current_index#2 8u)
         let votes_for_option#0: uint64 = (btoi tmp%0#1)
-        let tmp%22#0: string = examples.voting.voting.itoa(votes_for_option#0)
-        let note#8: string = (concat note#7 tmp%22#0)
+        let tmp%23#0: string = examples.voting.voting.itoa(votes_for_option#0)
+        let note#8: string = (concat note#7 tmp%23#0)
         let current_index#3: uint64 = (+ current_index#2 1u)
         let value_internal%0#2: uint64 = (+ option_index#0 1u)
         goto block@7
@@ -299,8 +300,8 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
-        let tmp%27#0: uint64 = (itxn CreatedAssetID)
-        (app_global_put "nft_asset_id" tmp%27#0)
+        let tmp%28#0: uint64 = (itxn CreatedAssetID)
+        (app_global_put "nft_asset_id" tmp%28#0)
         exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
@@ -384,10 +385,12 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L197
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) answer_ids#0)
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 question_index#0 1u) // on error: index access is out of bounds
         let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
         let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 question_index#0 1u) // on error: index access is out of bounds
         let options_count#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#0)
         let tmp%20#0: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%20#0) // Answer option index invalid

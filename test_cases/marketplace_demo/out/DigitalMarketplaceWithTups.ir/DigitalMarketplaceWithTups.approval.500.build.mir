@@ -520,8 +520,6 @@ subroutine deposit:
         v-store nonce#0
         // marketplace_demo/marketplace_with_tups.py:123
         // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
-        txn Sender                                                                                    key.owner#0
-        v-store key.owner#0
         v-load xfer#0                                                                                 xfer#0
         gtxns XferAsset                                                                               key.asset#0
         v-store key.asset#0
@@ -563,8 +561,8 @@ subroutine deposit:
         v-load key.asset#0                                                                            key.asset#0
         itob                                                                                          aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        v-load key.owner#0                                                                            key.owner#0
-        v-load aggregate%val_as_bytes%0#0                                                             key.owner#0,aggregate%val_as_bytes%0#0
+        v-load tmp%3#0                                                                                tmp%3#0
+        v-load aggregate%val_as_bytes%0#0                                                             tmp%3#0,aggregate%val_as_bytes%0#0
         concat                                                                                        aggregate%head%1#0
         v-store aggregate%head%1#0
         v-load nonce#0                                                                                nonce#0
@@ -589,17 +587,8 @@ subroutine deposit:
         extract_uint64                                                                                existing.deposited#0
         v-store existing.deposited#0
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 8 8                                                                                   aggregate%extract%1#0
-        v-store aggregate%extract%1#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
         extract 16 32                                                                                 existing.bidder#0
         v-store existing.bidder#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 48 8                                                                                  aggregate%extract%3#0
-        v-store aggregate%extract%3#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 56 8                                                                                  aggregate%extract%4#0
-        v-store aggregate%extract%4#0
         // marketplace_demo/marketplace_with_tups.py:135
         // deposited=existing.deposited + xfer.asset_amount,
         v-load existing.deposited#0                                                                   existing.deposited#0
@@ -611,20 +600,29 @@ subroutine deposit:
         v-load tmp%16#0                                                                               tmp%16#0
         itob                                                                                          aggregate%val_as_bytes%2#0
         v-store aggregate%val_as_bytes%2#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 8 8                                                                                   aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
         v-load aggregate%val_as_bytes%2#0                                                             aggregate%val_as_bytes%2#0
-        v-load aggregate%extract%1#0                                                                  aggregate%val_as_bytes%2#0,aggregate%extract%1#0
+        v-load aggregate%val_as_bytes%3#0                                                             aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%4#0                                                                     aggregate%head%4#0
         v-load existing.bidder#0                                                                      aggregate%head%4#0,existing.bidder#0
         concat                                                                                        aggregate%head%5#0
         v-store aggregate%head%5#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 48 8                                                                                  aggregate%val_as_bytes%4#0
+        v-store aggregate%val_as_bytes%4#0
         v-load aggregate%head%5#0                                                                     aggregate%head%5#0
-        v-load aggregate%extract%3#0                                                                  aggregate%head%5#0,aggregate%extract%3#0
+        v-load aggregate%val_as_bytes%4#0                                                             aggregate%head%5#0,aggregate%val_as_bytes%4#0
         concat                                                                                        aggregate%head%6#0
         v-store aggregate%head%6#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 56 8                                                                                  aggregate%val_as_bytes%5#0
+        v-store aggregate%val_as_bytes%5#0
         v-load aggregate%head%6#0                                                                     aggregate%head%6#0
-        v-load aggregate%extract%4#0                                                                  aggregate%head%6#0,aggregate%extract%4#0
+        v-load aggregate%val_as_bytes%5#0                                                             aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        aggregate%head%7#0
         v-store aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:130-136
@@ -722,36 +720,36 @@ subroutine set_price:
         v-load aggregate%box_get%1#0                                                                  aggregate%box_get%1#0
         assert // check self.listings entry exists
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 0 8                                                                                   aggregate%extract%0#0
-        v-store aggregate%extract%0#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
         extract 16 32                                                                                 existing.bidder#0
         v-store existing.bidder#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 48 8                                                                                  aggregate%extract%3#0
-        v-store aggregate%extract%3#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 56 8                                                                                  aggregate%extract%4#0
-        v-store aggregate%extract%4#0
         // marketplace_demo/marketplace_with_tups.py:143
         // self.listings[key] = ListingValue(
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 0 8                                                                                   aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0
         v-load unitary_price#0                                                                        unitary_price#0
         itob                                                                                          aggregate%val_as_bytes%3#0
         v-store aggregate%val_as_bytes%3#0
-        v-load aggregate%extract%0#0                                                                  aggregate%extract%0#0
-        v-load aggregate%val_as_bytes%3#0                                                             aggregate%extract%0#0,aggregate%val_as_bytes%3#0
+        v-load aggregate%val_as_bytes%2#0                                                             aggregate%val_as_bytes%2#0
+        v-load aggregate%val_as_bytes%3#0                                                             aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%4#0                                                                     aggregate%head%4#0
         v-load existing.bidder#0                                                                      aggregate%head%4#0,existing.bidder#0
         concat                                                                                        aggregate%head%5#0
         v-store aggregate%head%5#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 48 8                                                                                  aggregate%val_as_bytes%4#0
+        v-store aggregate%val_as_bytes%4#0
         v-load aggregate%head%5#0                                                                     aggregate%head%5#0
-        v-load aggregate%extract%3#0                                                                  aggregate%head%5#0,aggregate%extract%3#0
+        v-load aggregate%val_as_bytes%4#0                                                             aggregate%head%5#0,aggregate%val_as_bytes%4#0
         concat                                                                                        aggregate%head%6#0
         v-store aggregate%head%6#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 56 8                                                                                  aggregate%val_as_bytes%5#0
+        v-store aggregate%val_as_bytes%5#0
         v-load aggregate%head%6#0                                                                     aggregate%head%6#0
-        v-load aggregate%extract%4#0                                                                  aggregate%head%6#0,aggregate%extract%4#0
+        v-load aggregate%val_as_bytes%5#0                                                             aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        aggregate%head%7#0
         v-store aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:143-149
@@ -881,12 +879,6 @@ subroutine buy:
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
         extract 16 32                                                                                 listing.bidder#0
         v-store listing.bidder#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 48 8                                                                                  aggregate%extract%3#0
-        v-store aggregate%extract%3#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 56 8                                                                                  aggregate%extract%4#0
-        v-store aggregate%extract%4#0
         // marketplace_demo/marketplace_with_tups.py:164
         // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
         v-load asset#0                                                                                asset#0
@@ -917,9 +909,9 @@ subroutine buy:
         v-load amount_not_scaled_low#0                                                                amount_not_scaled_high#0,amount_not_scaled_low#0
         v-load scaling_factor_high#0                                                                  amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         v-load scaling_factor_low#0                                                                   amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#1,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#1,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#1
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#1,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               _quotient_high#0,amount_to_be_paid#1,tmp%6#0
+        v-store tmp%6#0                                                                               _quotient_high#0,amount_to_be_paid#1
         v-store amount_to_be_paid#1                                                                   _quotient_high#0
         v-store _quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -986,12 +978,18 @@ subroutine buy:
         v-load listing.bidder#0                                                                       aggregate%head%4#0,listing.bidder#0
         concat                                                                                        aggregate%head%5#0
         v-store aggregate%head%5#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 48 8                                                                                  aggregate%val_as_bytes%4#0
+        v-store aggregate%val_as_bytes%4#0
         v-load aggregate%head%5#0                                                                     aggregate%head%5#0
-        v-load aggregate%extract%3#0                                                                  aggregate%head%5#0,aggregate%extract%3#0
+        v-load aggregate%val_as_bytes%4#0                                                             aggregate%head%5#0,aggregate%val_as_bytes%4#0
         concat                                                                                        aggregate%head%6#0
         v-store aggregate%head%6#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 56 8                                                                                  aggregate%val_as_bytes%5#0
+        v-store aggregate%val_as_bytes%5#0
         v-load aggregate%head%6#0                                                                     aggregate%head%6#0
-        v-load aggregate%extract%4#0                                                                  aggregate%head%6#0,aggregate%extract%4#0
+        v-load aggregate%val_as_bytes%5#0                                                             aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        aggregate%head%7#0
         v-store aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:170-176
@@ -1010,12 +1008,12 @@ subroutine buy:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         // ).submit()
         itxn_begin
+        v-load quantity#0                                                                             quantity#0
+        itxn_field AssetAmount
         // marketplace_demo/marketplace_with_tups.py:179
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         txn Sender                                                                                    inner_txn_params%0%%param_AssetReceiver_idx_0#0
         v-store inner_txn_params%0%%param_AssetReceiver_idx_0#0
-        v-load quantity#0                                                                             quantity#0
-        itxn_field AssetAmount
         v-load inner_txn_params%0%%param_AssetReceiver_idx_0#0                                        inner_txn_params%0%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
@@ -1157,9 +1155,9 @@ subroutine withdraw:
         v-load amount_not_scaled_low#0                                                                amount_not_scaled_high#0,amount_not_scaled_low#0
         v-load scaling_factor_high#0                                                                  amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         v-load scaling_factor_low#0                                                                   amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        v-store tmp%7#1                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#1
+        v-store tmp%6#1                                                                               _quotient_high#0,amount_to_be_paid#0
         v-store amount_to_be_paid#0                                                                   _quotient_high#0
         v-store _quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1192,8 +1190,6 @@ subroutine withdraw:
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
-        v-store inner_txn_params%1%%param_Receiver_idx_0#0
         // marketplace_demo/marketplace_with_tups.py:45-66
         // return UInt64(
         //     2_500
@@ -1219,10 +1215,12 @@ subroutine withdraw:
         // )
         int 50500                                                                                     50500
         itxn_field Amount
-        v-load inner_txn_params%1%%param_Receiver_idx_0#0                                             inner_txn_params%1%%param_Receiver_idx_0#0
-        itxn_field Receiver
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
+        v-store inner_txn_params%1%%param_Receiver_idx_0#0
+        v-load inner_txn_params%1%%param_Receiver_idx_0#0                                             inner_txn_params%1%%param_Receiver_idx_0#0
+        itxn_field Receiver
         int pay                                                                                       pay
         itxn_field TypeEnum
         int 0                                                                                         0
@@ -1233,12 +1231,12 @@ subroutine withdraw:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         // ).submit()
         itxn_begin
+        v-load listing.deposited#0                                                                    listing.deposited#0
+        itxn_field AssetAmount
         // marketplace_demo/marketplace_with_tups.py:198
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         txn Sender                                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0
         v-store inner_txn_params%2%%param_AssetReceiver_idx_0#0
-        v-load listing.deposited#0                                                                    listing.deposited#0
-        itxn_field AssetAmount
         v-load inner_txn_params%2%%param_AssetReceiver_idx_0#0                                        inner_txn_params%2%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
@@ -1374,12 +1372,6 @@ subroutine bid:
         v-load aggregate%box_get%1#0                                                                  aggregate%box_get%1#0
         assert // check self.listings entry exists
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 0 8                                                                                   aggregate%extract%0#0
-        v-store aggregate%extract%0#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 8 8                                                                                   aggregate%extract%1#0
-        v-store aggregate%extract%1#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
         extract 16 32                                                                                 listing.bidder#0
         v-store listing.bidder#0
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
@@ -1440,9 +1432,9 @@ subroutine bid:
         v-load amount_not_scaled_low#0                                                                amount_not_scaled_high#0,amount_not_scaled_low#0
         v-load scaling_factor_high#0                                                                  amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         v-load scaling_factor_low#0                                                                   amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#0
+        v-store tmp%6#0                                                                               _quotient_high#0,amount_to_be_paid#0
         v-store amount_to_be_paid#0                                                                   _quotient_high#0
         v-store _quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1497,9 +1489,9 @@ subroutine bid:
         v-load amount_not_scaled_low#0                                                                amount_not_scaled_high#0,amount_not_scaled_low#0
         v-load scaling_factor_high#0                                                                  amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         v-load scaling_factor_low#0                                                                   amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#0
+        v-store tmp%6#0                                                                               _quotient_high#0,amount_to_be_paid#0
         v-store amount_to_be_paid#0                                                                   _quotient_high#0
         v-store _quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1552,8 +1544,14 @@ subroutine bid:
         v-store tmp%18#0
         // marketplace_demo/marketplace_with_tups.py:229
         // self.listings[key] = ListingValue(
-        v-load aggregate%extract%0#0                                                                  aggregate%extract%0#0
-        v-load aggregate%extract%1#0                                                                  aggregate%extract%0#0,aggregate%extract%1#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 0 8                                                                                   aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 8 8                                                                                   aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
+        v-load aggregate%val_as_bytes%2#0                                                             aggregate%val_as_bytes%2#0
+        v-load aggregate%val_as_bytes%3#0                                                             aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%4#0                                                                     aggregate%head%4#0
@@ -1659,9 +1657,6 @@ subroutine accept_bid:
         extract_uint64                                                                                listing.deposited#0
         v-store listing.deposited#0
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
-        extract 8 8                                                                                   aggregate%extract%1#0
-        v-store aggregate%extract%1#0
-        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
         extract 16 32                                                                                 listing.bidder#0
         v-store listing.bidder#0
         v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
@@ -1732,9 +1727,9 @@ subroutine accept_bid:
         v-load amount_not_scaled_low#0                                                                amount_not_scaled_high#0,amount_not_scaled_low#0
         v-load scaling_factor_high#0                                                                  amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         v-load scaling_factor_low#0                                                                   amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        v-store tmp%7#1                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#1
+        v-store tmp%6#1                                                                               _quotient_high#0,amount_to_be_paid#0
         v-store amount_to_be_paid#0                                                                   _quotient_high#0
         v-store _quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1747,10 +1742,10 @@ subroutine accept_bid:
         // marketplace_demo/marketplace_with_tups.py:250
         // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%0%%param_Receiver_idx_0#0
-        v-store inner_txn_params%0%%param_Receiver_idx_0#0
         v-load amount_to_be_paid#0                                                                    amount_to_be_paid#0
         itxn_field Amount
+        txn Sender                                                                                    inner_txn_params%0%%param_Receiver_idx_0#0
+        v-store inner_txn_params%0%%param_Receiver_idx_0#0
         v-load inner_txn_params%0%%param_Receiver_idx_0#0                                             inner_txn_params%0%%param_Receiver_idx_0#0
         itxn_field Receiver
         int pay                                                                                       pay
@@ -1797,8 +1792,11 @@ subroutine accept_bid:
         v-load tmp%10#0                                                                               tmp%10#0
         itob                                                                                          aggregate%val_as_bytes%2#0
         v-store aggregate%val_as_bytes%2#0
+        v-load aggregate%box_get%0#0                                                                  aggregate%box_get%0#0
+        extract 8 8                                                                                   aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
         v-load aggregate%val_as_bytes%2#0                                                             aggregate%val_as_bytes%2#0
-        v-load aggregate%extract%1#0                                                                  aggregate%val_as_bytes%2#0,aggregate%extract%1#0
+        v-load aggregate%val_as_bytes%3#0                                                             aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%4#0                                                                     aggregate%head%4#0

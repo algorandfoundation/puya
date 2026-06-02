@@ -21,7 +21,11 @@ subroutine main:
         // tuple_support/tuple_storage.py:20
         // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
         byte "glob"                                                                        "glob"
+        // tuple_support/tuple_storage.py:16
+        // self.tup = TupleWithMutable(
         byte 0x000a000000000000000000010000000000000000                                    "glob",0x000a000000000000000000010000000000000000
+        // tuple_support/tuple_storage.py:20
+        // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
         app_global_put
         // tuple_support/tuple_storage.py:21
         // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
@@ -33,10 +37,10 @@ subroutine main:
         v-load maybe_exists%1#0                                                            maybe_exists%1#0
         assert // check self.tup exists
         v-load maybe_value%1#0                                                             maybe_value%1#0
-        extract 2 8                                                                        aggregate%extract%1#0
-        v-store aggregate%extract%1#0
+        extract 2 8                                                                        aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%1#0                                                       0x000a,aggregate%extract%1#0
+        v-load aggregate%val_as_bytes%3#0                                                  0x000a,aggregate%val_as_bytes%3#0
         concat                                                                             aggregate%head%6#0
         v-store aggregate%head%6#0
         v-load aggregate%head%6#0                                                          aggregate%head%6#0
@@ -175,10 +179,10 @@ subroutine bootstrap:
         v-load maybe_exists%0#0                                                            maybe_exists%0#0
         assert // check self.tup exists
         v-load maybe_value%0#0                                                             maybe_value%0#0
-        extract 2 8                                                                        aggregate%extract%0#0
-        v-store aggregate%extract%0#0
+        extract 2 8                                                                        aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%0#0                                                       0x000a,aggregate%extract%0#0
+        v-load aggregate%val_as_bytes%1#0                                                  0x000a,aggregate%val_as_bytes%1#0
         concat                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                          aggregate%head%2#0
@@ -193,11 +197,11 @@ subroutine bootstrap:
         box_put
         // tuple_support/tuple_storage.py:26
         // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        txn Sender                                                                         tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                     tmp%0#0
-        byte "loc"                                                                         tmp%0#0,"loc"
-        v-load aggregate%concat%0#0                                                        tmp%0#0,"loc",aggregate%concat%0#0
+        txn Sender                                                                         tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                     tmp%2#0
+        byte "loc"                                                                         tmp%2#0,"loc"
+        v-load aggregate%concat%0#0                                                        tmp%2#0,"loc",aggregate%concat%0#0
         app_local_put
         // tuple_support/tuple_storage.py:23
         // @arc4.abimethod(allow_actions=["OptIn"])
@@ -242,9 +246,6 @@ subroutine mutate_tuple:
         v-load aggregate%len%0#0                                                           maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                                         array#0
         v-store array#0
-        v-load maybe_value%0#0                                                             maybe_value%0#0
-        extract 2 8                                                                        aggregate%extract%0#0
-        v-store aggregate%extract%0#0
         v-load array#0                                                                     array#0
         int 0                                                                              array#0,0
         extract_uint16                                                                     array_length#0
@@ -271,8 +272,11 @@ subroutine mutate_tuple:
         v-store tmp%4#0
         // tuple_support/tuple_storage.py:30
         // self.tup.arr.append(val)
+        v-load maybe_value%0#0                                                             maybe_value%0#0
+        extract 2 8                                                                        aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%0#0                                                       0x000a,aggregate%extract%0#0
+        v-load aggregate%val_as_bytes%0#0                                                  0x000a,aggregate%val_as_bytes%0#0
         concat                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                          aggregate%head%2#0
@@ -324,9 +328,6 @@ subroutine mutate_box:
         v-load aggregate%len%0#0                                                           aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                                         array#0
         v-store array#0
-        v-load aggregate%box_get%0#0                                                       aggregate%box_get%0#0
-        extract 2 8                                                                        aggregate%extract%0#0
-        v-store aggregate%extract%0#0
         v-load array#0                                                                     array#0
         int 0                                                                              array#0,0
         extract_uint16                                                                     array_length#0
@@ -353,8 +354,11 @@ subroutine mutate_box:
         v-store tmp%4#0
         // tuple_support/tuple_storage.py:34
         // self.box.value.arr.append(val)
+        v-load aggregate%box_get%0#0                                                       aggregate%box_get%0#0
+        extract 2 8                                                                        aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%0#0                                                       0x000a,aggregate%extract%0#0
+        v-load aggregate%val_as_bytes%0#0                                                  0x000a,aggregate%val_as_bytes%0#0
         concat                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                          aggregate%head%2#0
@@ -410,9 +414,6 @@ subroutine mutate_global:
         v-load aggregate%len%0#0                                                           maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                                         array#0
         v-store array#0
-        v-load maybe_value%0#0                                                             maybe_value%0#0
-        extract 2 8                                                                        aggregate%extract%0#0
-        v-store aggregate%extract%0#0
         v-load array#0                                                                     array#0
         int 0                                                                              array#0,0
         extract_uint16                                                                     array_length#0
@@ -439,8 +440,11 @@ subroutine mutate_global:
         v-store tmp%4#0
         // tuple_support/tuple_storage.py:38
         // self.glob.value.arr.append(val)
+        v-load maybe_value%0#0                                                             maybe_value%0#0
+        extract 2 8                                                                        aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%0#0                                                       0x000a,aggregate%extract%0#0
+        v-load aggregate%val_as_bytes%0#0                                                  0x000a,aggregate%val_as_bytes%0#0
         concat                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                          aggregate%head%2#0
@@ -496,9 +500,6 @@ subroutine mutate_local:
         v-load aggregate%len%0#0                                                           maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                                         array#0
         v-store array#0
-        v-load maybe_value%0#0                                                             maybe_value%0#0
-        extract 2 8                                                                        aggregate%extract%0#0
-        v-store aggregate%extract%0#0
         v-load array#0                                                                     array#0
         int 0                                                                              array#0,0
         extract_uint16                                                                     array_length#0
@@ -525,8 +526,11 @@ subroutine mutate_local:
         v-store tmp%4#1
         // tuple_support/tuple_storage.py:42
         // self.loc[Txn.sender].arr.append(val)
+        v-load maybe_value%0#0                                                             maybe_value%0#0
+        extract 2 8                                                                        aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte 0x000a                                                                        0x000a
-        v-load aggregate%extract%0#0                                                       0x000a,aggregate%extract%0#0
+        v-load aggregate%val_as_bytes%0#0                                                  0x000a,aggregate%val_as_bytes%0#0
         concat                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                          aggregate%head%2#0

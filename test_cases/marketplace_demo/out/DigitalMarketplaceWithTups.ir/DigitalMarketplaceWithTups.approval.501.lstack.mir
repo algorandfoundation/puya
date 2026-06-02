@@ -437,41 +437,40 @@ subroutine deposit:
         btoi                                                                                          xfer#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:123
         // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
-        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0
-        l-load-copy xfer#0 2                                                                          xfer#0,nonce#0,key.owner#0,xfer#0 (copy)
-        gtxns XferAsset                                                                               xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 1                                                                          xfer#0,nonce#0,xfer#0 (copy)
+        gtxns XferAsset                                                                               xfer#0,nonce#0,key.asset#0
         // marketplace_demo/marketplace_with_tups.py:125
         // assert xfer.sender == Txn.sender
-        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.owner#0,key.asset#0,xfer#0 (copy)
-        gtxns Sender                                                                                  xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1
-        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
-        l-load tmp%2#1 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%3#0,tmp%2#1
-        l-load tmp%3#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
-        ==                                                                                            xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%4#0
-        l-load tmp%4#0 0                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%4#0
-        assert                                                                                        xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 2                                                                          xfer#0,nonce#0,key.asset#0,xfer#0 (copy)
+        gtxns Sender                                                                                  xfer#0,nonce#0,key.asset#0,tmp%2#1
+        txn Sender                                                                                    xfer#0,nonce#0,key.asset#0,tmp%2#1,tmp%3#0
+        l-load tmp%2#1 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%2#1
+        l-load-copy tmp%3#0 1                                                                         xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%2#1,tmp%3#0 (copy)
+        ==                                                                                            xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%4#0
+        assert                                                                                        xfer#0,nonce#0,key.asset#0,tmp%3#0
         // marketplace_demo/marketplace_with_tups.py:126
         // assert xfer.asset_receiver == Global.current_application_address
-        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.owner#0,key.asset#0,xfer#0 (copy)
-        gtxns AssetReceiver                                                                           xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0
-        global CurrentApplicationAddress                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0,tmp%6#0
-        l-load tmp%5#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%6#0,tmp%5#0
-        l-load tmp%6#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%5#0,tmp%6#0
-        ==                                                                                            xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%7#0
-        l-load tmp%7#0 0                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%7#0
-        assert                                                                                        xfer#0,nonce#0,key.owner#0,key.asset#0
+        l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.asset#0,tmp%3#0,xfer#0 (copy)
+        gtxns AssetReceiver                                                                           xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0
+        global CurrentApplicationAddress                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0,tmp%6#0
+        l-load tmp%5#0 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%6#0,tmp%5#0
+        l-load tmp%6#0 1                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%5#0,tmp%6#0
+        ==                                                                                            xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%7#0
+        l-load tmp%7#0 0                                                                              xfer#0,nonce#0,key.asset#0,tmp%3#0,tmp%7#0
+        assert                                                                                        xfer#0,nonce#0,key.asset#0,tmp%3#0
         // marketplace_demo/marketplace_with_tups.py:127
         // assert xfer.asset_amount > 0
-        l-load xfer#0 3                                                                               nonce#0,key.owner#0,key.asset#0,xfer#0
-        gtxns AssetAmount                                                                             nonce#0,key.owner#0,key.asset#0,tmp%8#0
-        l-load-copy tmp%8#0 0                                                                         nonce#0,key.owner#0,key.asset#0,tmp%8#0,tmp%8#0 (copy)
-        assert                                                                                        nonce#0,key.owner#0,key.asset#0,tmp%8#0
+        l-load xfer#0 3                                                                               nonce#0,key.asset#0,tmp%3#0,xfer#0
+        gtxns AssetAmount                                                                             nonce#0,key.asset#0,tmp%3#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                                         nonce#0,key.asset#0,tmp%3#0,tmp%8#0,tmp%8#0 (copy)
+        assert                                                                                        nonce#0,key.asset#0,tmp%3#0,tmp%8#0
         // marketplace_demo/marketplace_with_tups.py:129
         // existing = self.listings[key]
-        l-load key.asset#0 1                                                                          nonce#0,key.owner#0,tmp%8#0,key.asset#0
-        itob                                                                                          nonce#0,key.owner#0,tmp%8#0,aggregate%val_as_bytes%0#0
-        l-load key.owner#0 2                                                                          nonce#0,tmp%8#0,aggregate%val_as_bytes%0#0,key.owner#0
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%8#0,key.owner#0,aggregate%val_as_bytes%0#0
+        l-load key.asset#0 2                                                                          nonce#0,tmp%3#0,tmp%8#0,key.asset#0
+        itob                                                                                          nonce#0,tmp%3#0,tmp%8#0,aggregate%val_as_bytes%0#0
+        l-load tmp%3#0 2                                                                              nonce#0,tmp%8#0,aggregate%val_as_bytes%0#0,tmp%3#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%8#0,tmp%3#0,aggregate%val_as_bytes%0#0
         concat                                                                                        nonce#0,tmp%8#0,aggregate%head%1#0
         l-load nonce#0 2                                                                              tmp%8#0,aggregate%head%1#0,nonce#0
         itob                                                                                          tmp%8#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
@@ -489,33 +488,33 @@ subroutine deposit:
         int 0                                                                                         tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),0
         extract_uint64                                                                                tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0
         l-load-copy aggregate%box_get%0#0 1                                                           tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%box_get%0#0 (copy)
-        extract 8 8                                                                                   tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%extract%1#0
-        l-load-copy aggregate%box_get%0#0 2                                                           tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%extract%1#0,aggregate%box_get%0#0 (copy)
-        extract 16 32                                                                                 tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%extract%1#0,existing.bidder#0
-        l-load-copy aggregate%box_get%0#0 3                                                           tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%extract%1#0,existing.bidder#0,aggregate%box_get%0#0 (copy)
-        extract 48 8                                                                                  tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0
-        l-load aggregate%box_get%0#0 4                                                                tmp%8#0,map_prefixed_key%0#0,existing.deposited#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%box_get%0#0
-        extract 56 8                                                                                  tmp%8#0,map_prefixed_key%0#0,existing.deposited#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0
+        extract 16 32                                                                                 tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.deposited#0,existing.bidder#0
         // marketplace_demo/marketplace_with_tups.py:135
         // deposited=existing.deposited + xfer.asset_amount,
-        l-load existing.deposited#0 4                                                                 tmp%8#0,map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,existing.deposited#0
-        l-load tmp%8#0 6                                                                              map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,existing.deposited#0,tmp%8#0
-        +                                                                                             map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%16#0
+        l-load existing.deposited#0 1                                                                 tmp%8#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,existing.deposited#0
+        l-load tmp%8#0 4                                                                              map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,existing.deposited#0,tmp%8#0
+        +                                                                                             map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,tmp%16#0
         // marketplace_demo/marketplace_with_tups.py:130
         // self.listings[key] = ListingValue(
-        l-load tmp%16#0 0                                                                             map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%16#0
-        itob                                                                                          map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%2#0 0                                                           map_prefixed_key%0#0,aggregate%extract%1#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%extract%1#0 4                                                                map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%extract%1#0
-        concat                                                                                        map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load existing.bidder#0 3                                                                    map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0,existing.bidder#0
-        concat                                                                                        map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%extract%3#0 2                                                                map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%5#0,aggregate%extract%3#0
-        concat                                                                                        map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%extract%4#0 1                                                                map_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%4#0
+        l-load tmp%16#0 0                                                                             map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,tmp%16#0
+        itob                                                                                          map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0
+        l-load-copy aggregate%box_get%0#0 2                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%box_get%0#0 (copy)
+        extract 8 8                                                                                   map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%head%4#0
+        l-load aggregate%head%4#0 0                                                                   map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%head%4#0
+        l-load existing.bidder#0 1                                                                    map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%4#0,existing.bidder#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0
+        l-load-copy aggregate%box_get%0#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%box_get%0#0 (copy)
+        extract 48 8                                                                                  map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%head%5#0 1                                                                   map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%6#0
+        l-load aggregate%box_get%0#0 1                                                                map_prefixed_key%0#0,aggregate%head%6#0,aggregate%box_get%0#0
+        extract 56 8                                                                                  map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%head%6#0 1                                                                   map_prefixed_key%0#0,aggregate%val_as_bytes%5#0,aggregate%head%6#0
+        l-load aggregate%val_as_bytes%5#0 1                                                           map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        map_prefixed_key%0#0,aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:130-136
         // self.listings[key] = ListingValue(
@@ -592,28 +591,28 @@ subroutine set_price:
         l-load aggregate%box_get%1#0 0                                                                unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.listings entry exists                                                    unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0
         l-load-copy aggregate%box_get%0#0 0                                                           unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        extract 0 8                                                                                   unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%extract%0#0
-        l-load-copy aggregate%box_get%0#0 1                                                           unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%extract%0#0,aggregate%box_get%0#0 (copy)
-        extract 16 32                                                                                 unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%extract%0#0,existing.bidder#0
-        l-load-copy aggregate%box_get%0#0 2                                                           unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%box_get%0#0 (copy)
-        extract 48 8                                                                                  unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%extract%3#0
-        l-load aggregate%box_get%0#0 3                                                                unitary_price#0,map_prefixed_key%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%box_get%0#0
-        extract 56 8                                                                                  unitary_price#0,map_prefixed_key%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0
+        extract 16 32                                                                                 unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0
         // marketplace_demo/marketplace_with_tups.py:143
         // self.listings[key] = ListingValue(
-        l-load unitary_price#0 5                                                                      map_prefixed_key%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,unitary_price#0
-        itob                                                                                          map_prefixed_key%0#0,aggregate%extract%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%extract%0#0 4                                                                map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%3#0,aggregate%extract%0#0
-        l-load aggregate%val_as_bytes%3#0 1                                                           map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%0#0,aggregate%val_as_bytes%3#0
-        concat                                                                                        map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   map_prefixed_key%0#0,existing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load existing.bidder#0 3                                                                    map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0,existing.bidder#0
-        concat                                                                                        map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%extract%3#0 2                                                                map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%5#0,aggregate%extract%3#0
-        concat                                                                                        map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%extract%4#0 1                                                                map_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%4#0
+        l-load-copy aggregate%box_get%0#0 1                                                           unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%box_get%0#0 (copy)
+        extract 0 8                                                                                   unitary_price#0,map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0
+        l-load unitary_price#0 4                                                                      map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,unitary_price#0
+        itob                                                                                          map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%head%4#0
+        l-load aggregate%head%4#0 0                                                                   map_prefixed_key%0#0,aggregate%box_get%0#0,existing.bidder#0,aggregate%head%4#0
+        l-load existing.bidder#0 1                                                                    map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%4#0,existing.bidder#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0
+        l-load-copy aggregate%box_get%0#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%box_get%0#0 (copy)
+        extract 48 8                                                                                  map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%head%5#0 1                                                                   map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                           map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        concat                                                                                        map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%6#0
+        l-load aggregate%box_get%0#0 1                                                                map_prefixed_key%0#0,aggregate%head%6#0,aggregate%box_get%0#0
+        extract 56 8                                                                                  map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%head%6#0 1                                                                   map_prefixed_key%0#0,aggregate%val_as_bytes%5#0,aggregate%head%6#0
+        l-load aggregate%val_as_bytes%5#0 1                                                           map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        map_prefixed_key%0#0,aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:143-149
         // self.listings[key] = ListingValue(
@@ -713,95 +712,95 @@ subroutine buy:
         extract_uint64                                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0
         l-load-copy aggregate%box_get%0#0 2                                                           owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,aggregate%box_get%0#0 (copy)
         extract 16 32                                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0
-        l-load-copy aggregate%box_get%0#0 3                                                           owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%box_get%0#0 (copy)
-        extract 48 8                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0
-        l-load aggregate%box_get%0#0 4                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%box_get%0#0
-        extract 56 8                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0
         // marketplace_demo/marketplace_with_tups.py:164
         // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
-        l-load-copy asset#0 8                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset#0 (copy)
-        asset_params_get AssetDecimals                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,check%0#0
-        l-load check%0#0 0                                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,check%0#0
-        assert // asset exists                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0
+        l-load-copy asset#0 7                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset#0 (copy)
+        asset_params_get AssetDecimals                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,check%0#0
+        l-load check%0#0 0                                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,check%0#0
+        assert // asset exists                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0
         // marketplace_demo/marketplace_with_tups.py:70
         // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-        l-load-copy listing.unitaryPrice#0 4                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,listing.unitaryPrice#0 (copy)
-        l-load-copy quantity#0 8                                                                      owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,listing.unitaryPrice#0 (copy),quantity#0 (copy)
-        mulw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0
+        l-load-copy listing.unitaryPrice#0 2                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,listing.unitaryPrice#0 (copy)
+        l-load-copy quantity#0 7                                                                      owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,listing.unitaryPrice#0 (copy),quantity#0 (copy)
+        mulw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         // marketplace_demo/marketplace_with_tups.py:71
         // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-        int 10                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10
-        l-load asset_decimals#0 3                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10,asset_decimals#0
-        expw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
+        int 10                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10
+        l-load asset_decimals#0 3                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10,asset_decimals#0
+        expw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
         // marketplace_demo/marketplace_with_tups.py:72-74
         // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
         //     amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low
         // )
-        l-load amount_not_scaled_high#0 3                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0
-        l-load amount_not_scaled_low#0 3                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
-        l-load scaling_factor_high#0 3                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
-        l-load scaling_factor_low#0 3                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0
-        v-store _remainder_high#0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,_quotient_high#0,amount_to_be_paid#1
-        l-store amount_to_be_paid#1 1                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,_quotient_high#0
-        l-store _quotient_high#0 0                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,_quotient_high#0
+        l-load amount_not_scaled_high#0 3                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0
+        l-load amount_not_scaled_low#0 3                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
+        l-load scaling_factor_high#0 3                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
+        l-load scaling_factor_low#0 3                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
+        divmodw                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1,tmp%6#0
+        v-store tmp%6#0                                                                               owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,_quotient_high#0,amount_to_be_paid#1
+        l-store amount_to_be_paid#1 1                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,_quotient_high#0
+        l-store _quotient_high#0 0                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,_quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
         // assert _quotient_high == 0
-        l-load _quotient_high#0 0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,_quotient_high#0
-        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
-        l-load tmp%8#1 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
-        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1
+        l-load _quotient_high#0 0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,_quotient_high#0
+        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%8#1
+        l-load tmp%8#1 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%8#1
+        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_tups.py:166
         // assert buy_pay.sender == Txn.sender
-        l-load-copy buy_pay#0 8                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1
-        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
-        l-load tmp%6#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%7#1,tmp%6#1
-        l-load tmp%7#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
-        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
-        l-load tmp%8#1 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
-        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1
+        l-load-copy buy_pay#0 7                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,buy_pay#0 (copy)
+        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%6#1
+        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
+        l-load tmp%6#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%7#1,tmp%6#1
+        l-load tmp%7#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
+        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%8#1
+        l-load tmp%8#1 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%8#1
+        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_tups.py:167
         // assert buy_pay.receiver == owner
-        l-load-copy buy_pay#0 8                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Receiver                                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%9#0
-        l-load tmp%9#0 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%9#0
-        l-load owner#0 11                                                                             asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%9#0,owner#0
-        ==                                                                                            asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%10#0
-        l-load tmp%10#0 0                                                                             asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%10#0
-        assert                                                                                        asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1
+        l-load-copy buy_pay#0 7                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,buy_pay#0 (copy)
+        gtxns Receiver                                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%9#0
+        l-load tmp%9#0 0                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%9#0
+        l-load owner#0 10                                                                             asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%9#0,owner#0
+        ==                                                                                            asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%10#0
+        l-load tmp%10#0 0                                                                             asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%10#0
+        assert                                                                                        asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_tups.py:168
         // assert buy_pay.amount == amount_to_be_paid
-        l-load buy_pay#0 8                                                                            asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,buy_pay#0
-        gtxns Amount                                                                                  asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%11#0
-        l-load tmp%11#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%11#0
-        l-load amount_to_be_paid#1 1                                                                  asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%11#0,amount_to_be_paid#1
-        ==                                                                                            asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%12#0
-        l-load tmp%12#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%12#0
-        assert                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0
+        l-load buy_pay#0 7                                                                            asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,buy_pay#0
+        gtxns Amount                                                                                  asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%11#0
+        l-load tmp%11#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,amount_to_be_paid#1,tmp%11#0
+        l-load amount_to_be_paid#1 1                                                                  asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,tmp%11#0,amount_to_be_paid#1
+        ==                                                                                            asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,tmp%12#0
+        l-load tmp%12#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,tmp%12#0
+        assert                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0
         // marketplace_demo/marketplace_with_tups.py:175
         // deposited=listing.deposited - quantity,
-        l-load listing.deposited#0 4                                                                  asset#0,quantity#0,map_prefixed_key%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,listing.deposited#0
-        l-load-copy quantity#0 6                                                                      asset#0,quantity#0,map_prefixed_key%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,listing.deposited#0,quantity#0 (copy)
-        -                                                                                             asset#0,quantity#0,map_prefixed_key%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%13#0
+        l-load listing.deposited#0 2                                                                  asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.unitaryPrice#0,listing.bidder#0,listing.deposited#0
+        l-load-copy quantity#0 5                                                                      asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.unitaryPrice#0,listing.bidder#0,listing.deposited#0,quantity#0 (copy)
+        -                                                                                             asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.unitaryPrice#0,listing.bidder#0,tmp%13#0
         // marketplace_demo/marketplace_with_tups.py:170
         // self.listings[key] = ListingValue(
-        l-load tmp%13#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%13#0
-        itob                                                                                          asset#0,quantity#0,map_prefixed_key%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0
-        l-load listing.unitaryPrice#0 4                                                               asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,listing.unitaryPrice#0
-        itob                                                                                          asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%val_as_bytes%2#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   asset#0,quantity#0,map_prefixed_key%0#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0
-        l-load listing.bidder#0 3                                                                     asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%4#0,listing.bidder#0
-        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%head%5#0
-        l-load aggregate%extract%3#0 2                                                                asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%5#0,aggregate%extract%3#0
-        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   asset#0,quantity#0,map_prefixed_key%0#0,aggregate%extract%4#0,aggregate%head%6#0
-        l-load aggregate%extract%4#0 1                                                                asset#0,quantity#0,map_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%4#0
+        l-load tmp%13#0 0                                                                             asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.unitaryPrice#0,listing.bidder#0,tmp%13#0
+        itob                                                                                          asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%val_as_bytes%2#0
+        l-load listing.unitaryPrice#0 2                                                               asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%val_as_bytes%2#0,listing.unitaryPrice#0
+        itob                                                                                          asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%head%4#0
+        l-load aggregate%head%4#0 0                                                                   asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,listing.bidder#0,aggregate%head%4#0
+        l-load listing.bidder#0 1                                                                     asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%4#0,listing.bidder#0
+        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0
+        l-load-copy aggregate%box_get%0#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%box_get%0#0 (copy)
+        extract 48 8                                                                                  asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%head%5#0 1                                                                   asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
+        concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%box_get%0#0,aggregate%head%6#0
+        l-load aggregate%box_get%0#0 1                                                                asset#0,quantity#0,map_prefixed_key%0#0,aggregate%head%6#0,aggregate%box_get%0#0
+        extract 56 8                                                                                  asset#0,quantity#0,map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%head%6#0 1                                                                   asset#0,quantity#0,map_prefixed_key%0#0,aggregate%val_as_bytes%5#0,aggregate%head%6#0
+        l-load aggregate%val_as_bytes%5#0 1                                                           asset#0,quantity#0,map_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%5#0
         concat                                                                                        asset#0,quantity#0,map_prefixed_key%0#0,aggregate%head%7#0
         // marketplace_demo/marketplace_with_tups.py:170-176
         // self.listings[key] = ListingValue(
@@ -819,11 +818,11 @@ subroutine buy:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
         // ).submit()
         itxn_begin                                                                                    asset#0,quantity#0
+        l-load quantity#0 0                                                                           asset#0,quantity#0
+        itxn_field AssetAmount                                                                        asset#0
         // marketplace_demo/marketplace_with_tups.py:179
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
-        txn Sender                                                                                    asset#0,quantity#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
-        l-load quantity#0 1                                                                           asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0,quantity#0
-        itxn_field AssetAmount                                                                        asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
+        txn Sender                                                                                    asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
         l-load inner_txn_params%0%%param_AssetReceiver_idx_0#0 0                                      asset#0,inner_txn_params%0%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver                                                                      asset#0
         l-load asset#0 0                                                                              asset#0
@@ -946,9 +945,9 @@ subroutine withdraw:
         l-load amount_not_scaled_low#0 3                                                              scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        v-store tmp%7#1                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#1
+        v-store tmp%6#1                                                                               _quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    amount_to_be_paid#0,_quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -980,7 +979,6 @@ subroutine withdraw:
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
         itxn_begin
-        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
         // marketplace_demo/marketplace_with_tups.py:45-66
         // return UInt64(
         //     2_500
@@ -1004,12 +1002,13 @@ subroutine withdraw:
         //     # fmt: on
         //     400
         // )
-        int 50500                                                                                     inner_txn_params%1%%param_Receiver_idx_0#0,50500
-        itxn_field Amount                                                                             inner_txn_params%1%%param_Receiver_idx_0#0
-        l-load inner_txn_params%1%%param_Receiver_idx_0#0 0                                           inner_txn_params%1%%param_Receiver_idx_0#0
-        itxn_field Receiver
+        int 50500                                                                                     50500
+        itxn_field Amount
         // marketplace_demo/marketplace_with_tups.py:195
         // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+        txn Sender                                                                                    inner_txn_params%1%%param_Receiver_idx_0#0
+        l-load inner_txn_params%1%%param_Receiver_idx_0#0 0                                           inner_txn_params%1%%param_Receiver_idx_0#0
+        itxn_field Receiver
         int pay                                                                                       pay
         itxn_field TypeEnum
         int 0                                                                                         0
@@ -1020,11 +1019,11 @@ subroutine withdraw:
         //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         // ).submit()
         itxn_begin
+        v-load listing.deposited#0                                                                    listing.deposited#0
+        itxn_field AssetAmount
         // marketplace_demo/marketplace_with_tups.py:198
         // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
         txn Sender                                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0
-        v-load listing.deposited#0                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0,listing.deposited#0
-        itxn_field AssetAmount                                                                        inner_txn_params%2%%param_AssetReceiver_idx_0#0
         l-load inner_txn_params%2%%param_AssetReceiver_idx_0#0 0                                      inner_txn_params%2%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
         v-load asset#0                                                                                asset#0
@@ -1135,14 +1134,11 @@ subroutine bid:
         v-store map_prefixed_key%0#0                                                                  map_prefixed_key%0#0
         l-load map_prefixed_key%0#0 0                                                                 map_prefixed_key%0#0
         box_get                                                                                       aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                               aggregate%box_get%1#0,aggregate%box_get%0#0
+        l-store-copy aggregate%box_get%0#0 1                                                          aggregate%box_get%0#0,aggregate%box_get%1#0,aggregate%box_get%0#0 (copy)
+        v-store aggregate%box_get%0#0                                                                 aggregate%box_get%0#0,aggregate%box_get%1#0
         l-load aggregate%box_get%1#0 0                                                                aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.listings entry exists                                                    aggregate%box_get%0#0
-        l-load-copy aggregate%box_get%0#0 0                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        extract 0 8                                                                                   aggregate%box_get%0#0,aggregate%extract%0#0
-        v-store aggregate%extract%0#0                                                                 aggregate%box_get%0#0
-        l-load-copy aggregate%box_get%0#0 0                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        extract 8 8                                                                                   aggregate%box_get%0#0,aggregate%extract%1#0
-        v-store aggregate%extract%1#0                                                                 aggregate%box_get%0#0
         l-load-copy aggregate%box_get%0#0 0                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
         extract 16 32                                                                                 aggregate%box_get%0#0,listing.bidder#0
         l-store-copy listing.bidder#0 1                                                               listing.bidder#0,aggregate%box_get%0#0,listing.bidder#0 (copy)
@@ -1197,9 +1193,9 @@ subroutine bid:
         l-load amount_not_scaled_low#0 3                                                              scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      _quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     _quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       _quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               _quotient_high#0,amount_to_be_paid#0,tmp%6#0
+        v-store tmp%6#0                                                                               _quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    amount_to_be_paid#0,_quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1249,9 +1245,9 @@ subroutine bid:
         l-load amount_not_scaled_low#0 3                                                              unitary_price#0,quantity#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                unitary_price#0,quantity#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 unitary_price#0,quantity#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#0,tmp%7#2
+        v-store tmp%7#2                                                                               unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#0
+        v-store tmp%6#0                                                                               unitary_price#0,quantity#0,_quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 unitary_price#0,quantity#0,amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,_quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1295,8 +1291,13 @@ subroutine bid:
         txn Sender                                                                                    unitary_price#0,quantity#0,tmp%18#0
         // marketplace_demo/marketplace_with_tups.py:229
         // self.listings[key] = ListingValue(
-        v-load aggregate%extract%0#0                                                                  unitary_price#0,quantity#0,tmp%18#0,aggregate%extract%0#0
-        v-load aggregate%extract%1#0                                                                  unitary_price#0,quantity#0,tmp%18#0,aggregate%extract%0#0,aggregate%extract%1#0
+        v-load aggregate%box_get%0#0                                                                  unitary_price#0,quantity#0,tmp%18#0,aggregate%box_get%0#0
+        l-store-copy aggregate%box_get%0#0 0                                                          unitary_price#0,quantity#0,tmp%18#0,aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        extract 0 8                                                                                   unitary_price#0,quantity#0,tmp%18#0,aggregate%box_get%0#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%box_get%0#0 1                                                                unitary_price#0,quantity#0,tmp%18#0,aggregate%val_as_bytes%2#0,aggregate%box_get%0#0
+        extract 8 8                                                                                   unitary_price#0,quantity#0,tmp%18#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           unitary_price#0,quantity#0,tmp%18#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           unitary_price#0,quantity#0,tmp%18#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        unitary_price#0,quantity#0,tmp%18#0,aggregate%head%4#0
         l-load aggregate%head%4#0 0                                                                   unitary_price#0,quantity#0,tmp%18#0,aggregate%head%4#0
         l-load tmp%18#0 1                                                                             unitary_price#0,quantity#0,aggregate%head%4#0,tmp%18#0
@@ -1377,6 +1378,9 @@ subroutine accept_bid:
         v-store map_prefixed_key%0#0                                                                  map_prefixed_key%0#0
         l-load map_prefixed_key%0#0 0                                                                 map_prefixed_key%0#0
         box_get                                                                                       aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                               aggregate%box_get%1#0,aggregate%box_get%0#0
+        l-store-copy aggregate%box_get%0#0 1                                                          aggregate%box_get%0#0,aggregate%box_get%1#0,aggregate%box_get%0#0 (copy)
+        v-store aggregate%box_get%0#0                                                                 aggregate%box_get%0#0,aggregate%box_get%1#0
         l-load aggregate%box_get%1#0 0                                                                aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.listings entry exists                                                    aggregate%box_get%0#0
         l-load-copy aggregate%box_get%0#0 0                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
@@ -1384,9 +1388,6 @@ subroutine accept_bid:
         extract_uint64                                                                                aggregate%box_get%0#0,listing.deposited#0
         l-store-copy listing.deposited#0 1                                                            listing.deposited#0,aggregate%box_get%0#0,listing.deposited#0 (copy)
         v-store listing.deposited#0                                                                   listing.deposited#0,aggregate%box_get%0#0
-        l-load-copy aggregate%box_get%0#0 0                                                           listing.deposited#0,aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        extract 8 8                                                                                   listing.deposited#0,aggregate%box_get%0#0,aggregate%extract%1#0
-        v-store aggregate%extract%1#0                                                                 listing.deposited#0,aggregate%box_get%0#0
         l-load-copy aggregate%box_get%0#0 0                                                           listing.deposited#0,aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
         extract 16 32                                                                                 listing.deposited#0,aggregate%box_get%0#0,listing.bidder#0
         l-store-copy listing.bidder#0 1                                                               listing.deposited#0,listing.bidder#0,aggregate%box_get%0#0,listing.bidder#0 (copy)
@@ -1454,9 +1455,9 @@ subroutine accept_bid:
         l-load amount_not_scaled_low#0 3                                                              listing.bidUnitaryPrice#0,asset#0,min_quantity#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         l-load scaling_factor_high#0 3                                                                listing.bidUnitaryPrice#0,asset#0,min_quantity#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
         l-load scaling_factor_low#0 3                                                                 listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0,_remainder_low#0
-        v-store _remainder_low#0                                                                      listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,_remainder_high#0
-        v-store _remainder_high#0                                                                     listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0
+        divmodw                                                                                       listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#1,tmp%7#1
+        v-store tmp%7#1                                                                               listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0,tmp%6#1
+        v-store tmp%6#1                                                                               listing.bidUnitaryPrice#0,asset#0,min_quantity#0,_quotient_high#0,amount_to_be_paid#0
         l-store amount_to_be_paid#0 1                                                                 listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0,_quotient_high#0
         l-store _quotient_high#0 0                                                                    listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0,_quotient_high#0
         // marketplace_demo/marketplace_with_tups.py:75
@@ -1468,9 +1469,9 @@ subroutine accept_bid:
         // marketplace_demo/marketplace_with_tups.py:250
         // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
         itxn_begin                                                                                    listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0
-        txn Sender                                                                                    listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0,inner_txn_params%0%%param_Receiver_idx_0#0
-        l-load amount_to_be_paid#0 1                                                                  listing.bidUnitaryPrice#0,asset#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0,amount_to_be_paid#0
-        itxn_field Amount                                                                             listing.bidUnitaryPrice#0,asset#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
+        l-load amount_to_be_paid#0 0                                                                  listing.bidUnitaryPrice#0,asset#0,min_quantity#0,amount_to_be_paid#0
+        itxn_field Amount                                                                             listing.bidUnitaryPrice#0,asset#0,min_quantity#0
+        txn Sender                                                                                    listing.bidUnitaryPrice#0,asset#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
         l-load inner_txn_params%0%%param_Receiver_idx_0#0 0                                           listing.bidUnitaryPrice#0,asset#0,min_quantity#0,inner_txn_params%0%%param_Receiver_idx_0#0
         itxn_field Receiver                                                                           listing.bidUnitaryPrice#0,asset#0,min_quantity#0
         int pay                                                                                       listing.bidUnitaryPrice#0,asset#0,min_quantity#0,pay
@@ -1515,8 +1516,10 @@ subroutine accept_bid:
         // self.listings[key] = ListingValue(
         l-load tmp%10#0 1                                                                             listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,tmp%10#0
         itob                                                                                          listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%2#0 0                                                           listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0
-        v-load aggregate%extract%1#0                                                                  listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0,aggregate%extract%1#0
+        v-load aggregate%box_get%0#0                                                                  listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0,aggregate%box_get%0#0
+        extract 8 8                                                                                   listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                        listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%head%4#0
         l-load aggregate%head%4#0 0                                                                   listing.bidUnitaryPrice#0,listing.bidder#0,tmp%11#0,aggregate%head%4#0
         l-load listing.bidder#0 2                                                                     listing.bidUnitaryPrice#0,tmp%11#0,aggregate%head%4#0,listing.bidder#0

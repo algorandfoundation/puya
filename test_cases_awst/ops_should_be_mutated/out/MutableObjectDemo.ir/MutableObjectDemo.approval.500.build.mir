@@ -80,12 +80,15 @@ subroutine setPlugin:
         v-load tmp%0#0                                                       tmp%0#0
         extract 2 0                                                          key#0
         v-store key#0
+        int 1                                                                1
+        itob                                                                 aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte "plugins"                                                       "plugins"
         v-load key#0                                                         "plugins",key#0
         concat                                                               map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         v-load map_prefixed_key%0#0                                          map_prefixed_key%0#0
-        byte 0x0000000000000001                                              map_prefixed_key%0#0,0x0000000000000001
+        v-load aggregate%val_as_bytes%0#0                                    map_prefixed_key%0#0,aggregate%val_as_bytes%0#0
         box_put
         int 1                                                                1
         return

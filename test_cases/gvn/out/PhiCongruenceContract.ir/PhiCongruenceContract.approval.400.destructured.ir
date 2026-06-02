@@ -1,0 +1,611 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@18
+    block@2: // abi_routing_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_redundant_phi(uint64,uint64)uint64" => block@4, method "test_cross_assignment(uint64)uint64" => block@5, method "test_triple_cycle(uint64)uint64" => block@6, method "test_replacement_chain(uint64)uint64" => block@7, method "test_alternating(uint64,uint64,uint64)uint64" => block@8, method "test_commutative_externals(uint64,uint64,uint64)uint64" => block@9, method "test_moving_vn(uint64,uint64,bool)uint64" => block@10, method "test_loop_invariant(uint64,uint64)uint64" => block@11, method "test_deep_nesting(uint64)uint64" => block@12, method "test_commutative_add_assert(uint64,uint64,bool)uint64" => block@13, method "test_nested_scc_collapse(uint64,uint64,uint64)uint64" => block@14, * => block@17}
+    block@4: // test_redundant_phi_route_L11
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing]()
+        goto block@17
+    block@5: // test_cross_assignment_route_L15
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment[routing]()
+        goto block@17
+    block@6: // test_triple_cycle_route_L19
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle[routing]()
+        goto block@17
+    block@7: // test_replacement_chain_route_L23
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain[routing]()
+        goto block@17
+    block@8: // test_alternating_route_L27
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_alternating[routing]()
+        goto block@17
+    block@9: // test_commutative_externals_route_L31
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_externals[routing]()
+        goto block@17
+    block@10: // test_moving_vn_route_L35
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_moving_vn[routing]()
+        goto block@17
+    block@11: // test_loop_invariant_route_L39
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_loop_invariant[routing]()
+        goto block@17
+    block@12: // test_deep_nesting_route_L43
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_deep_nesting[routing]()
+        goto block@17
+    block@13: // test_commutative_add_assert_route_L47
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_add_assert[routing]()
+        goto block@17
+    block@14: // test_nested_scc_collapse_route_L51
+        test_cases.gvn.phi_congruence.PhiCongruenceContract.test_nested_scc_collapse[routing]()
+        goto block@17
+    block@17: // after_if_else_L4
+        fail
+    block@18: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
+    block@0: // L56
+        let val1#0: uint64 = (| a#0 b#0)
+        let tmp%2#0: bool = (> a#0 b#0)
+        goto tmp%2#0 ? block@1 : block@2
+    block@1: // if_body_L61
+        let tmp%3#0: bytes = (itob a#0)
+        (log tmp%3#0)
+        goto block@3
+    block@2: // else_body_L64
+        let tmp%4#0: bytes = (itob b#0)
+        (log tmp%4#0)
+        goto block@3
+    block@3: // after_if_else_L60
+        return val1#0
+
+subroutine test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
+    block@0: // L69
+        let value_internal%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L73
+        let continue_looping%0#0: bool = (< value_internal%0#0 10u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L74
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
+        goto block@1
+    block@4: // after_for_L73
+        let tmp%0#0: uint64 = (+ n#0 n#0)
+        return tmp%0#0
+
+subroutine test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
+    block@0: // L80
+        let value_internal%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L85
+        let continue_looping%0#0: bool = (< value_internal%0#0 5u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L86
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
+        goto block@1
+    block@4: // after_for_L85
+        let tmp%0#0: uint64 = (+ n#0 n#0)
+        let tmp%1#0: uint64 = (+ tmp%0#0 n#0)
+        return tmp%1#0
+
+subroutine test_cases.gvn.phi_congruence.test_replacement_chain(n: uint64) -> uint64:
+    block@1: // while_top_L99
+        let tmp%1#0: bytes = (itob n#0)
+        (log tmp%1#0)
+        (log tmp%1#0)
+        let tmp%3#0: uint64 = (% n#0 2u)
+        goto tmp%3#0 ? block@1 : block@5
+    block@5: // if_body_L108
+        let tmp%5#0: uint64 = (+ n#0 n#0)
+        return tmp%5#0
+
+subroutine test_cases.gvn.phi_congruence.alternating(a: uint64, b: uint64, n: uint64) -> uint64:
+    block@0: // L112
+        let s#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
+        let x#1: uint64 = a#0
+        let y#1: uint64 = b#0
+        let i#0: uint64 = value_internal%0#0
+        goto block@1
+    block@1: // for_header_L117
+        let continue_looping%0#0: bool = (< i#0 n#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L118
+        let s#0: uint64 = (+ s#0 i#0)
+        let value_internal%0#0: uint64 = (+ i#0 1u)
+        let i#0: uint64 = value_internal%0#0
+        let parcopy%0#0: uint64 = x#1
+        let x#1: uint64 = y#1
+        let y#1: uint64 = parcopy%0#0
+        goto block@1
+    block@4: // after_for_L117
+        let tmp%1#0: uint64 = (+ x#1 y#1)
+        let tmp%2#0: uint64 = (+ tmp%1#0 s#0)
+        return tmp%2#0
+
+subroutine test_cases.gvn.phi_congruence.alternating_with_commutative_inits(a: uint64, b: uint64, n: uint64) -> uint64:
+    block@0: // L123
+        let e1#0: uint64 = (| a#0 b#0)
+        let s#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
+        let i#0: uint64 = value_internal%0#0
+        goto block@1
+    block@1: // for_header_L130
+        let continue_looping%0#0: bool = (< i#0 n#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L131
+        let s#0: uint64 = (+ s#0 i#0)
+        let value_internal%0#0: uint64 = (+ i#0 1u)
+        let i#0: uint64 = value_internal%0#0
+        goto block@1
+    block@4: // after_for_L130
+        let tmp%3#0: uint64 = (+ e1#0 e1#0)
+        let tmp%4#0: uint64 = (+ tmp%3#0 s#0)
+        return tmp%4#0
+
+subroutine test_cases.gvn.phi_congruence.redundant_phi_moving_vn(n: uint64, y: uint64, cond: bool) -> uint64:
+    block@0: // L136
+        let z#0: uint64 = 0u
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // while_top_L140
+        let tmp%0#0: bool = (< i#0 n#0)
+        goto tmp%0#0 ? block@2 : block@6
+    block@2: // while_body_L141
+        goto cond#0 ? block@3 : block@4
+    block@3: // if_body_L142
+        let w#0: uint64 = (+ z#0 y#0)
+        goto block@5
+    block@4: // else_body_L144
+        let w#0: uint64 = (+ z#0 y#0)
+        goto block@5
+    block@5: // after_if_else_L141
+        let z#0: uint64 = (+ w#0 1u)
+        let i#0: uint64 = (+ i#0 1u)
+        goto block@1
+    block@6: // after_while_L140
+        return z#0
+
+subroutine test_cases.gvn.phi_congruence.loop_invariant_phi_aliasing(x: uint64, y: uint64) -> uint64:
+    block@0: // L150
+        let value_internal%0#0: uint64 = 0u
+        let z#1: uint64 = x#0
+        goto block@1
+    block@1: // for_header_L153
+        let continue_looping%0#0: bool = (< value_internal%0#0 10u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L154
+        let a#0: uint64 = (+ z#1 y#0)
+        let b#0: uint64 = (+ x#0 y#0)
+        let z#1: uint64 = (+ a#0 b#0)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
+        goto block@1
+    block@4: // after_for_L153
+        return z#1
+
+subroutine test_cases.gvn.phi_congruence.deep_nested_accumulator(n: uint64) -> uint64:
+    block@0: // L160
+        let x#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
+        let a1#0: uint64 = value_internal%0#0
+        goto block@1
+    block@1: // for_header_L165
+        let continue_looping%0#0: bool = (< a1#0 n#0)
+        goto continue_looping%0#0 ? block@2 : block@56
+    block@2: // for_body_L166
+        let value_internal%1#0: uint64 = 0u
+        let a2#0: uint64 = value_internal%1#0
+        goto block@3
+    block@3: // for_header_L166
+        let continue_looping%1#0: bool = (< a2#0 n#0)
+        goto continue_looping%1#0 ? block@4 : block@54
+    block@4: // for_body_L167
+        let value_internal%2#0: uint64 = 0u
+        let a3#0: uint64 = value_internal%2#0
+        goto block@5
+    block@5: // for_header_L167
+        let continue_looping%2#0: bool = (< a3#0 n#0)
+        goto continue_looping%2#0 ? block@6 : block@52
+    block@6: // for_body_L168
+        let value_internal%3#0: uint64 = 0u
+        let a4#0: uint64 = value_internal%3#0
+        goto block@7
+    block@7: // for_header_L168
+        let continue_looping%3#0: bool = (< a4#0 n#0)
+        goto continue_looping%3#0 ? block@8 : block@50
+    block@8: // for_body_L169
+        let value_internal%4#0: uint64 = 0u
+        let a5#0: uint64 = value_internal%4#0
+        goto block@9
+    block@9: // for_header_L169
+        let continue_looping%4#0: bool = (< a5#0 n#0)
+        goto continue_looping%4#0 ? block@10 : block@48
+    block@10: // for_body_L170
+        let value_internal%5#0: uint64 = 0u
+        let a6#0: uint64 = value_internal%5#0
+        goto block@11
+    block@11: // for_header_L170
+        let continue_looping%5#0: bool = (< a6#0 n#0)
+        goto continue_looping%5#0 ? block@12 : block@46
+    block@12: // for_body_L171
+        let value_internal%6#0: uint64 = 0u
+        let a7#0: uint64 = value_internal%6#0
+        goto block@13
+    block@13: // for_header_L171
+        let continue_looping%6#0: bool = (< a7#0 n#0)
+        goto continue_looping%6#0 ? block@14 : block@44
+    block@14: // for_body_L172
+        let value_internal%7#0: uint64 = 0u
+        let a8#0: uint64 = value_internal%7#0
+        goto block@15
+    block@15: // for_header_L172
+        let continue_looping%7#0: bool = (< a8#0 n#0)
+        goto continue_looping%7#0 ? block@16 : block@42
+    block@16: // for_body_L173
+        let value_internal%8#0: uint64 = 0u
+        let a9#0: uint64 = value_internal%8#0
+        goto block@17
+    block@17: // for_header_L173
+        let continue_looping%8#0: bool = (< a9#0 n#0)
+        goto continue_looping%8#0 ? block@18 : block@40
+    block@18: // for_body_L174
+        let value_internal%9#0: uint64 = 0u
+        let a10#0: uint64 = value_internal%9#0
+        goto block@19
+    block@19: // for_header_L174
+        let continue_looping%9#0: bool = (< a10#0 n#0)
+        goto continue_looping%9#0 ? block@20 : block@38
+    block@20: // for_body_L175
+        let value_internal%10#0: uint64 = 0u
+        let a11#0: uint64 = value_internal%10#0
+        goto block@21
+    block@21: // for_header_L175
+        let continue_looping%10#0: bool = (< a11#0 n#0)
+        goto continue_looping%10#0 ? block@22 : block@36
+    block@22: // for_body_L176
+        let value_internal%11#0: uint64 = 0u
+        let a12#0: uint64 = value_internal%11#0
+        goto block@23
+    block@23: // for_header_L176
+        let continue_looping%11#0: bool = (< a12#0 n#0)
+        goto continue_looping%11#0 ? block@24 : block@34
+    block@24: // for_body_L177
+        let value_internal%12#0: uint64 = 0u
+        let a13#0: uint64 = value_internal%12#0
+        goto block@25
+    block@25: // for_header_L177
+        let continue_looping%12#0: bool = (< a13#0 n#0)
+        goto continue_looping%12#0 ? block@26 : block@32
+    block@26: // for_body_L178
+        let value_internal%13#0: uint64 = 0u
+        let a14#0: uint64 = value_internal%13#0
+        goto block@27
+    block@27: // for_header_L178
+        let continue_looping%13#0: bool = (< a14#0 n#0)
+        goto continue_looping%13#0 ? block@28 : block@30
+    block@28: // for_body_L179
+        let tmp%0#0: uint64 = (+ a1#0 a2#0)
+        let tmp%1#0: uint64 = (+ tmp%0#0 a3#0)
+        let tmp%2#0: uint64 = (+ tmp%1#0 a4#0)
+        let tmp%3#0: uint64 = (+ tmp%2#0 a5#0)
+        let tmp%4#0: uint64 = (+ tmp%3#0 a6#0)
+        let tmp%5#0: uint64 = (+ tmp%4#0 a7#0)
+        let tmp%6#0: uint64 = (+ tmp%5#0 a8#0)
+        let tmp%7#0: uint64 = (+ tmp%6#0 a9#0)
+        let tmp%8#0: uint64 = (+ tmp%7#0 a10#0)
+        let tmp%9#0: uint64 = (+ tmp%8#0 a11#0)
+        let tmp%10#0: uint64 = (+ tmp%9#0 a12#0)
+        let tmp%11#0: uint64 = (+ tmp%10#0 a13#0)
+        let tmp%12#0: uint64 = (+ tmp%11#0 a14#0)
+        let x#0: uint64 = (+ x#0 tmp%12#0)
+        let value_internal%13#0: uint64 = (+ a14#0 1u)
+        let a14#0: uint64 = value_internal%13#0
+        goto block@27
+    block@30: // after_for_L178
+        let value_internal%12#0: uint64 = (+ a13#0 1u)
+        let a13#0: uint64 = value_internal%12#0
+        goto block@25
+    block@32: // after_for_L177
+        let value_internal%11#0: uint64 = (+ a12#0 1u)
+        let a12#0: uint64 = value_internal%11#0
+        goto block@23
+    block@34: // after_for_L176
+        let value_internal%10#0: uint64 = (+ a11#0 1u)
+        let a11#0: uint64 = value_internal%10#0
+        goto block@21
+    block@36: // after_for_L175
+        let value_internal%9#0: uint64 = (+ a10#0 1u)
+        let a10#0: uint64 = value_internal%9#0
+        goto block@19
+    block@38: // after_for_L174
+        let value_internal%8#0: uint64 = (+ a9#0 1u)
+        let a9#0: uint64 = value_internal%8#0
+        goto block@17
+    block@40: // after_for_L173
+        let value_internal%7#0: uint64 = (+ a8#0 1u)
+        let a8#0: uint64 = value_internal%7#0
+        goto block@15
+    block@42: // after_for_L172
+        let value_internal%6#0: uint64 = (+ a7#0 1u)
+        let a7#0: uint64 = value_internal%6#0
+        goto block@13
+    block@44: // after_for_L171
+        let value_internal%5#0: uint64 = (+ a6#0 1u)
+        let a6#0: uint64 = value_internal%5#0
+        goto block@11
+    block@46: // after_for_L170
+        let value_internal%4#0: uint64 = (+ a5#0 1u)
+        let a5#0: uint64 = value_internal%4#0
+        goto block@9
+    block@48: // after_for_L169
+        let value_internal%3#0: uint64 = (+ a4#0 1u)
+        let a4#0: uint64 = value_internal%3#0
+        goto block@7
+    block@50: // after_for_L168
+        let value_internal%2#0: uint64 = (+ a3#0 1u)
+        let a3#0: uint64 = value_internal%2#0
+        goto block@5
+    block@52: // after_for_L167
+        let value_internal%1#0: uint64 = (+ a2#0 1u)
+        let a2#0: uint64 = value_internal%1#0
+        goto block@3
+    block@54: // after_for_L166
+        let value_internal%0#0: uint64 = (+ a1#0 1u)
+        let a1#0: uint64 = value_internal%0#0
+        goto block@1
+    block@56: // after_for_L165
+        return x#0
+
+subroutine test_cases.gvn.phi_congruence.commutative_add_assert(a: uint64, b: uint64, cond: bool) -> uint64:
+    block@0: // L198
+        goto cond#0 ? block@1 : block@2
+    block@1: // if_body_L203
+        let result#0: uint64 = (+ a#0 b#0)
+        let tmp%2#0: bytes = (itob result#0)
+        let tmp%3#0: bytes = (concat "cond: " tmp%2#0)
+        (log tmp%3#0)
+        goto block@3
+    block@2: // else_body_L206
+        let result#0: uint64 = (+ a#0 b#0)
+        let tmp%6#0: bytes = (itob result#0)
+        let tmp%7#0: bytes = (concat "!cond: " tmp%6#0)
+        (log tmp%7#0)
+        goto block@3
+    block@3: // after_if_else_L202
+        return result#0
+
+subroutine test_cases.gvn.phi_congruence.nested_scc_collapse(n: uint64, p: uint64, q: uint64) -> uint64:
+    block@0: // L212
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // while_top_L219
+        let tmp%0#0: bool = (< i#0 p#0)
+        goto tmp%0#0 ? block@2 : block@6
+    block@2: // while_body_L220
+        let j#0: uint64 = 0u
+        goto block@3
+    block@3: // while_top_L221
+        let tmp%1#0: bool = (< j#0 q#0)
+        goto tmp%1#0 ? block@4 : block@5
+    block@4: // while_body_L222
+        let j#0: uint64 = (+ j#0 1u)
+        goto block@3
+    block@5: // after_while_L221
+        let i#0: uint64 = (+ i#0 1u)
+        goto block@1
+    block@6: // after_while_L219
+        return n#0
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_redundant_phi[routing]() -> void:
+    block@0: // L11
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let a#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let b#0: uint64 = (btoi tmp%2#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.test_redundant_phi(a#0, b#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%6#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%6#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_cross_assignment[routing]() -> void:
+    block@0: // L15
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.test_cross_assignment(n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_triple_cycle[routing]() -> void:
+    block@0: // L19
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.test_triple_cycle(n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_replacement_chain[routing]() -> void:
+    block@0: // L23
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.test_replacement_chain(n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_alternating[routing]() -> void:
+    block@0: // L27
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let a#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let b#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%4#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.alternating(a#0, b#0, n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%8#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_externals[routing]() -> void:
+    block@0: // L31
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let a#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let b#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%4#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.alternating_with_commutative_inits(a#0, b#0, n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%8#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_moving_vn[routing]() -> void:
+    block@0: // L35
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let y#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for arc4.bool
+        let cond#0: bool = (getbit tmp%4#0 0u)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.redundant_phi_moving_vn(n#0, y#0, cond#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%8#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_loop_invariant[routing]() -> void:
+    block@0: // L39
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let x#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let y#0: uint64 = (btoi tmp%2#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.loop_invariant_phi_aliasing(x#0, y#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%6#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%6#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_deep_nesting[routing]() -> void:
+    block@0: // L43
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.deep_nested_accumulator(n#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_commutative_add_assert[routing]() -> void:
+    block@0: // L47
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let a#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let b#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for arc4.bool
+        let cond#0: bool = (getbit tmp%4#0 0u)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.commutative_add_assert(a#0, b#0, cond#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%8#0)
+        exit 1u
+
+subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.test_nested_scc_collapse[routing]() -> void:
+    block@0: // L51
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let n#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let p#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let q#0: uint64 = (btoi tmp%4#0)
+        let tmp%0#1: uint64 = test_cases.gvn.phi_congruence.nested_scc_collapse(n#0, p#0, q#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%8#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%8#0)
+        exit 1u

@@ -89,7 +89,9 @@ subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
         (assert eq%5#0) // invalid number of bytes for test_cases.arc_56.contract.SharedStruct
         let tmp%0#1: bool = (== substring3%1#0 shared#0)
         (assert tmp%0#1) // this might error
-        (log 0x151f7c75000000000000002a)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 42u)
+        let tmp%4#0: bytes = 0x151f7c75000000000000002a
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
@@ -145,14 +147,20 @@ subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
         let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let aggregate%extract%0#0: bytes = ((extract 0 8) arg#0)
-        let tmp%0#1: bool = (== aggregate%extract%0#0 0x00)
-        (assert tmp%0#1) // this will error
+        let tmp%1#0: bool = (== aggregate%extract%0#0 0x00)
+        (assert tmp%1#0) // this will error
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
     block@0: // L103
-        (log 0xd93f374e00032a000668656c6c6f31)
-        (log 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32)
+        let aggregate%concat%0#0: bytes = 0x00032a000668656c6c6f31
+        let event%0#0: bytes = 0xd93f374e00032a000668656c6c6f31
+        (log event%0#0)
+        let aggregate%concat%1#0: bytes = 0x00032a000668656c6c6f32
+        let aggregate%concat%2#0: bytes = 0x0004000b000568656c6c6f
+        let aggregate%concat%3#0: bytes = 0x0004000b000568656c6c6f00032a000668656c6c6f32
+        let event%1#0: bytes = 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
+        (log event%1#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> void:
@@ -164,7 +172,14 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> vo
         let should_emit#0: bool = (getbit tmp%0#0 0u)
         goto should_emit#0 ? block@2 : block@3
     block@2: // if_body_L116
-        (log 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 42u)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 43u)
+        let aggregate%head%1#0: bytes = 0x000000000000002a000000000000002b
+        let aggregate%concat%0#0: bytes = 0x00032a000668656c6c6f33
+        let aggregate%head%5#0: bytes = 0x000000000000002a000000000000002b0012
+        let aggregate%concat%1#0: bytes = 0x000000000000002a000000000000002b001200032a000668656c6c6f33
+        let event%0#0: bytes = 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
+        (log event%0#0)
         goto block@3
     block@3: // after_if_else_L115
         exit 1u

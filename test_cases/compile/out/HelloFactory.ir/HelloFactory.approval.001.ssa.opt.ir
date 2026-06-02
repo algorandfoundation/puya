@@ -67,7 +67,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.compile.factory.HelloFactory.test_logicsig[routing]() -> void:
     block@0: // L26
         let tmp%0#0: Encoded(uint8[32]) = addr 74XQDOUMP27NMKK6IX55GRY7WLE7V5Z5E64PCTUKENQ3YP67RT4ZCSTDJE
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        let tmp%1#0: bytes = CUPXY5P7F4A3VDD6X3LCSXSF7PJUOH5SZH5POPJHXDYU5CRDMG6D7X4M7E
         (log tmp%1#0)
         exit 1u
 
@@ -79,11 +79,14 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         let compiled.clear_state_program.1#0: bytes = 
         itxn_begin
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
         ((itxn_field GlobalNumByteSlice) 1u)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -104,7 +107,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -132,14 +134,19 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         let compiled.local_uints#0: uint64 = 0u
         let compiled.local_bytes#0: uint64 = 0u
         itxn_begin
-        ((itxn_field LocalNumByteSlice) compiled.local_bytes#0)
-        ((itxn_field LocalNumUint) compiled.local_uints#0)
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field GlobalNumUint) compiled.global_uints#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = compiled.global_uints#0
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled.global_bytes#0
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -159,7 +166,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -184,11 +190,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         let compiled.clear_state_program.1#0: bytes = 
         let compiled.global_bytes#0: uint64 = 1u
         itxn_begin
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled.global_bytes#0
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -208,7 +218,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -234,12 +243,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         let compiled.extra_program_pages#0: uint64 = 0u
         let compiled.global_bytes#0: uint64 = 0u
         itxn_begin
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = compiled.extra_program_pages#0
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -265,8 +278,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (b== result#0 0x0000000000001000)
-        (assert tmp%4#0)
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(4096u)
+        let tmp%5#0: bool = (b== result#0 tmp%4#0)
+        (assert tmp%5#0)
         exit 1u
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -> void:
@@ -311,7 +325,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%5#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -340,15 +353,20 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         let compiled.local_uints#0: uint64 = 0u
         let compiled.local_bytes#0: uint64 = 0u
         itxn_begin
-        ((itxn_field LocalNumUint) compiled.local_uints#0)
-        ((itxn_field LocalNumByteSlice) compiled.local_bytes#0)
-        ((itxn_field GlobalNumUint) compiled.global_uints#0)
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0: uint64 = compiled.extra_program_pages#0
+        let abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled.global_bytes#0
+        ((itxn_field LocalNumUint) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field LocalNumByteSlice) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field GlobalNumUint) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -368,7 +386,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%4#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -397,15 +414,20 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         let compiled.local_uints#0: uint64 = 0u
         let compiled.local_bytes#0: uint64 = 0u
         itxn_begin
-        ((itxn_field LocalNumUint) compiled.local_uints#0)
-        ((itxn_field LocalNumByteSlice) compiled.local_bytes#0)
-        ((itxn_field GlobalNumUint) compiled.global_uints#0)
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0: uint64 = compiled.extra_program_pages#0
+        let abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled.global_bytes#0
+        ((itxn_field LocalNumUint) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field LocalNumByteSlice) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field GlobalNumUint) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -425,7 +447,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%4#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -500,17 +521,21 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
         let compiled.extra_program_pages#0: uint64 = 0u
+        let compiled.approval_program.0#1: bytes = compiled.approval_program.0#0
+        let compiled.approval_program.1#1: bytes = compiled.approval_program.1#0
+        let compiled.clear_state_program.0#1: bytes = compiled.clear_state_program.0#0
+        let compiled.extra_program_pages#1: uint64 = compiled.extra_program_pages#0
         itxn_begin
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hey")
         ((itxn_field LocalNumUint) 3u)
         ((itxn_field LocalNumByteSlice) 5u)
         ((itxn_field GlobalNumUint) 4u)
         ((itxn_field GlobalNumByteSlice) 6u)
-        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#1)
+        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#1)
+        ((itxn_field ClearStateProgramPages) compiled.approval_program.1#1)
+        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#1)
+        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#1)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -547,7 +572,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         (assert tmp%8#0) // application log value is not the result of an ABI return
         let tmp%9#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%9#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%9#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -689,7 +713,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%4#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -698,7 +721,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         let tmp%6#0: account = (global ZeroAddress)
         let tmp%7#0: bytes = NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         let tmp%8#0: bytes = NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDRTKMQ
-        let tmp%9#0: bool = (== result#0 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDRTKMQ)
+        let tmp%9#0: bool = (== result#0 tmp%8#0)
         (assert tmp%9#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
@@ -722,15 +745,20 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         let compiled.local_bytes#0: uint64 = 0u
         itxn_begin
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hey")
-        ((itxn_field ExtraProgramPages) compiled.extra_program_pages#0)
-        ((itxn_field LocalNumByteSlice) compiled.local_bytes#0)
-        ((itxn_field LocalNumUint) compiled.local_uints#0)
-        ((itxn_field GlobalNumByteSlice) compiled.global_bytes#0)
-        ((itxn_field GlobalNumUint) compiled.global_uints#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
-        ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
-        ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
+        let abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
+        let abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0: bytes = compiled.clear_state_program.0#0
+        let abi_call_inner_txn_params%1%%param_GlobalNumUint_idx_0#0: uint64 = compiled.global_uints#0
+        let abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled.global_bytes#0
+        ((itxn_field ExtraProgramPages) abi_call_inner_txn_params%1%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) abi_call_inner_txn_params%1%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field LocalNumUint) abi_call_inner_txn_params%1%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) abi_call_inner_txn_params%1%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) abi_call_inner_txn_params%1%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) abi_call_inner_txn_params%1%%param_ApprovalProgramPages_idx_1#0)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -751,7 +779,6 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let length%0#0: uint64 = array_len(tmp%5#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)

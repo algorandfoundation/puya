@@ -11,8 +11,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "test_logicsig()address" => block@4, method "test_compile_contract()void" => block@5, method "test_compile_contract_tmpl()void" => block@6, method "test_compile_contract_prfx()void" => block@7, method "test_compile_contract_large()void" => block@8, method "test_arc4_create()void" => block@9, method "test_arc4_create_tmpl()void" => block@10, method "test_arc4_create_prfx()void" => block@11, method "test_arc4_create_large()void" => block@12, method "test_arc4_create_modified_compiled()void" => block@13, method "test_arc4_update()void" => block@14, method "test_other_constants()void" => block@15, method "test_abi_call_create_params()void" => block@16, * => block@19}
     block@4: // test_logicsig_route_L26
-        test_cases.compile.factory.HelloFactory.test_logicsig[routing]()
-        goto block@19
+        (log CUPXY5P7F4A3VDD6X3LCSXSF7PJUOH5SZH5POPJHXDYU5CRDMG6D7X4M7E)
+        exit 1u
     block@5: // test_compile_contract_route_L30
         test_cases.compile.factory.HelloFactory.test_compile_contract[routing]()
         goto block@19
@@ -58,11 +58,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: bool = (! tmp%9#0)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0)
-        exit 1u
-
-subroutine test_cases.compile.factory.HelloFactory.test_logicsig[routing]() -> void:
-    block@0: // L26
-        (log CUPXY5P7F4A3VDD6X3LCSXSF7PJUOH5SZH5POPJHXDYU5CRDMG6D7X4M7E)
         exit 1u
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing]() -> void:
@@ -220,8 +215,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (b== result#0 0x0000000000001000)
-        (assert tmp%4#0)
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(4096u)
+        let tmp%5#0: bool = (b== result#0 tmp%4#0)
+        (assert tmp%5#0)
         exit 1u
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -> void:

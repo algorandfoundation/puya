@@ -42,20 +42,23 @@ subroutine test_cases.arc4_encode_decode.contract.test_native_struct() -> void:
 
 subroutine test_cases.arc4_encode_decode.contract.test_arc4_struct() -> void:
     block@0: // L66
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 42u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%length%0#0: uint64 = (len "hello")
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "hello")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
-        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
-        let aggregate%head%0#0: bytes = (concat 0x 0x000000000000002a)
+        let tmp%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
+        let aggregate%head%0#0: bytes = (concat 0x tmp%0#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%1#0)
         let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
-        let tmp%1#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
-        let original#0: Encoded(uint64,(len+utf8[])) = tmp%1#0
+        let tmp%2#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
+        let original#0: Encoded(uint64,(len+utf8[])) = tmp%2#0
         let encoded#0: bytes = original#0
         let tuple_len%0#0: uint64 = (len encoded#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 encoded#0 8u) // on error: invalid tuple encoding
@@ -72,8 +75,8 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_struct() -> void:
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.Arc4Struct
         let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = encoded#0
         let decoded#0: Encoded(uint64,(len+utf8[])) = as_Encoded(uint64,(len+utf8[]))%0#0
-        let tmp%2#0: bool = (== decoded#0 original#0)
-        (assert tmp%2#0)
+        let tmp%3#0: bool = (== decoded#0 original#0)
+        (assert tmp%3#0)
         return 
 
 subroutine test_cases.arc4_encode_decode.contract.test_uint64() -> void:
@@ -244,13 +247,20 @@ subroutine test_cases.arc4_encode_decode.contract.test_application() -> void:
 
 subroutine test_cases.arc4_encode_decode.contract.test_arc4_uint64() -> void:
     block@0: // L151
-        let tmp%0#0: bool = (== 0x000000000000002a 0x000000000000002a)
-        (assert tmp%0#0)
-        let len%0#0: uint64 = (len 0x000000000000002a)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 42u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let value#0: Encoded(uint64) = tmp%0#0
+        let encoded#0: bytes = value#0
+        let tmp%1#0: bool = (== encoded#0 0x000000000000002a)
+        (assert tmp%1#0)
+        let len%0#0: uint64 = (len encoded#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let tmp%1#0: bool = (b== 0x000000000000002a 0x000000000000002a)
-        (assert tmp%1#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
+        let decoded#0: Encoded(uint64) = as_Encoded(uint64)%0#0
+        let tmp%2#0: bool = (b== decoded#0 value#0)
+        (assert tmp%2#0)
         return 
 
 subroutine test_cases.arc4_encode_decode.contract.test_arc4_string() -> void:
@@ -358,11 +368,20 @@ subroutine test_cases.arc4_encode_decode.contract.test_named_tuple() -> void:
 
 subroutine test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array() -> void:
     block@0: // L186
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
+        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 3u)
+        let aggregate%as_Encoded(uint64)%2#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
+        let tmp%2#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%2#0
         let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%head%0#0: bytes = (concat aggregate%len_u16%0#0 0x0000000000000001)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0x0000000000000002)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 0x0000000000000003)
+        let aggregate%head%0#0: bytes = (concat aggregate%len_u16%0#0 tmp%0#0)
+        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 tmp%1#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 tmp%2#0)
         let aggregate%as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = aggregate%head%2#0
         let encoded_array%0#0: Encoded(len+uint64[]) = aggregate%as_Encoded(len+uint64[])%0#0
         let value#0: Encoded(len+uint64[]) = encoded_array%0#0
@@ -376,14 +395,20 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array() -> v
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = encoded#0
         let decoded#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let tmp%0#0: bool = (== decoded#0 value#0)
-        (assert tmp%0#0)
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
         return 
 
 subroutine test_cases.arc4_encode_decode.contract.test_arc4_static_array() -> void:
     block@0: // L194
-        let aggregate%head%0#0: bytes = (concat 0x 0x000000000000000a)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0x0000000000000014)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 10u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 20u)
+        let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
+        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
+        let aggregate%head%0#0: bytes = (concat 0x tmp%0#0)
+        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 tmp%1#0)
         let aggregate%as_Encoded(uint64[2])%0#0: Encoded(uint64[2]) = aggregate%head%1#0
         let encoded_array%0#0: Encoded(uint64[2]) = aggregate%as_Encoded(uint64[2])%0#0
         let value#0: Encoded(uint64[2]) = encoded_array%0#0
@@ -393,6 +418,6 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_static_array() -> vo
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint64, 2>
         let as_Encoded(uint64[2])%0#0: Encoded(uint64[2]) = encoded#0
         let decoded#0: Encoded(uint64[2]) = as_Encoded(uint64[2])%0#0
-        let tmp%0#0: bool = (== decoded#0 value#0)
-        (assert tmp%0#0)
+        let tmp%2#0: bool = (== decoded#0 value#0)
+        (assert tmp%2#0)
         return 

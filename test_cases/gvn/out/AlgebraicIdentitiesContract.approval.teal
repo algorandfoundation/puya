@@ -1,0 +1,219 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program() -> uint64:
+main:
+    intcblock 1 42
+    bytecblock 0x2a
+    // gvn/algebraic_identities.py:12
+    // test_self_sub(BigUInt(42), UInt64(42))
+    bytec_0 // 0x2a
+    intc_1 // 42
+    callsub test_self_sub
+    // gvn/algebraic_identities.py:13
+    // test_self_bitwise(UInt64(42))
+    intc_1 // 42
+    callsub test_self_bitwise
+    // gvn/algebraic_identities.py:14
+    // test_one_const(BigUInt(42), selector=True)
+    bytec_0 // 0x2a
+    intc_0 // 1
+    callsub test_one_const
+    // gvn/algebraic_identities.py:15
+    // test_one_const(BigUInt(42), selector=False)
+    bytec_0 // 0x2a
+    pushint 0
+    callsub test_one_const
+    // gvn/algebraic_identities.py:16
+    // a = Txn.num_app_args
+    txn NumAppArgs
+    // gvn/algebraic_identities.py:17
+    // b = a + 1  # a < b always holds
+    dup
+    intc_0 // 1
+    +
+    // gvn/algebraic_identities.py:18
+    // test_uint64_swaps(a, b)
+    dup2
+    callsub test_uint64_swaps
+    // gvn/algebraic_identities.py:19
+    // test_biguint_swaps(BigUInt(1), BigUInt(2))
+    pushbytess 0x01 0x02
+    callsub test_biguint_swaps
+    // gvn/algebraic_identities.py:20
+    // test_uint64_negated(a, b)
+    dup2
+    callsub test_uint64_negated
+    // gvn/algebraic_identities.py:21
+    // test_biguint_negated(BigUInt(a), BigUInt(b))
+    dig 1
+    itob
+    dig 1
+    itob
+    dup2
+    callsub test_biguint_negated
+    // gvn/algebraic_identities.py:22
+    // test_uint64_double_negated(a, b)
+    uncover 3
+    uncover 3
+    callsub test_uint64_double_negated
+    // gvn/algebraic_identities.py:23
+    // test_biguint_double_negated(BigUInt(a), BigUInt(b))
+    callsub test_biguint_double_negated
+    // gvn/algebraic_identities.py:24
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.algebraic_identities.test_self_sub(x: bytes, y: uint64) -> void:
+test_self_sub:
+    // gvn/algebraic_identities.py:30-31
+    // @subroutine(inline=False)
+    // def test_self_sub(x: BigUInt, y: UInt64) -> None:
+    proto 2 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_self_bitwise(y: uint64) -> void:
+test_self_bitwise:
+    // gvn/algebraic_identities.py:36-37
+    // @subroutine(inline=False)
+    // def test_self_bitwise(y: UInt64) -> None:
+    proto 1 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_one_const(x: bytes, selector: uint64) -> void:
+test_one_const:
+    // gvn/algebraic_identities.py:42-43
+    // @subroutine(inline=False)
+    // def test_one_const(x: BigUInt, *, selector: bool) -> None:
+    proto 2 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_swaps(a: uint64, b: uint64) -> void:
+test_uint64_swaps:
+    // gvn/algebraic_identities.py:53-54
+    // @subroutine(inline=False)
+    // def test_uint64_swaps(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:55
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    // gvn/algebraic_identities.py:57
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_swaps(a: bytes, b: bytes) -> void:
+test_biguint_swaps:
+    // gvn/algebraic_identities.py:61-62
+    // @subroutine(inline=False)
+    // def test_biguint_swaps(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:63
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    // gvn/algebraic_identities.py:65
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_negated(a: uint64, b: uint64) -> void:
+test_uint64_negated:
+    // gvn/algebraic_identities.py:69-70
+    // @subroutine(inline=False)
+    // def test_uint64_negated(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:71
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    // gvn/algebraic_identities.py:73
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    // gvn/algebraic_identities.py:75
+    // assert a != b
+    frame_dig -2
+    frame_dig -1
+    !=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_negated(a: bytes, b: bytes) -> void:
+test_biguint_negated:
+    // gvn/algebraic_identities.py:80-81
+    // @subroutine(inline=False)
+    // def test_biguint_negated(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:82
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    // gvn/algebraic_identities.py:84
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    // gvn/algebraic_identities.py:86
+    // assert a != b
+    frame_dig -2
+    frame_dig -1
+    b!=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+test_uint64_double_negated:
+    // gvn/algebraic_identities.py:91-92
+    // @subroutine(inline=False)
+    // def test_uint64_double_negated(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:93
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_double_negated(a: bytes, b: bytes) -> void:
+test_biguint_double_negated:
+    // gvn/algebraic_identities.py:98-99
+    // @subroutine(inline=False)
+    // def test_biguint_double_negated(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    // gvn/algebraic_identities.py:100
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    retsub

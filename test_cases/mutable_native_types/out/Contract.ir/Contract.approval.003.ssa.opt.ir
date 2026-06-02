@@ -8,14 +8,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%0#2, tmp%1#2)
         let tmp%3#1: uint64 = (txn NumAppArgs)
         let tmp%4#1: uint64 = (+ tmp%3#1 1u)
-        let tmp%5#1: uint64 = (txn NumAppArgs)
-        let tmp%6#1: uint64 = (+ tmp%5#1 1u)
-        let tmp%7#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%4#1, tmp%6#1)
-        let tmp%8#1: uint64 = (txn NumAppArgs)
-        let tmp%9#1: uint64 = (+ tmp%8#1 1u)
-        let tmp%10#1: uint64 = (txn NumAppArgs)
-        let tmp%11#1: uint64 = (+ tmp%10#1 1u)
-        let tmp%12#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = bytes_encode<((uint64,uint64),(uint64,uint64),(uint64,uint64))>(tmp%2#1, tmp%7#1, tmp%9#1, tmp%11#1)
+        let tmp%7#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%4#1, tmp%4#1)
+        let tmp%12#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = bytes_encode<((uint64,uint64),(uint64,uint64),(uint64,uint64))>(tmp%2#1, tmp%7#1, tmp%4#1, tmp%4#1)
         (app_global_put "nested" tmp%12#0)
         let tmp%13#0: uint64 = (txn NumAppArgs)
         let tmp%14#0: uint64 = (txn NumAppArgs)
@@ -98,7 +92,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, a
         let tmp%4#0: uint64 = (* new_arr_len#0 fixed_byte_size#0)
         let popped_item_offset#0: uint64 = (+ tmp%3#0 tmp%4#0)
         (box_splice box_key#0 popped_item_offset#0 fixed_byte_size#0 0x)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%7#0: bool) = (box_len box_key#0)
         let new_size#0: uint64 = (- box_size#0 fixed_byte_size#0)
         (box_resize box_key#0 new_size#0)
         return 
@@ -107,7 +101,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
     block@0: // L33
         let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
         let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let (box_size#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
         let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
         let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
         (box_resize box_key#0 new_box_size#0)
@@ -605,9 +599,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[ro
         let encoded_array%3#0: Encoded(uint64[3]) = bytes_encode<uint64[3]>(tmp%11#0, tmp%12#0, tmp%13#0)
         let tmp%14#0: bool = (== arr_3#3 encoded_array%3#0)
         (assert tmp%14#0)
-        let static_array#0: Encoded(uint64[3]) = bytes_encode<uint64[3]>(0x0000000000000000, 0x0000000000000001, 0x0000000000000002)
-        let tmp%16#0: bool = (== static_array#0 arr_3#3)
-        (assert tmp%16#0)
+        let static_array#0: Encoded(uint64[3]) = bytes_encode<uint64[3]>(encoded_value%0#0, encoded_value%1#0, encoded_value%2#0)
+        let tmp%19#0: bool = (== static_array#0 arr_3#3)
+        (assert tmp%19#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing]() -> void:
@@ -803,20 +797,17 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let len%0#0: uint64 = (len arr#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
-        let tmp%0#1: uint64 = array_len(arr#0)
-        let tmp%1#1: bool = (! tmp%0#1)
+        let tmp%1#1: bool = (! length%0#0)
         (assert tmp%1#1) // expected empty array
         let encoded_array%0#0: Encoded((uint64,uint64)[]) = bytes_encode<(uint64,uint64)[]>()
         let arr4#0: Encoded((uint64,uint64)[])* = new()
         store(arr4#0, encoded_array%0#0)
         let slot_contents%0#0: Encoded((uint64,uint64)[]) = load(arr4#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
-        let tmp%4#0: uint64 = array_len(arr#0)
-        let tmp%5#0: Encoded((uint64,uint64)[]) = array_concat(slot_contents%0#0, extract_to_end%0#0, tmp%4#0)
+        let tmp%5#0: Encoded((uint64,uint64)[]) = array_concat(slot_contents%0#0, extract_to_end%0#0, length%0#0)
         store(arr4#0, tmp%5#0)
-        let tmp%6#0: uint64 = array_len(arr#0)
         let tmp%7#0: uint64 = array_len(arr4#0)
-        let tmp%8#0: bool = (== tmp%6#0 tmp%7#0)
+        let tmp%8#0: bool = (== length%0#0 tmp%7#0)
         (assert tmp%8#0) // expected arrays to be the same length
         let slot_contents%1#0: Encoded((uint64,uint64)[]) = load(arr4#0)
         let tmp%9#0: uint64 = array_len(slot_contents%1#0)
@@ -846,20 +837,19 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         (assert tmp%27#0) // expected arrays to be the same
         let arr8#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>()
         let extract_to_end%1#0: bytes = ((extract 2 0) arr2#1)
-        let tmp%28#0: uint64 = array_len(arr2#1)
-        let arr8#1: Encoded(len+(uint64,uint64)[]) = array_concat(arr8#0, extract_to_end%1#0, tmp%28#0)
+        let arr8#1: Encoded(len+(uint64,uint64)[]) = array_concat(arr8#0, extract_to_end%1#0, tmp%21#0)
         let tmp%30#0: bool = (== arr2#1 arr8#1)
         (assert tmp%30#0) // expected arrays to be the same
         let value_internal%0#0: uint64 = 0u
         goto block@4
     block@4: // for_header_L236
-        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let arr2#3: Encoded(len+(uint64,uint64)[]) = φ(arr8#0 <- block@0, arr2#4 <- block@5)
-        let continue_looping%0#0: bool = (< _i#0 3u)
+        let continue_looping%0#0: bool = (< value_internal%0#1 3u)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L237
         let arr2#4: Encoded(len+(uint64,uint64)[]) = array_concat(arr2#3, tmp%19#0, 1u)
-        let value_internal%0#2: uint64 = (+ _i#0 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@4
     block@7: // after_for_L236
         let tmp%37#0: uint64 = array_len(arr2#3)

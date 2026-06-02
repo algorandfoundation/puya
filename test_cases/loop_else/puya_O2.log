@@ -690,62 +690,35 @@ debug: Optimizer: Perform Subroutine Inlining
 loop_else/loop_else.py:7:9 debug: inlining call to test_cases.loop_else.loop_else.test_empty_loop in test_cases.loop_else.loop_else.LoopElseContract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: max_range_item%0#0, i#1
-debug: selected i#1 from equivalence set
-debug: Found equivalence set: tmp%2#1, result#3
-debug: selected result#3 from equivalence set
-debug: Found equivalence set: arg_idx#1, secret_index#0
-debug: selected arg_idx#1 from equivalence set
-debug: Found equivalence set: value_internal%1#1, account_index#0
-debug: selected account_index#0 from equivalence set
-debug: Found equivalence set: tmp%6#0, account#0
-debug: selected account#0 from equivalence set
-debug: Found equivalence set: tmp%9#0, arg_idx#3
-debug: selected arg_idx#3 from equivalence set
-debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable count#0
 debug: Removing unused variable value_internal%0#0
 debug: Removing unused variable i#0
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (== 0u 0u) to 1u
-debug: Simplified (< 0u 0u) to 0u
-debug: Simplified (- 0u 0u) to 0u
-debug: Simplified (/ range_length_minus_one%0#0 1u) to range_length_minus_one%0#0
-debug: Simplified (* 1u range_length_minus_one%0#0) to range_length_minus_one%0#0
-debug: Simplified (+ 0u range_length_minus_one%0#0) to range_length_minus_one%0#0
 debug: Simplified (== i#2 0u) to (! i#2)
-debug: Simplified (+ 0u 1u) to 1u
-debug: Simplified (< 0u 10u) to 1u
-debug: Simplified (== 0u 0u) to 1u
-debug: Simplified (concat "found secret argument at idx=" "") to "found secret argument at idx="
 debug: Simplified (len tmp%12#0) to 8u
-debug: Simplified (- 8u 1u) to 7u
-debug: Simplified (concat tmp%15#0 "") to tmp%15#0
-debug: Simplified (concat tmp%17#0 "") to tmp%17#0
+debug: Simplified (concat tmp%10#0 extract%0#0) to (concat "found secret argument at idx=" extract%0#0)
+debug: Simplified (concat tmp%16#0 " and secret account at idx=") to (concat tmp%15#0 " and secret account at idx=")
+debug: Simplified (concat tmp%17#0 "") to (concat tmp%15#0 " and secret account at idx=")
 debug: Simplified (len tmp%20#0) to 8u
-debug: Simplified (- 8u 1u) to 7u
-debug: Simplified (extract3 tmp%12#0 7u 1u) to ((extract 7 1) tmp%12#0)
-debug: Simplified (extract3 tmp%20#0 7u 1u) to ((extract 7 1) tmp%20#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@19 from goto 0u ? block@20 : block@26 to goto block@26
 debug: simplified branch on !tmp%1#1 by swapping zero and non-zero targets
 debug: simplified terminator of block@21 from goto tmp%1#1 ? block@22 : block@23 to goto i#2 ? block@23 : block@22
 debug: inlining condition branch to err block into an assert true
 debug: simplified terminator of block@1 from goto tmp%1#0 ? block@2 : block@17 to goto block@2
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@3 from goto 1u ? block@4 : block@7 to goto block@4
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@4 from goto 1u ? block@5 : block@6 to goto block@5
+debug: inlining condition branch to err block into an assert true
+debug: simplified terminator of block@4 from goto tmp%2#0 ? block@5 : block@6 to goto block@5
 debug: inlining condition branch to err block into an assert true
 debug: simplified terminator of block@9 from goto continue_looping%1#0 ? block@10 : block@14 to goto block@10
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@19 with block@0 in block@26
+debug: Replaced predecessor block@19 with block@0 in block@20
 debug: Merged linear block@19 into block@0
 debug: Replaced predecessor block@24 with block@23 in block@26
 debug: Replaced predecessor block@24 with block@23 in block@25
@@ -754,15 +727,11 @@ debug: Replaced predecessor block@28 with block@27 in block@1
 debug: Merged linear block@28 into block@27
 debug: Replaced predecessor block@2 with block@1 in block@3
 debug: Merged linear block@2 into block@1
+debug: Replaced predecessor block@3 with block@1 in block@7
 debug: Replaced predecessor block@3 with block@1 in block@4
 debug: Merged linear block@3 into block@1
-debug: Replaced predecessor block@4 with block@1 in block@5
-debug: Merged linear block@4 into block@1
-debug: Replaced predecessor block@5 with block@1 in block@7
-debug: Merged linear block@5 into block@1
-debug: Replaced predecessor block@7 with block@1 in block@16
-debug: Replaced predecessor block@7 with block@1 in block@8
-debug: Merged linear block@7 into block@1
+debug: Replaced predecessor block@5 with block@4 in block@7
+debug: Merged linear block@5 into block@4
 debug: Replaced predecessor block@10 with block@9 in block@12
 debug: Replaced predecessor block@10 with block@9 in block@11
 debug: Merged linear block@10 into block@9
@@ -774,15 +743,24 @@ debug: Merged linear block@18 into block@11
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@22 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable block: block@20
-debug: Removing unreachable block: block@21
-debug: Removing unreachable block: block@22
-debug: Removing unreachable block: block@23
-debug: Removing unreachable block: block@25
 debug: Removing unreachable block: block@6
 debug: Removing unreachable block: block@14
 debug: Removing unreachable block: block@17
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.LoopElseContract.approval_program converged after 3 iteration(s)
+debug: removing redundant assert of tmp%0#1
+debug: removing redundant assert of 1u
+debug: removing redundant assert of 1u
+debug: removing redundant assert of tmp%2#0
+debug: removing redundant assert of 1u
+debug: GVN found equivalence set: (range_length_minus_one%0#0, iteration_count_minus_one%0#0, range_delta%0#0, max_range_item%0#0, i#1), selected replacement: i#1
+debug: GVN found equivalence set: (arg_idx#1, secret_index#0), selected replacement: arg_idx#1
+debug: GVN found equivalence set: (value_internal%1#1, account_index#0), selected replacement: account_index#0
+debug: GVN found equivalence set: (tmp%6#0, account#0), selected replacement: account#0
+debug: GVN found equivalence set: (tmp%15#0, tmp%16#0), selected replacement: tmp%15#0
+debug: GVN found equivalence set: (tmp%17#0, tmp%18#0), selected replacement: tmp%17#0
+debug: GVN found equivalence set: (tmp%9#0, arg_idx#3), selected replacement: arg_idx#3
+debug: GVN: 10 replacement(s) in test_cases.loop_else.loop_else.LoopElseContract.approval_program
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -792,27 +770,19 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.test_empty_loop
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: max_range_item%0#0, i#0
-debug: selected i#0 from equivalence set
-debug: Found equivalence set: tmp%2#0, result#3
-debug: selected result#3 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== count#0 0u) to (! count#0)
-debug: Simplified (- count#0 0u) to count#0
-debug: Simplified (/ range_length_minus_one%0#0 1u) to range_length_minus_one%0#0
-debug: Simplified (* 1u range_length_minus_one%0#0) to range_length_minus_one%0#0
-debug: Simplified (+ 0u range_length_minus_one%0#0) to range_length_minus_one%0#0
 debug: Simplified (== i#1 0u) to (! i#1)
-debug: Simplified (+ 0u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplified branch on !tmp%1#0 by swapping zero and non-zero targets
 debug: simplified terminator of block@2 from goto tmp%1#0 ? block@3 : block@4 to goto i#1 ? block@4 : block@3
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@5 with block@4 in block@7
 debug: Replaced predecessor block@5 with block@4 in block@6
@@ -820,7 +790,12 @@ debug: Merged linear block@5 into block@4
 debug: Optimizer: Remove Linear Jumps
 debug: Not removing empty block block@3 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.test_empty_loop converged after 3 iteration(s)
+debug: removing redundant assert of 1u
+debug: GVN found equivalence set: (count#0, range_length%0#0), selected replacement: count#0
+debug: GVN found equivalence set: (range_length_minus_one%0#0, iteration_count_minus_one%0#0, range_delta%0#0, max_range_item%0#0, i#0), selected replacement: i#0
+debug: GVN: 5 replacement(s) in test_cases.loop_else.loop_else.test_empty_loop
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -833,18 +808,14 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.app
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%15#0, tmp%16#0
-debug: selected tmp%15#0 from equivalence set
-debug: Found equivalence set: tmp%17#0, tmp%18#0
-debug: selected tmp%17#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#1
-debug: Removing unused variable result#0
 debug: Removing unused variable should_loop%0#0
-debug: Removing unused variable result#3
-debug: Removing unused variable result#4
+debug: Removing unused variable range_length%0#0
+debug: Removing unused variable tmp%1#1
+debug: Removing unused variable continue_looping%0#1
+debug: Removing unused variable tmp%2#1
 debug: Removing unused variable continue_looping%0#0
 debug: Removing unused variable tmp%2#0
 debug: Removing unused variable tmp%10#0
@@ -852,19 +823,36 @@ debug: Removing unused variable tmp%13#0
 debug: Removing unused variable tmp%14#0
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable tmp%22#0
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
+debug: Simplified (extract3 tmp%12#0 7u 1u) to ((extract 7 1) tmp%12#0)
+debug: Simplified (extract3 tmp%20#0 7u 1u) to ((extract 7 1) tmp%20#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (== 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@0 from goto 0u ? block@20 : block@26 to goto block@26
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@1 from goto 1u ? block@4 : block@7 to goto block@4
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@26 with block@0 in block@27
-debug: Merged linear block@26 into block@0
-debug: Replaced predecessor block@27 with block@0 in block@1
-debug: Merged linear block@27 into block@0
+debug: Replaced predecessor block@4 with block@1 in block@7
+debug: Merged linear block@4 into block@1
+debug: Replaced predecessor block@7 with block@1 in block@16
+debug: Replaced predecessor block@7 with block@1 in block@8
+debug: Merged linear block@7 into block@1
 debug: Optimizer: Remove Linear Jumps
+debug: Not removing empty block block@22 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Removing unreachable block: block@20
+debug: Removing unreachable block: block@21
+debug: Removing unreachable block: block@22
+debug: Removing unreachable block: block@23
+debug: Removing unreachable block: block@25
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.LoopElseContract.approval_program converged after 3 iteration(s)
+debug: removing redundant assert of tmp%3#1
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -875,18 +863,28 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.app
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable result#0
+debug: Removing unused variable result#3
+debug: Removing unused variable result#4
 debug: Removing unused variable tmp%3#1
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@26 with block@0 in block@27
+debug: Merged linear block@26 into block@0
+debug: Replaced predecessor block@27 with block@0 in block@1
+debug: Merged linear block@27 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.LoopElseContract.approval_program converged after 3 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -897,17 +895,20 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.app
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.LoopElseContract.approval_program converged after 3 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -920,17 +921,19 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.cle
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -945,17 +948,20 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.app
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
+debug: GVN: test_cases.loop_else.loop_else.LoopElseContract.approval_program converged after 3 iteration(s)
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -968,17 +974,19 @@ debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.cle
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Remove Unused Intrinsics
+debug: Optimizer: Convert Stack Args To Immediates
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Sink Single Use Intrinsics
 debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops

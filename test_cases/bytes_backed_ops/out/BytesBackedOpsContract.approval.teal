@@ -3,7 +3,7 @@
 
 // test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
 main:
-    bytecblock 0x68656c6c6f 0x74657374
+    bytecblock 0x74657374 0x68656c6c6f
     // bytes_backed_ops/contract.py:100
     // acct = Account(op.Txn.sender.bytes)
     txn Sender
@@ -21,43 +21,11 @@ main:
     dup
     // bytes_backed_ops/contract.py:99
     // s = String("hello")
-    bytec_0 // "hello"
+    bytec_1 // "hello"
     // bytes_backed_ops/contract.py:107
     // assert op.concat(acct, s)
     concat
     len
-    assert
-    // bytes_backed_ops/contract.py:123-124
-    // # getbyte
-    // assert op.getbyte(arc4.UInt64(42), 7) == 42
-    pushbytes 0x000000000000002a
-    pushint 7
-    getbyte
-    pushint 42
-    ==
-    assert
-    // bytes_backed_ops/contract.py:99
-    // s = String("hello")
-    bytec_0 // "hello"
-    // bytes_backed_ops/contract.py:126
-    // assert op.getbyte(s, 0) == 104  # 'h'
-    pushint 0
-    getbyte
-    pushint 104
-    ==
-    assert
-    // bytes_backed_ops/contract.py:98
-    // fb = FixedBytes[typing.Literal[5]](b"hello")
-    bytec_0 // 0x68656c6c6f
-    // bytes_backed_ops/contract.py:128-129
-    // # setbyte
-    // modified = op.setbyte(fb, 0, 72)
-    pushints 0 72
-    setbyte
-    // bytes_backed_ops/contract.py:130
-    // assert modified == b"Hello"
-    pushbytes 0x48656c6c6f
-    ==
     assert
     // bytes_backed_ops/contract.py:136
     // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))
@@ -76,7 +44,7 @@ main:
     base64_decode StdEncoding
     // bytes_backed_ops/contract.py:157
     // assert decoded == b"hello"
-    bytec_0 // 0x68656c6c6f
+    bytec_1 // 0x68656c6c6f
     ==
     assert
     // bytes_backed_ops/contract.py:164
@@ -88,7 +56,7 @@ main:
     assert
     // bytes_backed_ops/contract.py:203
     // fb = FixedBytes[typing.Literal[4]](b"test")
-    bytec_1 // 0x74657374
+    bytec_0 // 0x74657374
     // bytes_backed_ops/contract.py:205
     // op.AppGlobal.delete(fb)
     app_global_del
@@ -97,13 +65,13 @@ main:
     txn Sender
     // bytes_backed_ops/contract.py:203
     // fb = FixedBytes[typing.Literal[4]](b"test")
-    bytec_1 // 0x74657374
+    bytec_0 // 0x74657374
     // bytes_backed_ops/contract.py:206
     // op.AppLocal.delete(Txn.sender, fb)
     app_local_del
     // bytes_backed_ops/contract.py:203
     // fb = FixedBytes[typing.Literal[4]](b"test")
-    bytec_1 // 0x74657374
+    bytec_0 // 0x74657374
     // bytes_backed_ops/contract.py:207
     // op.Box.delete(fb)
     box_del

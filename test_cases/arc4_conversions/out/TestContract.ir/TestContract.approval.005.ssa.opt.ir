@@ -1,0 +1,471 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@14
+    block@2: // abi_routing_L22
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_literal_encoding()void" => block@4, method "test_native_encoding()void" => block@5, method "test_arc4_encoding()void" => block@6, method "test_array_uint64_encoding()void" => block@7, method "test_array_static_encoding()void" => block@8, method "test_array_dynamic_encoding()void" => block@9, method "test_bytes_to_fixed(bool)void" => block@10, * => block@13}
+    block@4: // test_literal_encoding_route_L23
+        test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]()
+        goto block@13
+    block@5: // test_native_encoding_route_L46
+        test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]()
+        goto block@13
+    block@6: // test_arc4_encoding_route_L74
+        test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]()
+        goto block@13
+    block@7: // test_array_uint64_encoding_route_L102
+        test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]()
+        goto block@13
+    block@8: // test_array_static_encoding_route_L126
+        test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]()
+        goto block@13
+    block@9: // test_array_dynamic_encoding_route_L150
+        test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]()
+        goto block@13
+    block@10: // test_bytes_to_fixed_route_L178
+        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]()
+        goto block@13
+    block@13: // after_if_else_L22
+        fail
+    block@14: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> Encoded(uint64,uint8[32],(len+uint8[])):
+    block@0: // L223
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let tmp%1#0: account = (txn Sender)
+        let tmp%2#0: account = (txn Sender)
+        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0)
+        let tmp%4#0: Encoded(uint64,uint8[32],(len+uint8[])) = bytes_encode<(uint64,uint8[32],(len+uint8[]))>(tmp%0#0, tmp%1#0, tmp%3#0)
+        return tmp%4#0
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]() -> void:
+    block@0: // L23
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        itxn_begin
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let tmp%2#0: bytes = (bzero 8u)
+        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%1#0)
+        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%4#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x48656c6c6f20576f726c64)
+        let tmp%5#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x000b48656c6c6f20576f726c64)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%4#0)
+        ((itxn_field ApplicationArgs) tmp%5#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%6#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello World")
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%6#0)
+        ((itxn_field ApplicationArgs) tmp%5#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%8#0: Encoded(uint512) = bytes_encode<uint512>(0b)
+        let tmp%9#0: bytes = (bzero 64u)
+        let tmp%10#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%9#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%8#0)
+        ((itxn_field ApplicationArgs) tmp%10#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%11#0: Encoded(bool8) = bytes_encode<bool8>(1u)
+        let tmp%12#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x80)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%11#0)
+        ((itxn_field ApplicationArgs) tmp%12#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]() -> void:
+    block@0: // L46
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        itxn_begin
+        let tmp%1#0: uint64 = (txn NumAppArgs)
+        let tmp%2#0: uint64 = (- tmp%1#0 1u)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (bzero 8u)
+        let tmp%5#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%4#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field ApplicationArgs) tmp%5#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        let tmp%7#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%6#0)
+        let tmp%8#0: bytes = (txna ApplicationArgs 0)
+        let tmp%9#0: bytes = (concat 0x0004 tmp%8#0)
+        let tmp%10#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%9#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%7#0)
+        ((itxn_field ApplicationArgs) tmp%10#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%11#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello World")
+        let tmp%12#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x000b48656c6c6f20576f726c64)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%11#0)
+        ((itxn_field ApplicationArgs) tmp%12#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%13#0: Encoded(uint512) = bytes_encode<uint512>(0b)
+        let tmp%14#0: bytes = (bzero 64u)
+        let tmp%15#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%14#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%13#0)
+        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%16#0: uint64 = (txn NumAppArgs)
+        let tmp%17#0: bool = (== tmp%16#0 1u)
+        let tmp%18#0: Encoded(bool8) = bytes_encode<bool8>(tmp%17#0)
+        let tmp%19#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x80)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%18#0)
+        ((itxn_field ApplicationArgs) tmp%19#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]() -> void:
+    block@0: // L74
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        itxn_begin
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let tmp%2#0: bytes = (bzero 8u)
+        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%1#0)
+        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        let tmp%5#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        let tmp%7#0: bytes = (concat 0x0004 tmp%6#0)
+        let tmp%8#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%7#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%5#0)
+        ((itxn_field ApplicationArgs) tmp%8#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%9#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello World")
+        let tmp%10#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x000b48656c6c6f20576f726c64)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%9#0)
+        ((itxn_field ApplicationArgs) tmp%10#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%11#0: Encoded(uint512) = bytes_encode<uint512>(0b)
+        let tmp%12#0: bytes = (bzero 64u)
+        let tmp%13#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%12#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%11#0)
+        ((itxn_field ApplicationArgs) tmp%13#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%14#0: uint64 = (txn NumAppArgs)
+        let tmp%15#0: bool = (== tmp%14#0 1u)
+        let tmp%16#0: Encoded(bool8) = bytes_encode<bool8>(tmp%15#0)
+        let tmp%17#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x80)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
+        ((itxn_field ApplicationArgs) tmp%16#0)
+        ((itxn_field ApplicationArgs) tmp%17#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]() -> void:
+    block@0: // L102
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        let tmp%1#0: uint64 = (txn NumAppArgs)
+        let tmp%2#0: uint64 = (txn NumAppArgs)
+        let tmp%3#0: uint64 = (+ tmp%2#0 1u)
+        let tmp%4#0: uint64 = (txn NumAppArgs)
+        let tmp%5#0: uint64 = (+ tmp%4#0 2u)
+        let arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%1#0, tmp%3#0, tmp%5#0)
+        itxn_begin
+        let tmp%15#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x0003000000000000000100000000000000020000000000000003)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
+        ((itxn_field ApplicationArgs) arr#0)
+        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
+        ((itxn_field ApplicationArgs) arr#0)
+        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%23#0: uint64 = (txn NumAppArgs)
+        let tmp%28#0: Encoded(uint64[3]) = bytes_encode<uint64[3]>(tmp%23#0, tmp%3#0, tmp%5#0)
+        let tmp%30#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x000000000000000100000000000000020000000000000003)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_static_array_uin64_3(uint64[3],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%28#0)
+        ((itxn_field ApplicationArgs) tmp%30#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]() -> void:
+    block@0: // L126
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%0#1: account = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
+        let arr#0: Encoded(len+(uint64,uint8[32])[]) = bytes_encode<(len+(uint64,uint8[32])[])>(1u, tmp%0#0, 2u, tmp%0#1, 3u, tmp%0#2)
+        let tmp%10#0: account = (txn Sender)
+        let tmp%11#0: bytes = (concat 0x00030000000000000001 tmp%10#0)
+        let tmp%14#0: bytes = (concat tmp%11#0 0x0000000000000002)
+        let tmp%15#0: account = (txn Sender)
+        let tmp%16#0: bytes = (concat tmp%14#0 tmp%15#0)
+        let tmp%19#0: bytes = (concat tmp%16#0 0x0000000000000003)
+        let tmp%20#0: account = (txn Sender)
+        let expected_bytes#0: bytes = (concat tmp%19#0 tmp%20#0)
+        itxn_begin
+        let tmp%22#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(expected_bytes#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dyn_array_struct((uint64,address)[],byte[])void")
+        ((itxn_field ApplicationArgs) arr#0)
+        ((itxn_field ApplicationArgs) tmp%22#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        let tmp%0#3: account = (txn Sender)
+        let tmp%0#4: account = (txn Sender)
+        let tmp%0#5: account = (txn Sender)
+        let tmp%29#0: Encoded((uint64,uint8[32])[3]) = bytes_encode<(uint64,uint8[32])[3]>(1u, tmp%0#3, 2u, tmp%0#4, 3u, tmp%0#5)
+        let length%0#0: uint64 = (len expected_bytes#0)
+        let is_out_of_bounds%0#0: bool = (>= 2u length%0#0)
+        let bounded_index%0#0: uint64 = (select 2u length%0#0 is_out_of_bounds%0#0)
+        let tmp%30#0: bytes = (substring3 expected_bytes#0 bounded_index%0#0 length%0#0)
+        let tmp%31#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%30#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_static_array_struct((uint64,address)[3],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%29#0)
+        ((itxn_field ApplicationArgs) tmp%31#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]() -> void:
+    block@0: // L150
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        let tmp%1#1: account = (txn Sender)
+        let tmp%1#2: account = (txn Sender)
+        let tmp%1#3: account = (txn Sender)
+        let arr#0: Encoded(len+(uint64,uint8[32],(len+uint8[]))[]) = bytes_encode<(len+(uint64,uint8[32],(len+uint8[]))[])>(1u, tmp%1#1, tmp%1#1, 2u, tmp%1#2, tmp%1#2, 3u, tmp%1#3, tmp%1#3)
+        let tmp%10#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
+        let tmp%11#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u)
+        let tmp%12#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)
+        let expected_bytes#0: bytes = bytes_encode<(len+(uint64,uint8[32],(len+uint8[]))[])>(tmp%10#0, tmp%11#0, tmp%12#0)
+        itxn_begin
+        let tmp%13#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(expected_bytes#0)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void")
+        ((itxn_field ApplicationArgs) arr#0)
+        ((itxn_field ApplicationArgs) tmp%13#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let tmp%14#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
+        let tmp%15#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u)
+        let tmp%16#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)
+        let expected_bytes#1: bytes = bytes_encode<(uint64,uint8[32],(len+uint8[]))[3]>(tmp%14#0, tmp%15#0, tmp%16#0)
+        itxn_begin
+        let tmp%1#4: account = (txn Sender)
+        let tmp%1#5: account = (txn Sender)
+        let tmp%1#6: account = (txn Sender)
+        let tmp%26#0: Encoded((uint64,uint8[32],(len+uint8[]))[3]) = bytes_encode<(uint64,uint8[32],(len+uint8[]))[3]>(1u, tmp%1#4, tmp%1#4, 2u, tmp%1#5, tmp%1#5, 3u, tmp%1#6, tmp%1#6)
+        let tmp%27#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(expected_bytes#1)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%26#0)
+        ((itxn_field ApplicationArgs) tmp%27#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]() -> void:
+    block@0: // L178
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        let wrong_size#0: bool = decode_bytes<bool>(tmp%0#0)
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CyAEAAIBKDEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIALwBQAHEAjgCqAM4A6wEOASsBlgHxADEZgQUSMRgQQzEZFDEYFBBDNhoBSRWBCBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlkjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYFAEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkVJBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJIlmBCAsjCEsBFRJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEYEkQ2GgJJIlkjCEsBFRJEVwIAEkQkQzYaAUkiWSULIwhLARUSRDYaAkkiWSMISwEVEkRXAgASRCRDNhoBSRWBeBJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFHAiJZSU4CIwtMSRVMVwIAIklLBQxBADJHAiMLSwNJTwJZSUsHSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUFJAhFAUL/x0sDIwhLAxJENhoCSSJZIwhLARUSRFcCAEsGEkQkQzYaAYEGIkmBAwxBADJHAiMLSwRJTwJZSUsFSU4EEkRLARVSSRVLASVZSYEqEkRMUiJZgSwICEUDJAhFAUL/x0sCSRVLAxJENhoCSSJZIwhLARUSRFcCABJEJEM2GgFJFYEgEkQxABJEJEM=)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        let sender#0: bytes = (global CurrentApplicationAddress)
+        goto wrong_size#0 ? block@3 : block@4
+    block@3: // if_body_L184
+        let sender#1: bytes = (concat sender#0 sender#0)
+        goto block@4
+    block@4: // after_if_else_L183
+        let sender#2: bytes = φ(sender#0 <- block@0, sender#1 <- block@3)
+        itxn_begin
+        let tmp%3#0: Encoded(uint8[32]) = bytes_encode<uint8[32]>(sender#2)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_static_bytes(byte[32])void")
+        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "delete_application()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
