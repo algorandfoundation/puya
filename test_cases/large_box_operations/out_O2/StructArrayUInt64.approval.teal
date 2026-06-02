@@ -70,6 +70,8 @@ main_set_route@11:
     return
 
 main_get_route@10:
+    bytec_1 // 0x151f7c75
+    bytec_0 // "box"
     txna ApplicationArgs 1
     dup
     len
@@ -89,19 +91,17 @@ main_get_route@10:
     *
     pushint 22
     +
-    bytec_0 // "box"
-    swap
     intc_0 // 8
     box_extract // on error: index out of bounds
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_2 // 1
     return
 
 main_pop_route@9:
+    bytec_1 // 0x151f7c75
     bytec_0 // "box"
+    dup
     intc_3 // 20
     intc_1 // 2
     box_extract
@@ -117,8 +117,6 @@ main_pop_route@9:
     *
     pushint 22
     +
-    bytec_0 // "box"
-    swap
     intc_0 // 8
     box_extract // on error: index out of bounds
     bytec_0 // "box"
@@ -135,6 +133,7 @@ main_pop_route@9:
     uncover 2
     box_replace
     bytec_0 // "box"
+    dup
     intc_3 // 20
     intc_1 // 2
     box_extract
@@ -152,21 +151,16 @@ main_pop_route@9:
     *
     pushint 22
     +
-    bytec_0 // "box"
-    swap
     intc_0 // 8
     pushbytes 0x
     box_splice
     bytec_0 // "box"
+    dup
     box_len
     pop
     intc_0 // 8
     -
-    bytec_0 // "box"
-    swap
     box_resize
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_2 // 1
@@ -231,16 +225,14 @@ main_bootstrap_route@6:
     bytec_0 // "box"
     pushbytes 0x000000000000000100140000000000000002001600000000
     box_put
-    intc 4 // 4096
-    bzero
     bytec_0 // "box"
+    dup
     pushint 18
     intc_1 // 2
     box_extract
     btoi
-    bytec_0 // "box"
-    swap
-    uncover 2
+    intc 4 // 4096
+    bzero
     intc_2 // 1
     intc 4 // 4096
     callsub box_dynamic_array_concat_fixed
@@ -263,19 +255,19 @@ main___algopy_default_create@16:
 box_dynamic_array_concat_fixed:
     proto 5 0
     frame_dig -5
+    dup
     frame_dig -4
     intc_1 // 2
     box_extract
     btoi
     frame_dig -5
+    dup
     box_len
     pop
     frame_dig -2
     frame_dig -1
     *
     +
-    frame_dig -5
-    swap
     box_resize
     dup
     frame_dig -2
@@ -293,8 +285,6 @@ box_dynamic_array_concat_fixed:
     frame_dig -1
     *
     +
-    frame_dig -5
-    swap
     pushint 0
     frame_dig -3
     box_splice
@@ -356,12 +346,11 @@ verify:
     ==
     assert
     bytec_0 // "box"
+    dup
     pushint 18
     intc_1 // 2
     box_extract
     btoi
-    bytec_0 // "box"
-    swap
     intc_1 // 2
     box_extract
     btoi
