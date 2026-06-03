@@ -127,7 +127,7 @@ def _on_completion(location: SourceLocation) -> awst_nodes.Expression:
 def _on_match(loc: SourceLocation, *, can_exit_early: bool) -> awst_nodes.Statement:
     # after a method matches and has been dispatched:
     # if router can exit early, this is simply a `return 1`
-    # otherwise, we are called from an overriden approval program 
+    # otherwise, we are called from an overriden approval program
     # (i.e. we are a subroutine), then the return is FROM the subroutine
     # this allows any code after super.approval_program() to still run
     if can_exit_early:
@@ -551,7 +551,7 @@ def _create_abi_switch(
             )
         )
         if not can_exit_early:
-            # the wrapper already exits the program when can_exit_early, 
+            # the wrapper already exits the program when can_exit_early,
             # otherwise return a match from the router subroutine
             stmts.append(_on_match(abi_loc, can_exit_early=False))
         call_block = _create_block(abi_loc, f"{method.name}_route", *stmts)
