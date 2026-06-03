@@ -23,4 +23,9 @@ autodoc2_packages = [
 ]
 autodoc2_render_plugin = "myst"
 autodoc2_output_dir = "apidocs"
-autodoc2_hidden_objects = ["private", "dunder"]
+autodoc2_hidden_objects = ["private", "dunder", "inherited"]
+# Parse docstrings as reST (the stubs use ':param:'/':returns:' field-list syntax).
+# Without this, autodoc2's MyST plugin emits the raw reST syntax into markdown
+# unprocessed; setting "rst" wraps each docstring in an eval-rst block so the
+# field lists render as proper Parameters / Returns sections.
+autodoc2_docstring_parser_regexes = [(r".+", "rst")]

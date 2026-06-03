@@ -19,6 +19,7 @@ Pipeline:
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -27,6 +28,11 @@ from pathlib import Path
 
 DOCS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = DOCS_DIR.parent
+# Sphinx writes its raw markdown into a scratch directory outside the Astro
+# content tree so the dev server's file watcher doesn't see partial / pre-
+# frontmatter files mid-build (which would surface as transient
+# InvalidContentEntryDataError logs).
+SPHINX_OUT = DOCS_DIR / ".api_build_tmp"
 API_OUT = DOCS_DIR / "src" / "content" / "docs" / "api"
 PACKAGE_NAME = "algopy"
 _pkg = re.escape(PACKAGE_NAME)
@@ -67,6 +73,20 @@ _QUALIFIED_ANCHOR_RE = re.compile(
     r"(?:\.\w+)*\.(\w+)\)"
 )
 
+# Path to the autoapi source stubs that sphinx reads (see docs/sphinx/conf.py).
+_AUTOAPI_SRC = DOCS_DIR / "algopy-stubs"
+
+# Triple-backtick fence with matching indent on the closing line. The info
+# string after the opening fence may be a language hint (```python), a MyST
+# directive ({note}), or empty.
+_FENCE_RE = re.compile(
+    r"^(?P<indent>[ \t]*)```(?P<info>[^\n]*)\n(?P<body>.*?)\n(?P=indent)```",
+    re.MULTILINE | re.DOTALL,
+)
+
+# Triple-quoted docstring; non-greedy so each docstring is captured separately.
+_DOCSTRING_RE = re.compile(r'(""")(.*?)(""")', re.DOTALL)
+
 
 # Step 1: stub generation -------------------------------------------------------
 
@@ -98,14 +118,63 @@ def _generate_stubs() -> None:
     output_doc_stubs(result.manager)
 
 
+# Step 1.5: docstring preprocessing --------------------------------------------
+
+
+def _fence_to_directive(m: re.Match[str]) -> str:
+    """Replace a markdown fence with the equivalent rST directive."""
+    indent = m.group("indent")
+    info = m.group("info").strip()
+    body = m.group("body")
+    if info.startswith("{") and info.endswith("}"):
+        directive = f"{indent}.. {info[1:-1].strip()}::"
+    elif info:
+        directive = f"{indent}.. code-block:: {info}"
+    else:
+        directive = f"{indent}.. code-block::"
+    body_indent = indent + "   "
+    raw_lines = body.split("\n")
+    non_blank = [ln for ln in raw_lines if ln.strip()]
+    common = min((len(ln) - len(ln.lstrip(" \t")) for ln in non_blank), default=0)
+    body_lines = [body_indent + ln[common:] if ln.strip() else "" for ln in raw_lines]
+    # Leading newline ensures the directive is preceded by a blank line — rST
+    # parsers otherwise treat it as a continuation of the previous paragraph
+    # (e.g. "Example:\n.. code-block::" coalesces into "Example: .. code-block:").
+    return f"\n{directive}\n\n" + "\n".join(body_lines)
+
+
+def _rewrite_fences_in_docstring(m: re.Match[str]) -> str:
+    open_q, body, close_q = m.group(1), m.group(2), m.group(3)
+    return f"{open_q}{_FENCE_RE.sub(_fence_to_directive, body)}{close_q}"
+
+
+def _preprocess_docstrings() -> None:
+    """Translate markdown fences in docstrings to rST directives.
+
+    The rST docstring parser configured in docs/sphinx/conf.py handles
+    :param:/:returns: field lists, but treats markdown ``` fences as raw
+    text. Rewrite them in the autoapi source .pyi files before sphinx runs:
+
+      ``​```{note}\n...\n```​``  →  ``.. note::``
+      ``​```python\n...\n```​``  →  ``.. code-block:: python``
+      ``​```\n...\n```​``        →  ``.. code-block::``
+    """
+    print("==> Preprocessing docstrings (markdown fences -> rST)...")
+    for pyi in sorted(_AUTOAPI_SRC.rglob("*.pyi")):
+        text = pyi.read_text(encoding="utf-8")
+        new_text = _DOCSTRING_RE.sub(_rewrite_fences_in_docstring, text)
+        if new_text != text:
+            pyi.write_text(new_text, encoding="utf-8")
+
+
 # Step 2: Sphinx markdown build -------------------------------------------------
 
 
-def _clean_api_output() -> None:
-    print("==> Cleaning previous API output...")
-    if API_OUT.exists():
-        shutil.rmtree(API_OUT)
-    API_OUT.mkdir(parents=True, exist_ok=True)
+def _clean_sphinx_out() -> None:
+    print("==> Cleaning sphinx scratch directory...")
+    if SPHINX_OUT.exists():
+        shutil.rmtree(SPHINX_OUT)
+    SPHINX_OUT.mkdir(parents=True, exist_ok=True)
 
 
 def _run_sphinx_build() -> None:
@@ -120,7 +189,7 @@ def _run_sphinx_build() -> None:
             "-b",
             "markdown",
             "docs/sphinx",
-            str(API_OUT),
+            str(SPHINX_OUT),
             "-q",
         ],
         cwd=str(REPO_ROOT),
@@ -142,23 +211,23 @@ def _run_sphinx_build() -> None:
 def _remove_sphinx_artifacts() -> None:
     print("==> Removing Sphinx artifacts...")
     for name in [".buildinfo"]:
-        p = API_OUT / name
+        p = SPHINX_OUT / name
         if p.exists():
             p.unlink()
-    doctrees = API_OUT / ".doctrees"
+    doctrees = SPHINX_OUT / ".doctrees"
     if doctrees.exists():
         shutil.rmtree(doctrees)
-    # Remove the top-level index.md generated from index.rst (not needed in Starlight)
-    index_md = API_OUT / "index.md"
+    # Drop the top-level index.md generated from index.rst (not used by Starlight).
+    index_md = SPHINX_OUT / "index.md"
     if index_md.exists():
         index_md.unlink()
 
 
 def _flatten_autoapi() -> None:
-    """Move apidocs/<package>/ up one level to api/<package>/."""
+    """Move apidocs/<package>/ up one level inside the sphinx scratch dir."""
     print("==> Flattening autodoc2 directory structure...")
-    autodoc2_pkg = API_OUT / "apidocs" / PACKAGE_NAME
-    target = API_OUT / PACKAGE_NAME
+    autodoc2_pkg = SPHINX_OUT / "apidocs" / PACKAGE_NAME
+    target = SPHINX_OUT / PACKAGE_NAME
 
     if not autodoc2_pkg.is_dir():
         print(
@@ -172,47 +241,34 @@ def _flatten_autoapi() -> None:
         shutil.rmtree(target)
     shutil.move(str(autodoc2_pkg), str(target))
 
-    apidocs_dir = API_OUT / "apidocs"
+    apidocs_dir = SPHINX_OUT / "apidocs"
     if apidocs_dir.exists():
         shutil.rmtree(apidocs_dir)
 
 
-def _extract_title(file_path: Path) -> str:
-    with open(file_path, encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("# "):
-                title = line[2:].strip()
-                # Strip markdown link syntax: [`foo`](#anchor) → foo, [foo](#anchor) → foo
-                title = re.sub(r"\[`?([^`\]]+)`?\]\([^)]*\)", r"\1", title)
-                return title
-    return file_path.stem
+def _extract_title_from_content(content: str) -> str | None:
+    for line in content.splitlines():
+        if line.startswith("# "):
+            title = line[2:].strip()
+            # Strip markdown link syntax: [`foo`](#anchor) → foo, [foo](#anchor) → foo
+            return re.sub(r"\[`?([^`\]]+)`?\]\([^)]*\)", r"\1", title)
+    return None
 
 
-def _inject_frontmatter() -> None:
-    print("==> Injecting Starlight frontmatter into API docs...")
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        title = _extract_title(md_file)
-        escaped = title.replace('"', '\\"')
-        content = md_file.read_text(encoding="utf-8")
-        # Strip the H1 — Starlight renders title from frontmatter.
-        content = re.sub(r"^# [^\n]*\n+", "", content)
-        md_file.write_text(
-            f'---\ntitle: "{escaped}"\n---\n\n<div class="api-ref">\n\n{content}\n\n</div>\n',
-            encoding="utf-8",
-        )
+def _inject_frontmatter(path: Path, content: str) -> str:
+    title = _extract_title_from_content(content) or path.stem
+    escaped = title.replace('"', '\\"')
+    # Strip the H1 — Starlight renders title from frontmatter.
+    content = re.sub(r"^# [^\n]*\n+", "", content)
+    return f'---\ntitle: "{escaped}"\n---\n\n<div class="api-ref">\n\n{content}\n\n</div>\n'
 
 
-def _fix_internal_links() -> None:
+def _fix_internal_links(content: str) -> str:
     """Strip /index.md from internal link paths — Starlight doesn't use extensions."""
-    print("==> Fixing internal links...")
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
-        updated = _INDEX_MD_RE.sub("/", content)
-        if updated != content:
-            md_file.write_text(updated, encoding="utf-8")
+    return _INDEX_MD_RE.sub("/", content)
 
 
-def _fix_module_md_links() -> None:
+def _fix_module_md_links(content: str) -> str:
     """Rewrite relative algopy*.md links to absolute Starlight URLs.
 
     Sphinx/autodoc2 outputs relative links like (algopy.op.md#class-txn), but
@@ -220,7 +276,6 @@ def _fix_module_md_links() -> None:
     becomes the slug 'algopyop' (URL /puya/api/algopy/algopyop/). Relative links
     from a sibling page therefore resolve to the wrong URL.
     """
-    print("==> Fixing cross-module .md links...")
 
     def _md_to_url(m: re.Match) -> str:
         module_suffix = m.group(1)  # 'op', 'arc4', etc., or None for algopy itself
@@ -229,29 +284,31 @@ def _fix_module_md_links() -> None:
         slug = stem.replace(".", "")
         return f"({_SITE_BASE}api/algopy/{slug}/{anchor})"
 
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
-        updated = _MODULE_MD_LINK_RE.sub(_md_to_url, content)
-        if updated != content:
-            md_file.write_text(updated, encoding="utf-8")
+    return _MODULE_MD_LINK_RE.sub(_md_to_url, content)
 
 
-def _shorten_qualified_names() -> None:
+def _shorten_qualified_names(content: str) -> str:
     """Strip module prefixes from H3/H4 headings (e.g. algopy.arc4.Address → Address)."""
-    print("==> Shortening qualified names in headings...")
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        lines = md_file.read_text(encoding="utf-8").splitlines(keepends=True)
-        changed = False
-        for i, line in enumerate(lines):
-            if not _HEADING_RE.match(line):
-                continue
-            new_line = _LINKED_QUALIFIED_RE.sub(r"[\1]", line)
-            new_line = _PLAIN_QUALIFIED_RE.sub(r"\1", new_line)
-            if new_line != line:
-                lines[i] = new_line
-                changed = True
-        if changed:
-            md_file.write_text("".join(lines), encoding="utf-8")
+    lines = content.splitlines(keepends=True)
+    for i, line in enumerate(lines):
+        if not _HEADING_RE.match(line):
+            continue
+        new_line = _LINKED_QUALIFIED_RE.sub(r"[\1]", line)
+        new_line = _PLAIN_QUALIFIED_RE.sub(r"\1", new_line)
+        if new_line != line:
+            lines[i] = new_line
+    return "".join(lines)
+
+
+def _strip_default_language(content: str) -> str:
+    """Remove the ``default`` language tag from fenced code blocks.
+
+    Sphinx-markdown-builder writes ``.. code-block::`` (no argument) as
+    ``` ```default ```; Starlight's expressive-code highlighter doesn't know
+    that language and falls back to plain text with a warning. Drop the tag
+    so the block renders as plain text without the warning.
+    """
+    return re.sub(r"^```default\s*$", "```", content, flags=re.MULTILINE)
 
 
 def _compute_starlight_anchor(heading_text: str) -> str:
@@ -298,7 +355,7 @@ def _github_slug(heading_text: str) -> str:
     return text.strip("-")
 
 
-def _simplify_class_headings() -> None:
+def _simplify_class_headings(content: str) -> str:
     """Strip constructor signatures from *class* headings for predictable anchors.
 
     Converts: ### *class* Foo(\\*args, \\*\\*kwds)
@@ -307,53 +364,109 @@ def _simplify_class_headings() -> None:
     Without this, Starlight generates messy anchors like #class-foo-args--kwds
     that don't match the plain #class-foo used in summary table links.
     """
-    print("==> Simplifying class heading signatures...")
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
-        updated = _CLASS_ARGS_RE.sub(r"\1", content)
-        if updated != content:
-            md_file.write_text(updated, encoding="utf-8")
+    return _CLASS_ARGS_RE.sub(r"\1", content)
 
 
-def _fix_qualified_anchors() -> None:
+def _build_anchor_map(content: str) -> dict[str, str]:
+    anchor_map: dict[str, str] = {}
+    for m in _H3_TEXT_RE.finditer(content):
+        heading_text = m.group(1)
+        key_m = re.match(r"(?:\*\w+\*\s+)?(\w+)", heading_text)
+        if key_m:
+            anchor_map[key_m.group(1)] = _compute_starlight_anchor(heading_text)
+    return anchor_map
+
+
+def _fix_qualified_anchors(
+    content: str, path: Path, file_maps: dict[str, dict[str, str]]
+) -> str:
     """Rewrite Sphinx-style qualified anchors to match Starlight heading IDs.
 
     Sphinx generates links like [Foo](#algopy.arc4.Foo) but Starlight generates
     anchors from rendered heading text (e.g. #class-foo for '### *class* Foo').
     """
-    print("==> Fixing qualified name anchors...")
-    file_maps: dict[str, dict[str, str]] = {}
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        anchor_map: dict[str, str] = {}
-        content = md_file.read_text(encoding="utf-8")
-        for m in _H3_TEXT_RE.finditer(content):
-            heading_text = m.group(1)
-            key_m = re.match(r"(?:\*\w+\*\s+)?(\w+)", heading_text)
-            if key_m:
-                symbol = key_m.group(1)
-                anchor_map[symbol] = _compute_starlight_anchor(heading_text)
-        file_maps[str(md_file)] = anchor_map
 
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
+    def fix_anchor(m: re.Match) -> str:
+        path_part, symbol = m.group(1), m.group(2)
+        if path_part:
+            resolved = (path.parent / path_part).resolve()
+            # autodoc2 links to sibling .md files directly; old autoapi linked to dirs
+            target_md = resolved if path_part.endswith(".md") else resolved / "index.md"
+        else:
+            target_md = path
+        anchor = file_maps.get(str(target_md), {}).get(symbol, symbol.lower())
+        return f"({path_part}#{anchor})"
 
-        def fix_anchor(m: re.Match, _file: Path = md_file) -> str:
-            path_part, symbol = m.group(1), m.group(2)
-            if path_part:
-                resolved = (_file.parent / path_part).resolve()
-                # autodoc2 links to sibling .md files directly; old autoapi linked to dirs
-                target_md = resolved if path_part.endswith(".md") else resolved / "index.md"
-            else:
-                target_md = _file
-            anchor = file_maps.get(str(target_md), {}).get(symbol, symbol.lower())
-            return f"({path_part}#{anchor})"
-
-        updated = _QUALIFIED_ANCHOR_RE.sub(fix_anchor, content)
-        if updated != content:
-            md_file.write_text(updated, encoding="utf-8")
+    return _QUALIFIED_ANCHOR_RE.sub(fix_anchor, content)
 
 
-def _fix_member_index_anchors() -> None:
+_ADMONITION_HEADING_RE = re.compile(
+    r"^#### (NOTE|WARNING|TIP|IMPORTANT|CAUTION|DANGER|HINT|ATTENTION|SEEALSO)\s*$"
+)
+# Map rST admonition names to Starlight's four built-in asides.
+_STARLIGHT_ADMONITION = {
+    "note": "note",
+    "hint": "tip",
+    "tip": "tip",
+    "warning": "caution",
+    "caution": "caution",
+    "attention": "caution",
+    "important": "danger",
+    "danger": "danger",
+    "seealso": "note",
+}
+
+
+def _convert_admonitions(content: str) -> str:
+    """Rewrite sphinx admonition headings as Starlight aside directives.
+
+    sphinx-markdown-builder renders ``.. note::`` as ``#### NOTE`` followed by
+    the body until the next heading. Starlight uses container directives
+    (``:::note ... :::``), so we collect each admonition block and re-emit it.
+    """
+    lines = content.splitlines()
+    out: list[str] = []
+    i = 0
+    n = len(lines)
+    while i < n:
+        m = _ADMONITION_HEADING_RE.match(lines[i])
+        if not m:
+            out.append(lines[i])
+            i += 1
+            continue
+        kind = _STARLIGHT_ADMONITION.get(m.group(1).lower(), "note")
+        i += 1
+        body: list[str] = []
+        while i < n and not lines[i].lstrip().startswith("#"):
+            body.append(lines[i])
+            i += 1
+        while body and body[-1].strip() == "":
+            body.pop()
+        while body and body[0].strip() == "":
+            body.pop(0)
+        out.append(f":::{kind}")
+        out.extend(body)
+        out.append(":::")
+        out.append("")
+    return "\n".join(out) + "\n" if out and content.endswith("\n") else "\n".join(out)
+
+
+_PARAM_BULLET_RE = re.compile(r"^(\s{4,})\\\*(\s)", re.MULTILINE)
+
+
+def _fix_param_bullet_escapes(content: str) -> str:
+    """Unescape ``\\*`` sub-bullets that appear inside Parameter blocks.
+
+    Sphinx already renders ``:param:`` field lists into a Parameters bullet
+    structure, but ``*`` characters used by docstring authors as nested bullets
+    are emitted as ``\\*`` and stay as literal text. They sit at 4-space indent
+    inside the parameter item, which is exactly the depth a real nested bullet
+    needs — so dropping the backslash turns them into proper nested bullets.
+    """
+    return _PARAM_BULLET_RE.sub(r"\1*\2", content)
+
+
+def _fix_member_index_anchors(content: str) -> str:
     """Fix member-index table anchor links to use github-slugger slugs.
 
     autodoc2 generates a member-index table at the top of each API page with links
@@ -363,31 +476,74 @@ def _fix_member_index_anchors() -> None:
     mapping from every ### heading's autodoc2 slug → github-slugger slug and rewrites
     all (#...) same-page anchor references in each file.
     """
-    print("==> Fixing member-index anchor slugs...")
+    slug_map: dict[str, str] = {}
+    for m in _H3_TEXT_RE.finditer(content):
+        heading_text = m.group(1)
+        old_slug = _compute_starlight_anchor(heading_text)
+        new_slug = _github_slug(heading_text)
+        if old_slug != new_slug:
+            slug_map[old_slug] = new_slug
 
-    for md_file in sorted(API_OUT.rglob("*.md")):
-        content = md_file.read_text(encoding="utf-8")
+    if not slug_map:
+        return content
 
-        # Build slug map: autodoc2_slug → github_slug for every ### heading
-        slug_map: dict[str, str] = {}
-        for m in _H3_TEXT_RE.finditer(content):
-            heading_text = m.group(1)
-            old_slug = _compute_starlight_anchor(heading_text)
-            new_slug = _github_slug(heading_text)
-            if old_slug != new_slug:
-                slug_map[old_slug] = new_slug
+    def fix_anchor(m: re.Match) -> str:
+        anchor = m.group(1)
+        return f"(#{slug_map.get(anchor, anchor)})"
 
-        if not slug_map:
-            continue
+    return re.sub(r"\(#([^)]+)\)", fix_anchor, content)
 
-        # Replace all (#old-slug) occurrences in the file
-        def fix_anchor(m: re.Match) -> str:
-            anchor = m.group(1)
-            return f"(#{slug_map.get(anchor, anchor)})"
 
-        updated = re.sub(r"\(#([^)]+)\)", fix_anchor, content)
-        if updated != content:
-            md_file.write_text(updated, encoding="utf-8")
+def _process_md_files() -> None:
+    """Read raw markdown from SPHINX_OUT, transform in memory, atomically write to API_OUT.
+
+    Reads every .md from the sphinx scratch dir, runs each post-processing
+    step against the cached content, and finally writes each file once into
+    ``src/content/docs/api/`` using ``os.replace`` so the dev server's watcher
+    only sees finished files (not partial sphinx output, no per-step rewrites).
+    """
+    print("==> Post-processing API markdown...")
+    sphinx_files: dict[Path, str] = {
+        p: p.read_text(encoding="utf-8") for p in sorted(SPHINX_OUT.rglob("*.md"))
+    }
+    # Final-destination paths keyed for use in the cross-file anchor map.
+    files: dict[Path, str] = {
+        API_OUT / p.relative_to(SPHINX_OUT): content
+        for p, content in sphinx_files.items()
+    }
+
+    # Per-file transforms (no cross-file dependencies).
+    for path in files:
+        content = files[path]
+        content = _inject_frontmatter(path, content)
+        content = _convert_admonitions(content)
+        content = _fix_param_bullet_escapes(content)
+        content = _strip_default_language(content)
+        content = _fix_internal_links(content)
+        content = _shorten_qualified_names(content)
+        content = _simplify_class_headings(content)
+        content = _fix_module_md_links(content)
+        content = _fix_member_index_anchors(content)
+        files[path] = content
+
+    # Cross-file anchor map (built after heading transforms have settled).
+    file_maps = {str(p): _build_anchor_map(c) for p, c in files.items()}
+    for path, content in files.items():
+        files[path] = _fix_qualified_anchors(content, path, file_maps)
+
+    # Atomic write per file: write to a tmp sibling and os.replace onto the
+    # final path. Astro's watcher then only sees complete files.
+    expected: set[Path] = set()
+    for path, content in files.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(content, encoding="utf-8")
+        os.replace(tmp, path)
+        expected.add(path.resolve())
+    # Drop any stale .md files left over from a previous build.
+    for stale in API_OUT.rglob("*.md"):
+        if stale.resolve() not in expected:
+            stale.unlink()
 
 
 # Main --------------------------------------------------------------------------
@@ -396,17 +552,12 @@ def _fix_member_index_anchors() -> None:
 def main() -> None:
     """Run the full API docs build pipeline."""
     _generate_stubs()
-    _clean_api_output()
+    _preprocess_docstrings()
+    _clean_sphinx_out()
     _run_sphinx_build()
     _remove_sphinx_artifacts()
     _flatten_autoapi()
-    _inject_frontmatter()
-    _fix_internal_links()
-    _shorten_qualified_names()
-    _simplify_class_headings()
-    _fix_qualified_anchors()
-    _fix_module_md_links()
-    _fix_member_index_anchors()
+    _process_md_files()
 
     file_count = sum(1 for _ in API_OUT.rglob("*.md"))
     print(f"==> API docs generated at: {API_OUT}")
