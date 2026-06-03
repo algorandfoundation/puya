@@ -136,14 +136,14 @@ This is a regular python tuple
 -   Can contain any type except transactions
 -   Members are described by a field name and type
 -   Can be immutable if using the `frozen` class option and all members are also immutable
--   Requires [`.copy()`](/puya/api/algopy/algopy/#class-struct) when mutable and creating additional references
+-   Requires [`.copy()`](/puya/api/algopy/algopy/#structcopy) when mutable and creating additional references
 -   Encoded as a single ARC-4 value on the stack
 
 ### `arc4.Tuple`
 
 -   Can only contain other ARC-4 types
 -   Can be immutable if all members are also immutable
--   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#class-tuple) when mutable and creating additional references
+-   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#tuplecopy) when mutable and creating additional references
 -   Encoded as a single ARC-4 value on the stack
 
 ### `arc4.Struct`
@@ -151,7 +151,7 @@ This is a regular python tuple
 -   Can only contain other ARC-4 types
 -   Members are described by a field name and type
 -   Can be immutable if using the `frozen` class option and all members are also immutable
--   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#class-struct) when mutable and creating additional references
+-   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#structcopy) when mutable and creating additional references
 -   Encoded as a single ARC-4 value on the stack
 
 ## Algorand Python array types
@@ -161,13 +161,13 @@ This is a regular python tuple
 -   Can contain any type except transactions
 -   Can only contain a fixed number of elements
 -   Most efficient array type
--   Requires [`.copy()`](/puya/api/algopy/algopy/#class-fixedarray) if making additional references to the array or any mutable elements
+-   Requires [`.copy()`](/puya/api/algopy/algopy/#fixedarraycopy) if making additional references to the array or any mutable elements
 
 ### `algopy.Array`
 
 -   Can contain any type except transactions
 -   Dynamically sized, efficient for reading (when assembled off-chain). Inefficient to manipulate on-chain
--   Requires [`.copy()`](/puya/api/algopy/algopy/#class-array) if making additional references to the array or any mutable elements
+-   Requires [`.copy()`](/puya/api/algopy/algopy/#arraycopy) if making additional references to the array or any mutable elements
 
 ### `algopy.ReferenceArray`
 
@@ -177,7 +177,7 @@ This is a regular python tuple
     program so for this reason this type is limited to immutable elements only
 -   May use scratch slots to store the data
 -   Cannot be put in storage or used in ABI method signatures
--   An immutable copy can be made for storage or returning from a contract by using the [`freeze`](/puya/api/algopy/algopy/#class-referencearray) method e.g.
+-   An immutable copy can be made for storage or returning from a contract by using the [`freeze`](/puya/api/algopy/algopy/#referencearrayfreeze) method e.g.
 
 ```python
 import algopy
@@ -205,7 +205,7 @@ class SomeContract(algopy.arc4.ARC4Contract):
 -   Only supports ARC-4 elements
 -   Elements often require conversion to native types, use `algopy.Array` / `algopy.FixedArray` to avoid explict conversions
 -   Dynamically sized types are efficient for reading, but not writing
--   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#class-dynamicarray) if making additional references to the array or mutable elements
+-   Requires [`.copy()`](/puya/api/algopy/algopyarc4/#dynamicarraycopy) if making additional references to the array or mutable elements
 
 ## Tips
 
@@ -214,4 +214,4 @@ class SomeContract(algopy.arc4.ARC4Contract):
 -   If a function needs just a few values of a tuple it is more efficient to just pass those members rather than the whole tuple
 -   For passing composite values between functions there can be different trade-offs in terms of op budget and program size between a tuple or a struct, if this is a concern then test and confirm which suits your contract the best.
 -   All array types except `algopy.ReferenceArray` can be used in storage and ABI methods, and will be viewed externally (i.e. in ARC-56 definitions) as the equivalent ARC-4 encoded type
--   Use [`algopy.ReferenceArray.freeze`](/puya/api/algopy/algopy/#class-referencearray) to convert the array to an `algopy.ImmutableArray` for storage
+-   Use [`algopy.ReferenceArray.freeze`](/puya/api/algopy/algopy/#referencearrayfreeze) to convert the array to an `algopy.ImmutableArray` for storage

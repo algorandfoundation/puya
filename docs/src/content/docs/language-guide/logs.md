@@ -3,7 +3,7 @@ title: Logging
 description: Logging output from Algorand Python smart contracts
 ---
 
-Algorand Python provides a [`log` method](/puya/api/algopy/algopy/#log-args-object-sep-string-str-bytes-bytes-none) that allows you to emit debugging and event information as well as return values from your contracts to the caller.
+Algorand Python provides a [`log` method](/puya/api/algopy/algopy/#log) that allows you to emit debugging and event information as well as return values from your contracts to the caller.
 
 This `log` method is a superset of the [AVM `log` method](/puya/language-guide/ops/) that adds extra functionality:
 

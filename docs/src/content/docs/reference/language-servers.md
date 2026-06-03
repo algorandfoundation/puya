@@ -15,7 +15,7 @@ Ensure the active interpreter for your project has PuyaPy 5.4.0 or later availab
 
 To configure the Algorand Python language server
 
-1. Download and extract this [template](./lsp4ij-template.zip)
+1. Download and extract this [template](/puya/lsp4ij-template.zip)
 2. Install the [LSP4IJ](https://plugins.jetbrains.com/plugin/23257-lsp4ij) plugin
 3. Navigate to `Settings | Languages & Frameworks | Language Servers`
 4. Click the + Add Language Server button

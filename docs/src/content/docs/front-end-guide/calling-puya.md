@@ -36,7 +36,7 @@ You should see an error message saying two required arguments are not present.
 
 ## Puya Options
 
-The first artifact required by the Puya compiler is a file containing the options to be used when producing compilation output. You can find the JSON schema for this file [here](./puya-options.json). The only required property is `compilationSet` which is what Puya uses to determine compilation targets. Whilst not strictly speaking required, if none of the `output*` properties are set to `true`, there will be no compilation output.
+The first artifact required by the Puya compiler is a file containing the options to be used when producing compilation output. You can find the JSON schema for this file [here](/puya/puya-options.json). The only required property is `compilationSet` which is what Puya uses to determine compilation targets. Whilst not strictly speaking required, if none of the `output*` properties are set to `true`, there will be no compilation output.
 
 > Puya will 'build' all contracts and logic signatures passed in the accompanying AWST file, but it will only generate output for items named in the `compilationSet`.
 

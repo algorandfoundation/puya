@@ -91,6 +91,12 @@ _DOCSTRING_RE = re.compile(r'(""")(.*?)(""")', re.DOTALL)
 # them in rST inline-code so they appear as code in the rendered API docs.
 _TMPL_PREFIX_RE = re.compile(r"\bTMPL_\b")
 
+# Single-backtick spans (markdown-style inline code). Sphinx's rST mode treats
+# them as the unresolved default role and falls through to plain text — promote
+# to double-backtick rST inline literals. Excludes spans preceded by ``:`` (rST
+# roles like ``:ref:`x```) or an adjacent backtick (already double).
+_INLINE_BACKTICK_RE = re.compile(r"(?<![:`])`([^`\n]+?)`(?!`)")
+
 
 # Step 1: stub generation -------------------------------------------------------
 
@@ -151,6 +157,7 @@ def _rewrite_fences_in_docstring(m: re.Match[str]) -> str:
     open_q, body, close_q = m.group(1), m.group(2), m.group(3)
     body = _FENCE_RE.sub(_fence_to_directive, body)
     body = _TMPL_PREFIX_RE.sub("``TMPL_``", body)
+    body = _INLINE_BACKTICK_RE.sub(r"``\1``", body)
     return f"{open_q}{body}{close_q}"
 
 
@@ -373,13 +380,94 @@ def _simplify_class_headings(content: str) -> str:
     return _CLASS_ARGS_RE.sub(r"\1", content)
 
 
+# Attribute heading followed by a standalone literal-default line (``Ellipsis``
+# for ``= ...``, ``None`` for ``= None``, etc.) emitted by autoapi.
+_ATTR_HEADING_WITH_DEFAULT_RE = re.compile(
+    r"^(?P<hashes>#{3,4}) (?P<name>[\w.]+) (?P<annot>\*: (?P<type>[^\n]+?)\*)[ \t]*\n\n"
+    r"(?:Ellipsis|None|True|False)\n",
+    re.MULTILINE,
+)
+# Private Protocol class names (e.g. ``_ABICallProtocolType``).
+_PROTOCOL_TYPE_RE = re.compile(r"^_\w+Protocol(?:Type)?$")
+
+
+def _simplify_attribute_renderings(content: str) -> str:
+    """Drop the noise autoapi emits for ``name: T = <literal>`` attributes.
+
+    Always strips the standalone default-value line (``Ellipsis``/``None``/etc.).
+    When ``T`` is a private Protocol class, also strips ``*: T*`` from the
+    heading and remaps in-page anchors from the autodoc2 slug of the original
+    heading to the github-slugger slug of the simplified one.
+    """
+    slug_remap: dict[str, str] = {}
+    dropped_names: list[str] = []
+
+    def sub(m: re.Match[str]) -> str:
+        hashes = m.group("hashes")
+        name = m.group("name")
+        annot = m.group("annot")
+        type_str = m.group("type")
+        if _PROTOCOL_TYPE_RE.match(type_str):
+            # Detect whether real content follows the ``Ellipsis`` line. If
+            # the next non-blank text is another heading (or end-of-doc), the
+            # attribute has no body and we drop the heading entirely. If
+            # there's prose/code, this is a PEP 224-style documented
+            # attribute (see ``arc4.pyi`` ``abi_call``) — keep a simplified
+            # heading so the docstring stays attached to its name.
+            tail = m.string[m.end():]
+            tail_stripped = tail.lstrip("\n")
+            has_body = bool(tail_stripped) and not tail_stripped.lstrip().startswith(("#", "</div>"))
+            if not has_body:
+                dropped_names.append(name)
+                return ""
+            original_heading = f"{name} {annot}"
+            slug_remap[_compute_starlight_anchor(original_heading)] = _github_slug(name)
+            return f"{hashes} {name}\n"
+        return f"{hashes} {name} {annot}\n"
+
+    new_content = _ATTR_HEADING_WITH_DEFAULT_RE.sub(sub, content)
+
+    if slug_remap:
+        def fix_anchor(m: re.Match[str]) -> str:
+            return f"(#{slug_remap.get(m.group(1), m.group(1))})"
+        new_content = re.sub(r"\(#([^)]+)\)", fix_anchor, new_content)
+
+    if dropped_names:
+        new_content = _strip_summary_rows(new_content, dropped_names)
+    return new_content
+
+
+def _strip_summary_rows(content: str, names: list[str]) -> str:
+    """Remove summary-table rows whose link text matches any of ``names``.
+
+    Also drops the section heading (``### Data``) and table-header separator
+    row if the table is left empty.
+    """
+    for name in names:
+        # Row form: ``| [`name`](#anchor) | description |``
+        row_re = re.compile(
+            rf"^\|\s*\[`{re.escape(name)}`\]\([^)]*\)\s*\|[^\n]*\n",
+            re.MULTILINE,
+        )
+        content = row_re.sub("", content)
+    # Drop ``### <heading>`` blocks whose body is only the now-empty
+    # ``|---|---|`` separator row and surrounding blank lines.
+    content = re.sub(
+        r"^### \w+[ \t]*\n+\|[-| \t]+\|[ \t]*\n+(?=#|\Z)",
+        "",
+        content,
+        flags=re.MULTILINE,
+    )
+    return content
+
+
 def _build_anchor_map(content: str) -> dict[str, str]:
     anchor_map: dict[str, str] = {}
     for m in _H3_TEXT_RE.finditer(content):
         heading_text = m.group(1)
         key_m = re.match(r"(?:\*\w+\*\s+)?(\w+)", heading_text)
         if key_m:
-            anchor_map[key_m.group(1)] = _compute_starlight_anchor(heading_text)
+            anchor_map[key_m.group(1)] = _github_slug(heading_text)
     return anchor_map
 
 
@@ -458,6 +546,14 @@ def _convert_admonitions(content: str) -> str:
 
 
 _PARAM_BULLET_RE = re.compile(r"^(\s{4,})\\\*(\s)", re.MULTILINE)
+# Bare ``**name:**`` lines at column 0 — Sphinx strips the trailing double-space
+# hard breaks the stub authors used, so these run together in the rendered output.
+_BOLD_LABEL_LINE_RE = re.compile(r"^(\*\*\w+:\*\* )", re.MULTILINE)
+
+
+def _bullet_bold_label_lines(content: str) -> str:
+    """Turn ``**name:** ...`` lines into list items so each renders on its own line."""
+    return _BOLD_LABEL_LINE_RE.sub(r"- \1", content)
 
 
 def _fix_param_bullet_escapes(content: str) -> str:
@@ -524,10 +620,12 @@ def _process_md_files() -> None:
         content = _inject_frontmatter(path, content)
         content = _convert_admonitions(content)
         content = _fix_param_bullet_escapes(content)
+        content = _bullet_bold_label_lines(content)
         content = _strip_default_language(content)
         content = _fix_internal_links(content)
         content = _shorten_qualified_names(content)
         content = _simplify_class_headings(content)
+        content = _simplify_attribute_renderings(content)
         content = _fix_module_md_links(content)
         content = _fix_member_index_anchors(content)
         files[path] = content

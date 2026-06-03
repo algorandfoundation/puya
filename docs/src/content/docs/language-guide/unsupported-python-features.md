@@ -39,8 +39,8 @@ supported in the future.
 Module level values are only allowed to be [constants](/puya/language-guide/modules/#module-constants). No
 rebinding of module constants is allowed. It's not clear what the meaning here would be, since
 there's no real arbitrary means of storing state without associating it with a particular contract.
-If you do have need of such a thing, take a look at [gload_bytes](/puya/api/algopy/algopyop/#gload-bytes-a-uint64-int-b-uint64-int-bytes)
-or [gload_uint64](/puya/api/algopy/algopyop/#gload-uint64-a-uint64-int-b-uint64-int-uint64) if the contracts are within the same transaction,
+If you do have need of such a thing, take a look at [gload_bytes](/puya/api/algopy/algopyop/#gload_bytes)
+or [gload_uint64](/puya/api/algopy/algopyop/#gload_uint64) if the contracts are within the same transaction,
 otherwise [AppGlobal.get_ex_bytes](/puya/api/algopy/algopyop/#class-appglobal)
 and [AppGlobal.get_ex_uint64](/puya/api/algopy/algopyop/#class-appglobal).
 
