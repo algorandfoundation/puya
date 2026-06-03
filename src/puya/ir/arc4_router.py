@@ -124,13 +124,15 @@ def _on_completion(location: SourceLocation) -> awst_nodes.Expression:
     return _txn("OnCompletion", wtypes.uint64_wtype, location)
 
 
-def _assign_true_or_approve(
-    match_var: awst_nodes.VarExpression | None, loc: SourceLocation
-) -> awst_nodes.Statement:
-    if match_var is None:
+def _on_match(loc: SourceLocation, *, can_exit_early: bool) -> awst_nodes.Statement:
+    # after a method matches and has been dispatched:
+    # if router can exit early, this is simply a `return 1`
+    # otherwise, we are called from an overriden approval program 
+    # (i.e. we are a subroutine), then the return is FROM the subroutine
+    # this allows any code after super.approval_program() to still run
+    if can_exit_early:
         return _approve(loc)
-    return awst_nodes.AssignmentStatement(
-        target=match_var,
+    return awst_nodes.ReturnStatement(
         value=awst_nodes.BoolConstant(value=True, source_location=loc),
         source_location=loc,
     )
@@ -140,7 +142,7 @@ def _route_bare_methods(
     location: SourceLocation,
     bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
     *,
-    assign_true_on_match: awst_nodes.VarExpression | None,
+    can_exit_early: bool,
 ) -> awst_nodes.Block:
     assert bare_methods, "route_bare_methods called with no bare methods"
     if len(bare_methods) == 1:
@@ -151,7 +153,7 @@ def _route_bare_methods(
             sig.target.member_name,
             *_check_allowed_oca_and_create(method),
             awst_nodes.ExpressionStatement(expr=_call(bare_location, sig)),
-            _assign_true_or_approve(assign_true_on_match, bare_location),
+            _on_match(bare_location, can_exit_early=can_exit_early),
         )
 
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
@@ -162,7 +164,7 @@ def _route_bare_methods(
             sig.target.member_name,
             *_assert_create_state(method.create, bare_location),
             awst_nodes.ExpressionStatement(expr=_call(bare_location, sig)),
-            _assign_true_or_approve(assign_true_on_match, bare_location),
+            _on_match(bare_location, can_exit_early=can_exit_early),
         )
         for oca in method.allowed_completion_types:
             if bare_blocks.setdefault(oca, bare_block) is not bare_block:
@@ -524,7 +526,7 @@ def _create_abi_switch(
     cases: Iterable[tuple[md.ARC4ABIMethod, awst_nodes.Subroutine]],
     *,
     check_oca_and_create: bool,
-    assign_true_on_match: awst_nodes.VarExpression | None,
+    can_exit_early: bool,
 ) -> Sequence[awst_nodes.Switch]:
     case_blocks = dict[awst_nodes.Expression, awst_nodes.Block]()
     for method, method_wrapper in cases:
@@ -548,14 +550,10 @@ def _create_abi_switch(
                 )
             )
         )
-        if assign_true_on_match is not None:
-            stmts.append(
-                awst_nodes.AssignmentStatement(
-                    target=assign_true_on_match,
-                    value=awst_nodes.BoolConstant(value=True, source_location=abi_loc),
-                    source_location=abi_loc,
-                )
-            )
+        if not can_exit_early:
+            # the wrapper already exits the program when can_exit_early, 
+            # otherwise return a match from the router subroutine
+            stmts.append(_on_match(abi_loc, can_exit_early=False))
         call_block = _create_block(abi_loc, f"{method.name}_route", *stmts)
         case_blocks[method_const] = call_block
     if not case_blocks:
@@ -573,7 +571,7 @@ def _route_abi_methods(
     router_location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
     *,
-    assign_true_on_match: awst_nodes.VarExpression | None,
+    can_exit_early: bool,
     validate_args_default: bool,
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     _check_for_duplicates(methods)
@@ -585,7 +583,7 @@ def _route_abi_methods(
         wrapper_method = _build_abi_wrapper(
             method,
             sig,
-            exit_success=assign_true_on_match is None,
+            exit_success=can_exit_early,
             validate_args=coalesce(method.validate_encoding, validate_args_default),
         )
         arc4_wrapper_methods.append(wrapper_method)
@@ -619,7 +617,7 @@ def _route_abi_methods(
                 router_location,
                 no_op_by_create.get(awst_nodes.ARC4CreateOption.allow, []),
                 check_oca_and_create=False,
-                assign_true_on_match=assign_true_on_match,
+                can_exit_early=can_exit_early,
             ),
             awst_nodes.IfElse(
                 source_location=router_location,
@@ -631,7 +629,7 @@ def _route_abi_methods(
                         router_location,
                         no_op_by_create.get(awst_nodes.ARC4CreateOption.disallow, []),
                         check_oca_and_create=False,
-                        assign_true_on_match=assign_true_on_match,
+                        can_exit_early=can_exit_early,
                     ),
                 ),
                 else_branch=_create_block(
@@ -641,7 +639,7 @@ def _route_abi_methods(
                         router_location,
                         no_op_by_create.get(awst_nodes.ARC4CreateOption.require, []),
                         check_oca_and_create=False,
-                        assign_true_on_match=assign_true_on_match,
+                        can_exit_early=can_exit_early,
                     ),
                 ),
             ),
@@ -654,7 +652,7 @@ def _route_abi_methods(
             router_location,
             other_routing_methods.items(),
             check_oca_and_create=True,
-            assign_true_on_match=assign_true_on_match,
+            can_exit_early=can_exit_early,
         ),
         *no_op_routing,
     )
@@ -677,15 +675,10 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    match_var = awst_nodes.VarExpression(
-        name="%did_match_routing",
-        wtype=wtypes.bool_wtype,
-        source_location=router_location,
-    )
     abi_routing, abi_wrapper_methods = _route_abi_methods(
         router_location,
         abi_methods,
-        assign_true_on_match=None if can_exit_early else match_var,
+        can_exit_early=can_exit_early,
         validate_args_default=validate_args_default,
     )
     router: list[awst_nodes.Statement]
@@ -695,7 +688,7 @@ def create_abi_router(
         bare_routing = _route_bare_methods(
             router_location,
             bare_methods,
-            assign_true_on_match=None if can_exit_early else match_var,
+            can_exit_early=can_exit_early,
         )
         value = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
         router = [
@@ -706,21 +699,17 @@ def create_abi_router(
                 source_location=router_location,
             )
         ]
+    # if you are here nothing matched: reject and exit when possible, otherwise return false
+    # from the router subroutine so the overridden approval_program can decide what to do next
     if can_exit_early:
         router.append(_reject(router_location))
     else:
-        router = [
-            awst_nodes.AssignmentStatement(
-                target=match_var,
+        router.append(
+            awst_nodes.ReturnStatement(
                 value=awst_nodes.BoolConstant(value=False, source_location=router_location),
                 source_location=router_location,
-            ),
-            *router,
-            awst_nodes.ReturnStatement(
-                value=match_var,
-                source_location=router_location,
-            ),
-        ]
+            )
+        )
     approval_program = awst_nodes.ContractMethod(
         cref=contract.id,
         member_name="__puya_arc4_router__",
