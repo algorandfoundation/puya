@@ -17,7 +17,7 @@ backed by a `bytes[]`. This is represented by [`BigUInt`](#biguint) in Algorand 
 
 ### UInt64
 
-[`algopy.UInt64`](#algopy.UInt64) represents the underlying AVM `uint64` type.
+[`algopy.UInt64`](/puya/api/algopy/algopy/#class-uint64) represents the underlying AVM `uint64` type.
 
 It supports all the same operators as `int`, except for `/`, you must use `//` for truncating
 division instead.
@@ -44,7 +44,7 @@ num2 = num + 200 // 3
 
 ### Bytes
 
-[`algopy.Bytes`](#algopy.Bytes) represents the underlying AVM `bytes[]` type. It is intended
+[`algopy.Bytes`](/puya/api/algopy/algopy/#class-bytes) represents the underlying AVM `bytes[]` type. It is intended
 to represent binary data, for UTF-8 it might be preferable to use [String](#string).
 
 ```python
@@ -92,7 +92,7 @@ assert abc.length == 3
 
 ### FixedBytes
 
-[`algopy.FixedBytes[T]`](#algopy.FixedBytes) represents the underlying AVM `bytes[]` type where `T` is the literal number denoting the length of the bytes sequence. It is intended to represent binary data, for UTF-8 it might be preferable to use [String](#string).
+[`algopy.FixedBytes[T]`](/puya/api/algopy/algopy/#class-fixedbytes) represents the underlying AVM `bytes[]` type where `T` is the literal number denoting the length of the bytes sequence. It is intended to represent binary data, for UTF-8 it might be preferable to use [String](#string).
 
 ```python
 # you can instantiate with a bytes literal
@@ -141,7 +141,7 @@ assert abc.length == 2
 
 ### String
 
-[`String`](#algopy.String) is a special Algorand Python type that represents a UTF-8 encoded string.
+[`String`](/puya/api/algopy/algopy/#class-string) is a special Algorand Python type that represents a UTF-8 encoded string.
 It's backed by `Bytes`, which can be accessed through the `.bytes` property.
 
 It works similarly to `Bytes`, except that it works with `str` literals rather than `bytes`
@@ -177,7 +177,7 @@ assert abc.bytes == b"abc"
 
 ### BigUInt
 
-[`algopy.BigUInt`](#algopy.BigUInt) represents a variable length (max 512-bit) unsigned integer stored
+[`algopy.BigUInt`](/puya/api/algopy/algopy/#class-biguint) represents a variable length (max 512-bit) unsigned integer stored
 as `bytes[]` in the AVM.
 
 It supports all the same operators as `int`, except for power (`**`), left and right shift (`<<`
@@ -185,7 +185,7 @@ and `>>`) and `/` (as with `UInt64`, you must use `//` for truncating division i
 
 Note that the op code costs for `bigint` math are an order of magnitude higher than those for
 `uint64` math. If you just need to handle overflow, take a look at the wide ops such as `addw`,
-`mulw`, etc - all of which are exposed through the [`algopy.op`](#algopy.op) module.
+`mulw`, etc - all of which are exposed through the [`algopy.op`](/puya/api/algopy/algopyop/) module.
 
 Another contrast between `bigint` and `uint64` math is that `bigint` math ops don't immediately
 error on overflow - if the result exceeds 512-bits, then you can still access the value via
@@ -245,19 +245,19 @@ if a:
 
 ### Account
 
-[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[32]` representing the
+[`Account`](/puya/api/algopy/algopy/#class-account) represents a logical Account, backed by a `bytes[32]` representing the
 bytes of the public key (without the checksum). It has various account related methods that can be called from the type.
 
-Also see [`algopy.arc4.Address`](#algopy.arc4.Address) if needing to represent the address as a distinct type.
+Also see [`algopy.arc4.Address`](/puya/api/algopy/algopyarc4/#class-address) if needing to represent the address as a distinct type.
 
 ### Asset
 
-[`Asset`](#algopy.Asset) represents a logical Asset, backed by a `uint64` ID.
+[`Asset`](/puya/api/algopy/algopy/#class-asset) represents a logical Asset, backed by a `uint64` ID.
 It has various asset related methods that can be called from the type.
 
 ### Application
 
-[`Application`](#algopy.Application) represents a logical Application, backed by a `uint64` ID.
+[`Application`](/puya/api/algopy/algopy/#class-application) represents a logical Application, backed by a `uint64` ID.
 It has various application related methods that can be called from the type.
 
 ## Python built-in types
@@ -345,7 +345,7 @@ that expects either an integer value or an encoded bytes value. This behaviour e
 matches what
 [AlgoKit Utils expects](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#compilation-and-template-substitution).
 
-For more information look at the API reference for [`TemplateVar`](/puya/api/algopy/#algopy.TemplateVar).
+For more information look at the API reference for [`TemplateVar`](/puya/api/algopy/algopy/#templatevar-templatevargeneric).
 
 ## ARC-4 types
 
@@ -356,7 +356,7 @@ often it may make sense to convert the ARC-4 value to a native AVM type, in whic
 the `native` property to retrieve the value. Most of the ARC-4 types also allow for mutation e.g.
 you can edit values in arrays by index.
 
-Please see the [reference documentation](/puya/api/algopy/arc4/) for the different classes that can
+Please see the [reference documentation](/puya/api/algopy/algopyarc4/) for the different classes that can
 be used to represent ARC-4 values or the [ARC-4 documentation](/puya/language-guide/arc4/) for more information
 about ARC-4.
 

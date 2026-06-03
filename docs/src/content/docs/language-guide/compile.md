@@ -12,16 +12,16 @@ The `--output-bytecode` option can be used to generate `.bin` files for smart co
 
 ## Obtaining bytecode within other contracts
 
-The [`compile_contract`](#algopy.compile_contract) function takes an Algorand Python smart contract class and returns a [`CompiledContract`](#algopy.CompiledContract),
+The [`compile_contract`](/puya/api/algopy/algopy/) function takes an Algorand Python smart contract class and returns a [`CompiledContract`](/puya/api/algopy/algopy/#class-compiledcontract),
 The global state, local state and program pages allocation parameters are derived from the contract by default, but can be overridden.
-This compiled contract can then be used to create an [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) transaction or used with the [ARC-4](/puya/language-guide/calling-apps/) functions.
+This compiled contract can then be used to create an [`algopy.itxn.ApplicationCall`](/puya/api/algopy/algopyitxn/#class-applicationcall) transaction or used with the [ARC-4](/puya/language-guide/calling-apps/) functions.
 
-The [`compile_logicsig`](#algopy.compile_logicsig) takes an Algorand Python logic signature and returns a [`CompiledLogicSig`](#algopy.CompiledLogicSig), which can be used to
+The [`compile_logicsig`](/puya/api/algopy/algopy/) takes an Algorand Python logic signature and returns a [`CompiledLogicSig`](/puya/api/algopy/algopy/#class-compiledlogicsig), which can be used to
 verify if a transaction has been signed by a particular logic signature.
 
 ## Template variables
 
-Algorand Python supports defining [`algopy.TemplateVar`](#algopy.TemplateVar) variables that can be substituted during compilation.
+Algorand Python supports defining [`algopy.TemplateVar`](/puya/api/algopy/algopy/#templatevar-templatevargeneric) variables that can be substituted during compilation.
 
 For example, the following contract has `UInt64` and `Bytes` template variables.
 
@@ -42,7 +42,7 @@ class TemplatedContract(ARC4Contract):
 ```
 
 When compiling to bytecode, the values for these template variables must be provided. These values can be provided via the CLI,
-or through the `template_vars` parameter of the [`compile_contract`](#algopy.compile_contract) and [`compile_logicsig`](#algopy.compile_logicsig) functions.
+or through the `template_vars` parameter of the [`compile_contract`](/puya/api/algopy/algopy/) and [`compile_logicsig`](/puya/api/algopy/algopy/) functions.
 
 ### CLI
 
@@ -53,7 +53,7 @@ For example to provide the values for the above example contract the following c
 
 ### Within other contracts
 
-The functions [`compile_contract`](#algopy.compile_contract) and [`compile_logicsig`](#algopy.compile_logicsig) both have an optional `template_vars` parameter
+The functions [`compile_contract`](/puya/api/algopy/algopy/) and [`compile_logicsig`](/puya/api/algopy/algopy/) both have an optional `template_vars` parameter
 which can be used to define template variables. Variables defined in this manner take priority over variables defined on the CLI.
 
 ```python

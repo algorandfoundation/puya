@@ -1,6 +1,8 @@
 ---
 title: Introduction
 description: Overview of the Puya compiler architecture and the role of front-end languages
+sidebar:
+  order: 1
 ---
 
 Puya is a multi-stage compiler designed from the start to support multiple source languages. The first supported language was Algorand Python, the second was Algorand TypeScript. We refer to the code used to support these languages as a 'front end'. The job of a front end is to parse a source language, then respecting the relevant syntactical and semantic rules of that source language, convert it into a common AST which is used as an input into the later stages of the puya compiler. This AST is referred to as AWST (Abstract Wyvern Syntax Tree) after the code name for the compiler (Wyvern).

@@ -1,6 +1,8 @@
 ---
 title: Calling Puya
 description: How to invoke the Puya compiler backend and the required input artifacts
+sidebar:
+  order: 2
 ---
 
 Before getting into building out the front end, let's look at how we will be calling into the back end which informs us of the artifacts we will need to produce.

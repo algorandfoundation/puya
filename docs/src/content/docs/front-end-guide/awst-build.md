@@ -1,6 +1,8 @@
 ---
 title: AWST Build
 description: How to convert a source language AST to AWST for the Puya compiler backend
+sidebar:
+  order: 5
 ---
 
 The AWST build phase is where we convert the source language AST to AWST.

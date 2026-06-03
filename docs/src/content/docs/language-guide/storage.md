@@ -24,7 +24,7 @@ This is represented in Algorand Python by either:
 
 1. Assigning any [Algorand Python typed](/puya/language-guide/types/) value to an instance variable (e.g. `self.value = UInt64(3)`).
     - Use this approach if you just require a terse API for getting and setting a state value
-2. Using an instance of `GlobalState`, which gives [some extra features](/puya/api/algopy/#algopy.GlobalState) to understand
+2. Using an instance of `GlobalState`, which gives [some extra features](/puya/api/algopy/algopy/#class-globalstate) to understand
    and control the value and the metadata of it (which propagates to the ARC-32/ARC-56 app spec file)
     - Use this approach if you need to:
         - Omit a default/initial value
@@ -58,7 +58,7 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 Local storage is state that is stored against the contract instance for a specific account and can be retrieved
 by key and account address. There are [AVM limits to the amount of local storage that can be allocated to a contract](https://dev.algorand.co/concepts/smart-contracts/storage/overview/#local-storage).
 
-This is represented in Algorand Python by using an instance of [`LocalState`](/puya/api/algopy/#algopy.LocalState).
+This is represented in Algorand Python by using an instance of [`LocalState`](/puya/api/algopy/algopy/#class-localstate).
 
 For example:
 
@@ -96,7 +96,7 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 
 ## Box storage
 
-We provide two different types for accessing box storage: [Box](/puya/api/algopy/#algopy.Box), and [BoxMap](/puya/api/algopy/#algopy.BoxMap). We also expose raw operations via the [AVM ops](/puya/language-guide/ops/) module.
+We provide two different types for accessing box storage: [Box](/puya/api/algopy/algopy/#class-box), and [BoxMap](/puya/api/algopy/algopy/#class-boxmap). We also expose raw operations via the [AVM ops](/puya/language-guide/ops/) module.
 
 Before using box storage, be sure to familiarise yourself with the [requirements and restrictions](https://dev.algorand.co/concepts/smart-contracts/storage/overview/#boxes) of the underlying API.
 

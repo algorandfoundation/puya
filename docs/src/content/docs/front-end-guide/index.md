@@ -1,6 +1,8 @@
 ---
 title: Front-End Guide
 description: Guide for implementing a Puya front-end compiler
+sidebar:
+  order: 0
 ---
 
 This guide is for those looking to add support for a new front end language to Puya. It makes several assumptions about the reader.

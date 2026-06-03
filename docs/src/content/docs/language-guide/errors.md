@@ -26,10 +26,10 @@ The (optional) string value provided with an assertion, if provided, will be add
 ## Explicit failure
 
 For scenarios where you need to fail a contract explicitly, you can use
-the [`op.err()`](#algopy.op.err) operation. This operation causes the TEAL program to immediately
+the [`op.err()`](/puya/api/algopy/algopyop/#err-message-literalstring-none-none-never) operation. This operation causes the TEAL program to immediately
 and unconditionally fail.
 
-Alternatively [`op.exit(0)`](#algopy.op.exit) will achieve the same result. A non-zero value will
+Alternatively [`op.exit(0)`](/puya/api/algopy/algopyop/#exit-a-uint64-int-never) will achieve the same result. A non-zero value will
 do the opposite and immediately succeed.
 
 ## Exception handling

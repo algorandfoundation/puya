@@ -3,20 +3,20 @@ title: Logging
 description: Logging output from Algorand Python smart contracts
 ---
 
-Algorand Python provides a [`log` method](/puya/api/algopy/#algopy.log) that allows you to emit debugging and event information as well as return values from your contracts to the caller.
+Algorand Python provides a [`log` method](/puya/api/algopy/algopy/#log-args-object-sep-string-str-bytes-bytes-none) that allows you to emit debugging and event information as well as return values from your contracts to the caller.
 
 This `log` method is a superset of the [AVM `log` method](/puya/language-guide/ops/) that adds extra functionality:
 
--   You can log multiple items rather than a single item
--   Items are concatenated together with an optional separator (which defaults to: `""`)
--   Items are automatically converted to bytes for you
--   Support for:
-    -   `int` literals / module variables (encoded as raw bytes, not ASCII)
-    -   `UInt64` values (encoded as raw bytes, not ASCII)
-    -   `str` literals / module variables (encoded as UTF-8)
-    -   `bytes` literals / module variables (encoded as is)
-    -   `Bytes` values (encoded as is)
-    -   `BytesBacked` values, which includes [`String`](/puya/api/algopy/#algopy.String), [`BigUInt`](/puya/api/algopy/#algopy.BigUInt), [`Account`](/puya/api/algopy/#algopy.Account) and all of the [ARC-4 types](/puya/api/algopy/arc4/) (encoded as their underlying bytes values)
+- You can log multiple items rather than a single item
+- Items are concatenated together with an optional separator (which defaults to: `""`)
+- Items are automatically converted to bytes for you
+- Support for:
+    - `int` literals / module variables (encoded as raw bytes, not ASCII)
+    - `UInt64` values (encoded as raw bytes, not ASCII)
+    - `str` literals / module variables (encoded as UTF-8)
+    - `bytes` literals / module variables (encoded as is)
+    - `Bytes` values (encoded as is)
+    - `BytesBacked` values, which includes [`String`](/puya/api/algopy/algopy/#class-string), [`BigUInt`](/puya/api/algopy/algopy/#class-biguint), [`Account`](/puya/api/algopy/algopy/#class-account) and all of the [ARC-4 types](/puya/api/algopy/algopyarc4/) (encoded as their underlying bytes values)
 
 Logged values are [available to the calling client](https://dev.algorand.co/reference/rest-api/algod/#pendingtransactionresponse) and attached to the transaction record stored on the blockchain ledger.
 
