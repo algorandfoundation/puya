@@ -4,7 +4,6 @@
 // test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> uint64:
 main:
     pushbytes ""
-    dup
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/custom_approval.py:9
@@ -33,19 +32,15 @@ main_after_if_else@2:
 main_after_if_else@5:
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
-    pushint 0
-    bury 2
     txn NumAppArgs
     bz main___algopy_default_create@12
     pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     txna ApplicationArgs 0
     match main_add_one_route@10
-
-main_switch_case_next@11:
-    dig 1
+    pushint 0
     bury 1
 
-main_after_if_else@13:
+main_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@13:
     // abi_routing/custom_approval.py:16
     // if not result:
     dup
@@ -76,8 +71,8 @@ main_add_one_route@10:
     assert
     callsub add_one
     pushint 1
-    bury 2
-    b main_switch_case_next@11
+    bury 1
+    b main_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@13
 
 main___algopy_default_create@12:
     txn OnCompletion
@@ -88,7 +83,7 @@ main___algopy_default_create@12:
     assert
     pushint 1
     bury 1
-    b main_after_if_else@13
+    b main_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@13
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.add_one[routing]() -> void:

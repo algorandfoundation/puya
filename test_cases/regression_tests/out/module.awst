@@ -282,6 +282,52 @@ contract SetBitFoldOOBUInt64
   }
 }
 
+contract RouterOverrideNonNoOpOCA
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.approval_program(): bool
+  {
+    return super::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method(): void
+  {
+    log('noop')
+  }
+  
+  abimethod test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method(val: uint64): void
+  {
+    log(concat(concat('another noop', ''), itob(val)))
+  }
+  
+  abimethod test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application(): void
+  {
+    log('update')
+  }
+  
+  baremethod test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract ReplaceFoldOOB
 {
   method_resolution_order: (

@@ -1,0 +1,221 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    b main_block@0
+
+main_block@0:
+    // regression_tests/router_override_non_noop_oca.py:9
+    // return super().approval_program()
+    callsub approval_program
+    return
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method[routing]() -> void:
+noop_method:
+    b noop_method_block@0
+
+noop_method_block@0:
+    // regression_tests/router_override_non_noop_oca.py:11
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method
+    retsub
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method[routing]() -> void:
+another_noop_method:
+    b another_noop_method_block@0
+
+another_noop_method_block@0:
+    // regression_tests/router_override_non_noop_oca.py:15
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method
+    retsub
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application[routing]() -> void:
+update_application:
+    b update_application_block@0
+
+update_application_block@0:
+    // regression_tests/router_override_non_noop_oca.py:19
+    // @arc4.abimethod(allow_actions=["UpdateApplication"])
+    callsub test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application
+    retsub
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method() -> void:
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method:
+    b test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method_block@0
+
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.noop_method_block@0:
+    // regression_tests/router_override_non_noop_oca.py:13
+    // log("noop")
+    pushbytes "noop"
+    log
+    retsub
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method(val: uint64) -> void:
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method:
+    // regression_tests/router_override_non_noop_oca.py:15-16
+    // @arc4.abimethod
+    // def another_noop_method(self, val: UInt64) -> None:
+    proto 1 0
+    b test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method_block@0
+
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.another_noop_method_block@0:
+    // regression_tests/router_override_non_noop_oca.py:17
+    // log("another noop", val)
+    pushbytes "another noop"
+    pushbytes ""
+    concat
+    frame_dig -1
+    itob
+    concat
+    log
+    retsub
+
+
+// test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application() -> void:
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application:
+    b test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application_block@0
+
+test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.update_application_block@0:
+    // regression_tests/router_override_non_noop_oca.py:21
+    // log("update")
+    pushbytes "update"
+    log
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
+
+approval_program_block@0:
+    b approval_program_block@1
+
+approval_program_block@1:
+    // regression_tests/router_override_non_noop_oca.py:6
+    // class RouterOverrideNonNoOpOCA(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz approval_program___algopy_default_create@11
+    b approval_program_abi_routing@2
+
+approval_program_abi_routing@2:
+    // regression_tests/router_override_non_noop_oca.py:6
+    // class RouterOverrideNonNoOpOCA(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xb53e2593 // method "update_application()void"
+    uncover 1
+    match approval_program_update_application_route@3
+    b approval_program_switch_case_next@4
+
+approval_program_switch_case_next@4:
+    // regression_tests/router_override_non_noop_oca.py:6
+    // class RouterOverrideNonNoOpOCA(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz approval_program_create_NoOp@9
+    b approval_program_call_NoOp@5
+
+approval_program_call_NoOp@5:
+    // regression_tests/router_override_non_noop_oca.py:6
+    // class RouterOverrideNonNoOpOCA(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xc1f1ebd8 // method "noop_method()void"
+    pushbytes 0xcf52353b // method "another_noop_method(uint64)void"
+    uncover 2
+    match approval_program_noop_method_route@6 approval_program_another_noop_method_route@7
+    b approval_program_switch_case_next@8
+
+approval_program_switch_case_next@8:
+    b approval_program_after_if_else@10
+
+approval_program_after_if_else@10:
+    b approval_program_after_if_else@14
+
+approval_program_after_if_else@14:
+    // regression_tests/router_override_non_noop_oca.py:6
+    // class RouterOverrideNonNoOpOCA(ARC4Contract):
+    intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15
+
+approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15:
+    frame_dig 0
+    uncover 1
+    retsub
+
+approval_program_another_noop_method_route@7:
+    // regression_tests/router_override_non_noop_oca.py:15
+    // @arc4.abimethod
+    callsub another_noop_method
+    intc_1 // 1
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15
+
+approval_program_noop_method_route@6:
+    // regression_tests/router_override_non_noop_oca.py:11
+    // @arc4.abimethod
+    callsub noop_method
+    intc_1 // 1
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15
+
+approval_program_create_NoOp@9:
+    b approval_program_after_if_else@10
+
+approval_program_update_application_route@3:
+    // regression_tests/router_override_non_noop_oca.py:19
+    // @arc4.abimethod(allow_actions=["UpdateApplication"])
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub update_application
+    intc_1 // 1
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15
+
+approval_program___algopy_default_create@11:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b approval_program_block@12
+
+approval_program_block@12:
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__algopy_default_create@13
+
+approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__algopy_default_create@13:
+    intc_1 // 1
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.regression_tests.router_override_non_noop_oca.RouterOverrideNonNoOpOCA.__puya_arc4_router__@15
