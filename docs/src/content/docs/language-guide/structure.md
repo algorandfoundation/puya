@@ -141,6 +141,8 @@ Namely you can pass in:
     so you can manually use them.
 -   `state_totals` - Which allows defining what values should be used for global and local uint and bytes storage values
     when creating a contract and will appear in ARC-32/ARC-56 app spec.
+-   `avm_version` - Which determines the AVM version to target, affecting which operations are supported.
+    Defaults to the value supplied on the command line (which defaults to the current mainnet version).
 
 Full example:
 
@@ -152,6 +154,7 @@ class MyContract(
     name="CustomName",
     scratch_slots=[5, 25, algopy.urange(110, 115)],
     state_totals=algopy.StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
+    avm_version=12,
 ):
     ...
 ```
