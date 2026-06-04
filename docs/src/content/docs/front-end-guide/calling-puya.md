@@ -181,5 +181,3 @@ info: Writing out/HelloWorldContract.clear.teal
 The `out` directory will contain a `*.teal` file for both the approval and clear state programs.
 
 Producing the above artifacts and invoking Puya is the end game of building a new front end.
-
-**Next up**: [Designing a language](designing-a-language/)
