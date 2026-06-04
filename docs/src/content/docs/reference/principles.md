@@ -180,7 +180,7 @@ Auditing is a critical part of the security process for deploying smart contract
 and can do so in two ways:
 
 1. By ensuring the same Python code as input generates identical output each time the compiler
-   is run regardless of the system it's running on. This is what might be termed [Output stability](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/articles/output_stability.md).
+   is run regardless of the system it's running on. This is what might be termed [Output stability](https://algorandfoundation.github.io/algokit-cli/concepts/output-stability/).
    Ensuring a consistent output regardless of the system it's run on (assuming the same compiler version), means that
    auditing the lower level (ie TEAL) code is possible.
 

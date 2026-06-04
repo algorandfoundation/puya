@@ -343,7 +343,7 @@ class TemplateVariablesContract(arc4.ARC4Contract):
 The resulting TEAL code that PuyaPy emits has placeholders with `TMPL_{template variable name}`
 that expects either an integer value or an encoded bytes value. This behaviour exactly
 matches what
-[AlgoKit Utils expects](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#compilation-and-template-substitution).
+[AlgoKit Utils expects](https://algorandfoundation.github.io/algokit-utils-ts/concepts/building/app-deploy/#compilation-and-template-substitution).
 
 For more information look at the API reference for [`TemplateVar`](/puya/api/algopy/algopy/#templatevar--_templatevargeneric).
 

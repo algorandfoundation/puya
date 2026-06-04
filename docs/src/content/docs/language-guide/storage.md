@@ -51,7 +51,7 @@ error_if_not_set = self.global_int_no_default.value
 
 These values can be assigned anywhere you have access to `self` i.e. any instance methods/subroutines. The information about
 global storage is automatically included in the ARC-32/ARC-56 app spec file and thus will automatically appear within
-any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients).
+any [generated typed clients](https://algorandfoundation.github.io/algokit-cli/features/generate/#1-typed-clients).
 
 [`GlobalMap`](/puya/api/algopy/algopy/#class-globalmap) is similar to `GlobalState`, but allows for grouping a set of global state values with a common key and content type.
 A custom `key_prefix` can optionally be provided, with the default being to use the member variable name as the prefix.
