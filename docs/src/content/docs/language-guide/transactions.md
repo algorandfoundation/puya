@@ -60,7 +60,7 @@ def process_payment(group_index: algopy.UInt64) -> None:
 ## Inner Transactions
 
 Inner transactions are defined using the parameter types, and can then be submitted individually by calling the
-`.submit()` method, or as a group by calling [`submit_txns`](/puya/api/algopy/algopyitxn/)
+`.submit()` method, or as a group by calling [`submit_txns`](/puya/api/algopy/algopyitxn/#submit_txns)
 
 ### Examples
 

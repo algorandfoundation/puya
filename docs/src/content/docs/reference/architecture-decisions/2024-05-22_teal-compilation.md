@@ -14,7 +14,7 @@ description: Architecture decision record for how Puya compiles TEAL to AVM byte
 
 The Puya compiler needs to assemble valid Algorand TEAL (Transaction Execution Approval Language) programs into AVM (Algorand Virtual Machine) bytecode
 so the bytecode can be used within inner transactions that need to create applications. Additionally, the ability to produce compiled bytecode without
-an algod node is also desriable for other use cases, e.g. producing an [ARC-56 app description](https://github.com/algorandfoundation/ARCs/pull/258).
+an algod node is also desriable for other use cases, e.g. producing an [ARC-56 app description](https://dev.algorand.co/arc-standards/arc-0056/).
 
 There are several potential solutions to achieve this compilation, each with its own advantages and trade-offs.
 

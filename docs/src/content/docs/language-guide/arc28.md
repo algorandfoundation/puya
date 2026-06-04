@@ -3,7 +3,7 @@ title: ARC-28 Events
 description: Emitting ARC-28 events from Algorand Python contracts
 ---
 
-[ARC-28](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0028.md) provides a methodology for structured logging by Algorand smart contracts. It introduces the concept of Events, where data contained in logs may be categorized and structured.
+[ARC-28](https://dev.algorand.co/arc-standards/arc-0028/) provides a methodology for structured logging by Algorand smart contracts. It introduces the concept of Events, where data contained in logs may be categorized and structured.
 
 Each Event is identified by a unique 4-byte identifier derived from its `Event Signature`. The Event Signature is a UTF-8 string comprised of the event's name, followed by the names of the [ARC-4](/puya/language-guide/arc4/) data types contained in the event, all enclosed in parentheses (`EventName(type1,type2,...)`) e.g.:
 

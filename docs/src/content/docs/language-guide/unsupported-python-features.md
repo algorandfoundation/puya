@@ -41,8 +41,8 @@ rebinding of module constants is allowed. It's not clear what the meaning here w
 there's no real arbitrary means of storing state without associating it with a particular contract.
 If you do have need of such a thing, take a look at [gload_bytes](/puya/api/algopy/algopyop/#gload_bytes)
 or [gload_uint64](/puya/api/algopy/algopyop/#gload_uint64) if the contracts are within the same transaction,
-otherwise [AppGlobal.get_ex_bytes](/puya/api/algopy/algopyop/#class-appglobal)
-and [AppGlobal.get_ex_uint64](/puya/api/algopy/algopyop/#class-appglobal).
+otherwise [AppGlobal.get_ex_bytes](/puya/api/algopy/algopyop/#static-appglobalget_ex_bytesa-application--uint64--int-b-bytesbacked--bytes---tuplebytes-bool)
+and [AppGlobal.get_ex_uint64](/puya/api/algopy/algopyop/#static-appglobalget_ex_uint64a-application--uint64--int-b-bytesbacked--bytes---tupleuint64-bool).
 
 ## Inheritance (outside of contract classes)
 

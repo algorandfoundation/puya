@@ -37,7 +37,7 @@ do the opposite and immediately succeed.
 For failure strings that live on-chain, Algorand Python provides
 [`logged_assert`](/puya/api/algopy/algopy/#logged_assert) and
 [`logged_err`](/puya/api/algopy/algopy/#logged_err). Before failing, they emit a log
-entry in the [ARC-65](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0065.md)
+entry in the [ARC-65](https://dev.algorand.co/arc-standards/arc-0065/)
 format `{prefix}:{error_code}` (or `{prefix}:{error_code}:{error_message}`), which
 can be parsed and surfaced to the caller without needing
 TEAL source maps.

@@ -198,7 +198,7 @@ In puya-ts, the equivalent concept is a `PType` - because `TsType` was already t
 
 ## Serialize to JSON
 
-The last step once you have built your AWST tree is to produce the two required artifacts discussed [earlier](calling-puya/) and then invoke puya.
+The last step once you have built your AWST tree is to produce the two required artifacts discussed [earlier](/puya/front-end-guide/calling-puya/) and then invoke puya.
 
 For the most part the AWST should be serialized as a standard JSON - but there are a couple of quirks to be aware of.
 

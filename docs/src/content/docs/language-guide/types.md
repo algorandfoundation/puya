@@ -345,7 +345,7 @@ that expects either an integer value or an encoded bytes value. This behaviour e
 matches what
 [AlgoKit Utils expects](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#compilation-and-template-substitution).
 
-For more information look at the API reference for [`TemplateVar`](/puya/api/algopy/algopy/#templatevar-templatevargeneric).
+For more information look at the API reference for [`TemplateVar`](/puya/api/algopy/algopy/#templatevar--_templatevargeneric).
 
 ## ARC-4 types
 

@@ -3,7 +3,7 @@ title: ARC-4
 description: ARC-4 encoding, ABI methods, bare methods, and ARC-4 contract structure
 ---
 
-[ARC-4](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md) defines a set of encodings and behaviors for authoring and interacting with an Algorand Smart Contract. It is not the only way to author a smart contract, but adhering to it will make it easier for other clients and users to interop with your contract.
+[ARC-4](https://dev.algorand.co/arc-standards/arc-0004/) defines a set of encodings and behaviors for authoring and interacting with an Algorand Smart Contract. It is not the only way to author a smart contract, but adhering to it will make it easier for other clients and users to interop with your contract.
 
 To author an arc4 contract you should extend the `ARC4Contract` base class.
 
