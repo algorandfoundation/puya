@@ -31,7 +31,7 @@ This ADR defines the options available to package and distrbute the language ser
 
 ## Principles
 
--   [AlgoKit Guiding Principles](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md#guiding-principles) - specifically Cohesive developer tool suite, Seamless onramp, Meet developers where they are, Leverage existing ecosystem
+-   [AlgoKit Guiding Principles](/puya/reference/principles/) - specifically Cohesive developer tool suite, Seamless onramp, Meet developers where they are, Leverage existing ecosystem
 
 ## Options
 

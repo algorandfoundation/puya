@@ -53,7 +53,7 @@ or second most popular following JavaScript:
 -   [PYPL](https://pypl.github.io/PYPL.html)
 
 The AlgoKit project is an Algorand Foundation initiative to improve the developer experience on Algorand. Within this
-broad remit, two of the key [principles](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md#guiding-principles)
+broad remit, two of the key [principles](/puya/reference/principles/)
 are to "meet developers where they are" and "leverage existing ecosystem".
 Building a compiler that allows developers to write smart contracts using an idiomatic subset of a high level language
 such as Python would make great strides towards both of these goals.
@@ -84,7 +84,7 @@ potential for mistakes.
 
 ### Inherited from AlgoKit
 
-As a part of the AlgoKit project, the principles outlined [there](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md#guiding-principles)
+As a part of the AlgoKit project, the principles outlined [there](/puya/reference/principles/)
 also apply - to the extent that this project is just one component of AlgoKit.
 
 #### "Leverage existing ecosystem"
