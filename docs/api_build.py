@@ -62,7 +62,7 @@ _SITE_BASE = "/puya/"
 # Matches *class* headings with constructor signatures:
 # "### *class* Foo(\*args, \*\*kwds)"
 _CLASS_ARGS_RE = re.compile(
-    r"^(#{3,4} \*class\* \w+)\(.*\)\s*$",
+    r"^(#{3,4} \*class\* (\w+))(\(.*\))[ \t]*\n",
     re.MULTILINE,
 )
 
@@ -399,15 +399,23 @@ def _github_slug(heading_text: str) -> str:
 
 
 def _simplify_class_headings(content: str) -> str:
-    """Strip constructor signatures from *class* headings for predictable anchors.
+    """Lift constructor signatures out of *class* headings into a sibling block.
 
-    Converts: ### *class* Foo(\\*args, \\*\\*kwds)
+    Converts: ### *class* Foo(value: int = 0, /)
     To:        ### *class* Foo
 
-    Without this, Starlight generates messy anchors like #class-foo-args--kwds
-    that don't match the plain #class-foo used in summary table links.
+               <div class="api-signature">Foo(value: int = 0, /)</div>
+
+    Keeps the constructor signature visible while giving the heading a clean,
+    predictable anchor (``#class-foo``) that matches summary-table links — without
+    it Starlight emits messy anchors like ``#class-foo-value-int-0``.
     """
-    return _CLASS_ARGS_RE.sub(r"\1", content)
+
+    def sub(m: re.Match[str]) -> str:
+        heading, name, args = m.group(1), m.group(2), m.group(3)
+        return f'{heading}\n\n<div class="api-signature">\n\n{name}{args}\n\n</div>\n'
+
+    return _CLASS_ARGS_RE.sub(sub, content)
 
 
 _CLASS_HEADING_RE = re.compile(r"^### \*class\* (\w+)")
