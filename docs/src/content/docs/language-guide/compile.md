@@ -21,7 +21,7 @@ verify if a transaction has been signed by a particular logic signature.
 
 ## Template variables
 
-Algorand Python supports defining [`algopy.TemplateVar`](/puya/api/algopy/algopy/#templatevar-templatevargeneric) variables that can be substituted during compilation.
+Algorand Python supports defining [`algopy.TemplateVar`](/puya/api/algopy/algopy/#templatevar) variables that can be substituted during compilation.
 
 For example, the following contract has `UInt64` and `Bytes` template variables.
 

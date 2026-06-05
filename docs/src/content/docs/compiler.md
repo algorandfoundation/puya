@@ -169,7 +169,7 @@ PuyaPy compiler for compiling Algorand Python to TEAL
 
 ### Defining template values
 
-[Template Variables](/puya/api/algopy/algopy/#templatevar--_templatevargeneric), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
+[Template Variables](/puya/api/algopy/algopy/#templatevar), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
 Additionally, Algorand Python functions that create AVM bytecode, such as [compile_contract](/puya/api/algopy/algopy/#compile_contract) and [compile_logicsig](/puya/api/algopy/algopy/#compile_logicsig), can also provide the specified values.
 
 #### Examples of Variable Definitions

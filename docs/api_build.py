@@ -11,7 +11,6 @@ Pipeline:
      - Inject YAML frontmatter (title)
      - Strip duplicate H1 headings
      - Flatten autodoc2 output directory
-     - Fix /index.md links
      - Shorten fully-qualified names in H3/H4 headings
      - Simplify *class* headings (strip constructor signatures)
      - Rewrite Sphinx-style qualified anchors to Starlight heading IDs
@@ -84,8 +83,8 @@ _FUNC_SIG_RE = re.compile(
 _H3_TEXT_RE = re.compile(r"^### (.+)$", re.MULTILINE)
 
 _QUALIFIED_ANCHOR_RE = re.compile(
-    r"\(([^()\s\"']*?)#(?:" + _pkg + r"|typing_extensions|collections\.abc)"
-    r"(?:\.\w+)*\.(\w+)\)"
+    r"\(([^()\s\"']*?)#(" + _pkg + r"|typing_extensions|collections\.abc)"
+    r"((?:\.\w+)*)\.(\w+)\)"
 )
 
 # Path to the autoapi source stubs that sphinx reads (see docs/sphinx/conf.py).
@@ -501,6 +500,14 @@ def _split_function_signatures(content: str) -> str:
     return _FUNC_SIG_RE.sub(sub, content)
 
 
+# Initialization sections -------------------------------------------------------
+#
+# sphinx-autodoc2 drops the docstring of any ``@typing.overload``-decorated
+# ``__init__`` (e.g. ``GlobalState``, ``ReferenceArray``) — leaving the class
+# with no Initialization section — and emits an *empty* ``### Initialization``
+# for any ``__init__`` with no docstring. Strip the empties; re-inject the
+# dropped docstrings read straight from the stub .pyi files.
+
 _CLASS_BLOCK_RE = re.compile(r"(?ms)^(### \*class\* (\w+)\b.*?)(?=^### \*class\* |\Z)")
 _MEMBER_HEADING_RE = re.compile(r"(?m)^#{3,4} ")
 
@@ -547,8 +554,10 @@ _ATTR_HEADING_WITH_DEFAULT_RE = re.compile(
     r"(?:Ellipsis|None|True|False)\n",
     re.MULTILINE,
 )
-# Private Protocol class names (e.g. ``_ABICallProtocolType``).
-_PROTOCOL_TYPE_RE = re.compile(r"^_\w+Protocol(?:Type)?$")
+# Private type names (e.g. ``_ABICallProtocolType``, ``_TemplateVarGeneric``).
+# These classes are hidden, so an attribute annotated with one is a dangling
+# reference — drop the annotation and keep a clean ``### Name`` heading/anchor.
+_PROTOCOL_TYPE_RE = re.compile(r"^_\w+$")
 
 
 def _simplify_attribute_renderings(content: str) -> str:
@@ -641,15 +650,24 @@ def _fix_qualified_anchors(
     """
 
     def fix_anchor(m: re.Match) -> str:
-        path_part, symbol = m.group(1), m.group(2)
+        path_part, pkg, modpath, symbol = m.groups()
         if path_part:
             resolved = (path.parent / path_part).resolve()
             # autodoc2 links to sibling .md files directly; old autoapi linked to dirs
             target_md = resolved if path_part.endswith(".md") else resolved / "index.md"
-        else:
-            target_md = path
-        anchor = file_maps.get(str(target_md), {}).get(symbol, symbol.lower())
-        return f"({path_part}#{anchor})"
+            anchor = file_maps.get(str(target_md), {}).get(symbol, symbol.lower())
+            return f"({path_part}#{anchor})"
+        # No explicit path: a same-page qualified anchor.
+        if symbol in file_maps.get(str(path), {}):
+            return f"(#{file_maps[str(path)][symbol]})"
+        # Cross-module reference (e.g. algopy.arc4.X linked from the algopy page):
+        # resolve against the sibling module page so _fix_module_md_links URL-ifies it.
+        if modpath and pkg == PACKAGE_NAME:
+            sibling = path.parent / f"{pkg}{modpath}.md"
+            sib_map = file_maps.get(str(sibling), {})
+            if symbol in sib_map:
+                return f"({pkg}{modpath}.md#{sib_map[symbol]})"
+        return f"(#{symbol.lower()})"
 
     return _QUALIFIED_ANCHOR_RE.sub(fix_anchor, content)
 
@@ -802,14 +820,18 @@ def _process_md_files() -> None:
         content = _fix_initialization_sections(content)
         content = _split_function_signatures(content)
         content = _simplify_attribute_renderings(content)
-        content = _fix_module_md_links(content)
         content = _fix_member_index_anchors(content)
         files[path] = content
 
     # Cross-file anchor map (built after heading transforms have settled).
     file_maps = {str(p): _build_anchor_map(c) for p, c in files.items()}
     for path, content in files.items():
-        files[path] = _fix_qualified_anchors(content, path, file_maps)
+        # Resolve Sphinx-qualified anchors (e.g. #algopy.UInt64 -> #class-uint64)
+        # against sibling .md targets BEFORE rewriting those .md paths to URLs,
+        # otherwise the resolver can't find the target file and drops the prefix.
+        content = _fix_qualified_anchors(content, path, file_maps)
+        content = _fix_module_md_links(content)
+        files[path] = content
 
     # Atomic write per file: write to a tmp sibling and os.replace onto the
     # final path. Astro's watcher then only sees complete files.
