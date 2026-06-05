@@ -12,11 +12,11 @@ subroutine main:
         // FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
         txn NumAppArgs                                                                                     tmp%0#1
         v-store tmp%0#1
-        txn NumAppArgs                                                                                     tmp%1#2
-        v-store tmp%1#2
         v-load tmp%0#1                                                                                     tmp%0#1
         itob                                                                                               aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        txn NumAppArgs                                                                                     tmp%1#2
+        v-store tmp%1#2
         v-load tmp%1#2                                                                                     tmp%1#2
         itob                                                                                               aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
@@ -101,6 +101,17 @@ subroutine main:
         // a=Txn.num_app_args,
         txn NumAppArgs                                                                                     tmp%13#0
         v-store tmp%13#0
+        // mutable_native_types/contract.py:84-90
+        // self.dyn = DynamicStruct(
+        //     a=Txn.num_app_args,
+        //     b=Txn.num_app_args,
+        //     c=Bytes(),
+        //     d=String(),
+        //     e=Array[arc4.Byte](),
+        // )
+        v-load tmp%13#0                                                                                    tmp%13#0
+        itob                                                                                               aggregate%val_as_bytes%6#0
+        v-store aggregate%val_as_bytes%6#0
         // mutable_native_types/contract.py:86
         // b=Txn.num_app_args,
         txn NumAppArgs                                                                                     tmp%14#0
@@ -113,9 +124,6 @@ subroutine main:
         //     d=String(),
         //     e=Array[arc4.Byte](),
         // )
-        v-load tmp%13#0                                                                                    tmp%13#0
-        itob                                                                                               aggregate%val_as_bytes%6#0
-        v-store aggregate%val_as_bytes%6#0
         v-load tmp%14#0                                                                                    tmp%14#0
         itob                                                                                               aggregate%val_as_bytes%7#0
         v-store aggregate%val_as_bytes%7#0
