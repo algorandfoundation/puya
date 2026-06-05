@@ -53,8 +53,6 @@ _PLAIN_QUALIFIED_RE = re.compile(
     r"(?:\.\w+)*\.(\w+)"
 )
 
-_INDEX_MD_RE = re.compile(r"/index\.md")
-
 # Matches relative algopy*.md references in links, e.g. (algopy.op.md) or (algopy.md#class-foo)
 _MODULE_MD_LINK_RE = re.compile(r"\(algopy(?:\.(\w+))?\.md(#[^)]+)?\)")
 
@@ -291,11 +289,6 @@ def _inject_frontmatter(path: Path, content: str) -> str:
     # Strip the H1 — Starlight renders title from frontmatter.
     content = re.sub(r"^# [^\n]*\n+", "", content)
     return f'---\ntitle: "{escaped}"\n---\n\n<div class="api-ref">\n\n{content}\n\n</div>\n'
-
-
-def _fix_internal_links(content: str) -> str:
-    """Strip /index.md from internal link paths — Starlight doesn't use extensions."""
-    return _INDEX_MD_RE.sub("/", content)
 
 
 def _fix_module_md_links(content: str) -> str:
@@ -795,7 +788,6 @@ def _process_md_files() -> None:
         content = _fix_lone_param_bullet(content)
         content = _strip_default_language(content)
         content = _collapse_nested_links(content)
-        content = _fix_internal_links(content)
         content = _shorten_qualified_names(content)
         content = _simplify_class_headings(content)
         content = _qualify_method_headings(content)
