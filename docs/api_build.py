@@ -19,6 +19,8 @@ Pipeline:
 
 from __future__ import annotations
 
+import ast
+import functools
 import os
 import re
 import shutil
@@ -498,6 +500,45 @@ def _split_function_signatures(content: str) -> str:
     return _FUNC_SIG_RE.sub(sub, content)
 
 
+_CLASS_BLOCK_RE = re.compile(r"(?ms)^(### \*class\* (\w+)\b.*?)(?=^### \*class\* |\Z)")
+_MEMBER_HEADING_RE = re.compile(r"(?m)^#{3,4} ")
+
+
+@functools.cache
+def _init_docstrings_by_class() -> dict[str, str]:
+    docs: dict[str, str] = {}
+    for pyi in sorted(_AUTOAPI_SRC.glob("*.pyi")):
+        for node in ast.walk(ast.parse(pyi.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.ClassDef) and node.name not in docs:
+                paras = dict.fromkeys(
+                    ast.get_docstring(n, clean=True) or ""
+                    for n in node.body
+                    if isinstance(n, ast.FunctionDef) and n.name == "__init__"
+                )
+                paras.pop("", None)
+                if paras:
+                    docs[node.name] = "\n\n".join(paras)
+    return docs
+
+
+def _fix_initialization_sections(content: str) -> str:
+    """Drop empty Initialization headings; inject docstrings autodoc2 dropped."""
+    content = re.sub(r"(?m)^### Initialization\n\n(?=#{3,4} )", "", content)
+    docs = _init_docstrings_by_class()
+
+    def inject(m: re.Match[str]) -> str:
+        block, cls = m.group(1), m.group(2)
+        if cls not in docs or "### Initialization" in block:
+            return block
+        section = f"### Initialization\n\n{docs[cls]}\n\n"
+        first = _MEMBER_HEADING_RE.search(block, block.index("\n") + 1)
+        if not first:
+            return f"{block}\n{section}"
+        return block[: first.start()] + section + block[first.start() :]
+
+    return _CLASS_BLOCK_RE.sub(inject, content)
+
+
 # Attribute heading followed by a standalone literal-default line (``Ellipsis``
 # for ``= ...``, ``None`` for ``= None``, etc.) emitted by autoapi.
 _ATTR_HEADING_WITH_DEFAULT_RE = re.compile(
@@ -746,6 +787,7 @@ def _process_md_files() -> None:
         content = _shorten_qualified_names(content)
         content = _simplify_class_headings(content)
         content = _qualify_method_headings(content)
+        content = _fix_initialization_sections(content)
         content = _split_function_signatures(content)
         content = _simplify_attribute_renderings(content)
         content = _fix_module_md_links(content)
