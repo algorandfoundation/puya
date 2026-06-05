@@ -328,6 +328,16 @@ def _shorten_qualified_names(content: str) -> str:
     return "".join(lines)
 
 
+# A markdown link whose target is a bare URL gets the URL auto-linkified by myst,
+# producing a broken nested link: ``[text]([url](url))``.
+_NESTED_LINK_RE = re.compile(r"\]\(\[[^\]]+\]\((https?://[^)]+)\)\)")
+
+
+def _collapse_nested_links(content: str) -> str:
+    """Collapse myst's nested ``[text]([url](url))`` links back to ``[text](url)``."""
+    return _NESTED_LINK_RE.sub(r"](\1)", content)
+
+
 # autodoc2 emits member-summary tables with no header row, so Markdown treats
 # the first member row as the header (rendered bold). Insert a ``Name | Description``
 # header so the first member renders as a normal body row.
@@ -731,6 +741,7 @@ def _process_md_files() -> None:
         content = _fix_param_bullet_escapes(content)
         content = _bullet_bold_label_lines(content)
         content = _strip_default_language(content)
+        content = _collapse_nested_links(content)
         content = _fix_internal_links(content)
         content = _shorten_qualified_names(content)
         content = _simplify_class_headings(content)
