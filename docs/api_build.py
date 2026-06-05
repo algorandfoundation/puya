@@ -328,6 +328,16 @@ def _shorten_qualified_names(content: str) -> str:
     return "".join(lines)
 
 
+# autodoc2 emits member-summary tables with no header row, so Markdown treats
+# the first member row as the header (rendered bold). Insert a ``Name | Description``
+# header so the first member renders as a normal body row.
+_SUMMARY_TABLE_RE = re.compile(r"(?m)^(\| \[.*\|)\n(\|[-\s|]+\|)$")
+
+
+def _fix_summary_table_headers(content: str) -> str:
+    return _SUMMARY_TABLE_RE.sub(r"| Name | Description |\n\g<2>\n\g<1>", content)
+
+
 def _strip_default_language(content: str) -> str:
     """Remove the ``default`` language tag from fenced code blocks.
 
@@ -717,6 +727,7 @@ def _process_md_files() -> None:
         content = files[path]
         content = _inject_frontmatter(path, content)
         content = _convert_admonitions(content)
+        content = _fix_summary_table_headers(content)
         content = _fix_param_bullet_escapes(content)
         content = _bullet_bold_label_lines(content)
         content = _strip_default_language(content)
