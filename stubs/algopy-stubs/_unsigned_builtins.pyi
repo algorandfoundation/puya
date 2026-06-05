@@ -14,9 +14,9 @@ from algopy import UInt64
 class urange(Reversible[UInt64]):  # noqa: N801
     """Produces a sequence of UInt64 from start (inclusive) to stop (exclusive) by step.
 
-    urange(4) produces 0, 1, 2, 3
-    urange(i, j) produces i, i+1, i+2, ..., j-1.
-    urange(i, j, 2) produces i, i+2, i+4, ..., i+2n where n is the largest value where i+2n < j
+    - urange(4) produces 0, 1, 2, 3
+    - urange(i, j) produces i, i+1, i+2, ..., j-1.
+    - urange(i, j, 2) produces i, i+2, i+4, ..., i+2n where n is the largest value where i+2n < j
     """
 
     @typing.overload
