@@ -715,6 +715,17 @@ def _bullet_bold_label_lines(content: str) -> str:
     return _BOLD_LABEL_LINE_RE.sub(r"- \1", content)
 
 
+# A lone ``:param:`` renders as an indented continuation of ``* **Parameters:**``
+# (``  **name** – desc``) with no bullet of its own, so it collapses onto the
+# Parameters line. Multi-param blocks already get nested bullets; give the lone
+# case one too so it renders on its own line.
+_LONE_PARAM_RE = re.compile(r"(?m)^( {2,})(\*\*[^*\n]+\*\* –)")
+
+
+def _fix_lone_param_bullet(content: str) -> str:
+    return _LONE_PARAM_RE.sub(r"\1* \2", content)
+
+
 def _fix_param_bullet_escapes(content: str) -> str:
     """Unescape ``\\*`` sub-bullets that appear inside Parameter blocks.
 
@@ -781,6 +792,7 @@ def _process_md_files() -> None:
         content = _fix_summary_table_headers(content)
         content = _fix_param_bullet_escapes(content)
         content = _bullet_bold_label_lines(content)
+        content = _fix_lone_param_bullet(content)
         content = _strip_default_language(content)
         content = _collapse_nested_links(content)
         content = _fix_internal_links(content)
