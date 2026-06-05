@@ -76,7 +76,7 @@ _CLASS_ARGS_RE = re.compile(
 _FUNC_SIG_RE = re.compile(
     r"^(?P<hashes>#{3,4}) "
     r"(?P<kind>(?:\*(?:staticmethod|classmethod|abstractmethod|async)\* )*)"
-    r"(?P<name>[\w.]+)"
+    r"(?P<name>[\w.\\]+)"  # allow ``\`` so escaped dunder names (\_\_eq_\_) lift too
     r"(?P<sig>\(.*)$",
     re.MULTILINE,
 )
@@ -407,7 +407,7 @@ def _simplify_class_headings(content: str) -> str:
 
 _CLASS_HEADING_RE = re.compile(r"^### \*class\* (\w+)")
 _H4_HEADING_RE = re.compile(
-    r"^#### (?P<kind>(?:\*\w+\* )+)?(?P<name>\w+)(?P<rest>.*)$"
+    r"^#### (?P<kind>(?:\*\w+\* )+)?(?P<name>[\w\\]+)(?P<rest>.*)$"
 )
 
 
