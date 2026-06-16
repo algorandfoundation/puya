@@ -1,7 +1,8 @@
 import functools
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Mapping, Sequence, Set
+from collections.abc import Iterable, Mapping, Sequence
 from functools import cached_property
+from itertools import chain
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
@@ -55,7 +56,9 @@ def x_stack_allocation(_ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> No
         return
     logger.debug(f"Found {len(edge_sets)} edge set/s for {sub.signature.name}")
 
-    _schedule_edge_sets(edge_sets)
+    records = _records_from_edge_sets(edge_sets)
+    edge_set_groups = _group_connected_edge_sets(edge_sets)
+    _schedule_edge_sets(records, edge_set_groups)
 
     for edge_set in edge_sets:
         x_stack_out = edge_set.out_blocks[0].block.x_stack_out
@@ -105,10 +108,18 @@ class _BlockRecord:
         x_out = self.x_stack_out_candidates
         if not x_in and not x_out:
             return frozenset()
-        copy_eligible = (x_in & x_out & self.local_id_loads) - self.local_id_stores
-        effective_loads = self.local_id_loads - copy_eligible
+        # Defined before us and consumed after us (we may read them but not modify them)
+        transit_eligible = (x_in & x_out) - self.local_id_stores
+        # Input values that should be consumed if used from the x-stack
+        effective_loads = self.local_id_loads - transit_eligible
+        # Input values that we will have to drop
         droppable = x_in - x_out - self.live_in
         return frozenset((x_in - effective_loads - droppable) ^ (x_out - self.local_id_stores))
+
+
+def _is_local_used_enough(local_id: str, in_blocks: frozenset[_BlockRecord]) -> bool:
+    consuming = frozenset(b for b in in_blocks if local_id in b.live_in)
+    return len(in_blocks) - len(consuming) <= 1
 
 
 @attrs.define(eq=False)
@@ -131,32 +142,42 @@ class _EdgeSet:
 
     @cached_property
     def x_stack_candidates(self) -> frozenset[str]:
-        """Locals admissible on the x-stack: live-out everywhere, consumed somewhere, with
-        at most one in_block needing an entry-drop."""
+        """Locals admissible on the x-stack: live-out everywhere, live-in enough times."""
         out_intersection = frozenset(self.out_blocks[0].live_out).intersection(
             *(out_block.live_out for out_block in self.out_blocks[1:])
         )
         in_blocks = frozenset(self.in_blocks)
         return frozenset(
-            local_id
-            for local_id in out_intersection
-            if (consuming := frozenset(b for b in in_blocks if local_id in b.live_in))
-            and len(in_blocks - consuming) <= 1
+            local_id for local_id in out_intersection if _is_local_used_enough(local_id, in_blocks)
         )
 
     @cached_property
     def stable_locals(self) -> frozenset[str]:
         """Subset of x_stack_candidates with consistent positions across all blocks."""
-        candidates_for_lcs = self.x_stack_candidates - _edge_only_locals(self)
+
+        def last_stored_order(block: mir.MemoryBasicBlock) -> Sequence[str]:
+            return unique(
+                op.local_id
+                for op in reversed(block.ops)
+                if isinstance(op, mir.AbstractStore) and op.local_id in candidates_for_lcs
+            )
+
+        def first_loaded_order(block: mir.MemoryBasicBlock) -> Sequence[str]:
+            return unique(
+                op.local_id
+                for op in block.ops
+                if isinstance(op, mir.AbstractLoad) and op.local_id in candidates_for_lcs
+            )
+
+        live_sets = chain(
+            (out_block.live_in for out_block in self.out_blocks),
+            (in_block.live_out for in_block in self.in_blocks),
+        )
+        live_beyond = frozenset[str](live_var for live_set in live_sets for live_var in live_set)
+        candidates_for_lcs = self.x_stack_candidates & live_beyond
         ordered_candidates = [
-            *(
-                _last_stored_order(out_block.block, candidates_for_lcs)
-                for out_block in self.out_blocks
-            ),
-            *(
-                _first_loaded_order(in_block.block, candidates_for_lcs)
-                for in_block in self.in_blocks
-            ),
+            *(last_stored_order(out_block.block) for out_block in self.out_blocks),
+            *(first_loaded_order(in_block.block) for in_block in self.in_blocks),
         ]
         return frozenset(_find_longest_common_subsequence(ordered_candidates))
 
@@ -192,7 +213,6 @@ def _build_edge_sets(
             live_in=frozenset(vla.get_live_in_variables(block.ops[0])),
             live_out=frozenset(vla.get_live_out_variables(block.ops[-1])),
         )
-    records = list(block_name_records.values())
 
     # given blocks 1-8
     # edges: 1->5, 2->4, 2->5, 2->6, 3->5, 7->6, 7->8
@@ -206,7 +226,7 @@ def _build_edge_sets(
     # 4, 5, 6 and 8 are the in_blocks of the same edge set
 
     graph = nx.Graph()
-    for out_block in records:
+    for out_block in block_name_records.values():
         for in_block_name in out_block.block.successors:
             graph.add_edge(("out", out_block), ("in", block_name_records[in_block_name]))
 
@@ -228,92 +248,6 @@ def _records_from_edge_sets(edge_sets: Sequence[_EdgeSet]) -> Sequence[_BlockRec
 
 def _unique_ordered_blocks(blocks: Iterable[_BlockRecord]) -> list[_BlockRecord]:
     return sorted(set(blocks), key=_BlockRecord.by_index)
-
-
-def _schedule_edge_sets(edge_sets: Sequence[_EdgeSet]) -> None:
-    edge_set_groups = _group_connected_edge_sets(edge_sets)
-
-    records = _records_from_edge_sets(edge_sets)
-    unschedulable_locals = {
-        local_id for record in records for local_id in record.unschedulable_locals
-    }
-    transit_mismatches = {local_id for record in records for local_id in record.transit_mismatches}
-    expensive_transits = {
-        local_id for group in edge_set_groups for local_id in group.expensive_transits()
-    }
-    excluded_locals = unschedulable_locals | transit_mismatches | expensive_transits
-
-    all_x_stack_local_ids = set[str]()
-    for group in edge_set_groups:
-        ranked = group.ranked_locals()
-        for edge_set in group.edge_sets:
-            x_stack = tuple(
-                local_id
-                for local_id in ranked
-                if local_id in edge_set.x_stack_candidates and local_id not in excluded_locals
-            )
-            all_x_stack_local_ids.update(x_stack)
-            for out_record in edge_set.out_blocks:
-                out_record.block.x_stack_out = x_stack
-            for in_record in edge_set.in_blocks:
-                in_record.block.x_stack_in = x_stack
-
-    if all_x_stack_local_ids:
-        logger.debug(f"Allocated to x-stack: {', '.join(sorted(all_x_stack_local_ids))}")
-
-
-def _edge_only_locals(edge_set: _EdgeSet) -> frozenset[str]:
-    live_beyond = frozenset[str]().union(
-        *(out_block.live_in for out_block in edge_set.out_blocks),
-        *(in_block.live_out for in_block in edge_set.in_blocks),
-    )
-    return edge_set.x_stack_candidates - live_beyond
-
-
-def _find_longest_common_subsequence(candidates: Sequence[Sequence[str]]) -> Sequence[str]:
-    @functools.cache
-    def lcs(left: tuple[str, ...], right: tuple[str, ...]) -> tuple[str, ...]:
-        if not left or not right:
-            return ()
-        if left[-1] == right[-1]:
-            return (*lcs(left[:-1], right[:-1]), left[-1])
-        return max(lcs(left[:-1], right), lcs(left, right[:-1]), key=_len_and_value)
-
-    shared, *others = sorted({tuple(candidate) for candidate in candidates}, key=_len_and_value)
-    for other in others:
-        shared = lcs(shared, other)
-    return shared
-
-
-def _len_and_value(value: tuple[str, ...]) -> tuple[int, tuple[str, ...]]:
-    return len(value), value
-
-
-def _last_stored_order(block: mir.MemoryBasicBlock, want: Set[str]) -> Sequence[str]:
-    return unique(
-        op.local_id
-        for op in reversed(block.ops)
-        if isinstance(op, mir.AbstractStore) and op.local_id in want
-    )
-
-
-def _first_loaded_order(block: mir.MemoryBasicBlock, want: Set[str]) -> Sequence[str]:
-    return unique(
-        op.local_id for op in block.ops if isinstance(op, mir.AbstractLoad) and op.local_id in want
-    )
-
-
-# live-through locals are demoted when they would transit at least this many penalty blocks
-# current threshold chosen empirically via poe size_diff
-# | _MAX_TRANSIT_BLOCKS | O1 bytes | O2 bytes | O1 ops | O2 ops |
-# |---------------------|----------|----------|--------|--------|
-# | 0                   | 0        | 0        | 0      | 0      |
-# | 1                   | -103     | -130     | -58    | -67    |
-# | 2                   | -153     | -227     | -94    | -118   |
-# | 3                   | -128     | -216     | -78    | -111   |
-# | 4                   | -131     | -246     | -76    | -128   |
-# | 5                   | -131     | -246     | -76    | -128   |
-_MAX_TRANSIT_BLOCKS = 2
 
 
 @attrs.define
@@ -445,6 +379,71 @@ class _EdgeSetGroup:
             return is_solo, shallowness, store_pos, local_id
 
         return sorted(edge_sets_per_local, key=shallowness_rank)
+
+
+def _schedule_edge_sets(
+    records: Sequence[_BlockRecord], edge_set_groups: Sequence[_EdgeSetGroup]
+) -> None:
+    excluded_locals = {
+        local_id
+        for record in records
+        for local_id in record.unschedulable_locals | record.transit_mismatches
+    }
+    # Heuristic: exclude locals transiting through multiple blocks that may have a strict x-stack
+    # ordering (penalty blocks). See _MAX_TRANSIT_BLOCKS
+    excluded_locals.update(
+        local_id for group in edge_set_groups for local_id in group.expensive_transits()
+    )
+
+    all_x_stack_local_ids = set[str]()
+    for group in edge_set_groups:
+        ranked = group.ranked_locals()
+        for edge_set in group.edge_sets:
+            x_stack = tuple(
+                local_id
+                for local_id in ranked
+                if local_id in edge_set.x_stack_candidates and local_id not in excluded_locals
+            )
+            all_x_stack_local_ids.update(x_stack)
+            for out_record in edge_set.out_blocks:
+                out_record.block.x_stack_out = x_stack
+            for in_record in edge_set.in_blocks:
+                in_record.block.x_stack_in = x_stack
+
+    if all_x_stack_local_ids:
+        logger.debug(f"Allocated to x-stack: {', '.join(sorted(all_x_stack_local_ids))}")
+
+
+def _find_longest_common_subsequence(candidates: Sequence[Sequence[str]]) -> Sequence[str]:
+    @functools.cache
+    def lcs(left: tuple[str, ...], right: tuple[str, ...]) -> tuple[str, ...]:
+        if not left or not right:
+            return ()
+        if left[-1] == right[-1]:
+            return (*lcs(left[:-1], right[:-1]), left[-1])
+        return max(lcs(left[:-1], right), lcs(left, right[:-1]), key=_len_and_value)
+
+    shared, *others = sorted({tuple(candidate) for candidate in candidates}, key=_len_and_value)
+    for other in others:
+        shared = lcs(shared, other)
+    return shared
+
+
+def _len_and_value(value: tuple[str, ...]) -> tuple[int, tuple[str, ...]]:
+    return len(value), value
+
+
+# live-through locals are demoted when they would transit at least this many penalty blocks
+# current threshold chosen empirically via poe size_diff
+# | _MAX_TRANSIT_BLOCKS | O1 bytes | O2 bytes | O1 ops | O2 ops |
+# |---------------------|----------|----------|--------|--------|
+# | 0                   | 0        | 0        | 0      | 0      |
+# | 1                   | -103     | -130     | -58    | -67    |
+# | 2                   | -153     | -227     | -94    | -118   |
+# | 3                   | -128     | -216     | -78    | -111   |
+# | 4                   | -131     | -246     | -76    | -128   |
+# | 5                   | -131     | -246     | -76    | -128   |
+_MAX_TRANSIT_BLOCKS = 2
 
 
 def _group_connected_edge_sets(edge_sets: Sequence[_EdgeSet]) -> Sequence[_EdgeSetGroup]:
