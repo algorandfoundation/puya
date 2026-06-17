@@ -162,13 +162,14 @@ sum:
     intc_0 // 8
     box_extract // on error: index out of bounds
     btoi
+    swap
     intc_1 // 0
 
 sum_for_header@2:
     // mutable_native_types/case1_with_tups.py:71
     // for i in urange(self.tup_bag.value.count):
     dup
-    dig 2
+    dig 3
     <
     bz sum_after_for@5
     // mutable_native_types/case1_with_tups.py:72
@@ -178,8 +179,6 @@ sum_for_header@2:
     intc 4 // 128
     box_extract // on error: index out of bounds
     dig 1
-    dup
-    cover 2
     intc_3 // 16
     *
     intc_3 // 16
@@ -192,24 +191,23 @@ sum_for_header@2:
     extract_uint64
     // mutable_native_types/case1_with_tups.py:73
     // total += tup.a
-    dig 5
+    uncover 3
     uncover 2
     +
     // mutable_native_types/case1_with_tups.py:74
     // total += tup.b
     +
-    bury 4
+    swap
     // mutable_native_types/case1_with_tups.py:71
     // for i in urange(self.tup_bag.value.count):
     intc_2 // 1
     +
-    bury 1
     b sum_for_header@2
 
 sum_after_for@5:
+    pop
     // mutable_native_types/case1_with_tups.py:68
     // @arc4.abimethod()
-    dig 2
     itob
     bytec_1 // 0x151f7c75
     swap
@@ -249,8 +247,6 @@ add_many_tups_for_header@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     intc_3 // 16
     *
     intc_3 // 16
@@ -266,7 +262,6 @@ add_many_tups_for_header@2:
     callsub test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
     intc_2 // 1
     +
-    bury 1
     b add_many_tups_for_header@2
 
 add_many_tups_after_for@5:
@@ -295,10 +290,10 @@ add_fixed_tups_for_header@2:
     pushint 3
     <
     bz add_fixed_tups_after_for@5
-    dupn 2
+    dup
     intc_3 // 16
     *
-    dig 3
+    dig 2
     swap
     intc_3 // 16
     extract3 // on error: index access is out of bounds
@@ -313,7 +308,6 @@ add_fixed_tups_for_header@2:
     callsub test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
     intc_2 // 1
     +
-    bury 1
     b add_fixed_tups_for_header@2
 
 add_fixed_tups_after_for@5:
@@ -360,8 +354,6 @@ set_a_for_header@2:
     intc 4 // 128
     box_extract // on error: index out of bounds
     dig 1
-    dup
-    cover 2
     intc_3 // 16
     *
     swap
@@ -371,7 +363,7 @@ set_a_for_header@2:
     extract 8 8
     // mutable_native_types/case1_with_tups.py:92
     // self.tup_bag.value.items[i] = tup._replace(a=a)
-    dig 5
+    dig 4
     itob
     swap
     concat
@@ -390,7 +382,6 @@ set_a_for_header@2:
     // for i in urange(self.tup_bag.value.count):
     intc_2 // 1
     +
-    bury 1
     b set_a_for_header@2
 
 set_a_after_for@5:
@@ -437,8 +428,6 @@ set_b_for_header@2:
     intc 4 // 128
     box_extract // on error: index out of bounds
     dig 1
-    dup
-    cover 2
     intc_3 // 16
     *
     swap
@@ -448,7 +437,7 @@ set_b_for_header@2:
     extract 0 8
     // mutable_native_types/case1_with_tups.py:99
     // self.tup_bag.value.items[i] = tup._replace(b=b)
-    dig 5
+    dig 4
     itob
     concat
     dig 2
@@ -466,7 +455,6 @@ set_b_for_header@2:
     // for i in urange(self.tup_bag.value.count):
     intc_2 // 1
     +
-    bury 1
     b set_b_for_header@2
 
 set_b_after_for@5:
@@ -589,6 +577,7 @@ get_all_tups:
     intc_0 // 8
     box_extract // on error: index out of bounds
     btoi
+    swap
     intc_1 // 0
 
 get_all_tups_for_header@2:
@@ -596,7 +585,7 @@ get_all_tups_for_header@2:
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
     dup
-    dig 2
+    dig 3
     <
     bz get_all_tups_after_for@5
     // mutable_native_types/case1_with_tups.py:117
@@ -608,8 +597,6 @@ get_all_tups_for_header@2:
     intc 4 // 128
     box_extract // on error: index out of bounds
     dig 1
-    dup
-    cover 2
     intc_3 // 16
     *
     intc_3 // 16
@@ -619,7 +606,7 @@ get_all_tups_for_header@2:
     swap
     extract 8 8
     concat
-    dig 4
+    uncover 2
     dup
     intc_1 // 0
     extract_uint16
@@ -632,20 +619,20 @@ get_all_tups_for_header@2:
     replace2 0
     swap
     concat
-    bury 4
+    swap
     // mutable_native_types/case1_with_tups.py:118-119
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
     intc_2 // 1
     +
-    bury 1
     b get_all_tups_for_header@2
 
 get_all_tups_after_for@5:
+    pop
     // mutable_native_types/case1_with_tups.py:114
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
-    dig 3
+    swap
     concat
     log
     intc_2 // 1

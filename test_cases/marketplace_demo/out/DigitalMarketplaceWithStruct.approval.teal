@@ -677,19 +677,19 @@ withdraw:
     // if listing.bidder != Account():
     extract 16 32
     dup
+    cover 4
     global ZeroAddress
     !=
     bz withdraw_after_if_else@4
     // marketplace_demo/marketplace_with_mutable_struct.py:188
     // listing.bid, listing.bidUnitaryPrice, asset.decimals
-    dig 1
-    dup
+    dupn 2
     pushint 48
     extract_uint64
     swap
     pushint 56
     extract_uint64
-    dig 5
+    dig 4
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_mutable_struct.py:69
@@ -717,7 +717,7 @@ withdraw:
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
     itxn_begin
     itxn_field Amount
-    dup
+    dig 3
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -728,7 +728,7 @@ withdraw:
 withdraw_after_if_else@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:192
     // del self.listings[key]
-    dig 2
+    swap
     box_del
     pop
     // marketplace_demo/marketplace_with_mutable_struct.py:194
@@ -776,12 +776,11 @@ withdraw_after_if_else@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:197
     // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
     txn Sender
-    dig 2
+    swap
     intc_2 // 0
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    dig 3
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_mutable_struct.py:196
     // itxn.AssetTransfer(
@@ -830,7 +829,7 @@ bid:
     intc_0 // 1
     -
     dup
-    cover 4
+    cover 5
     gtxns TypeEnum
     intc_0 // pay
     ==
@@ -842,7 +841,7 @@ bid:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 3
+    cover 4
     txna ApplicationArgs 5
     dup
     len
@@ -867,6 +866,7 @@ bid:
     swap
     concat
     dup
+    cover 4
     box_get
     swap
     dup
@@ -876,16 +876,16 @@ bid:
     // if listing.bidder != Account():
     extract 16 32
     dup
+    cover 7
     global ZeroAddress
     !=
     bz bid_after_if_else@4
     // marketplace_demo/marketplace_with_mutable_struct.py:214
     // assert unitary_price > listing.bidUnitaryPrice
-    dig 1
-    dup
+    dupn 2
     pushint 56
     extract_uint64
-    dig 5
+    dig 3
     dig 1
     >
     assert
@@ -894,7 +894,7 @@ bid:
     swap
     pushint 48
     extract_uint64
-    dig 8
+    dig 4
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_mutable_struct.py:69
@@ -921,7 +921,7 @@ bid:
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
     itxn_begin
     itxn_field Amount
-    dup
+    dig 6
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -932,15 +932,15 @@ bid:
 bid_after_if_else@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:222
     // amount_to_be_bid = self.quantity_price(quantity, unitary_price, asset.decimals)
-    dig 6
+    uncover 2
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_mutable_struct.py:69
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-    dig 4
+    uncover 2
     dup
     cover 2
-    dig 7
+    uncover 4
     dup
     cover 3
     mulw
@@ -962,7 +962,7 @@ bid_after_if_else@4:
     assert
     // marketplace_demo/marketplace_with_mutable_struct.py:224
     // assert bid_pay.sender == Txn.sender
-    dig 8
+    uncover 5
     dup
     gtxns Sender
     txn Sender
@@ -982,7 +982,7 @@ bid_after_if_else@4:
     assert
     // marketplace_demo/marketplace_with_mutable_struct.py:229
     // deposited=listing.deposited,
-    dig 3
+    uncover 2
     dup
     extract 0 8
     // marketplace_demo/marketplace_with_mutable_struct.py:230
@@ -1010,8 +1010,6 @@ bid_after_if_else@4:
     swap
     itob
     concat
-    dig 3
-    swap
     box_put
     // marketplace_demo/marketplace_with_mutable_struct.py:200
     // @arc4.abimethod
@@ -1053,6 +1051,7 @@ accept_bid:
     swap
     concat
     dup
+    cover 2
     box_get
     swap
     dup
@@ -1063,7 +1062,7 @@ accept_bid:
     dup
     extract 16 32
     dup
-    cover 2
+    cover 3
     global ZeroAddress
     !=
     assert
@@ -1073,23 +1072,24 @@ accept_bid:
     intc_2 // 0
     extract_uint64
     dup
-    uncover 2
+    cover 2
+    cover 3
     pushint 48
     extract_uint64
     dup
-    cover 2
+    cover 3
     <
     bz accept_bid_ternary_false@3
-    dig 1
+    dig 2
 
 accept_bid_ternary_merge@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:246
     // min_quantity, listing.bidUnitaryPrice, asset.decimals
-    dig 4
+    swap
     dup
     pushint 56
     extract_uint64
-    dig 8
+    uncover 6
     dup
     cover 2
     asset_params_get AssetDecimals
@@ -1135,7 +1135,7 @@ accept_bid_ternary_merge@4:
     itxn_begin
     dup
     itxn_field AssetAmount
-    dig 6
+    uncover 6
     dup
     cover 2
     itxn_field AssetReceiver
@@ -1158,12 +1158,12 @@ accept_bid_ternary_merge@4:
     extract 8 8
     // marketplace_demo/marketplace_with_mutable_struct.py:259
     // deposited=listing.deposited - min_quantity,
-    dig 5
+    uncover 5
     dig 2
     -
     // marketplace_demo/marketplace_with_mutable_struct.py:260
     // bid=listing.bid - min_quantity,
-    dig 5
+    uncover 5
     uncover 3
     -
     // marketplace_demo/marketplace_with_mutable_struct.py:255-261
@@ -1186,8 +1186,6 @@ accept_bid_ternary_merge@4:
     swap
     itob
     concat
-    dig 5
-    swap
     box_put
     // marketplace_demo/marketplace_with_mutable_struct.py:236
     // @arc4.abimethod(name="acceptBid")
@@ -1195,5 +1193,5 @@ accept_bid_ternary_merge@4:
     return
 
 accept_bid_ternary_false@3:
-    dup
+    dig 1
     b accept_bid_ternary_merge@4

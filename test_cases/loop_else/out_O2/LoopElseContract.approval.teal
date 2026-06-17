@@ -4,8 +4,6 @@
 // test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> uint64:
 main:
     intcblock 1 0 48
-    pushbytes ""
-    dup
     intc_1 // 0
 
 main_while_top@1:
@@ -20,21 +18,20 @@ main_while_top@1:
     ==
     bz main_after_if_else@16
     txn NumAccounts
-    bury 2
+    swap
     intc_1 // 0
-    bury 3
+    swap
 
 main_for_header@9:
-    dig 2
+    dig 1
     dup
-    dig 3
+    dig 4
     <
     assert // access denied, missing secret account
     txnas Accounts
     global ZeroAddress
     ==
     bz main_after_if_else@12
-    dup
     intc_2 // 48
     +
     itob
@@ -44,7 +41,7 @@ main_for_header@9:
     concat
     pushbytes " and secret account at idx="
     concat
-    dig 3
+    swap
     intc_2 // 48
     +
     itob
@@ -55,15 +52,13 @@ main_for_header@9:
     return
 
 main_after_if_else@12:
-    dig 2
+    swap
     intc_0 // 1
     +
-    bury 3
+    swap
     b main_for_header@9
 
 main_after_if_else@16:
-    dup
     intc_0 // 1
     +
-    bury 1
     b main_while_top@1

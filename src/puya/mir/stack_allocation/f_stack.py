@@ -8,7 +8,6 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import ProgramMIRContext
-from puya.mir.models import FStackPreAllocation
 from puya.mir.stack import Stack
 from puya.mir.visitor import DefaultMIRVisitor
 from puya.utils import attrs_extend
@@ -28,19 +27,6 @@ def _get_lazy_fstack(entry: mir.MemoryBasicBlock) -> dict[str, mir.AbstractStore
     return result
 
 
-def _get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
-    variable_mapping = dict[str, AVMType]()
-    for block in subroutine.body:
-        for op in block.ops:
-            if isinstance(op, mir.AbstractStore):
-                try:
-                    existing_type = variable_mapping[op.local_id]
-                except KeyError:
-                    existing_type = op.atype
-                variable_mapping[op.local_id] = existing_type | op.atype
-    return variable_mapping
-
-
 def _get_pre_alloc(
     subroutine: mir.MemorySubroutine, all_variables: Sequence[str]
 ) -> mir.FStackPreAllocation:
@@ -48,7 +34,7 @@ def _get_pre_alloc(
     # and order them so bytes are listed first, followed by uints
     byte_vars = []
     uint64_vars = []
-    variable_type_mapping = _get_local_id_types(subroutine)
+    variable_type_mapping = subroutine.local_id_types
     for variable in all_variables:
         match variable_type_mapping.get(variable):
             case AVMType.uint64:
@@ -71,10 +57,6 @@ def _get_pre_alloc(
 
 def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -> None:
     all_variables = _VariableCollector.collect(subroutine)
-    if not all_variables:
-        subroutine.pre_alloc = FStackPreAllocation.empty()
-        return
-
     entry_block = subroutine.body[0]
     first_store_ops = _get_lazy_fstack(entry_block)
     unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
@@ -84,8 +66,8 @@ def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine
     )
     logger.debug(f"{subroutine.signature.name} f-stack on first store: {list(first_store_ops)}")
 
-    entry_block.f_stack_in = subroutine.pre_alloc.allocate_on_entry
-    entry_block.f_stack_out = [*entry_block.f_stack_in, *first_store_ops]
+    entry_block.f_stack_in = tuple(subroutine.pre_alloc.allocate_on_entry)
+    entry_block.f_stack_out = (*entry_block.f_stack_in, *first_store_ops)
     # f-stack is initialized in the entry block and doesn't change after that
     for block in subroutine.body[1:]:
         block.f_stack_in = block.f_stack_out = entry_block.f_stack_out
@@ -118,6 +100,7 @@ def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine
                         frame_index=stack.fxl_height - depth - 1,
                     )
             op.accept(stack)
+        # always calculate fx_height even when f-stack is empty
         match block.terminator:
             case mir.RetSub() as retsub:
                 block.terminator = attrs.evolve(

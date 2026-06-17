@@ -350,8 +350,6 @@ bootstrap:
 
 // examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
 mint:
-    pushbytes ""
-    dup
     // amm/contract.py:81-88
     // @arc4.abimethod(
     //     default_args={
@@ -500,7 +498,7 @@ mint:
     swap
     gtxns AssetAmount
     dup
-    cover 2
+    cover 3
     assert // amount minimum not met
     // amm/contract.py:136
     // pool_balance=self._current_pool_balance(),
@@ -510,17 +508,17 @@ mint:
     // a_balance=self._current_a_balance(),
     callsub _current_a_balance
     dup
-    cover 2
+    cover 3
     // amm/contract.py:138
     // b_balance=self._current_b_balance(),
     callsub _current_b_balance
-    cover 2
+    cover 3
     // amm/contract.py:334
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     ==
     bz mint_bool_false@4
-    dup
-    dig 4
+    dig 1
+    dig 5
     ==
     bz mint_bool_false@4
     intc_1 // 1
@@ -529,10 +527,9 @@ mint_bool_merge@5:
     // amm/contract.py:335
     // if is_initial_mint:
     bz mint_after_if_else@7
+    popn 3
     // amm/contract.py:336
     // return op.sqrt(a_amount * b_amount) - SCALE
-    dig 4
-    dig 4
     *
     sqrt
     intc_2 // 1000
@@ -572,41 +569,40 @@ mint_after_if_else@7:
     // amm/contract.py:337
     // issued = TOTAL_SUPPLY - pool_balance
     intc 4 // 10000000000
-    dig 3
+    swap
     -
     // amm/contract.py:338
     // a_ratio = SCALE * a_amount // (a_balance - a_amount)
     intc_2 // 1000
-    dig 6
+    uncover 4
     dup
     cover 2
     *
-    dig 4
+    uncover 4
     uncover 2
     -
     /
     dup
-    bury 9
     // amm/contract.py:339
     // b_ratio = SCALE * b_amount // (b_balance - b_amount)
     intc_2 // 1000
-    dig 6
+    uncover 5
     dup
     cover 2
     *
-    dig 4
+    uncover 5
     uncover 2
     -
     /
     dup
-    bury 9
+    cover 2
     // amm/contract.py:340
     // if a_ratio < b_ratio:
     <
     bz mint_else_body@9
+    pop
     // amm/contract.py:341
     // return a_ratio * issued // SCALE
-    dig 7
     *
     intc_2 // 1000
     /
@@ -621,9 +617,9 @@ mint_after_if_else@7:
     b mint_after_inlined_examples.amm.contract.tokens_to_mint@10
 
 mint_else_body@9:
+    bury 1
     // amm/contract.py:343
     // return b_ratio * issued // SCALE
-    dig 6
     *
     intc_2 // 1000
     /
@@ -817,8 +813,6 @@ burn:
 
 // examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
 swap:
-    pushbytes ""
-    dup
     // amm/contract.py:206-212
     // @arc4.abimethod(
     //     default_args={
@@ -917,24 +911,23 @@ swap_switch_case_1@3:
     // amm/contract.py:240
     // in_supply = self._current_a_balance()
     callsub _current_a_balance
-    bury 3
+    swap
     // amm/contract.py:241
     // out_supply = self._current_b_balance()
     callsub _current_b_balance
+    swap
     // amm/contract.py:242
     // out_asset = self.asset_b
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
-    swap
-    bury 4
     assert // check self.asset_b exists
 
 swap_switch_case_next@5:
     // amm/contract.py:354
     // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
-    dig 3
-    dig 2
+    uncover 3
+    uncover 2
     dup
     cover 2
     -
@@ -949,7 +942,7 @@ swap_switch_case_next@5:
     // amm/contract.py:355
     // out_total = in_amount * FACTOR * out_supply
     swap
-    uncover 2
+    uncover 3
     *
     // amm/contract.py:356
     // return out_total // in_total
@@ -962,8 +955,7 @@ swap_switch_case_next@5:
     // amm/contract.py:251
     // do_asset_transfer(receiver=Txn.sender, asset=out_asset, amount=to_swap)
     txn Sender
-    dig 3
-    uncover 2
+    cover 2
     callsub do_asset_transfer
     // amm/contract.py:252
     // self._update_ratio()
@@ -983,17 +975,16 @@ swap_switch_case_0@2:
     // amm/contract.py:236
     // in_supply = self._current_b_balance()
     callsub _current_b_balance
-    bury 3
+    swap
     // amm/contract.py:237
     // out_supply = self._current_a_balance()
     callsub _current_a_balance
+    swap
     // amm/contract.py:238
     // out_asset = self.asset_a
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
-    swap
-    bury 4
     assert // check self.asset_a exists
     b swap_switch_case_next@5
 

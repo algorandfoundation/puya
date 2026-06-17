@@ -3,54 +3,54 @@
 
 // test_cases.less_simple.contract.MyContract.approval_program() -> uint64:
 main:
-    pushints 1 0
+    pushint 0
     dup
+    pushint 1
 
 main_while_top@1:
-    dig 2
+    dup
     pushint 100
     <
     bz main_after_while@13
-    dig 2
+    dup
     pushint 5
     %
     bz main_while_top@1
-    dig 2
+    dup
     pushint 21
     %
     bz main_after_while@13
-    dig 2
+    dup
     pushint 2
     %
     bnz main_else_body@8
+    swap
     dig 1
-    dig 3
     +
-    bury 2
+    swap
 
 main_after_if_else@12:
-    dig 2
     pushint 1
     +
-    bury 3
     b main_while_top@1
 
 main_else_body@8:
-    dup
-    bnz main_else_body@10
     dig 2
-    bury 1
+    bnz main_else_body@10
+    dup
+    bury 3
     b main_after_if_else@12
 
 main_else_body@10:
-    dup
-    dig 3
+    dig 2
+    dig 1
     *
-    bury 1
+    bury 3
     b main_after_if_else@12
 
 main_after_while@13:
-    dup
-    dig 2
+    pop
+    dig 1
+    swap
     -
     return

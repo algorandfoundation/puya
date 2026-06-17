@@ -4,14 +4,10 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock 0x151f7c75 "box" "twm" "" "build_nested_call_count" 0x0004 "pwl"
-    intc_0 // 0
-    dupn 2
-    bytec_3 // ""
-    dupn 13
+    bytecblock 0x151f7c75 "box" "twm" "build_nested_call_count" 0x0004 "pwl"
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec 4 // "build_nested_call_count"
+    bytec_3 // "build_nested_call_count"
     intc_0 // 0
     app_global_put
     bytec_2 // "twm"
@@ -219,7 +215,7 @@ main_nested_tuple_params_route@17:
     swap
     itob
     extract 6 2
-    bytec 5 // 0x0004
+    bytec 4 // 0x0004
     swap
     concat
     uncover 2
@@ -249,42 +245,31 @@ main_run_tests_route@16:
     assert
     assert
     intc_0 // 0
-    bury 2
-    intc_0 // 0
+    dup
     intc_1 // 1
-    bury 8
     intc_2 // 2
-    swap
 
 main_for_body@87:
-    dig 8
-    uncover 2
     +
-    dig 3
     +
-    bury 3
+    swap
     switch main_for_header_1@88 main_for_header_2@89 main_for_header_3@90
     intc_0 // 0
-    intc_1 // 1
-    bury 15
-    intc_2 // 2
     swap
+    intc_1 // 1
+    intc_2 // 2
 
 main_for_body@92:
-    dig 15
-    uncover 2
     +
-    dig 3
     +
-    bury 3
+    swap
     switch main_for_header_1@93 main_for_header_2@94 main_for_header_3@95
-    dig 1
     intc_3 // 8
     /
     pushint 3
     ==
     assert
-    bytec 4 // "build_nested_call_count"
+    bytec_3 // "build_nested_call_count"
     intc_1 // 1
     app_global_put
     pushbytes 0x151f7c7580
@@ -294,50 +279,44 @@ main_for_body@92:
 
 main_for_header_3@95:
     pushint 3
-    intc_2 // 2
-    bury 15
-    intc_2 // 2
     swap
+    intc_2 // 2
+    dup
     b main_for_body@92
 
 main_for_header_2@94:
     intc_2 // 2
-    intc_1 // 1
-    bury 15
-    intc_1 // 1
     swap
+    intc_1 // 1
+    dup
     b main_for_body@92
 
 main_for_header_1@93:
     intc_1 // 1
-    intc_2 // 2
-    bury 15
-    intc_1 // 1
     swap
+    intc_2 // 2
+    intc_1 // 1
     b main_for_body@92
 
 main_for_header_3@90:
     pushint 3
-    intc_2 // 2
-    bury 8
-    intc_2 // 2
     swap
+    intc_2 // 2
+    dup
     b main_for_body@87
 
 main_for_header_2@89:
     intc_2 // 2
-    intc_1 // 1
-    bury 8
-    intc_1 // 1
     swap
+    intc_1 // 1
+    dup
     b main_for_body@87
 
 main_for_header_1@88:
     intc_1 // 1
-    intc_2 // 2
-    bury 8
-    intc_1 // 1
     swap
+    intc_2 // 2
+    intc_1 // 1
     b main_for_body@87
 
 main_mutate_tuple_in_storage_currently_supported_method_route@15:
@@ -430,7 +409,7 @@ main_mutate_tuple_in_storage_currently_supported_method_route@15:
     swap
     itob
     extract 6 2
-    bytec 5 // 0x0004
+    bytec 4 // 0x0004
     swap
     concat
     uncover 2
@@ -445,14 +424,12 @@ main_mutate_tuple_in_storage_currently_supported_method_route@15:
 
 main_mutate_local_tuple_route@14:
     intc_0 // 0
-    bury 10
 
 main_for_header@37:
-    dig 9
+    dup
     pushint 3
     <
     bz main_after_for@39
-    dig 9
     dup
     intc_3 // 8
     *
@@ -466,7 +443,6 @@ main_for_header@37:
     assert
     intc_1 // 1
     +
-    bury 10
     b main_for_header@37
 
 main_after_for@39:
@@ -492,24 +468,23 @@ main_load_tuple_from_local_state_or_default_route@13:
     pushint 4
     intc_2 // 2
     callsub simple_tup
-    bury 6
-    bury 6
+    cover 3
+    cover 2
     intc_0 // 0
     uncover 2
     app_local_get_ex
-    swap
-    bury 17
     bz main_ternary_false@43
-    dig 15
+    bury 1
+    bury 1
     dup
     intc_0 // 0
     extract_uint64
     swap
     intc_3 // 8
     extract_uint64
+    swap
 
 main_ternary_merge@44:
-    swap
     itob
     swap
     itob
@@ -522,8 +497,7 @@ main_ternary_merge@44:
     return
 
 main_ternary_false@43:
-    dig 3
-    dig 3
+    pop
     b main_ternary_merge@44
 
 main_load_tuple_from_box_or_default_route@12:
@@ -539,22 +513,21 @@ main_load_tuple_from_box_or_default_route@12:
     pushint 4
     intc_2 // 2
     callsub simple_tup
-    bury 7
-    bury 7
-    box_get
+    cover 2
     swap
-    bury 17
+    box_get
     bz main_ternary_false@48
-    dig 15
+    bury 1
+    bury 1
     dup
     intc_0 // 0
     extract_uint64
     swap
     intc_3 // 8
     extract_uint64
+    swap
 
 main_ternary_merge@49:
-    swap
     itob
     swap
     itob
@@ -567,8 +540,7 @@ main_ternary_merge@49:
     return
 
 main_ternary_false@48:
-    dig 5
-    dig 5
+    pop
     b main_ternary_merge@49
 
 main_maybe_load_tuple_from_box_route@11:
@@ -583,27 +555,25 @@ main_maybe_load_tuple_from_box_route@11:
     concat
     box_get
     dup
-    cover 2
-    bury 13
-    bury 17
+    uncover 2
+    swap
     bz main_ternary_false@53
-    dig 15
     dup
     intc_0 // 0
     extract_uint64
     swap
     intc_3 // 8
     extract_uint64
+    swap
 
 main_ternary_merge@54:
-    swap
     itob
     swap
     itob
     concat
     pushbytes 0x00
     intc_0 // 0
-    dig 13
+    uncover 3
     setbit
     concat
     bytec_0 // 0x151f7c75
@@ -614,7 +584,8 @@ main_ternary_merge@54:
     return
 
 main_ternary_false@53:
-    bytec_3 // ""
+    pop
+    pushbytes ""
     dup
     b main_ternary_merge@54
 
@@ -688,7 +659,7 @@ main_store_tuple_in_box_route@8:
 
 main_load_tuple_route@7:
     intc_0 // 0
-    bytec 6 // "pwl"
+    bytec 5 // "pwl"
     app_global_get_ex
     assert // check self.pwl exists
     bytec_0 // 0x151f7c75
@@ -700,13 +671,10 @@ main_load_tuple_route@7:
 
 main_store_tuple_route@6:
     txna ApplicationArgs 1
-    dup
-    bury 16
-    dup
+    dupn 2
     len
     dup
-    cover 2
-    bury 3
+    uncover 2
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
@@ -764,7 +732,7 @@ main_store_tuple_route@6:
     pushint 22
     +
     dup
-    bury 16
+    cover 3
     dig 1
     intc_2 // 2
     extract_uint16 // on error: invalid tuple encoding
@@ -778,30 +746,27 @@ main_store_tuple_route@6:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 14
+    cover 2
     intc_2 // 2
     *
-    bury 9
+    swap
     extract 2 0
-    bury 17
     intc_0 // 0
-    bury 9
 
 main_for_header@65:
-    dig 8
-    dig 12
+    dup
+    dig 4
     <
     bz main_after_for@67
-    dig 8
     dup
     intc_2 // 2
     *
-    dig 18
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 11
+    uncover 5
     dup
     cover 4
     ==
@@ -842,23 +807,21 @@ main_for_header@65:
     +
     +
     +
-    bury 9
+    cover 2
     intc_1 // 1
     +
-    bury 9
     b main_for_header@65
 
 main_after_for@67:
-    dig 7
+    popn 2
+    bury 1
     intc_2 // 2
     +
-    dig 13
     +
-    dig 1
     ==
     assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
-    bytec 6 // "pwl"
-    dig 15
+    bytec 5 // "pwl"
+    swap
     app_global_put
     intc_1 // 1
     return

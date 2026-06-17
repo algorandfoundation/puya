@@ -3,16 +3,14 @@
 
 // test_cases.tuple_support.tuple_support.TupleSupport.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 3
-    bytecblock 0x "state"
-    intc_0 // 0
-    bytec_0 // ""
+    intcblock 1 0 2 3
+    bytecblock "state"
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/tuple_support.py:6
     // self.state = UInt64(0)
-    bytec_1 // "state"
-    intc_0 // 0
+    bytec_0 // "state"
+    intc_1 // 0
     app_global_put
 
 main_after_if_else@2:
@@ -26,12 +24,12 @@ main_after_if_else@2:
     log
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 1
+    intc_0 // 1
     intc_2 // 2
     // tuple_support/tuple_support.py:12
     // (did_overflow, self.state) = op.addw(a, b)
     addw
-    bytec_1 // "state"
+    bytec_0 // "state"
     dig 1
     app_global_put
     // tuple_support/tuple_support.py:13
@@ -90,12 +88,10 @@ main_after_if_else@2:
     log
     // tuple_support/tuple_support.py:132
     // result = Bytes()
-    bytec_0 // 0x
-    bury 2
+    pushbytes 0x
     // tuple_support/tuple_support.py:133
     // for _i in urange(count):
-    intc_0 // 0
-    bury 1
+    intc_1 // 0
 
 main_for_header@24:
     // tuple_support/tuple_support.py:133
@@ -110,30 +106,28 @@ main_for_header@24:
     bz main_after_for@27
     // tuple_support/tuple_support.py:134
     // result += b
-    dig 1
+    swap
     // tuple_support/tuple_support.py:40
     // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
     pushbytes 0x6e61
     // tuple_support/tuple_support.py:134
     // result += b
     concat
-    bury 2
+    swap
     // tuple_support/tuple_support.py:133
     // for _i in urange(count):
-    dup
-    intc_1 // 1
+    intc_0 // 1
     +
-    bury 1
     b main_for_header@24
 
 main_after_for@27:
+    pop
     // tuple_support/tuple_support.py:40
     // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
-    dig 1
     log
     // tuple_support/tuple_support.py:44
     // UInt64(1),
-    intc_1 // 1
+    intc_0 // 1
     // tuple_support/tuple_support.py:45
     // UInt64(2),
     intc_2 // 2
@@ -174,34 +168,32 @@ add_three_values:
     // @subroutine
     // def add_three_values(values: tuple[UInt64, UInt64, UInt64]) -> UInt64:
     proto 3 1
+    intc_1 // 0
     // tuple_support/tuple_support.py:140
     // total = UInt64(0)
-    intc_0 // 0
+    dup
     frame_dig -3
-    intc_0 // 0
 
 add_three_values_for_body@1:
     // tuple_support/tuple_support.py:142
     // total += value
-    frame_dig 0
-    uncover 2
     +
-    frame_bury 0
     // tuple_support/tuple_support.py:141
     // for value in values:
+    swap
     switch add_three_values_for_header_1@3 add_three_values_for_header_2@4
     // tuple_support/tuple_support.py:144
     // return total
-    frame_dig 0
-    swap
     retsub
 
 add_three_values_for_header_2@4:
-    frame_dig -1
     intc_2 // 2
+    swap
+    frame_dig -1
     b add_three_values_for_body@1
 
 add_three_values_for_header_1@3:
+    intc_0 // 1
+    swap
     frame_dig -2
-    intc_1 // 1
     b add_three_values_for_body@1

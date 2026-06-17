@@ -55,30 +55,32 @@ subroutine main:
         // offset = op.btoi(Txn.application_args(0))
         txna ApplicationArgs 0                                                          tmp%7#0
         btoi                                                                            offset#0
-        v-store offset#0
+        x-store offset#0                                                                (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:27
         // method = Txn.application_args(1)
-        txna ApplicationArgs 1                                                          method#0
-        v-store method#0
+        txna ApplicationArgs 1                                                          (𝕏) offset#0 | method#0
+        x-store method#0                                                                (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:28
         // if Txn.num_app_args == 2:
-        txn NumAppArgs                                                                  tmp%10#0
-        int 2                                                                           tmp%10#0,2
-        ==                                                                              tmp%11#0
-        bz main_else_body@20 ; b main_if_body@10
+        txn NumAppArgs                                                                  (𝕏) offset#0,method#0 | tmp%10#0
+        int 2                                                                           (𝕏) offset#0,method#0 | tmp%10#0,2
+        ==                                                                              (𝕏) offset#0,method#0 | tmp%11#0
+        bz main_else_body@20 ; b main_if_body@10                                        (𝕏) offset#0,method#0 |
 
-    main_if_body@10:
+    main_if_body@10:                                                                    (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:29
         // if method == b"get_guaranteed_data":
-        v-load method#0                                                                 method#0
-        byte 0x6765745f67756172616e746565645f64617461                                   method#0,0x6765745f67756172616e746565645f64617461
-        ==                                                                              tmp%12#0
-        bz main_else_body@12 ; b main_if_body@11
+        x-load-copy method#0                                                            (𝕏) offset#0,method#0 | method#0 (copy)
+        byte 0x6765745f67756172616e746565645f64617461                                   (𝕏) offset#0,method#0 | method#0 (copy),0x6765745f67756172616e746565645f64617461
+        ==                                                                              (𝕏) offset#0,method#0 | tmp%12#0
+        bz main_else_body@12 ; b main_if_body@11                                        (𝕏) offset#0,method#0 |
 
-    main_if_body@11:
+    main_if_body@11:                                                                    (𝕏) offset#0,method#0 |
+        x-load method#0                                                                 (𝕏) offset#0 | method#0
+        pop 1                                                                           (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:55
         // return self.local[for_account]
-        v-load offset#0                                                                 offset#0
+        x-load offset#0                                                                 offset#0
         int 0                                                                           offset#0,0
         byte "local"                                                                    offset#0,0,"local"
         app_local_get_ex                                                                maybe_value%0#0,maybe_exists%0#0
@@ -89,18 +91,20 @@ subroutine main:
         log
         b main_after_if_else@19
 
-    main_else_body@12:
+    main_else_body@12:                                                                  (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:31
         // elif method == b"get_data_or_assert":
-        v-load method#0                                                                 method#0
-        byte 0x6765745f646174615f6f725f617373657274                                     method#0,0x6765745f646174615f6f725f617373657274
-        ==                                                                              tmp%14#0
-        bz main_else_body@14 ; b main_if_body@13
+        x-load-copy method#0                                                            (𝕏) offset#0,method#0 | method#0 (copy)
+        byte 0x6765745f646174615f6f725f617373657274                                     (𝕏) offset#0,method#0 | method#0 (copy),0x6765745f646174615f6f725f617373657274
+        ==                                                                              (𝕏) offset#0,method#0 | tmp%14#0
+        bz main_else_body@14 ; b main_if_body@13                                        (𝕏) offset#0,method#0 |
 
-    main_if_body@13:
+    main_if_body@13:                                                                    (𝕏) offset#0,method#0 |
+        x-load method#0                                                                 (𝕏) offset#0 | method#0
+        pop 1                                                                           (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:63
         // result, exists = self.local.maybe(for_account)
-        v-load offset#0                                                                 offset#0
+        x-load offset#0                                                                 offset#0
         int 0                                                                           offset#0,0
         byte "local"                                                                    offset#0,0,"local"
         app_local_get_ex                                                                result#0,exists#0
@@ -113,18 +117,18 @@ subroutine main:
         log
         b main_after_if_else@19
 
-    main_else_body@14:
+    main_else_body@14:                                                                  (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:33
         // elif method == b"delete_data":
-        v-load method#0                                                                 method#0
-        byte 0x64656c6574655f64617461                                                   method#0,0x64656c6574655f64617461
-        ==                                                                              tmp%16#0
-        bz main_else_body@16 ; b main_if_body@15
+        x-load method#0                                                                 (𝕏) offset#0 | method#0
+        byte 0x64656c6574655f64617461                                                   (𝕏) offset#0 | method#0,0x64656c6574655f64617461
+        ==                                                                              (𝕏) offset#0 | tmp%16#0
+        bz main_else_body@16 ; b main_if_body@15                                        (𝕏) offset#0 |
 
-    main_if_body@15:
+    main_if_body@15:                                                                    (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:73
         // del self.local[for_account]
-        v-load offset#0                                                                 offset#0
+        x-load offset#0                                                                 offset#0
         byte "local"                                                                    offset#0,"local"
         app_local_del
         // local_state/local_state_with_offsets.py:35
@@ -133,11 +137,11 @@ subroutine main:
         log
         b main_after_if_else@19
 
-    main_else_body@16:
+    main_else_body@16:                                                                  (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:37
         // return False
-        int 0                                                                           0
-        return
+        int 0                                                                           (𝕏) offset#0 | 0
+        return                                                                          (𝕏) offset#0 |
 
     main_after_if_else@19:
         // local_state/local_state_with_offsets.py:38
@@ -145,49 +149,51 @@ subroutine main:
         int 1                                                                           1
         return
 
-    main_else_body@20:
+    main_else_body@20:                                                                  (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:39
         // elif Txn.num_app_args == 3:
-        txn NumAppArgs                                                                  tmp%17#0
-        int 3                                                                           tmp%17#0,3
-        ==                                                                              tmp%18#0
-        bz main_else_body@28 ; b main_if_body@21
+        txn NumAppArgs                                                                  (𝕏) offset#0,method#0 | tmp%17#0
+        int 3                                                                           (𝕏) offset#0,method#0 | tmp%17#0,3
+        ==                                                                              (𝕏) offset#0,method#0 | tmp%18#0
+        bz main_else_body@28 ; b main_if_body@21                                        (𝕏) offset#0,method#0 |
 
-    main_if_body@21:
+    main_if_body@21:                                                                    (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:40
         // if method == b"set_data":
-        v-load method#0                                                                 method#0
-        byte 0x7365745f64617461                                                         method#0,0x7365745f64617461
-        ==                                                                              tmp%19#0
-        bz main_else_body@23 ; b main_if_body@22
+        x-load-copy method#0                                                            (𝕏) offset#0,method#0 | method#0 (copy)
+        byte 0x7365745f64617461                                                         (𝕏) offset#0,method#0 | method#0 (copy),0x7365745f64617461
+        ==                                                                              (𝕏) offset#0,method#0 | tmp%19#0
+        bz main_else_body@23 ; b main_if_body@22                                        (𝕏) offset#0,method#0 |
 
-    main_if_body@22:
+    main_if_body@22:                                                                    (𝕏) offset#0,method#0 |
+        x-load method#0                                                                 (𝕏) offset#0 | method#0
+        pop 1                                                                           (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:41
         // self.set_data(offset, Txn.application_args(2))
-        txna ApplicationArgs 2                                                          value#0
+        txna ApplicationArgs 2                                                          (𝕏) offset#0 | value#0
         // local_state/local_state_with_offsets.py:69
         // self.local[for_account] = value
-        v-load offset#0                                                                 value#0,offset#0
+        x-load offset#0                                                                 value#0,offset#0
         byte "local"                                                                    value#0,offset#0,"local"
         l-load value#0 2                                                                offset#0,"local",value#0
         app_local_put
         b main_after_if_else@27
 
-    main_else_body@23:
+    main_else_body@23:                                                                  (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:42
         // elif method == b"get_data_with_default":
-        v-load method#0                                                                 method#0
-        byte 0x6765745f646174615f776974685f64656661756c74                               method#0,0x6765745f646174615f776974685f64656661756c74
-        ==                                                                              tmp%21#0
-        bz main_else_body@25 ; b main_if_body@24
+        x-load method#0                                                                 (𝕏) offset#0 | method#0
+        byte 0x6765745f646174615f776974685f64656661756c74                               (𝕏) offset#0 | method#0,0x6765745f646174615f776974685f64656661756c74
+        ==                                                                              (𝕏) offset#0 | tmp%21#0
+        bz main_else_body@25 ; b main_if_body@24                                        (𝕏) offset#0 |
 
-    main_if_body@24:
+    main_if_body@24:                                                                    (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:43
         // log(self.get_data_with_default(offset, Txn.application_args(2)))
-        txna ApplicationArgs 2                                                          default#0
+        txna ApplicationArgs 2                                                          (𝕏) offset#0 | default#0
         // local_state/local_state_with_offsets.py:59
         // return self.local.get(for_account, default)
-        v-load offset#0                                                                 default#0,offset#0
+        x-load offset#0                                                                 default#0,offset#0
         int 0                                                                           default#0,offset#0,0
         byte "local"                                                                    default#0,offset#0,0,"local"
         app_local_get_ex                                                                default#0,maybe_value%0#0,maybe_exists%0#0
@@ -200,11 +206,11 @@ subroutine main:
         log
         b main_after_if_else@27
 
-    main_else_body@25:
+    main_else_body@25:                                                                  (𝕏) offset#0 |
         // local_state/local_state_with_offsets.py:45
         // return False
-        int 0                                                                           0
-        return
+        int 0                                                                           (𝕏) offset#0 | 0
+        return                                                                          (𝕏) offset#0 |
 
     main_after_if_else@27:
         // local_state/local_state_with_offsets.py:46
@@ -212,10 +218,10 @@ subroutine main:
         int 1                                                                           1
         return
 
-    main_else_body@28:
+    main_else_body@28:                                                                  (𝕏) offset#0,method#0 |
         // local_state/local_state_with_offsets.py:48
         // return False
-        int 0                                                                           0
-        return
+        int 0                                                                           (𝕏) offset#0,method#0 | 0
+        return                                                                          (𝕏) offset#0,method#0 |
 
 

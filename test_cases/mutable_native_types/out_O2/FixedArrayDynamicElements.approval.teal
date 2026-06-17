@@ -3,11 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 0 1 6
+    intcblock 2 1 0 6
     bytecblock "data"
-    intc_1 // 0
-    pushbytes ""
-    dupn 2
     txn ApplicationID
     bnz main_after_if_else@2
     global LatestTimestamp
@@ -62,7 +59,7 @@ main_read_at_index_route@7:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    intc_1 // 0
+    intc_2 // 0
     bytec_0 // "data"
     app_global_get_ex
     assert // check self.data exists
@@ -75,7 +72,7 @@ main_read_at_index_route@7:
     dig 1
     len
     uncover 3
-    intc_2 // 1
+    intc_1 // 1
     +
     dup
     intc_0 // 2
@@ -92,7 +89,7 @@ main_read_at_index_route@7:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_write_at_index_route@6:
@@ -105,7 +102,7 @@ main_write_at_index_route@6:
     btoi
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_0 // 2
     +
@@ -127,17 +124,17 @@ main_write_at_index_route@6:
     concat
     swap
     concat
-    intc_1 // 0
+    intc_2 // 0
     bytec_0 // "data"
     app_global_get_ex
     assert // check self.data exists
     dig 1
     len
-    bury 5
+    cover 3
     dup
     len
     dig 3
-    intc_2 // 1
+    intc_1 // 1
     +
     intc_0 // 2
     *
@@ -147,7 +144,7 @@ main_write_at_index_route@6:
     pushint 3
     dig 6
     -
-    intc_2 // 1
+    intc_1 // 1
     -
     dig 3
     cover 2
@@ -160,9 +157,9 @@ main_write_at_index_route@6:
     extract_uint16
     dup2
     -
-    bury 7
+    cover 6
     dig 4
-    intc_1 // 0
+    intc_2 // 0
     uncover 2
     substring3
     uncover 5
@@ -172,19 +169,16 @@ main_write_at_index_route@6:
     uncover 4
     substring3
     concat
-    bury 5
-    bury 3
+    swap
 
 main_for_header@15:
-    dig 2
+    dup
     intc_3 // 6
     <
     bz main_after_for@17
-    dig 3
+    swap
     dup
-    dig 4
-    dup
-    cover 3
+    dig 2
     extract_uint16
     dig 4
     +
@@ -195,17 +189,17 @@ main_for_header@15:
     dig 2
     swap
     replace3
-    bury 5
+    swap
     intc_0 // 2
     +
-    bury 3
     b main_for_header@15
 
 main_after_for@17:
+    pop
     bytec_0 // "data"
-    dig 4
+    swap
     app_global_put
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main___algopy_default_create@11:

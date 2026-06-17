@@ -173,229 +173,231 @@ subroutine test:
         assert // invalid number of bytes for arc4.uint64        x#0,tmp%2#0
         l-load tmp%2#0 0                                         x#0,tmp%2#0
         btoi                                                     x#0,y#0
-        l-store-copy y#0 0                                       x#0,y#0,y#0 (copy)
-        v-store y#0                                              x#0,y#0
-        txna ApplicationArgs 3                                   x#0,y#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                    x#0,y#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                      x#0,y#0,tmp%4#0,len%2#0
-        int 8                                                    x#0,y#0,tmp%4#0,len%2#0,8
-        ==                                                       x#0,y#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64        x#0,y#0,tmp%4#0
-        l-load tmp%4#0 0                                         x#0,y#0,tmp%4#0
-        btoi                                                     x#0,y#0,z#0
-        l-store-copy z#0 0                                       x#0,y#0,z#0,z#0 (copy)
-        v-store z#0                                              x#0,y#0,z#0
+        l-store-copy y#0 0                                       x#0,y#0,y#0
+        x-store y#0                                              (𝕏) y#0 | x#0,y#0
+        txna ApplicationArgs 3                                   (𝕏) y#0 | x#0,y#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                    (𝕏) y#0 | x#0,y#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                      (𝕏) y#0 | x#0,y#0,tmp%4#0,len%2#0
+        int 8                                                    (𝕏) y#0 | x#0,y#0,tmp%4#0,len%2#0,8
+        ==                                                       (𝕏) y#0 | x#0,y#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for arc4.uint64        (𝕏) y#0 | x#0,y#0,tmp%4#0
+        l-load tmp%4#0 0                                         (𝕏) y#0 | x#0,y#0,tmp%4#0
+        btoi                                                     (𝕏) y#0 | x#0,y#0,z#0
+        l-store-copy z#0 0                                       (𝕏) y#0 | x#0,y#0,z#0,z#0 (copy)
+        v-store z#0                                              (𝕏) y#0 | x#0,y#0,z#0
         // debug/contract.py:7
         // a = x * TemplateVar[UInt64]("A_MULT")
-        l-load-copy x#0 2                                        x#0,y#0,z#0,x#0 (copy)
-        int TMPL_A_MULT                                          x#0,y#0,z#0,x#0 (copy),TMPL_A_MULT
-        *                                                        x#0,y#0,z#0,a#0
-        v-store a#0                                              x#0,y#0,z#0
+        l-load-copy x#0 2                                        (𝕏) y#0 | x#0,y#0,z#0,x#0 (copy)
+        int TMPL_A_MULT                                          (𝕏) y#0 | x#0,y#0,z#0,x#0 (copy),TMPL_A_MULT
+        *                                                        (𝕏) y#0 | x#0,y#0,z#0,a#0
+        x-store a#0                                              (𝕏) y#0,a#0 | x#0,y#0,z#0
         // debug/contract.py:8
         // b = x + y
-        l-load x#0 2                                             y#0,z#0,x#0
-        l-load y#0 2                                             z#0,x#0,y#0
-        +                                                        z#0,b#0
-        l-store-copy b#0 0                                       z#0,b#0,b#0 (copy)
-        v-store b#0                                              z#0,b#0
+        l-load x#0 2                                             (𝕏) y#0,a#0 | y#0,z#0,x#0
+        l-load y#0 2                                             (𝕏) y#0,a#0 | z#0,x#0,y#0
+        +                                                        (𝕏) y#0,a#0 | z#0,b#0
+        l-store-copy b#0 0                                       (𝕏) y#0,a#0 | z#0,b#0,b#0
+        x-store b#0                                              (𝕏) y#0,b#0,a#0 | z#0,b#0
         // debug/contract.py:9
         // c = b * z
-        l-load-copy b#0 0                                        z#0,b#0,b#0 (copy)
-        l-load z#0 2                                             b#0,b#0 (copy),z#0
-        *                                                        b#0,c#0
-        l-store-copy c#0 0                                       b#0,c#0,c#0 (copy)
-        v-store c#0                                              b#0,c#0
+        l-load-copy b#0 0                                        (𝕏) y#0,b#0,a#0 | z#0,b#0,b#0 (copy)
+        l-load z#0 2                                             (𝕏) y#0,b#0,a#0 | b#0,b#0 (copy),z#0
+        *                                                        (𝕏) y#0,b#0,a#0 | b#0,c#0
+        l-store-copy c#0 0                                       (𝕏) y#0,b#0,a#0 | b#0,c#0,c#0
+        x-store c#0                                              (𝕏) y#0,c#0,b#0,a#0 | b#0,c#0
         // debug/contract.py:10
         // if b < c:
-        l-load b#0 1                                             c#0,b#0
-        l-load c#0 1                                             b#0,c#0
-        <                                                        tmp%3#1
-        bz test_else_body@3 ; b test_if_body@2
+        l-load b#0 1                                             (𝕏) y#0,c#0,b#0,a#0 | c#0,b#0
+        l-load c#0 1                                             (𝕏) y#0,c#0,b#0,a#0 | b#0,c#0
+        <                                                        (𝕏) y#0,c#0,b#0,a#0 | tmp%3#1
+        bz test_else_body@3 ; b test_if_body@2                   (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_if_body@2:
+    test_if_body@2:                                              (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:11
         // a = a + y
-        v-load a#0                                               a#0
-        v-load y#0                                               a#0,y#0
-        +                                                        a#0
-        v-store a#0
-        b test_after_if_else@12
+        x-load a#0                                               (𝕏) y#0,c#0,b#0 | a#0
+        x-load-copy y#0                                          (𝕏) y#0,c#0,b#0 | a#0,y#0 (copy)
+        +                                                        (𝕏) y#0,c#0,b#0 | a#0
+        x-store a#0                                              (𝕏) y#0,c#0,b#0,a#0 |
+        b test_after_if_else@12                                  (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_else_body@3:
+    test_else_body@3:                                            (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:12
         // elif a < c:
-        v-load a#0                                               a#0
-        v-load c#0                                               a#0,c#0
-        <                                                        tmp%5#1
-        bz test_else_body@5 ; b test_if_body@4
+        x-load-copy a#0                                          (𝕏) y#0,c#0,b#0,a#0 | a#0 (copy)
+        x-load-copy c#0                                          (𝕏) y#0,c#0,b#0,a#0 | a#0 (copy),c#0 (copy)
+        <                                                        (𝕏) y#0,c#0,b#0,a#0 | tmp%5#1
+        bz test_else_body@5 ; b test_if_body@4                   (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_if_body@4:
+    test_if_body@4:                                              (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:13
         // a = a + z
-        v-load a#0                                               a#0
-        v-load z#0                                               a#0,z#0
-        +                                                        a#0
-        v-store a#0
-        b test_after_if_else@12
+        x-load a#0                                               (𝕏) y#0,c#0,b#0 | a#0
+        v-load z#0                                               (𝕏) y#0,c#0,b#0 | a#0,z#0
+        +                                                        (𝕏) y#0,c#0,b#0 | a#0
+        x-store a#0                                              (𝕏) y#0,c#0,b#0,a#0 |
+        b test_after_if_else@12                                  (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_else_body@5:
+    test_else_body@5:                                            (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:14
         // elif b < a:
-        v-load b#0                                               b#0
-        v-load a#0                                               b#0,a#0
-        <                                                        tmp%7#1
-        bz test_else_body@7 ; b test_if_body@6
+        x-load-copy b#0                                          (𝕏) y#0,c#0,b#0,a#0 | b#0 (copy)
+        x-load-copy a#0                                          (𝕏) y#0,c#0,b#0,a#0 | b#0 (copy),a#0 (copy)
+        <                                                        (𝕏) y#0,c#0,b#0,a#0 | tmp%7#1
+        bz test_else_body@7 ; b test_if_body@6                   (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_if_body@6:
+    test_if_body@6:                                              (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:15
         // a = a * 3
-        v-load a#0                                               a#0
-        int 3                                                    a#0,3
-        *                                                        a#0
-        v-store a#0
-        b test_after_if_else@12
+        x-load a#0                                               (𝕏) y#0,c#0,b#0 | a#0
+        int 3                                                    (𝕏) y#0,c#0,b#0 | a#0,3
+        *                                                        (𝕏) y#0,c#0,b#0 | a#0
+        x-store a#0                                              (𝕏) y#0,c#0,b#0,a#0 |
+        b test_after_if_else@12                                  (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_else_body@7:
+    test_else_body@7:                                            (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:16
         // elif b > a:
-        v-load b#0                                               b#0
-        v-load a#0                                               b#0,a#0
-        >                                                        tmp%9#0
-        bz test_after_if_else@12 ; b test_if_body@8
+        x-load-copy b#0                                          (𝕏) y#0,c#0,b#0,a#0 | b#0 (copy)
+        x-load-copy a#0                                          (𝕏) y#0,c#0,b#0,a#0 | b#0 (copy),a#0 (copy)
+        >                                                        (𝕏) y#0,c#0,b#0,a#0 | tmp%9#0
+        bz test_after_if_else@12 ; b test_if_body@8              (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_if_body@8:
+    test_if_body@8:                                              (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:17
         // b = b + a
-        v-load b#0                                               b#0
-        v-load a#0                                               b#0,a#0
-        +                                                        b#0
-        v-store b#0
-        b test_after_if_else@12
+        x-load b#0                                               (𝕏) y#0,c#0,a#0 | b#0
+        x-load-copy a#0                                          (𝕏) y#0,c#0,a#0 | b#0,a#0 (copy)
+        +                                                        (𝕏) y#0,c#0,a#0 | b#0
+        x-store b#0                                              (𝕏) y#0,c#0,b#0,a#0 |
+        b test_after_if_else@12                                  (𝕏) y#0,c#0,b#0,a#0 |
 
-    test_after_if_else@12:
+    test_after_if_else@12:                                       (𝕏) y#0,c#0,b#0,a#0 |
         // debug/contract.py:19
         // if a + b < c:
-        v-load a#0                                               a#0
-        v-load b#0                                               a#0,b#0
-        +                                                        tmp%11#0
-        v-load c#0                                               tmp%11#0,c#0
-        <                                                        tmp%12#0
-        bz test_else_body@14 ; b test_if_body@13
+        x-load-copy a#0                                          (𝕏) y#0,c#0,b#0,a#0 | a#0 (copy)
+        x-load-copy b#0                                          (𝕏) y#0,c#0,b#0,a#0 | a#0 (copy),b#0 (copy)
+        +                                                        (𝕏) y#0,c#0,b#0,a#0 | tmp%11#0
+        x-load c#0                                               (𝕏) y#0,b#0,a#0 | tmp%11#0,c#0
+        <                                                        (𝕏) y#0,b#0,a#0 | tmp%12#0
+        bz test_else_body@14 ; b test_if_body@13                 (𝕏) y#0,b#0,a#0 |
 
-    test_if_body@13:
+    test_if_body@13:                                             (𝕏) y#0,b#0,a#0 |
         // debug/contract.py:20
         // a *= some_func(a, y)
-        v-load a#0                                               a#0
-        l-store-copy a#0 0                                       a#0,a#0 (copy)
-        v-load y#0                                               a#0,a#0 (copy),y#0
-        callsub some_func                                        a#0,tmp%13#0
-        l-load a#0 1                                             tmp%13#0,a#0
-        l-load tmp%13#0 1                                        a#0,tmp%13#0
-        *                                                        a#0
-        v-store a#0
-        b test_after_if_else@15
+        x-load a#0                                               (𝕏) y#0,b#0 | a#0
+        l-store-copy a#0 0                                       (𝕏) y#0,b#0 | a#0,a#0 (copy)
+        x-load y#0                                               (𝕏) b#0 | a#0,a#0 (copy),y#0
+        callsub some_func                                        (𝕏) b#0 | a#0,tmp%13#0
+        l-load a#0 1                                             (𝕏) b#0 | tmp%13#0,a#0
+        l-load tmp%13#0 1                                        (𝕏) b#0 | a#0,tmp%13#0
+        *                                                        (𝕏) b#0 | a#0
+        x-store a#0                                              (𝕏) b#0,a#0 |
+        b test_after_if_else@15                                  (𝕏) b#0,a#0 |
 
-    test_else_body@14:
+    test_else_body@14:                                           (𝕏) y#0,b#0,a#0 |
+        x-load y#0                                               (𝕏) b#0,a#0 | y#0
+        pop 1                                                    (𝕏) b#0,a#0 |
         // debug/contract.py:22
         // b *= some_func(b, z)
-        v-load b#0                                               b#0
-        l-store-copy b#0 0                                       b#0,b#0 (copy)
-        v-load z#0                                               b#0,b#0 (copy),z#0
-        callsub some_func                                        b#0,tmp%15#0
-        l-load b#0 1                                             tmp%15#0,b#0
-        l-load tmp%15#0 1                                        b#0,tmp%15#0
-        *                                                        b#0
-        v-store b#0
-        b test_after_if_else@15
+        x-load b#0                                               (𝕏) a#0 | b#0
+        l-store-copy b#0 0                                       (𝕏) a#0 | b#0,b#0 (copy)
+        v-load z#0                                               (𝕏) a#0 | b#0,b#0 (copy),z#0
+        callsub some_func                                        (𝕏) a#0 | b#0,tmp%15#0
+        l-load b#0 1                                             (𝕏) a#0 | tmp%15#0,b#0
+        l-load tmp%15#0 1                                        (𝕏) a#0 | b#0,tmp%15#0
+        *                                                        (𝕏) a#0 | b#0
+        x-store b#0                                              (𝕏) b#0,a#0 |
+        b test_after_if_else@15                                  (𝕏) b#0,a#0 |
 
-    test_after_if_else@15:
+    test_after_if_else@15:                                       (𝕏) b#0,a#0 |
         // debug/contract.py:24
         // bee = itoa(b)
-        v-load b#0                                               b#0
-        l-store-copy b#0 0                                       b#0,b#0 (copy)
-        callsub itoa                                             b#0,bee#0
-        v-store bee#0                                            b#0
+        x-load-copy b#0                                          (𝕏) b#0,a#0 | b#0
+        l-store-copy b#0 0                                       (𝕏) b#0,a#0 | b#0,b#0 (copy)
+        callsub itoa                                             (𝕏) b#0,a#0 | b#0,bee#0
+        x-store bee#0                                            (𝕏) bee#0,b#0,a#0 | b#0
         // debug/contract.py:25
         // c = a + b
-        v-load a#0                                               b#0,a#0
-        l-store-copy a#0 1                                       a#0,b#0,a#0 (copy)
-        l-load b#0 1                                             a#0,a#0 (copy),b#0
-        +                                                        a#0,c#0
-        l-store-copy c#0 0                                       a#0,c#0,c#0 (copy)
-        v-store c#0                                              a#0,c#0
+        x-load-copy a#0                                          (𝕏) bee#0,b#0,a#0 | b#0,a#0
+        l-store-copy a#0 1                                       (𝕏) bee#0,b#0,a#0 | a#0,b#0,a#0 (copy)
+        l-load b#0 1                                             (𝕏) bee#0,b#0,a#0 | a#0,a#0 (copy),b#0
+        +                                                        (𝕏) bee#0,b#0,a#0 | a#0,c#0
+        l-store-copy c#0 0                                       (𝕏) bee#0,b#0,a#0 | a#0,c#0,c#0
+        x-store c#0                                              (𝕏) bee#0,c#0,b#0,a#0 | a#0,c#0
         // debug/contract.py:26
         // cea = itoa(c)
-        l-load-copy c#0 0                                        a#0,c#0,c#0 (copy)
-        callsub itoa                                             a#0,c#0,cea#0
-        v-store cea#0                                            a#0,c#0
+        l-load-copy c#0 0                                        (𝕏) bee#0,c#0,b#0,a#0 | a#0,c#0,c#0 (copy)
+        callsub itoa                                             (𝕏) bee#0,c#0,b#0,a#0 | a#0,c#0,cea#0
+        x-store cea#0                                            (𝕏) bee#0,c#0,cea#0,b#0,a#0 | a#0,c#0
         // debug/contract.py:28
         // if a < c:
-        l-load a#0 1                                             c#0,a#0
-        l-load c#0 1                                             a#0,c#0
-        <                                                        tmp%20#0
-        bz test_after_if_else@17 ; b test_if_body@16
+        l-load a#0 1                                             (𝕏) bee#0,c#0,cea#0,b#0,a#0 | c#0,a#0
+        l-load c#0 1                                             (𝕏) bee#0,c#0,cea#0,b#0,a#0 | a#0,c#0
+        <                                                        (𝕏) bee#0,c#0,cea#0,b#0,a#0 | tmp%20#0
+        bz test_after_if_else@17 ; b test_if_body@16             (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
 
-    test_if_body@16:
+    test_if_body@16:                                             (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
         // debug/contract.py:29
         // a += c
-        v-load a#0                                               a#0
-        v-load c#0                                               a#0,c#0
-        +                                                        a#0
-        v-store a#0
-        b test_after_if_else@17
+        x-load a#0                                               (𝕏) bee#0,c#0,cea#0,b#0 | a#0
+        x-load-copy c#0                                          (𝕏) bee#0,c#0,cea#0,b#0 | a#0,c#0 (copy)
+        +                                                        (𝕏) bee#0,c#0,cea#0,b#0 | a#0
+        x-store a#0                                              (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
+        b test_after_if_else@17                                  (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
 
-    test_after_if_else@17:
+    test_after_if_else@17:                                       (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
         // debug/contract.py:30
         // if a < b:
-        v-load a#0                                               a#0
-        v-load b#0                                               a#0,b#0
-        <                                                        tmp%22#0
-        bz test_after_if_else@19 ; b test_if_body@18
+        x-load-copy a#0                                          (𝕏) bee#0,c#0,cea#0,b#0,a#0 | a#0 (copy)
+        x-load-copy b#0                                          (𝕏) bee#0,c#0,cea#0,b#0,a#0 | a#0 (copy),b#0 (copy)
+        <                                                        (𝕏) bee#0,c#0,cea#0,b#0,a#0 | tmp%22#0
+        bz test_after_if_else@19 ; b test_if_body@18             (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
 
-    test_if_body@18:
+    test_if_body@18:                                             (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
         // debug/contract.py:31
         // a += b
-        v-load a#0                                               a#0
-        v-load b#0                                               a#0,b#0
-        +                                                        a#0
-        v-store a#0
-        b test_after_if_else@19
+        x-load a#0                                               (𝕏) bee#0,c#0,cea#0,b#0 | a#0
+        x-load-copy b#0                                          (𝕏) bee#0,c#0,cea#0,b#0 | a#0,b#0 (copy)
+        +                                                        (𝕏) bee#0,c#0,cea#0,b#0 | a#0
+        x-store a#0                                              (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
+        b test_after_if_else@19                                  (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
 
-    test_after_if_else@19:
+    test_after_if_else@19:                                       (𝕏) bee#0,c#0,cea#0,b#0,a#0 |
         // debug/contract.py:32
         // if a < b + c:
-        v-load b#0                                               b#0
-        v-load c#0                                               b#0,c#0
-        +                                                        tmp%24#0
-        v-load a#0                                               tmp%24#0,a#0
-        l-load tmp%24#0 1                                        a#0,tmp%24#0
-        <                                                        tmp%25#0
-        bz test_after_if_else@21 ; b test_if_body@20
+        x-load b#0                                               (𝕏) bee#0,c#0,cea#0,a#0 | b#0
+        x-load c#0                                               (𝕏) bee#0,cea#0,a#0 | b#0,c#0
+        +                                                        (𝕏) bee#0,cea#0,a#0 | tmp%24#0
+        x-load-copy a#0                                          (𝕏) bee#0,cea#0,a#0 | tmp%24#0,a#0 (copy)
+        l-load tmp%24#0 1                                        (𝕏) bee#0,cea#0,a#0 | a#0 (copy),tmp%24#0
+        <                                                        (𝕏) bee#0,cea#0,a#0 | tmp%25#0
+        bz test_after_if_else@21 ; b test_if_body@20             (𝕏) bee#0,cea#0,a#0 |
 
-    test_if_body@20:
+    test_if_body@20:                                             (𝕏) bee#0,cea#0,a#0 |
         // debug/contract.py:33
         // a = a * z
-        v-load a#0                                               a#0
-        v-load z#0                                               a#0,z#0
-        *                                                        a#0
-        v-store a#0
-        b test_after_if_else@21
+        x-load a#0                                               (𝕏) bee#0,cea#0 | a#0
+        v-load z#0                                               (𝕏) bee#0,cea#0 | a#0,z#0
+        *                                                        (𝕏) bee#0,cea#0 | a#0
+        x-store a#0                                              (𝕏) bee#0,cea#0,a#0 |
+        b test_after_if_else@21                                  (𝕏) bee#0,cea#0,a#0 |
 
-    test_after_if_else@21:
+    test_after_if_else@21:                                       (𝕏) bee#0,cea#0,a#0 |
         // debug/contract.py:35
         // aye = itoa(a)
-        v-load a#0                                               a#0
-        l-store-copy a#0 0                                       a#0,a#0 (copy)
-        callsub itoa                                             a#0,aye#0
+        x-load a#0                                               (𝕏) bee#0,cea#0 | a#0
+        l-store-copy a#0 0                                       (𝕏) bee#0,cea#0 | a#0,a#0 (copy)
+        callsub itoa                                             (𝕏) bee#0,cea#0 | a#0,aye#0
         // debug/contract.py:36
         // log(aye, bee, cea, sep=" ")
-        byte " "                                                 a#0,aye#0," "
-        concat                                                   a#0,tmp%28#0
-        v-load bee#0                                             a#0,tmp%28#0,bee#0
-        concat                                                   a#0,tmp%29#0
-        byte " "                                                 a#0,tmp%29#0," "
-        concat                                                   a#0,tmp%30#0
-        v-load cea#0                                             a#0,tmp%30#0,cea#0
+        byte " "                                                 (𝕏) bee#0,cea#0 | a#0,aye#0," "
+        concat                                                   (𝕏) bee#0,cea#0 | a#0,tmp%28#0
+        x-load bee#0                                             (𝕏) cea#0 | a#0,tmp%28#0,bee#0
+        concat                                                   (𝕏) cea#0 | a#0,tmp%29#0
+        byte " "                                                 (𝕏) cea#0 | a#0,tmp%29#0," "
+        concat                                                   (𝕏) cea#0 | a#0,tmp%30#0
+        x-load cea#0                                             a#0,tmp%30#0,cea#0
         concat                                                   a#0,tmp%31#0
         log                                                      a#0
         // debug/contract.py:5

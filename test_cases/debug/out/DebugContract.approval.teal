@@ -141,8 +141,6 @@ itoa_after_if_else@2:
 
 // test_cases.debug.contract.DebugContract.test[routing]() -> void:
 test:
-    pushint 0
-    dup
     // debug/contract.py:5
     // @arc4.abimethod
     txna ApplicationArgs 1
@@ -169,7 +167,7 @@ test:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    cover 3
+    cover 4
     // debug/contract.py:7
     // a = x * TemplateVar[UInt64]("A_MULT")
     dig 2
@@ -181,42 +179,38 @@ test:
     cover 2
     +
     dup
-    cover 2
+    cover 3
     // debug/contract.py:9
     // c = b * z
     dup
     uncover 2
     *
     dup
-    cover 2
+    cover 4
     // debug/contract.py:10
     // if b < c:
     <
     bz test_else_body@3
     // debug/contract.py:11
     // a = a + y
-    dig 2
-    dig 5
+    dig 3
     +
-    bury 3
 
 test_after_if_else@12:
     // debug/contract.py:19
     // if a + b < c:
-    dig 2
+    dup
     dig 2
     +
-    dig 1
+    uncover 3
     <
     bz test_else_body@14
     // debug/contract.py:20
     // a *= some_func(a, y)
-    dig 2
     dup
-    dig 6
+    uncover 3
     callsub some_func
     *
-    bury 3
 
 test_after_if_else@15:
     // debug/contract.py:24
@@ -224,75 +218,69 @@ test_after_if_else@15:
     dig 1
     dup
     callsub itoa
-    bury 8
+    cover 3
     // debug/contract.py:25
     // c = a + b
-    dig 3
+    dig 1
     dup
     uncover 2
     +
     dup
-    bury 3
+    cover 4
     // debug/contract.py:26
     // cea = itoa(c)
     dup
     callsub itoa
-    bury 8
+    cover 4
     // debug/contract.py:28
     // if a < c:
     <
     bz test_after_if_else@17
     // debug/contract.py:29
     // a += c
-    dig 2
-    dig 1
+    dig 3
     +
-    bury 3
 
 test_after_if_else@17:
     // debug/contract.py:30
     // if a < b:
-    dig 2
+    dup
     dig 2
     <
     bz test_after_if_else@19
     // debug/contract.py:31
     // a += b
-    dig 2
-    dig 2
+    dig 1
     +
-    bury 3
 
 test_after_if_else@19:
     // debug/contract.py:32
     // if a < b + c:
-    dup2
+    swap
+    uncover 3
     +
-    dig 3
+    dig 1
     >
     bz test_after_if_else@21
     // debug/contract.py:33
     // a = a * z
-    dig 2
-    dig 4
+    dig 3
     *
-    bury 3
 
 test_after_if_else@21:
     // debug/contract.py:35
     // aye = itoa(a)
-    dig 2
     dup
     callsub itoa
     // debug/contract.py:36
     // log(aye, bee, cea, sep=" ")
     bytec_1 // " "
     concat
-    dig 8
+    uncover 3
     concat
     bytec_1 // " "
     concat
-    dig 7
+    uncover 2
     concat
     log
     // debug/contract.py:5
@@ -306,57 +294,53 @@ test_after_if_else@21:
     return
 
 test_else_body@14:
+    uncover 2
+    pop
     // debug/contract.py:22
     // b *= some_func(b, z)
-    dig 1
+    swap
     dup
-    dig 5
+    dig 3
     callsub some_func
     *
-    bury 2
+    swap
     b test_after_if_else@15
 
 test_else_body@3:
     // debug/contract.py:12
     // elif a < c:
-    dig 2
-    dig 1
+    dup
+    dig 3
     <
     bz test_else_body@5
     // debug/contract.py:13
     // a = a + z
-    dig 2
     dig 4
     +
-    bury 3
     b test_after_if_else@12
 
 test_else_body@5:
     // debug/contract.py:14
     // elif b < a:
-    dig 1
-    dig 3
+    dup2
     <
     bz test_else_body@7
     // debug/contract.py:15
     // a = a * 3
-    dig 2
     pushint 3
     *
-    bury 3
     b test_after_if_else@12
 
 test_else_body@7:
     // debug/contract.py:16
     // elif b > a:
-    dig 1
-    dig 3
+    dup2
     >
     bz test_after_if_else@12
     // debug/contract.py:17
     // b = b + a
+    swap
     dig 1
-    dig 3
     +
-    bury 2
+    swap
     b test_after_if_else@12

@@ -4,93 +4,95 @@ subroutine main:
     main_block@0:
         // less_simple/contract.py:9
         // a = UInt64(1)
-        int 1                                           1
-        v-store a#0
+        int 1                                           a#0
+        x-store a#0                                     (𝕏) a#0 |
         // less_simple/contract.py:10
         // sum_of_evens = UInt64(0)
-        int 0                                           0
-        v-store sum_of_evens#0
+        int 0                                           (𝕏) a#0 | sum_of_evens#0
+        x-store sum_of_evens#0                          (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:11
         // product_of_odds = UInt64(0)
-        int 0                                           0
-        v-store product_of_odds#0
-        b main_while_top@1
+        int 0                                           (𝕏) sum_of_evens#0,a#0 | 0
+        v-store product_of_odds#0                       (𝕏) sum_of_evens#0,a#0 |
+        b main_while_top@1                              (𝕏) sum_of_evens#0,a#0 |
 
-    main_while_top@1:
+    main_while_top@1:                                   (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:12
         // while a < 100:
-        v-load a#0                                      a#0
-        int 100                                         a#0,100
-        <                                               tmp%0#0
-        bz main_after_while@13 ; b main_while_body@2
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | a#0 (copy)
+        int 100                                         (𝕏) sum_of_evens#0,a#0 | a#0 (copy),100
+        <                                               (𝕏) sum_of_evens#0,a#0 | tmp%0#0
+        bz main_after_while@13 ; b main_while_body@2    (𝕏) sum_of_evens#0,a#0 |
 
-    main_while_body@2:
+    main_while_body@2:                                  (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:13
         // if a % 5 == 0:
-        v-load a#0                                      a#0
-        int 5                                           a#0,5
-        %                                               tmp%1#0
-        bz main_while_top@1 ; b main_after_if_else@4
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | a#0 (copy)
+        int 5                                           (𝕏) sum_of_evens#0,a#0 | a#0 (copy),5
+        %                                               (𝕏) sum_of_evens#0,a#0 | tmp%1#0
+        bz main_while_top@1 ; b main_after_if_else@4    (𝕏) sum_of_evens#0,a#0 |
 
-    main_after_if_else@4:
+    main_after_if_else@4:                               (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:15
         // if not a % 21:
-        v-load a#0                                      a#0
-        int 21                                          a#0,21
-        %                                               tmp%3#0
-        bz main_after_while@13 ; b main_after_if_else@6
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | a#0 (copy)
+        int 21                                          (𝕏) sum_of_evens#0,a#0 | a#0 (copy),21
+        %                                               (𝕏) sum_of_evens#0,a#0 | tmp%3#0
+        bz main_after_while@13 ; b main_after_if_else@6 (𝕏) sum_of_evens#0,a#0 |
 
-    main_after_if_else@6:
+    main_after_if_else@6:                               (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:17
         // if a % 2 == 0:
-        v-load a#0                                      a#0
-        int 2                                           a#0,2
-        %                                               tmp%5#0
-        bz main_if_body@7 ; b main_else_body@8
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | a#0 (copy)
+        int 2                                           (𝕏) sum_of_evens#0,a#0 | a#0 (copy),2
+        %                                               (𝕏) sum_of_evens#0,a#0 | tmp%5#0
+        bz main_if_body@7 ; b main_else_body@8          (𝕏) sum_of_evens#0,a#0 |
 
-    main_if_body@7:
+    main_if_body@7:                                     (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:18
         // sum_of_evens += a
-        v-load sum_of_evens#0                           sum_of_evens#0
-        v-load a#0                                      sum_of_evens#0,a#0
-        +                                               sum_of_evens#0
-        v-store sum_of_evens#0
-        b main_after_if_else@12
+        x-load sum_of_evens#0                           (𝕏) a#0 | sum_of_evens#0
+        x-load-copy a#0                                 (𝕏) a#0 | sum_of_evens#0,a#0 (copy)
+        +                                               (𝕏) a#0 | sum_of_evens#0
+        x-store sum_of_evens#0                          (𝕏) sum_of_evens#0,a#0 |
+        b main_after_if_else@12                         (𝕏) sum_of_evens#0,a#0 |
 
-    main_else_body@8:
+    main_else_body@8:                                   (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:20
         // if product_of_odds == 0:
-        v-load product_of_odds#0                        product_of_odds#0
-        bz main_if_body@9 ; b main_else_body@10
+        v-load product_of_odds#0                        (𝕏) sum_of_evens#0,a#0 | product_of_odds#0
+        bz main_if_body@9 ; b main_else_body@10         (𝕏) sum_of_evens#0,a#0 |
 
-    main_if_body@9:
-        v-load a#0                                      a#0
-        v-store product_of_odds#0
-        b main_after_if_else@12
+    main_if_body@9:                                     (𝕏) sum_of_evens#0,a#0 |
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | a#0 (copy)
+        v-store product_of_odds#0                       (𝕏) sum_of_evens#0,a#0 |
+        b main_after_if_else@12                         (𝕏) sum_of_evens#0,a#0 |
 
-    main_else_body@10:
+    main_else_body@10:                                  (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:23
         // product_of_odds *= a
-        v-load product_of_odds#0                        product_of_odds#0
-        v-load a#0                                      product_of_odds#0,a#0
-        *                                               product_of_odds#0
-        v-store product_of_odds#0
-        b main_after_if_else@12
+        v-load product_of_odds#0                        (𝕏) sum_of_evens#0,a#0 | product_of_odds#0
+        x-load-copy a#0                                 (𝕏) sum_of_evens#0,a#0 | product_of_odds#0,a#0 (copy)
+        *                                               (𝕏) sum_of_evens#0,a#0 | product_of_odds#0
+        v-store product_of_odds#0                       (𝕏) sum_of_evens#0,a#0 |
+        b main_after_if_else@12                         (𝕏) sum_of_evens#0,a#0 |
 
-    main_after_if_else@12:
+    main_after_if_else@12:                              (𝕏) sum_of_evens#0,a#0 |
         // less_simple/contract.py:24
         // a += 1
-        v-load a#0                                      a#0
-        int 1                                           a#0,1
-        +                                               a#0
-        v-store a#0
-        b main_while_top@1
+        x-load a#0                                      (𝕏) sum_of_evens#0 | a#0
+        int 1                                           (𝕏) sum_of_evens#0 | a#0,1
+        +                                               (𝕏) sum_of_evens#0 | a#0
+        x-store a#0                                     (𝕏) sum_of_evens#0,a#0 |
+        b main_while_top@1                              (𝕏) sum_of_evens#0,a#0 |
 
-    main_after_while@13:
+    main_after_while@13:                                (𝕏) sum_of_evens#0,a#0 |
+        x-load a#0                                      (𝕏) sum_of_evens#0 | a#0
+        pop 1                                           (𝕏) sum_of_evens#0 |
         // less_simple/contract.py:25
         // return product_of_odds - sum_of_evens
-        v-load product_of_odds#0                        product_of_odds#0
-        v-load sum_of_evens#0                           product_of_odds#0,sum_of_evens#0
+        v-load product_of_odds#0                        (𝕏) sum_of_evens#0 | product_of_odds#0
+        x-load sum_of_evens#0                           product_of_odds#0,sum_of_evens#0
         -                                               tmp%11#0
         return
 

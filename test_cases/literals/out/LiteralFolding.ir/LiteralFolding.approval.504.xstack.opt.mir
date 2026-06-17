@@ -39,48 +39,48 @@ subroutine main:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 subroutine is_substring:
     is_substring_block@0:                                           (𝕡) item#0,sequence#0 |
-        int 0                                                       (𝕡) item#0,sequence#0 | 0
-        v-store start#0                                             (𝕡) item#0,sequence#0 |
-        b is_substring_while_top@1                                  (𝕡) item#0,sequence#0 |
+        int 0                                                       (𝕡) item#0,sequence#0 | start#0
+        x-store start#0                                             (𝕡) item#0,sequence#0 | (𝕏) start#0 |
+        b is_substring_while_top@1                                  (𝕡) item#0,sequence#0 | (𝕏) start#0 |
 
-    is_substring_while_top@1:                                       (𝕡) item#0,sequence#0 |
-        p-load item#0                                               (𝕡) item#0,sequence#0 | item#0 (copy)
-        len                                                         (𝕡) item#0,sequence#0 | tmp%0#0
-        v-load start#0                                              (𝕡) item#0,sequence#0 | tmp%0#0,start#0
-        l-load tmp%0#0 1                                            (𝕡) item#0,sequence#0 | start#0,tmp%0#0
-        +                                                           (𝕡) item#0,sequence#0 | tmp%1#0
-        l-store-copy tmp%1#0 0                                      (𝕡) item#0,sequence#0 | tmp%1#0,tmp%1#0 (copy)
-        v-store tmp%1#0                                             (𝕡) item#0,sequence#0 | tmp%1#0
-        p-load sequence#0                                           (𝕡) item#0,sequence#0 | tmp%1#0,sequence#0 (copy)
-        len                                                         (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
-        l-load tmp%1#0 1                                            (𝕡) item#0,sequence#0 | tmp%2#0,tmp%1#0
-        l-load tmp%2#0 1                                            (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
-        <=                                                          (𝕡) item#0,sequence#0 | tmp%3#0
-        bz is_substring_after_while@5 ; b is_substring_while_body@2 (𝕡) item#0,sequence#0 |
+    is_substring_while_top@1:                                       (𝕡) item#0,sequence#0 | (𝕏) start#0 |
+        p-load item#0                                               (𝕡) item#0,sequence#0 | (𝕏) start#0 | item#0 (copy)
+        len                                                         (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%0#0
+        x-load-copy start#0                                         (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%0#0,start#0 (copy)
+        l-load tmp%0#0 1                                            (𝕡) item#0,sequence#0 | (𝕏) start#0 | start#0 (copy),tmp%0#0
+        +                                                           (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%1#0
+        l-store-copy tmp%1#0 0                                      (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%1#0,tmp%1#0
+        x-store tmp%1#0                                             (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%1#0
+        p-load sequence#0                                           (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%1#0,sequence#0 (copy)
+        len                                                         (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%1#0,tmp%2#0
+        l-load tmp%1#0 1                                            (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%2#0,tmp%1#0
+        l-load tmp%2#0 1                                            (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%1#0,tmp%2#0
+        <=                                                          (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | tmp%3#0
+        bz is_substring_after_while@5 ; b is_substring_while_body@2 (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 |
 
-    is_substring_while_body@2:                                      (𝕡) item#0,sequence#0 |
-        p-load sequence#0                                           (𝕡) item#0,sequence#0 | sequence#0 (copy)
-        v-load start#0                                              (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0
-        v-load tmp%1#0                                              (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0,tmp%1#0
-        substring3                                                  (𝕡) item#0,sequence#0 | tmp%6#0
-        p-load item#0                                               (𝕡) item#0,sequence#0 | tmp%6#0,item#0 (copy)
-        l-load tmp%6#0 1                                            (𝕡) item#0,sequence#0 | item#0 (copy),tmp%6#0
-        ==                                                          (𝕡) item#0,sequence#0 | tmp%7#0
-        bz is_substring_after_if_else@4 ; b is_substring_if_body@3  (𝕡) item#0,sequence#0 |
+    is_substring_while_body@2:                                      (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 |
+        p-load sequence#0                                           (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | sequence#0 (copy)
+        x-load-copy start#0                                         (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | sequence#0 (copy),start#0 (copy)
+        x-load tmp%1#0                                              (𝕡) item#0,sequence#0 | (𝕏) start#0 | sequence#0 (copy),start#0 (copy),tmp%1#0
+        substring3                                                  (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%6#0
+        p-load item#0                                               (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%6#0,item#0 (copy)
+        l-load tmp%6#0 1                                            (𝕡) item#0,sequence#0 | (𝕏) start#0 | item#0 (copy),tmp%6#0
+        ==                                                          (𝕡) item#0,sequence#0 | (𝕏) start#0 | tmp%7#0
+        bz is_substring_after_if_else@4 ; b is_substring_if_body@3  (𝕡) item#0,sequence#0 | (𝕏) start#0 |
 
-    is_substring_if_body@3:                                         (𝕡) item#0,sequence#0 |
-        int 1                                                       (𝕡) item#0,sequence#0 | 1
+    is_substring_if_body@3:                                         (𝕡) item#0,sequence#0 | (𝕏) start#0 |
+        int 1                                                       (𝕡) item#0,sequence#0 | (𝕏) start#0 | 1
         retsub                                                      1
 
-    is_substring_after_if_else@4:                                   (𝕡) item#0,sequence#0 |
-        v-load start#0                                              (𝕡) item#0,sequence#0 | start#0
+    is_substring_after_if_else@4:                                   (𝕡) item#0,sequence#0 | (𝕏) start#0 |
+        x-load start#0                                              (𝕡) item#0,sequence#0 | start#0
         int 1                                                       (𝕡) item#0,sequence#0 | start#0,1
         +                                                           (𝕡) item#0,sequence#0 | start#0
-        v-store start#0                                             (𝕡) item#0,sequence#0 |
-        b is_substring_while_top@1                                  (𝕡) item#0,sequence#0 |
+        x-store start#0                                             (𝕡) item#0,sequence#0 | (𝕏) start#0 |
+        b is_substring_while_top@1                                  (𝕡) item#0,sequence#0 | (𝕏) start#0 |
 
-    is_substring_after_while@5:                                     (𝕡) item#0,sequence#0 |
-        int 0                                                       (𝕡) item#0,sequence#0 | 0
+    is_substring_after_while@5:                                     (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 |
+        int 0                                                       (𝕡) item#0,sequence#0 | (𝕏) start#0,tmp%1#0 | 0
         retsub                                                      0
 
 

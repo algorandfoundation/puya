@@ -53,7 +53,7 @@ class TealBuilder(MIRVisitor[None]):
             teal_block = teal.TealBlock(
                 label=mir_block.block_name,
                 ops=builder.ops,
-                x_stack_in=mir_block.x_stack_in or (),
+                x_stack_in=mir_block.x_stack_in,
                 entry_stack_height=mir_block.entry_stack_height,
                 exit_stack_height=mir_block.exit_stack_height,
             )
@@ -223,16 +223,22 @@ class TealBuilder(MIRVisitor[None]):
         )
 
     def visit_load_x_stack(self, load: mir.LoadXStack) -> None:
-        self._add_op(
-            teal.Uncover(
-                load.depth,
+        if load.copy:
+            op: teal.TealOp = teal.Dig(
+                n=load.depth,
+                stack_manipulations=_lstack_manipulations(load),
+                source_location=load.source_location,
+            )
+        else:
+            op = teal.Uncover(
+                n=load.depth,
                 stack_manipulations=[
                     teal.StackPop(load.depth),
                     *_lstack_manipulations(load),
                 ],
                 source_location=load.source_location,
             )
-        )
+        self._add_op(op)
 
     def visit_store_l_stack(self, store: mir.StoreLStack) -> None:
         if store.copy:

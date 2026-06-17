@@ -39,30 +39,30 @@ subroutine main:
     main_after_while@3:
         // ssa/contract.py:18
         // for i in urange(5):
-        int 0                                        value_internal%0#0
-        v-store i#0
-        b main_for_header@4
+        int 0                                        i#0
+        x-store i#0                                  (𝕏) i#0 |
+        b main_for_header@4                          (𝕏) i#0 |
 
-    main_for_header@4:
+    main_for_header@4:                               (𝕏) i#0 |
         // ssa/contract.py:18
         // for i in urange(5):
-        v-load i#0                                   i#0
-        int 5                                        i#0,5
-        <                                            continue_looping%0#0
-        bz main_after_for@7 ; b main_for_body@5
+        x-load-copy i#0                              (𝕏) i#0 | i#0 (copy)
+        int 5                                        (𝕏) i#0 | i#0 (copy),5
+        <                                            (𝕏) i#0 | continue_looping%0#0
+        bz main_after_for@7 ; b main_for_body@5      (𝕏) i#0 |
 
-    main_for_body@5:
+    main_for_body@5:                                 (𝕏) i#0 |
         // ssa/contract.py:19
         // b = b + a
-        v-load b#1                                   b#1
-        v-load a#1                                   b#1,a#1
-        l-store-copy a#1 1                           a#1,b#1,a#1 (copy)
-        +                                            a#1,b#1
-        v-store b#1                                  a#1
+        v-load b#1                                   (𝕏) i#0 | b#1
+        v-load a#1                                   (𝕏) i#0 | b#1,a#1
+        l-store-copy a#1 1                           (𝕏) i#0 | a#1,b#1,a#1 (copy)
+        +                                            (𝕏) i#0 | a#1,b#1
+        v-store b#1                                  (𝕏) i#0 | a#1
         // ssa/contract.py:20
         // a = a + i
-        l-load a#1 0                                 a#1
-        v-load i#0                                   a#1,i#0
+        l-load a#1 0                                 (𝕏) i#0 | a#1
+        x-load i#0                                   a#1,i#0
         l-store-copy i#0 1                           i#0,a#1,i#0 (copy)
         +                                            i#0,a#1
         v-store a#1                                  i#0
@@ -70,11 +70,13 @@ subroutine main:
         // for i in urange(5):
         l-load i#0 0                                 i#0
         int 1                                        i#0,1
-        +                                            value_internal%0#0
-        v-store i#0
-        b main_for_header@4
+        +                                            i#0
+        x-store i#0                                  (𝕏) i#0 |
+        b main_for_header@4                          (𝕏) i#0 |
 
-    main_after_for@7:
+    main_after_for@7:                                (𝕏) i#0 |
+        x-load i#0                                   i#0
+        pop 1
         // ssa/contract.py:22
         // if a < b:
         v-load a#1                                   a#1
@@ -100,8 +102,8 @@ subroutine main:
         // ssa/contract.py:25
         // c = a + b
         +                                            c#0
-        v-store c#0
-        b main_after_if_else@19
+        x-store c#0                                  (𝕏) c#0 |
+        b main_after_if_else@19                      (𝕏) c#0 |
 
     main_else_body@10:
         // ssa/contract.py:28
@@ -119,9 +121,9 @@ subroutine main:
     main_if_body@11:
         // ssa/contract.py:29
         // c = UInt64(2)
-        int 2                                        2
-        v-store c#0
-        b main_after_if_else@19
+        int 2                                        c#0
+        x-store c#0                                  (𝕏) c#0 |
+        b main_after_if_else@19                      (𝕏) c#0 |
 
     main_else_body@12:
         // ssa/contract.py:31
@@ -143,8 +145,8 @@ subroutine main:
         v-load a#1                                   a#1
         v-load b#1                                   a#1,b#1
         *                                            c#0
-        v-store c#0
-        b main_after_if_else@19
+        x-store c#0                                  (𝕏) c#0 |
+        b main_after_if_else@19                      (𝕏) c#0 |
 
     main_else_body@17:
         // ssa/contract.py:35
@@ -152,53 +154,53 @@ subroutine main:
         v-load a#1                                   a#1
         v-load b#1                                   a#1,b#1
         -                                            c#0
-        v-store c#0
-        b main_after_if_else@19
+        x-store c#0                                  (𝕏) c#0 |
+        b main_after_if_else@19                      (𝕏) c#0 |
 
-    main_after_if_else@19:
+    main_after_if_else@19:                           (𝕏) c#0 |
         // ssa/contract.py:49
         // a = UInt64(25)
-        int 25                                       25
-        v-store a#1
+        int 25                                       (𝕏) c#0 | 25
+        v-store a#1                                  (𝕏) c#0 |
         // ssa/contract.py:50
         // b = UInt64(2)
-        int 2                                        2
-        v-store b#1
+        int 2                                        (𝕏) c#0 | 2
+        v-store b#1                                  (𝕏) c#0 |
         // ssa/contract.py:49
         // a = UInt64(25)
-        int 25                                       25
+        int 25                                       (𝕏) c#0 | 25
         // ssa/contract.py:51
         // if a < c:
-        v-load c#0                                   25,c#0
-        <                                            tmp%0#1
-        bz main_after_if_else@22 ; b main_if_body@21
+        x-load-copy c#0                              (𝕏) c#0 | 25,c#0 (copy)
+        <                                            (𝕏) c#0 | tmp%0#1
+        bz main_after_if_else@22 ; b main_if_body@21 (𝕏) c#0 |
 
-    main_if_body@21:
+    main_if_body@21:                                 (𝕏) c#0 |
         // ssa/contract.py:52
         // b = UInt64(1)
-        int 1                                        1
-        v-store b#1
+        int 1                                        (𝕏) c#0 | 1
+        v-store b#1                                  (𝕏) c#0 |
         // ssa/contract.py:53
         // a = UInt64(100)
-        int 100                                      100
-        v-store a#1
-        b main_after_if_else@22
+        int 100                                      (𝕏) c#0 | 100
+        v-store a#1                                  (𝕏) c#0 |
+        b main_after_if_else@22                      (𝕏) c#0 |
 
-    main_after_if_else@22:
+    main_after_if_else@22:                           (𝕏) c#0 |
         // ssa/contract.py:55
         // b *= b
-        v-load b#1                                   b#1
-        l-store-copy b#1 0                           b#1,b#1 (copy)
-        l-load b#1 1                                 b#1 (copy),b#1
-        *                                            b#1
+        v-load b#1                                   (𝕏) c#0 | b#1
+        l-store-copy b#1 0                           (𝕏) c#0 | b#1,b#1 (copy)
+        l-load b#1 1                                 (𝕏) c#0 | b#1 (copy),b#1
+        *                                            (𝕏) c#0 | b#1
         // ssa/contract.py:56
         // return a * b
-        v-load a#1                                   b#1,a#1
-        l-load b#1 1                                 a#1,b#1
-        *                                            tmp%2#1
+        v-load a#1                                   (𝕏) c#0 | b#1,a#1
+        l-load b#1 1                                 (𝕏) c#0 | a#1,b#1
+        *                                            (𝕏) c#0 | tmp%2#1
         // ssa/contract.py:36
         // c = c + one_hundred(c)
-        v-load c#0                                   tmp%2#1,c#0
+        x-load c#0                                   tmp%2#1,c#0
         l-load tmp%2#1 1                             c#0,tmp%2#1
         +                                            c#0
         // ssa/contract.py:37

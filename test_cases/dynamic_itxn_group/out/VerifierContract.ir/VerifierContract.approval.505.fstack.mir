@@ -52,40 +52,40 @@ subroutine verify:
         // dynamic_itxn_group/verifier.py:7
         // for i in urange(Txn.group_index):
         txn GroupIndex                                                   tmp%0#0
-        f-store tmp%0#0                                                  (𝕗) tmp%0#0 |
-        int 0                                                            (𝕗) tmp%0#0 | value_internal%0#0
-        f-store i#0                                                      (𝕗) tmp%0#0,i#0 |
-        b verify_for_header@2                                            (𝕗) tmp%0#0,i#0 |
+        x-store tmp%0#0                                                  (𝕏) tmp%0#0 |
+        int 0                                                            (𝕏) tmp%0#0 | i#0
+        x-store i#0                                                      (𝕏) tmp%0#0,i#0 |
+        b verify_for_header@2                                            (𝕏) tmp%0#0,i#0 |
 
-    verify_for_header@2:                                                 (𝕗) tmp%0#0,i#0 |
+    verify_for_header@2:                                                 (𝕏) tmp%0#0,i#0 |
         // dynamic_itxn_group/verifier.py:7
         // for i in urange(Txn.group_index):
-        f-load i#0                                                       (𝕗) tmp%0#0,i#0 | i#0
-        f-load tmp%0#0                                                   (𝕗) tmp%0#0,i#0 | i#0,tmp%0#0
-        <                                                                (𝕗) tmp%0#0,i#0 | continue_looping%0#0
-        bz verify_after_for@5 ; b verify_for_body@3                      (𝕗) tmp%0#0,i#0 |
+        x-load-copy i#0                                                  (𝕏) tmp%0#0,i#0 | i#0 (copy)
+        x-load-copy tmp%0#0                                              (𝕏) tmp%0#0,i#0 | i#0 (copy),tmp%0#0 (copy)
+        <                                                                (𝕏) tmp%0#0,i#0 | continue_looping%0#0
+        bz verify_after_for@5 ; b verify_for_body@3                      (𝕏) tmp%0#0,i#0 |
 
-    verify_for_body@3:                                                   (𝕗) tmp%0#0,i#0 |
+    verify_for_body@3:                                                   (𝕏) tmp%0#0,i#0 |
         // dynamic_itxn_group/verifier.py:9
         // assert txn.type == TransactionType.Payment, "Txn must be pay"
-        f-load i#0                                                       (𝕗) tmp%0#0,i#0 | i#0
-        l-store-copy i#0 0                                               (𝕗) tmp%0#0,i#0 | i#0,i#0 (copy)
-        gtxns TypeEnum                                                   (𝕗) tmp%0#0,i#0 | i#0,tmp%1#0
-        int pay                                                          (𝕗) tmp%0#0,i#0 | i#0,tmp%1#0,pay
-        ==                                                               (𝕗) tmp%0#0,i#0 | i#0,tmp%2#0
-        assert // Txn must be pay                                        (𝕗) tmp%0#0,i#0 | i#0
+        x-load i#0                                                       (𝕏) tmp%0#0 | i#0
+        l-store-copy i#0 0                                               (𝕏) tmp%0#0 | i#0,i#0 (copy)
+        gtxns TypeEnum                                                   (𝕏) tmp%0#0 | i#0,tmp%1#0
+        int pay                                                          (𝕏) tmp%0#0 | i#0,tmp%1#0,pay
+        ==                                                               (𝕏) tmp%0#0 | i#0,tmp%2#0
+        assert // Txn must be pay                                        (𝕏) tmp%0#0 | i#0
         // dynamic_itxn_group/verifier.py:7
         // for i in urange(Txn.group_index):
-        l-load i#0 0                                                     (𝕗) tmp%0#0,i#0 | i#0
-        int 1                                                            (𝕗) tmp%0#0,i#0 | i#0,1
-        +                                                                (𝕗) tmp%0#0,i#0 | value_internal%0#0
-        f-store i#0                                                      (𝕗) tmp%0#0,i#0 |
-        b verify_for_header@2                                            (𝕗) tmp%0#0,i#0 |
+        l-load i#0 0                                                     (𝕏) tmp%0#0 | i#0
+        int 1                                                            (𝕏) tmp%0#0 | i#0,1
+        +                                                                (𝕏) tmp%0#0 | i#0
+        x-store i#0                                                      (𝕏) tmp%0#0,i#0 |
+        b verify_for_header@2                                            (𝕏) tmp%0#0,i#0 |
 
-    verify_after_for@5:                                                  (𝕗) tmp%0#0,i#0 |
+    verify_after_for@5:                                                  (𝕏) tmp%0#0,i#0 |
         // dynamic_itxn_group/verifier.py:5
         // @public
-        int 1                                                            (𝕗) tmp%0#0,i#0 | 1
-        return                                                           (𝕗) tmp%0#0,i#0 |
+        int 1                                                            (𝕏) tmp%0#0,i#0 | 1
+        return                                                           (𝕏) tmp%0#0,i#0 |
 
 

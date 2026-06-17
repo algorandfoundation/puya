@@ -7,10 +7,8 @@ main:
     bytecblock 0x
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
-    intc_2 // 0
-    dupn 6
     bytec_0 // ""
-    dupn 14
+    dupn 7
     txn NumAppArgs
     bz main___algopy_default_create@19
     txn OnCompletion
@@ -68,23 +66,18 @@ main_test_unobserved_write_route@15:
 main_test_quicksort_route@14:
     callsub _puya_lib.mem.new_slot
     dup
-    bury 3
+    bury 2
     bytec_0 // 0x
     stores
     txn Sender
-    bury 16
     intc_2 // 0
-    bury 7
 
 main_for_header@25:
-    dig 6
+    dup
     pushint 32
     <
     bz main_after_for@27
-    dig 15
-    dig 7
-    dup
-    cover 2
+    dup2
     getbyte
     dig 3
     dup
@@ -96,12 +89,11 @@ main_for_header@25:
     stores
     intc_1 // 1
     +
-    bury 7
     b main_for_header@25
 
 main_after_for@27:
-    dig 1
-    dup
+    popn 2
+    dupn 2
     loads
     len
     intc_0 // 8
@@ -117,37 +109,37 @@ main_after_for@27:
     uncover 2
     callsub quicksort_window
     intc_2 // 0
-    bury 6
+    bury 4
     loads
     len
     intc_0 // 8
     /
-    bury 12
+    bury 5
     intc_2 // 0
-    bury 6
+    bury 4
 
 main_for_header@28:
+    dig 3
     dig 5
-    dig 12
     <
     bz main_overhead_route@7
-    dig 1
+    dup
     loads
-    dig 6
+    dig 4
     dup
     cover 2
     intc_0 // 8
     *
     extract_uint64
     dup
-    dig 7
+    dig 5
     >=
     assert // array is not sorted
     swap
     intc_1 // 1
     +
-    bury 7
     bury 5
+    bury 3
     b main_for_header@28
 
 main_overhead_route@7:
@@ -156,83 +148,76 @@ main_overhead_route@7:
 
 main_test_iteration_route@13:
     bytec_0 // 0x
-    bury 18
     intc_2 // 0
-    bury 1
 
 main_for_header@33:
     dup
     intc_3 // 5
     <
     bz main_after_for@35
-    dig 17
-    dig 1
     dup
     cover 2
     itob
     concat // on error: max array length exceeded
-    bury 19
+    swap
     intc_1 // 1
     +
-    bury 1
     b main_for_header@33
 
 main_after_for@35:
-    dig 17
+    pop
+    dup
     len
     intc_0 // 8
     /
     dup
-    bury 15
+    bury 9
     intc_3 // 5
     ==
     assert // expected array of length 5
     intc_2 // 0
-    bury 5
+    bury 4
     intc_2 // 0
-    bury 7
+    swap
 
 main_for_header@36:
-    dig 6
-    dig 14
+    dig 1
+    dig 9
     <
     bz main_after_for@38
-    dig 17
-    dig 7
+    dup
+    uncover 2
     dup
     cover 2
     intc_0 // 8
     *
     extract_uint64
     dup
-    dig 7
+    dig 6
     >=
     assert // array is not sorted
     swap
     intc_1 // 1
     +
-    bury 8
+    cover 2
     bury 5
     b main_for_header@36
 
 main_after_for@38:
-    dig 17
+    bury 1
+    dup
     len
     intc_0 // 8
     /
-    bury 13
+    bury 7
     intc_2 // 0
-    bury 8
 
 main_for_header@39:
-    dig 7
-    dig 13
+    dup
+    dig 8
     <
     bz main_after_for@41
-    dig 17
-    dig 8
-    dup
-    cover 2
+    dup2
     intc_0 // 8
     *
     extract_uint64
@@ -241,25 +226,22 @@ main_for_header@39:
     assert // incorrect array value
     intc_1 // 1
     +
-    bury 8
     b main_for_header@39
 
 main_after_for@41:
-    dig 17
+    pop
+    dup
     len
     intc_0 // 8
     /
-    bury 3
 
 main_for_header@42:
-    dig 2
+    dup
     bz main_after_for@44
-    dig 2
     intc_1 // 1
     -
     dup
-    bury 4
-    dig 18
+    dig 2
     swap
     intc_0 // 8
     *
@@ -272,25 +254,21 @@ main_for_header@42:
     b main_for_header@42
 
 main_after_for@44:
+    popn 2
     intc_2 // 0
     itob
-    bury 22
     pushbytes 0x0000
-    bury 21
     bytec_0 // 0x
-    bury 17
     intc_2 // 0
-    bury 9
 
 main_for_header@45:
-    dig 8
+    dup
     intc_3 // 5
     <
     bz main_after_for@47
-    dig 8
     dup
     itob
-    dig 22
+    uncover 3
     dup
     intc_2 // 0
     extract_uint16
@@ -301,23 +279,22 @@ main_for_header@45:
     replace2 0
     dig 1
     concat
-    bury 23
-    dig 18
+    cover 3
+    uncover 2
     swap
     concat // on error: max array length exceeded
-    bury 18
+    swap
     intc_1 // 1
     +
-    bury 9
     b main_for_header@45
 
 main_after_for@47:
-    dig 16
+    pop
     dup
     len
     intc_0 // 8
     /
-    dig 22
+    uncover 2
     dup
     cover 2
     intc_2 // 0
@@ -336,9 +313,7 @@ main_after_for@47:
     assert
     dup
     extract 2 8
-    dig 23
-    dup
-    cover 3
+    dig 2
     b==
     assert
     dup
@@ -369,13 +344,13 @@ main_test_allocations_route@12:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 4
+    bury 2
     intc_2 // 0
-    bury 15
+    bury 8
 
 main_for_header@50:
-    dig 14
-    dig 4
+    dig 7
+    dig 2
     <
     bz main_overhead_route@7
     callsub _puya_lib.mem.new_slot
@@ -384,10 +359,10 @@ main_for_header@50:
     stores
     intc_1 // 1
     callsub add_x
-    dig 14
+    dig 7
     intc_1 // 1
     +
-    bury 15
+    bury 8
     b main_for_header@50
 
 main_test_array_assignment_maximum_cursage_route@11:
@@ -546,29 +521,24 @@ main_test_array_evaluation_order_route@10:
 
 main_test_array_copy_and_extend_route@9:
     bytec_0 // 0x
-    bury 19
     intc_2 // 0
-    bury 9
 
 main_for_header@59:
-    dig 8
+    dup
     intc_3 // 5
     <
     bz main_after_for@61
-    dig 18
-    dig 9
     dup
     cover 2
     itob
     concat // on error: max array length exceeded
-    bury 20
+    swap
     intc_1 // 1
     +
-    bury 9
     b main_for_header@59
 
 main_after_for@61:
-    dig 18
+    pop
     dup
     intc_3 // 5
     itob
@@ -657,29 +627,24 @@ main_after_for@61:
 
 main_test_array_too_long_route@8:
     bytec_0 // 0x
-    bury 20
     intc_2 // 0
-    bury 9
 
 main_for_header@64:
-    dig 8
+    dup
     intc 4 // 512
     <
     bz main_after_for@66
-    dig 19
-    dig 9
     dup
     cover 2
     itob
     concat // on error: max array length exceeded
-    bury 21
+    swap
     intc_1 // 1
     +
-    bury 9
     b main_for_header@64
 
 main_after_for@66:
-    dig 19
+    pop
     dup
     len
     intc_0 // 8
@@ -752,7 +717,6 @@ main_test_array_extend_route@5:
 main_test_array_route@4:
     callsub _puya_lib.mem.new_slot
     dup
-    bury 12
     pushint 42
     itob
     dig 1
@@ -779,17 +743,16 @@ main_test_array_route@4:
     ==
     assert
     pushint 4
-    bury 10
+    swap
     intc_2 // 0
-    bury 15
+    bury 10
 
 main_for_header@68:
-    dig 14
+    dig 9
     pushint 3
     <
     bz main_after_for@70
-    dig 10
-    dup
+    dupn 2
     loads
     dup
     len
@@ -813,22 +776,21 @@ main_for_header@68:
     uncover 2
     swap
     stores
-    dig 10
+    uncover 2
     dup
     cover 2
     ==
     assert
     intc_1 // 1
     -
-    bury 10
-    dig 14
+    swap
+    dig 9
     intc_1 // 1
     +
-    bury 15
+    bury 10
     b main_for_header@68
 
 main_after_for@70:
-    dig 10
     dup
     loads
     dup
@@ -986,7 +948,6 @@ main___algopy_default_create@19:
 quicksort_window:
     proto 3 0
     bytec_0 // ""
-    dup
     frame_dig -2
     frame_dig -1
     +
@@ -1004,58 +965,59 @@ quicksort_window:
 quicksort_window_while_top@3:
     frame_dig -3
     loads
-    frame_dig 4
+    frame_dig 3
     intc_0 // 8
     *
     dup
     frame_bury 0
     extract_uint64
-    frame_dig 2
+    frame_dig 1
     <
     bz quicksort_window_while_top@6
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 4
+    frame_bury 3
     b quicksort_window_while_top@3
 
 quicksort_window_while_top@6:
     frame_dig -3
     loads
-    frame_dig 3
+    frame_dig 2
     intc_0 // 8
     *
     dup
-    frame_bury 1
+    cover 2
     extract_uint64
-    frame_dig 2
+    frame_dig 1
     >
     bz quicksort_window_after_while@10
-    frame_dig 3
+    pop
+    frame_dig 2
     bz quicksort_window_after_while@22
-    frame_dig 3
+    frame_dig 2
     intc_1 // 1
     -
-    frame_bury 3
+    frame_bury 2
     b quicksort_window_while_top@6
 
 quicksort_window_after_while@22:
     frame_dig -2
-    frame_dig 3
+    frame_dig 2
     <
     bz quicksort_window_after_if_else@24
     frame_dig -3
     frame_dig -2
-    frame_dig 3
+    frame_dig 2
     callsub quicksort_window
 
 quicksort_window_after_if_else@24:
-    frame_dig 4
+    frame_dig 3
     frame_dig -1
     <
     bz quicksort_window_after_if_else@26
     frame_dig -3
-    frame_dig 4
+    frame_dig 3
     frame_dig -1
     callsub quicksort_window
 
@@ -1063,16 +1025,14 @@ quicksort_window_after_if_else@26:
     retsub
 
 quicksort_window_after_while@10:
-    frame_dig 4
     frame_dig 3
+    frame_dig 2
     <
     bz quicksort_window_after_if_else@16
     frame_dig -3
     loads
     dup
-    frame_dig 1
-    dup
-    cover 3
+    dig 2
     intc_0 // 8
     extract3 // on error: index access is out of bounds
     dig 1
@@ -1088,43 +1048,43 @@ quicksort_window_after_while@10:
     frame_dig -3
     swap
     stores
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 4
-    frame_dig 3
+    frame_bury 3
+    frame_dig 2
     bz quicksort_window_after_while@22
-    frame_dig 3
+    frame_dig 2
     intc_1 // 1
     -
     dup
-    frame_bury 3
-    frame_dig 4
+    frame_bury 2
+    frame_dig 3
     >=
     bnz quicksort_window_while_top@3
     b quicksort_window_after_while@22
 
 quicksort_window_after_if_else@16:
-    frame_dig 4
+    pop
     frame_dig 3
+    frame_dig 2
     ==
     bz quicksort_window_after_while@22
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 4
-    frame_dig 3
+    frame_bury 3
+    frame_dig 2
     bz quicksort_window_after_while@22
-    frame_dig 3
+    frame_dig 2
     intc_1 // 1
     -
-    frame_bury 3
+    frame_bury 2
     b quicksort_window_after_while@22
 
 
 // test_cases.array.uint64.create_array() -> uint64:
 create_array:
-    proto 0 1
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -1132,25 +1092,23 @@ create_array:
     intc_2 // 0
 
 create_array_for_header@1:
-    frame_dig 1
+    dup
     intc_3 // 5
     <
     bz create_array_after_for@4
-    frame_dig 0
+    dig 1
     dup
     loads
-    frame_dig 1
-    dup
-    cover 3
+    dig 2
     itob
     concat // on error: max array length exceeded
     stores
     intc_1 // 1
     +
-    frame_bury 1
     b create_array_for_header@1
 
 create_array_after_for@4:
+    pop
     retsub
 
 
@@ -1179,15 +1137,13 @@ add_x:
     intc_2 // 0
 
 add_x_for_header@1:
-    frame_dig 0
+    dup
     frame_dig -1
     <
     bz add_x_after_for@4
     frame_dig -2
     loads
-    frame_dig 0
-    dup
-    cover 2
+    dig 1
     itob
     concat // on error: max array length exceeded
     frame_dig -2
@@ -1195,7 +1151,6 @@ add_x_for_header@1:
     stores
     intc_1 // 1
     +
-    frame_bury 0
     b add_x_for_header@1
 
 add_x_after_for@4:

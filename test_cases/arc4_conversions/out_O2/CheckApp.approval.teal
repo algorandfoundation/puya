@@ -4,10 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 2 1 40
-    intc_0 // 0
-    dup
-    pushbytes ""
-    dupn 3
     txn NumAppArgs
     bz main___algopy_default_create@21
     pushbytes 0x33b3499e // method "delete_application()void"
@@ -38,27 +34,23 @@ main_check_static_bytes_route@17:
 
 main_check_static_array_dyn_struct_route@16:
     txna ApplicationArgs 1
-    bury 5
     pushint 6
-    bury 2
     intc_0 // 0
-    bury 3
 
 main_for_header@27:
-    dig 2
+    dup
     pushint 3
     <
     bz main_after_for@29
-    dig 2
     dup
     intc_1 // 2
     *
-    dig 6
+    dig 3
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    uncover 4
     dup
     cover 4
     ==
@@ -82,17 +74,17 @@ main_for_header@27:
     pushint 44
     +
     +
-    bury 3
+    swap
     intc_2 // 1
     +
-    bury 3
     b main_for_header@27
 
 main_after_for@29:
-    dig 4
+    pop
+    swap
     dup
     len
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
     txna ApplicationArgs 2
@@ -113,39 +105,34 @@ main_after_for@29:
 
 main_check_dyn_array_dyn_struct_route@15:
     txna ApplicationArgs 1
-    dup
-    bury 6
-    dup
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 6
+    cover 3
     intc_1 // 2
     *
-    bury 3
+    swap
     dup
     len
-    bury 2
+    cover 2
     extract 2 0
-    bury 6
     intc_0 // 0
-    bury 3
 
 main_for_header@32:
-    dig 2
-    dig 4
+    dup
+    dig 6
     <
     bz main_after_for@34
-    dig 2
     dup
     intc_1 // 2
     *
-    dig 7
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    uncover 5
     dup
     cover 4
     ==
@@ -169,17 +156,15 @@ main_for_header@32:
     pushint 44
     +
     +
-    bury 3
+    cover 2
     intc_2 // 1
     +
-    bury 3
     b main_for_header@32
 
 main_after_for@34:
-    dig 1
+    popn 2
     intc_1 // 2
     +
-    dig 1
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
     txna ApplicationArgs 2
@@ -193,7 +178,6 @@ main_after_for@34:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    dig 5
     ==
     assert // expected to encode correctly
     intc_2 // 1

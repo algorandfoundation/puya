@@ -5,7 +5,7 @@
 main:
     intcblock 1 100 2 0 200
     pushbytes ""
-    dupn 5
+    dupn 2
     intc_0 // 1
 
 main_while_top@41:
@@ -21,22 +21,21 @@ main_while_top@41:
     pushint 21
     %
     bz main_after_while@47
-    dup
     intc_0 // 1
     +
-    bury 1
     b main_while_top@41
 
 main_after_while@47:
+    pop
     intc_0 // 1
     callsub test_swap
     dup
-    bury 6
+    bury 4
     dup
     itob
     log
     bz main_bool_false@3
-    dig 4
+    dig 2
     intc_2 // 2
     <=
     bz main_bool_false@3
@@ -47,12 +46,12 @@ main_bool_merge@4:
     intc_2 // 2
     callsub test_swap
     dup
-    bury 5
+    bury 3
     dup
     itob
     log
     bz main_bool_false@7
-    dig 3
+    dig 1
     intc_2 // 2
     <=
     bz main_bool_false@7
@@ -60,53 +59,49 @@ main_bool_merge@4:
 
 main_bool_merge@8:
     assert
-    pushint 7
-    bury 7
-    pushint 11
-    bury 6
+    pushints 11 7
     intc_0 // 1
     bury 3
     intc_2 // 2
-    bury 2
 
 main_while_top@10:
-    dig 6
+    dig 1
     bz main_after_while@15
 
 main_while_top@12:
-    dig 5
+    dig 2
     bz main_after_while@14
-    dig 5
+    uncover 2
     intc_0 // 1
     -
-    bury 6
-    dig 1
+    cover 2
     dig 3
-    bury 3
-    bury 3
+    swap
+    bury 4
     b main_while_top@12
 
 main_after_while@14:
-    dig 6
+    swap
     intc_0 // 1
     -
-    bury 7
+    swap
     b main_while_top@10
 
 main_after_while@15:
+    popn 3
     intc_3 // 0
-    bury 3
+    bury 1
 
 main_while_top@18:
-    dig 2
+    dup
     intc_0 // 1
     +
     dup
-    bury 4
+    bury 2
     pushint 10
     >=
     bz main_while_top@18
-    dig 2
+    dup
     pushint 10
     ==
     assert
@@ -157,13 +152,11 @@ test_swap_while_top@1:
     intc_0 // 1
     -
     frame_bury -1
-    frame_dig 1
-    frame_dig 0
-    frame_bury 1
-    frame_bury 0
+    swap
     b test_swap_while_top@1
 
 test_swap_after_while@3:
+    pop
     retsub
 
 
@@ -173,14 +166,12 @@ test_tuple_swap:
     intc_3 // 0
 
 test_tuple_swap_for_header@1:
-    frame_dig 0
+    dup
     frame_dig -1
     <
     bz test_tuple_swap_after_for@4
-    frame_dig 0
     intc_0 // 1
     +
-    frame_bury 0
     frame_dig -3
     frame_dig -2
     frame_bury -3

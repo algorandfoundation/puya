@@ -95,7 +95,8 @@ distribute:
     intc_0 // 0
     extract_uint64
     dup
-    uncover 2
+    cover 2
+    cover 4
     dup
     pushint 8
     extract_uint64
@@ -121,29 +122,28 @@ distribute_for_header@2:
     dig 6
     <
     bz distribute_after_for@5
-    dupn 2
+    dup
     intc_3 // 32
     *
-    dig 5
+    dig 3
     swap
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     itxn_next
     itxn_field Receiver
-    dig 2
+    dig 1
     itxn_field Amount
-    dig 3
+    dig 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     intc_1 // 1
     +
-    bury 1
     b distribute_for_header@2
 
 distribute_after_for@5:
+    popn 3
     itxn_next
-    dig 4
     itxn_field ApplicationID
     pushbytes 0x65a9aecc // method "verify()void"
     itxn_field ApplicationArgs
@@ -213,10 +213,8 @@ conditionalBegin_for_header@3:
     itxn_field Fee
 
 conditionalBegin_after_if_else@7:
-    dup
     intc_1 // 1
     +
-    bury 1
     b conditionalBegin_for_header@3
 
 conditionalBegin_else_body@6:

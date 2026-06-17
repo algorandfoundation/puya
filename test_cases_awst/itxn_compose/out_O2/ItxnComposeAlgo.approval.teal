@@ -5,9 +5,6 @@
 main:
     intcblock 0 1 6 8
     bytecblock 0xd0a28200 0x0002686f
-    intc_0 // 0
-    pushbytes ""
-    dupn 6
     txn NumAppArgs
     bz main___algots__.defaultCreate@9
     txn OnCompletion
@@ -28,7 +25,6 @@ main_conditionalBegin_route@5:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 5
     itxn_begin
     pushbytes 0x009225ae // method "helloCreate(string)void"
     itxn_field ApplicationArgs
@@ -48,23 +44,21 @@ main_conditionalBegin_route@5:
     itxn_field Fee
     itxn_submit
     gitxn 0 CreatedApplicationID
-    bury 6
     intc_0 // 0
-    bury 4
 
 main_for_header@13:
+    dup
     dig 3
-    dig 5
     <
     bz main_after_for@18
-    dig 3
+    dup
     bnz main_else_body@16
     itxn_begin
     bytec_0 // method "greet(string)string"
     itxn_field ApplicationArgs
     bytec_1 // 0x0002686f
     itxn_field ApplicationArgs
-    dig 5
+    dig 1
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
@@ -72,10 +66,8 @@ main_for_header@13:
     itxn_field Fee
 
 main_after_if_else@17:
-    dig 3
     intc_1 // 1
     +
-    bury 4
     b main_for_header@13
 
 main_else_body@16:
@@ -84,7 +76,7 @@ main_else_body@16:
     itxn_field ApplicationArgs
     bytec_1 // 0x0002686f
     itxn_field ApplicationArgs
-    dig 5
+    dig 1
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
@@ -103,7 +95,7 @@ main_distribute_route@4:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 9
+    cover 2
     dup
     pushint 32
     *
@@ -128,7 +120,7 @@ main_distribute_route@4:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 4
+    cover 3
     dup
     gtxns Receiver
     global CurrentApplicationAddress
@@ -141,7 +133,7 @@ main_distribute_route@4:
     /
     dig 1
     extract 2 0
-    bury 10
+    cover 2
     swap
     extract 2 32
     intc_1 // 1
@@ -166,13 +158,13 @@ main_distribute_route@4:
     extract_uint64
     dup
     cover 2
-    bury 5
+    cover 4
     dup
     intc_3 // 8
     extract_uint64
     dup
     cover 2
-    bury 5
+    cover 3
     dup
     pushint 16
     extract_uint16
@@ -186,37 +178,34 @@ main_distribute_route@4:
     intc_0 // 0
     itxn_field Fee
     intc_1 // 1
-    bury 4
 
 main_for_header@21:
-    dig 3
-    dig 7
+    dup
+    dig 6
     <
     bz main_after_for@23
-    dig 3
     dup
     pushint 32
     *
-    dig 9
+    dig 3
     swap
     pushint 32
     extract3 // on error: index access is out of bounds
     itxn_next
     itxn_field Receiver
-    dig 2
+    dig 1
     itxn_field Amount
-    dig 3
+    dig 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     intc_1 // 1
     +
-    bury 4
     b main_for_header@21
 
 main_after_for@23:
+    popn 3
     itxn_next
-    dup
     itxn_field ApplicationID
     pushbytes 0x65a9aecc // method "verify()void"
     itxn_field ApplicationArgs

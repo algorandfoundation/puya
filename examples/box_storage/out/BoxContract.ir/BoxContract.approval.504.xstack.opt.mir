@@ -1225,56 +1225,58 @@ subroutine sum_many_ints:
     sum_many_ints_after_while@12:
         // box_storage/contract.py:167
         // total = UInt64(0)
-        int 0                                                                                   0
-        v-store total#0
+        int 0                                                                                   total#0
+        x-store total#0                                                                         (𝕏) total#0 |
         // box_storage/contract.py:168
         // for val in self.many_ints.value:
-        byte "many_ints"                                                                        "many_ints"
-        box_len                                                                                 aggregate%box_get%0#0,aggregate%box_get%1#0
-        l-store aggregate%box_get%1#0 1                                                         aggregate%box_get%1#0,aggregate%box_get%0#0
-        pop 1                                                                                   aggregate%box_get%1#0
-        l-load aggregate%box_get%1#0 0                                                          aggregate%box_get%1#0
-        assert // check self.many_ints exists
-        int 0                                                                                   0
-        v-store item_index_internal%0#0
-        b sum_many_ints_for_header@2
+        byte "many_ints"                                                                        (𝕏) total#0 | "many_ints"
+        box_len                                                                                 (𝕏) total#0 | aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                         (𝕏) total#0 | aggregate%box_get%1#0,aggregate%box_get%0#0
+        pop 1                                                                                   (𝕏) total#0 | aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                          (𝕏) total#0 | aggregate%box_get%1#0
+        assert // check self.many_ints exists                                                   (𝕏) total#0 |
+        int 0                                                                                   (𝕏) total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) total#0,item_index_internal%0#0 |
+        b sum_many_ints_for_header@2                                                            (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_many_ints_for_header@2:
+    sum_many_ints_for_header@2:                                                                 (𝕏) total#0,item_index_internal%0#0 |
         // box_storage/contract.py:168
         // for val in self.many_ints.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        int 513                                                                                 item_index_internal%0#0,513
-        <                                                                                       continue_looping%0#0
-        bz sum_many_ints_after_for@5 ; b sum_many_ints_for_body@3
+        x-load-copy item_index_internal%0#0                                                     (𝕏) total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
+        int 513                                                                                 (𝕏) total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),513
+        <                                                                                       (𝕏) total#0,item_index_internal%0#0 | continue_looping%0#0
+        bz sum_many_ints_after_for@5 ; b sum_many_ints_for_body@3                               (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_many_ints_for_body@3:
+    sum_many_ints_for_body@3:                                                                   (𝕏) total#0,item_index_internal%0#0 |
         // box_storage/contract.py:168
         // for val in self.many_ints.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 0                                                  item_index_internal%0#0,item_index_internal%0#0 (copy)
-        int 8                                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                       item_index_internal%0#0,box%element_offset%0#0
-        byte "many_ints"                                                                        item_index_internal%0#0,box%element_offset%0#0,"many_ints"
-        l-load box%element_offset%0#0 1                                                         item_index_internal%0#0,"many_ints",box%element_offset%0#0
-        int 8                                                                                   item_index_internal%0#0,"many_ints",box%element_offset%0#0,8
-        box_extract // on error: index out of bounds                                            item_index_internal%0#0,box%box_extract%0#0
-        btoi                                                                                    item_index_internal%0#0,val#0
+        x-load item_index_internal%0#0                                                          (𝕏) total#0 | item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 0                                                  (𝕏) total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
+        int 8                                                                                   (𝕏) total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),8
+        *                                                                                       (𝕏) total#0 | item_index_internal%0#0,box%element_offset%0#0
+        byte "many_ints"                                                                        (𝕏) total#0 | item_index_internal%0#0,box%element_offset%0#0,"many_ints"
+        l-load box%element_offset%0#0 1                                                         (𝕏) total#0 | item_index_internal%0#0,"many_ints",box%element_offset%0#0
+        int 8                                                                                   (𝕏) total#0 | item_index_internal%0#0,"many_ints",box%element_offset%0#0,8
+        box_extract // on error: index out of bounds                                            (𝕏) total#0 | item_index_internal%0#0,box%box_extract%0#0
+        btoi                                                                                    (𝕏) total#0 | item_index_internal%0#0,val#0
         // box_storage/contract.py:169
         // total = total + val
-        v-load total#0                                                                          item_index_internal%0#0,val#0,total#0
+        x-load total#0                                                                          item_index_internal%0#0,val#0,total#0
         l-load val#0 1                                                                          item_index_internal%0#0,total#0,val#0
         +                                                                                       item_index_internal%0#0,total#0
-        v-store total#0                                                                         item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                        item_index_internal%0#0
-        int 1                                                                                   item_index_internal%0#0,1
-        +                                                                                       item_index_internal%0#0
-        v-store item_index_internal%0#0
-        b sum_many_ints_for_header@2
+        x-store total#0                                                                         (𝕏) total#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        (𝕏) total#0 | item_index_internal%0#0
+        int 1                                                                                   (𝕏) total#0 | item_index_internal%0#0,1
+        +                                                                                       (𝕏) total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) total#0,item_index_internal%0#0 |
+        b sum_many_ints_for_header@2                                                            (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_many_ints_after_for@5:
+    sum_many_ints_after_for@5:                                                                  (𝕏) total#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                          (𝕏) total#0 | item_index_internal%0#0
+        pop 1                                                                                   (𝕏) total#0 |
         // box_storage/contract.py:164
         // @arc4.abimethod()
-        v-load total#0                                                                          total#0
+        x-load total#0                                                                          total#0
         itob                                                                                    aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
@@ -1585,77 +1587,77 @@ subroutine append_dynamic_arr_struct:
         assert // invalid number of bytes for arc4.uint64                                       tmp%0#0
         l-load tmp%0#0 0                                                                        tmp%0#0
         btoi                                                                                    times#0
-        v-store times#0
+        x-store times#0                                                                         (𝕏) times#0 |
         // box_storage/contract.py:219
         // for i in urange(times):
-        int 0                                                                                   value_internal%0#0
-        v-store i#0
-        b append_dynamic_arr_struct_for_header@2
+        int 0                                                                                   (𝕏) times#0 | i#0
+        x-store i#0                                                                             (𝕏) times#0,i#0 |
+        b append_dynamic_arr_struct_for_header@2                                                (𝕏) times#0,i#0 |
 
-    append_dynamic_arr_struct_for_header@2:
+    append_dynamic_arr_struct_for_header@2:                                                     (𝕏) times#0,i#0 |
         // box_storage/contract.py:219
         // for i in urange(times):
-        v-load i#0                                                                              i#0
-        v-load times#0                                                                          i#0,times#0
-        <                                                                                       continue_looping%0#0
-        bz append_dynamic_arr_struct_after_for@5 ; b append_dynamic_arr_struct_for_body@3 
+        x-load-copy i#0                                                                         (𝕏) times#0,i#0 | i#0 (copy)
+        x-load-copy times#0                                                                     (𝕏) times#0,i#0 | i#0 (copy),times#0 (copy)
+        <                                                                                       (𝕏) times#0,i#0 | continue_looping%0#0
+        bz append_dynamic_arr_struct_after_for@5 ; b append_dynamic_arr_struct_for_body@3 (𝕏) times#0,i#0 | 
 
-    append_dynamic_arr_struct_for_body@3:
+    append_dynamic_arr_struct_for_body@3:                                                       (𝕏) times#0,i#0 |
         // box_storage/contract.py:220
         // self.dynamic_arr_struct.value.arr.append(i)
-        v-load i#0                                                                              i#0
-        l-store-copy i#0 0                                                                      i#0,i#0 (copy)
-        itob                                                                                    i#0,aggregate%val_as_bytes%0#0
-        byte "dynamic_arr_struct"                                                               i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct"
-        int 18                                                                                  i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18
-        int 2                                                                                   i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18,2
-        box_extract                                                                             i#0,aggregate%val_as_bytes%0#0,arr_len_bytes#0
-        btoi                                                                                    i#0,aggregate%val_as_bytes%0#0,offset_value#0
+        x-load i#0                                                                              (𝕏) times#0 | i#0
+        l-store-copy i#0 0                                                                      (𝕏) times#0 | i#0,i#0 (copy)
+        itob                                                                                    (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct"
+        int 18                                                                                  (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18
+        int 2                                                                                   (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18,2
+        box_extract                                                                             (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,arr_len_bytes#0
+        btoi                                                                                    (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,offset_value#0
         // box_storage/contract.py:220
         // self.dynamic_arr_struct.value.arr.append(i)
-        int 8                                                                                   i#0,aggregate%val_as_bytes%0#0,offset_value#0,8
-        +                                                                                       i#0,aggregate%val_as_bytes%0#0,new_offset_value#0
-        itob                                                                                    i#0,aggregate%val_as_bytes%0#0,value_bytes#0
-        extract 6 2                                                                             i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0
+        int 8                                                                                   (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,offset_value#0,8
+        +                                                                                       (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,new_offset_value#0
+        itob                                                                                    (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,value_bytes#0
+        extract 6 2                                                                             (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0
         // box_storage/contract.py:220
         // self.dynamic_arr_struct.value.arr.append(i)
-        byte "dynamic_arr_struct"                                                               i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0,"dynamic_arr_struct"
-        int 18                                                                                  i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0,"dynamic_arr_struct",18
-        l-load new_offset_value_u16#0 2                                                         i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18,new_offset_value_u16#0
-        box_replace                                                                             i#0,aggregate%val_as_bytes%0#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0,"dynamic_arr_struct"
+        int 18                                                                                  (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,new_offset_value_u16#0,"dynamic_arr_struct",18
+        l-load new_offset_value_u16#0 2                                                         (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",18,new_offset_value_u16#0
+        box_replace                                                                             (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0
         // box_storage/contract.py:220
         // self.dynamic_arr_struct.value.arr.append(i)
-        byte "dynamic_arr_struct"                                                               i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct"
-        int 20                                                                                  i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",20
-        l-load aggregate%val_as_bytes%0#0 2                                                     i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0
-        int 1                                                                                   i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0,1
-        int 8                                                                                   i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0,1,8
-        callsub box_dynamic_array_concat_fixed                                                  i#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct"
+        int 20                                                                                  (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_arr_struct",20
+        l-load aggregate%val_as_bytes%0#0 2                                                     (𝕏) times#0 | i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0
+        int 1                                                                                   (𝕏) times#0 | i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0,1
+        int 8                                                                                   (𝕏) times#0 | i#0,"dynamic_arr_struct",20,aggregate%val_as_bytes%0#0,1,8
+        callsub box_dynamic_array_concat_fixed                                                  (𝕏) times#0 | i#0
         // box_storage/contract.py:219
         // for i in urange(times):
-        l-load i#0 0                                                                            i#0
-        int 1                                                                                   i#0,1
-        +                                                                                       value_internal%0#0
-        v-store i#0
-        b append_dynamic_arr_struct_for_header@2
+        l-load i#0 0                                                                            (𝕏) times#0 | i#0
+        int 1                                                                                   (𝕏) times#0 | i#0,1
+        +                                                                                       (𝕏) times#0 | i#0
+        x-store i#0                                                                             (𝕏) times#0,i#0 |
+        b append_dynamic_arr_struct_for_header@2                                                (𝕏) times#0,i#0 |
 
-    append_dynamic_arr_struct_after_for@5:
+    append_dynamic_arr_struct_after_for@5:                                                      (𝕏) times#0,i#0 |
         // box_storage/contract.py:221
         // return self.dynamic_arr_struct.value.arr.length
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 20                                                                                  "dynamic_arr_struct",20
-        int 2                                                                                   "dynamic_arr_struct",20,2
-        box_extract                                                                             box%box_extract%4#0
-        btoi                                                                                    box%btoi%2#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0,i#0 | "dynamic_arr_struct"
+        int 20                                                                                  (𝕏) times#0,i#0 | "dynamic_arr_struct",20
+        int 2                                                                                   (𝕏) times#0,i#0 | "dynamic_arr_struct",20,2
+        box_extract                                                                             (𝕏) times#0,i#0 | box%box_extract%4#0
+        btoi                                                                                    (𝕏) times#0,i#0 | box%btoi%2#0
         // box_storage/contract.py:217
         // @arc4.abimethod
-        itob                                                                                    aggregate%val_as_bytes%1#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%1#0,0x151f7c75
-        l-load aggregate%val_as_bytes%1#0 1                                                     0x151f7c75,aggregate%val_as_bytes%1#0
-        concat                                                                                  tmp%4#0
-        log
-        int 1                                                                                   1
-        return
+        itob                                                                                    (𝕏) times#0,i#0 | aggregate%val_as_bytes%1#0
+        byte 0x151f7c75                                                                         (𝕏) times#0,i#0 | aggregate%val_as_bytes%1#0,0x151f7c75
+        l-load aggregate%val_as_bytes%1#0 1                                                     (𝕏) times#0,i#0 | 0x151f7c75,aggregate%val_as_bytes%1#0
+        concat                                                                                  (𝕏) times#0,i#0 | tmp%4#0
+        log                                                                                     (𝕏) times#0,i#0 |
+        int 1                                                                                   (𝕏) times#0,i#0 | 1
+        return                                                                                  (𝕏) times#0,i#0 |
 
 
 // examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[routing]() -> void:
@@ -1671,72 +1673,72 @@ subroutine pop_dynamic_arr_struct:
         assert // invalid number of bytes for arc4.uint64                                       tmp%0#0
         l-load tmp%0#0 0                                                                        tmp%0#0
         btoi                                                                                    times#0
-        v-store times#0
+        x-store times#0                                                                         (𝕏) times#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        int 0                                                                                   value_internal%0#0
-        v-store _pop#0
-        b pop_dynamic_arr_struct_for_header@2
+        int 0                                                                                   (𝕏) times#0 | _pop#0
+        x-store _pop#0                                                                          (𝕏) times#0,_pop#0 |
+        b pop_dynamic_arr_struct_for_header@2                                                   (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_arr_struct_for_header@2:
+    pop_dynamic_arr_struct_for_header@2:                                                        (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        v-load times#0                                                                          _pop#0,times#0
-        <                                                                                       continue_looping%0#0
-        bz pop_dynamic_arr_struct_after_for@5 ; b pop_dynamic_arr_struct_for_body@3
+        x-load-copy _pop#0                                                                      (𝕏) times#0,_pop#0 | _pop#0 (copy)
+        x-load-copy times#0                                                                     (𝕏) times#0,_pop#0 | _pop#0 (copy),times#0 (copy)
+        <                                                                                       (𝕏) times#0,_pop#0 | continue_looping%0#0
+        bz pop_dynamic_arr_struct_after_for@5 ; b pop_dynamic_arr_struct_for_body@3             (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_arr_struct_for_body@3:
+    pop_dynamic_arr_struct_for_body@3:                                                          (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 18                                                                                  "dynamic_arr_struct",18
-        int 2                                                                                   "dynamic_arr_struct",18,2
-        box_extract                                                                             arr_len_bytes#0
-        btoi                                                                                    offset_value#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0,_pop#0 | "dynamic_arr_struct"
+        int 18                                                                                  (𝕏) times#0,_pop#0 | "dynamic_arr_struct",18
+        int 2                                                                                   (𝕏) times#0,_pop#0 | "dynamic_arr_struct",18,2
+        box_extract                                                                             (𝕏) times#0,_pop#0 | arr_len_bytes#0
+        btoi                                                                                    (𝕏) times#0,_pop#0 | offset_value#0
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        int 8                                                                                   offset_value#0,8
-        -                                                                                       new_offset_value#0
-        itob                                                                                    value_bytes#0
-        extract 6 2                                                                             new_offset_value_u16#0
+        int 8                                                                                   (𝕏) times#0,_pop#0 | offset_value#0,8
+        -                                                                                       (𝕏) times#0,_pop#0 | new_offset_value#0
+        itob                                                                                    (𝕏) times#0,_pop#0 | value_bytes#0
+        extract 6 2                                                                             (𝕏) times#0,_pop#0 | new_offset_value_u16#0
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                               new_offset_value_u16#0,"dynamic_arr_struct"
-        int 18                                                                                  new_offset_value_u16#0,"dynamic_arr_struct",18
-        l-load new_offset_value_u16#0 2                                                         "dynamic_arr_struct",18,new_offset_value_u16#0
-        box_replace
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0,_pop#0 | new_offset_value_u16#0,"dynamic_arr_struct"
+        int 18                                                                                  (𝕏) times#0,_pop#0 | new_offset_value_u16#0,"dynamic_arr_struct",18
+        l-load new_offset_value_u16#0 2                                                         (𝕏) times#0,_pop#0 | "dynamic_arr_struct",18,new_offset_value_u16#0
+        box_replace                                                                             (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:226
         // self.dynamic_arr_struct.value.arr.pop()
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 20                                                                                  "dynamic_arr_struct",20
-        int 8                                                                                   "dynamic_arr_struct",20,8
-        callsub box_dynamic_array_pop_fixed_size
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0,_pop#0 | "dynamic_arr_struct"
+        int 20                                                                                  (𝕏) times#0,_pop#0 | "dynamic_arr_struct",20
+        int 8                                                                                   (𝕏) times#0,_pop#0 | "dynamic_arr_struct",20,8
+        callsub box_dynamic_array_pop_fixed_size                                                (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:225
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        int 1                                                                                   _pop#0,1
-        +                                                                                       value_internal%0#0
-        v-store _pop#0
-        b pop_dynamic_arr_struct_for_header@2
+        x-load _pop#0                                                                           (𝕏) times#0 | _pop#0
+        int 1                                                                                   (𝕏) times#0 | _pop#0,1
+        +                                                                                       (𝕏) times#0 | _pop#0
+        x-store _pop#0                                                                          (𝕏) times#0,_pop#0 |
+        b pop_dynamic_arr_struct_for_header@2                                                   (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_arr_struct_after_for@5:
+    pop_dynamic_arr_struct_after_for@5:                                                         (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:228
         // return self.dynamic_arr_struct.value.arr.length
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 20                                                                                  "dynamic_arr_struct",20
-        int 2                                                                                   "dynamic_arr_struct",20,2
-        box_extract                                                                             box%box_extract%4#0
-        btoi                                                                                    box%btoi%2#0
+        byte "dynamic_arr_struct"                                                               (𝕏) times#0,_pop#0 | "dynamic_arr_struct"
+        int 20                                                                                  (𝕏) times#0,_pop#0 | "dynamic_arr_struct",20
+        int 2                                                                                   (𝕏) times#0,_pop#0 | "dynamic_arr_struct",20,2
+        box_extract                                                                             (𝕏) times#0,_pop#0 | box%box_extract%4#0
+        btoi                                                                                    (𝕏) times#0,_pop#0 | box%btoi%2#0
         // box_storage/contract.py:223
         // @arc4.abimethod
-        itob                                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                  tmp%4#0
-        log
-        int 1                                                                                   1
-        return
+        itob                                                                                    (𝕏) times#0,_pop#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                         (𝕏) times#0,_pop#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕏) times#0,_pop#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                  (𝕏) times#0,_pop#0 | tmp%4#0
+        log                                                                                     (𝕏) times#0,_pop#0 |
+        int 1                                                                                   (𝕏) times#0,_pop#0 | 1
+        return                                                                                  (𝕏) times#0,_pop#0 |
 
 
 // examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
@@ -1745,269 +1747,279 @@ subroutine set_nested_struct:
         // box_storage/contract.py:230
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                  struct#0
-        l-store-copy struct#0 0                                                                 struct#0,struct#0 (copy)
-        v-store struct#0                                                                        struct#0
-        l-load-copy struct#0 0                                                                  struct#0,struct#0 (copy)
-        len                                                                                     struct#0,tuple_len%0#0
-        l-store-copy tuple_len%0#0 1                                                            tuple_len%0#0,struct#0,tuple_len%0#0 (copy)
-        v-store tuple_len%0#0                                                                   tuple_len%0#0,struct#0
-        l-load-copy struct#0 0                                                                  tuple_len%0#0,struct#0,struct#0 (copy)
-        int 8                                                                                   tuple_len%0#0,struct#0,struct#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                      tuple_len%0#0,struct#0,extract_uint16%0#0
-        l-load-copy extract_uint16%0#0 0                                                        tuple_len%0#0,struct#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
-        int 20                                                                                  tuple_len%0#0,struct#0,extract_uint16%0#0,extract_uint16%0#0 (copy),20
-        ==                                                                                      tuple_len%0#0,struct#0,extract_uint16%0#0,eq%0#0
-        assert // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) tuple_len%0#0,struct#0,extract_uint16%0#0
-        l-load struct#0 1                                                                       tuple_len%0#0,extract_uint16%0#0,struct#0
-        l-load extract_uint16%0#0 1                                                             tuple_len%0#0,struct#0,extract_uint16%0#0
-        l-load tuple_len%0#0 2                                                                  struct#0,extract_uint16%0#0,tuple_len%0#0
-        substring3                                                                              substring3%0#0
-        l-load-copy substring3%0#0 0                                                            substring3%0#0,substring3%0#0 (copy)
-        len                                                                                     substring3%0#0,tuple_len%1#0
-        l-load-copy substring3%0#0 1                                                            substring3%0#0,tuple_len%1#0,substring3%0#0 (copy)
-        int 8                                                                                   substring3%0#0,tuple_len%1#0,substring3%0#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                      substring3%0#0,tuple_len%1#0,extract_uint16%1#0
-        l-load-copy extract_uint16%1#0 0                                                        substring3%0#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
-        int 18                                                                                  substring3%0#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),18
-        ==                                                                                      substring3%0#0,tuple_len%1#0,extract_uint16%1#0,eq%1#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) substring3%0#0,tuple_len%1#0,extract_uint16%1#0
-        l-load substring3%0#0 2                                                                 tuple_len%1#0,extract_uint16%1#0,substring3%0#0
-        l-load extract_uint16%1#0 1                                                             tuple_len%1#0,substring3%0#0,extract_uint16%1#0
-        l-load tuple_len%1#0 2                                                                  substring3%0#0,extract_uint16%1#0,tuple_len%1#0
-        substring3                                                                              substring3%1#0
-        l-load-copy substring3%1#0 0                                                            substring3%1#0,substring3%1#0 (copy)
-        int 0                                                                                   substring3%1#0,substring3%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                 substring3%1#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                               substring3%1#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                      substring3%1#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                     substring3%1#0,aggregate%array_length%0#0
-        int 2                                                                                   substring3%1#0,aggregate%array_length%0#0,2
-        *                                                                                       substring3%1#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                                   substring3%1#0
-        l-load substring3%1#0 0                                                                 substring3%1#0
-        extract 2 0                                                                             array_data%0#0
-        v-store array_data%0#0
-        int 0                                                                                   0
-        v-store index%0#0
-        b set_nested_struct_for_header@1
+        l-store-copy struct#0 0                                                                 struct#0,struct#0
+        x-store struct#0                                                                        (𝕏) struct#0 | struct#0
+        l-load-copy struct#0 0                                                                  (𝕏) struct#0 | struct#0,struct#0 (copy)
+        len                                                                                     (𝕏) struct#0 | struct#0,tuple_len%0#0
+        l-store-copy tuple_len%0#0 1                                                            (𝕏) struct#0 | tuple_len%0#0,struct#0,tuple_len%0#0
+        x-store tuple_len%0#0                                                                   (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0
+        l-load-copy struct#0 0                                                                  (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,struct#0 (copy)
+        int 8                                                                                   (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,struct#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                      (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                        (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 20                                                                                  (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0,extract_uint16%0#0 (copy),20
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0
+        l-load struct#0 1                                                                       (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,extract_uint16%0#0,struct#0
+        l-load extract_uint16%0#0 1                                                             (𝕏) struct#0,tuple_len%0#0 | tuple_len%0#0,struct#0,extract_uint16%0#0
+        l-load tuple_len%0#0 2                                                                  (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0 | substring3%0#0
+        l-load-copy substring3%0#0 0                                                            (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,substring3%0#0 (copy)
+        len                                                                                     (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0
+        l-load-copy substring3%0#0 1                                                            (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,substring3%0#0 (copy)
+        int 8                                                                                   (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,substring3%0#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                      (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,extract_uint16%1#0
+        l-load-copy extract_uint16%1#0 0                                                        (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
+        int 18                                                                                  (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),18
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,extract_uint16%1#0,eq%1#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,tuple_len%1#0,extract_uint16%1#0
+        l-load substring3%0#0 2                                                                 (𝕏) struct#0,tuple_len%0#0 | tuple_len%1#0,extract_uint16%1#0,substring3%0#0
+        l-load extract_uint16%1#0 1                                                             (𝕏) struct#0,tuple_len%0#0 | tuple_len%1#0,substring3%0#0,extract_uint16%1#0
+        l-load tuple_len%1#0 2                                                                  (𝕏) struct#0,tuple_len%0#0 | substring3%0#0,extract_uint16%1#0,tuple_len%1#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0 | substring3%1#0
+        l-load-copy substring3%1#0 0                                                            (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,substring3%1#0 (copy)
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,substring3%1#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                 (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                               (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                      (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                     (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,aggregate%array_length%0#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,aggregate%array_length%0#0,2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0 | substring3%1#0,num_bytes%0#0
+        x-store num_bytes%0#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0 | substring3%1#0
+        l-load substring3%1#0 0                                                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0 | substring3%1#0
+        extract 2 0                                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0 | array_data%0#0
+        x-store array_data%0#0                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 |
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        x-store index%0#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
+        b set_nested_struct_for_header@1                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
 
-    set_nested_struct_for_header@1:
+    set_nested_struct_for_header@1:                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%0#0                                                                        index%0#0
-        v-load aggregate%array_length%0#0                                                       index%0#0,aggregate%array_length%0#0
-        <                                                                                       continue_looping%0#0
-        bz set_nested_struct_after_for@4 ; b set_nested_struct_for_body@2
+        x-load-copy index%0#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | index%0#0 (copy)
+        v-load aggregate%array_length%0#0                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | index%0#0 (copy),aggregate%array_length%0#0
+        <                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | continue_looping%0#0
+        bz set_nested_struct_after_for@4 ; b set_nested_struct_for_body@2                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
 
-    set_nested_struct_for_body@2:
+    set_nested_struct_for_body@2:                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%0#0                                                                        index%0#0
-        l-store-copy index%0#0 0                                                                index%0#0,index%0#0 (copy)
-        int 2                                                                                   index%0#0,index%0#0 (copy),2
-        *                                                                                       index%0#0,head_offset_bytes%0#0
-        v-load array_data%0#0                                                                   index%0#0,head_offset_bytes%0#0,array_data%0#0
-        l-store-copy array_data%0#0 1                                                           index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
-        l-load head_offset_bytes%0#0 1                                                          index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
-        extract_uint16 // on error: invalid array encoding                                      index%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy item_offset%0#0 0                                                           index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
-        v-load num_bytes%0#0                                                                    index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
-        l-store-copy num_bytes%0#0 3                                                            index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
-        ==                                                                                      index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
-        assert // invalid tail pointer for (len+(len+uint64[])[])                               index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy array_data%0#0 1                                                            index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
-        len                                                                                     index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        l-load array_data%0#0 2                                                                 index%0#0,num_bytes%0#0,item_offset%0#0,total_length%1#0,array_data%0#0
-        l-load item_offset%0#0 2                                                                index%0#0,num_bytes%0#0,total_length%1#0,array_data%0#0,item_offset%0#0
-        l-load total_length%1#0 2                                                               index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        substring3                                                                              index%0#0,num_bytes%0#0,extract_to_end%0#0
-        int 0                                                                                   index%0#0,num_bytes%0#0,extract_to_end%0#0,0
-        extract_uint16 // on error: invalid array length header                                 index%0#0,num_bytes%0#0,aggregate%array_length%1#0
-        int 8                                                                                   index%0#0,num_bytes%0#0,aggregate%array_length%1#0,8
-        *                                                                                       index%0#0,num_bytes%0#0,mul%0#0
-        int 2                                                                                   index%0#0,num_bytes%0#0,mul%0#0,2
-        +                                                                                       index%0#0,num_bytes%0#0,add%0#0
-        l-load num_bytes%0#0 1                                                                  index%0#0,add%0#0,num_bytes%0#0
-        l-load add%0#0 1                                                                        index%0#0,num_bytes%0#0,add%0#0
-        +                                                                                       index%0#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                                   index%0#0
-        l-load index%0#0 0                                                                      index%0#0
-        int 1                                                                                   index%0#0,1
-        +                                                                                       index%0#0
-        v-store index%0#0
-        b set_nested_struct_for_header@1
+        x-load index%0#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        l-store-copy index%0#0 0                                                                (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,index%0#0 (copy)
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,index%0#0 (copy),2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,head_offset_bytes%0#0
+        x-load-copy array_data%0#0                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,head_offset_bytes%0#0,array_data%0#0
+        l-store-copy array_data%0#0 1                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
+        l-load head_offset_bytes%0#0 1                                                          (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy item_offset%0#0 0                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
+        x-load num_bytes%0#0                                                                    (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
+        l-store-copy num_bytes%0#0 3                                                            (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])                               (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy array_data%0#0 1                                                            (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
+        len                                                                                     (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
+        l-load array_data%0#0 2                                                                 (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,item_offset%0#0,total_length%1#0,array_data%0#0
+        l-load item_offset%0#0 2                                                                (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,total_length%1#0,array_data%0#0,item_offset%0#0
+        l-load total_length%1#0 2                                                               (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,0
+        extract_uint16 // on error: invalid array length header                                 (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,aggregate%array_length%1#0
+        int 8                                                                                   (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,aggregate%array_length%1#0,8
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,mul%0#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,mul%0#0,2
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,add%0#0
+        l-load num_bytes%0#0 1                                                                  (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,add%0#0,num_bytes%0#0
+        l-load add%0#0 1                                                                        (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0,add%0#0
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,array_data%0#0 | index%0#0,num_bytes%0#0
+        x-store num_bytes%0#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        l-load index%0#0 0                                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        int 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0,1
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        x-store index%0#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
+        b set_nested_struct_for_header@1                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
 
-    set_nested_struct_after_for@4:
+    set_nested_struct_after_for@4:                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
+        x-load index%0#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 | index%0#0
+        pop 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0,array_data%0#0 |
+        x-load array_data%0#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0 | array_data%0#0
+        pop 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%0#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load num_bytes%0#0                                                                    num_bytes%0#0
-        int 40                                                                                  num_bytes%0#0,40
-        +                                                                                       add%2#0
-        l-store-copy add%2#0 0                                                                  add%2#0,add%2#0 (copy)
-        v-store add%2#0                                                                         add%2#0
-        v-load struct#0                                                                         add%2#0,struct#0
-        l-store-copy struct#0 1                                                                 struct#0,add%2#0,struct#0 (copy)
-        int 10                                                                                  struct#0,add%2#0,struct#0 (copy),10
-        extract_uint16 // on error: invalid tuple encoding                                      struct#0,add%2#0,extract_uint16%2#0
-        l-load-copy extract_uint16%2#0 0                                                        struct#0,add%2#0,extract_uint16%2#0,extract_uint16%2#0 (copy)
-        l-load add%2#0 2                                                                        struct#0,extract_uint16%2#0,extract_uint16%2#0 (copy),add%2#0
-        ==                                                                                      struct#0,extract_uint16%2#0,eq%2#0
-        assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) struct#0,extract_uint16%2#0
-        l-load struct#0 1                                                                       extract_uint16%2#0,struct#0
-        l-load extract_uint16%2#0 1                                                             struct#0,extract_uint16%2#0
-        v-load tuple_len%0#0                                                                    struct#0,extract_uint16%2#0,tuple_len%0#0
-        substring3                                                                              substring3%2#0
-        l-load-copy substring3%2#0 0                                                            substring3%2#0,substring3%2#0 (copy)
-        int 0                                                                                   substring3%2#0,substring3%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                 substring3%2#0,aggregate%array_length%2#0
-        l-store-copy aggregate%array_length%2#0 0                                               substring3%2#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
-        v-store aggregate%array_length%2#0                                                      substring3%2#0,aggregate%array_length%2#0
-        l-load aggregate%array_length%2#0 0                                                     substring3%2#0,aggregate%array_length%2#0
-        int 2                                                                                   substring3%2#0,aggregate%array_length%2#0,2
-        *                                                                                       substring3%2#0,num_bytes%2#0
-        v-store num_bytes%2#0                                                                   substring3%2#0
-        l-load substring3%2#0 0                                                                 substring3%2#0
-        extract 2 0                                                                             array_data%1#0
-        v-store array_data%1#0
-        int 0                                                                                   0
-        v-store index%1#0
-        b set_nested_struct_for_header@5
+        x-load num_bytes%0#0                                                                    (𝕏) struct#0,tuple_len%0#0 | num_bytes%0#0
+        int 40                                                                                  (𝕏) struct#0,tuple_len%0#0 | num_bytes%0#0,40
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0 | add%2#0
+        l-store-copy add%2#0 0                                                                  (𝕏) struct#0,tuple_len%0#0 | add%2#0,add%2#0 (copy)
+        v-store add%2#0                                                                         (𝕏) struct#0,tuple_len%0#0 | add%2#0
+        x-load-copy struct#0                                                                    (𝕏) struct#0,tuple_len%0#0 | add%2#0,struct#0
+        l-store-copy struct#0 1                                                                 (𝕏) struct#0,tuple_len%0#0 | struct#0,add%2#0,struct#0 (copy)
+        int 10                                                                                  (𝕏) struct#0,tuple_len%0#0 | struct#0,add%2#0,struct#0 (copy),10
+        extract_uint16 // on error: invalid tuple encoding                                      (𝕏) struct#0,tuple_len%0#0 | struct#0,add%2#0,extract_uint16%2#0
+        l-load-copy extract_uint16%2#0 0                                                        (𝕏) struct#0,tuple_len%0#0 | struct#0,add%2#0,extract_uint16%2#0,extract_uint16%2#0 (copy)
+        l-load add%2#0 2                                                                        (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%2#0,extract_uint16%2#0 (copy),add%2#0
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%2#0,eq%2#0
+        assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%2#0
+        l-load struct#0 1                                                                       (𝕏) struct#0,tuple_len%0#0 | extract_uint16%2#0,struct#0
+        l-load extract_uint16%2#0 1                                                             (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%2#0
+        x-load-copy tuple_len%0#0                                                               (𝕏) struct#0,tuple_len%0#0 | struct#0,extract_uint16%2#0,tuple_len%0#0 (copy)
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0 | substring3%2#0
+        l-load-copy substring3%2#0 0                                                            (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,substring3%2#0 (copy)
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,substring3%2#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                 (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,aggregate%array_length%2#0
+        l-store-copy aggregate%array_length%2#0 0                                               (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
+        v-store aggregate%array_length%2#0                                                      (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,aggregate%array_length%2#0
+        l-load aggregate%array_length%2#0 0                                                     (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,aggregate%array_length%2#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,aggregate%array_length%2#0,2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0 | substring3%2#0,num_bytes%2#0
+        x-store num_bytes%2#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | substring3%2#0
+        l-load substring3%2#0 0                                                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | substring3%2#0
+        extract 2 0                                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | array_data%1#0
+        v-store array_data%1#0                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 |
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | index%1#0
+        x-store index%1#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
+        b set_nested_struct_for_header@5                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
 
-    set_nested_struct_for_header@5:
+    set_nested_struct_for_header@5:                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%1#0                                                                        index%1#0
-        v-load aggregate%array_length%2#0                                                       index%1#0,aggregate%array_length%2#0
-        <                                                                                       continue_looping%1#0
-        bz set_nested_struct_after_for@12 ; b set_nested_struct_for_body@6
+        x-load-copy index%1#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | index%1#0 (copy)
+        v-load aggregate%array_length%2#0                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | index%1#0 (copy),aggregate%array_length%2#0
+        <                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | continue_looping%1#0
+        bz set_nested_struct_after_for@12 ; b set_nested_struct_for_body@6                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
 
-    set_nested_struct_for_body@6:
+    set_nested_struct_for_body@6:                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%1#0                                                                        index%1#0
-        int 2                                                                                   index%1#0,2
-        *                                                                                       head_offset_bytes%1#0
-        v-load array_data%1#0                                                                   head_offset_bytes%1#0,array_data%1#0
-        l-store-copy array_data%1#0 1                                                           array_data%1#0,head_offset_bytes%1#0,array_data%1#0 (copy)
-        l-load head_offset_bytes%1#0 1                                                          array_data%1#0,array_data%1#0 (copy),head_offset_bytes%1#0
-        extract_uint16 // on error: invalid array encoding                                      array_data%1#0,item_offset%1#0
-        l-load-copy item_offset%1#0 0                                                           array_data%1#0,item_offset%1#0,item_offset%1#0 (copy)
-        v-load num_bytes%2#0                                                                    array_data%1#0,item_offset%1#0,item_offset%1#0 (copy),num_bytes%2#0
-        ==                                                                                      array_data%1#0,item_offset%1#0,offset_is_correct%1#0
-        assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[]) array_data%1#0,item_offset%1#0
-        l-load-copy array_data%1#0 1                                                            array_data%1#0,item_offset%1#0,array_data%1#0 (copy)
-        len                                                                                     array_data%1#0,item_offset%1#0,total_length%3#0
-        l-load array_data%1#0 2                                                                 item_offset%1#0,total_length%3#0,array_data%1#0
-        l-load item_offset%1#0 2                                                                total_length%3#0,array_data%1#0,item_offset%1#0
-        l-load total_length%3#0 2                                                               array_data%1#0,item_offset%1#0,total_length%3#0
-        substring3                                                                              extract_to_end%1#0
-        l-load-copy extract_to_end%1#0 0                                                        extract_to_end%1#0,extract_to_end%1#0 (copy)
-        len                                                                                     extract_to_end%1#0,tuple_len%2#0
-        l-load-copy extract_to_end%1#0 1                                                        extract_to_end%1#0,tuple_len%2#0,extract_to_end%1#0 (copy)
-        int 8                                                                                   extract_to_end%1#0,tuple_len%2#0,extract_to_end%1#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                      extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0
-        l-load-copy extract_uint16%3#0 0                                                        extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,extract_uint16%3#0 (copy)
-        int 18                                                                                  extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,extract_uint16%3#0 (copy),18
-        ==                                                                                      extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,eq%3#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0
-        l-load extract_to_end%1#0 2                                                             tuple_len%2#0,extract_uint16%3#0,extract_to_end%1#0
-        l-load extract_uint16%3#0 1                                                             tuple_len%2#0,extract_to_end%1#0,extract_uint16%3#0
-        l-load tuple_len%2#0 2                                                                  extract_to_end%1#0,extract_uint16%3#0,tuple_len%2#0
-        substring3                                                                              substring3%3#0
-        l-load-copy substring3%3#0 0                                                            substring3%3#0,substring3%3#0 (copy)
-        int 0                                                                                   substring3%3#0,substring3%3#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                 substring3%3#0,aggregate%array_length%3#0
-        l-store-copy aggregate%array_length%3#0 0                                               substring3%3#0,aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
-        v-store aggregate%array_length%3#0                                                      substring3%3#0,aggregate%array_length%3#0
-        l-load aggregate%array_length%3#0 0                                                     substring3%3#0,aggregate%array_length%3#0
-        int 2                                                                                   substring3%3#0,aggregate%array_length%3#0,2
-        *                                                                                       substring3%3#0,num_bytes%3#0
-        v-store num_bytes%3#0                                                                   substring3%3#0
-        l-load substring3%3#0 0                                                                 substring3%3#0
-        extract 2 0                                                                             array_data%2#0
-        v-store array_data%2#0
-        int 0                                                                                   0
-        v-store index%2#0
-        b set_nested_struct_for_header@7
+        x-load-copy index%1#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | index%1#0 (copy)
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | index%1#0 (copy),2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | head_offset_bytes%1#0
+        v-load array_data%1#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | head_offset_bytes%1#0,array_data%1#0
+        l-store-copy array_data%1#0 1                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,head_offset_bytes%1#0,array_data%1#0 (copy)
+        l-load head_offset_bytes%1#0 1                                                          (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,array_data%1#0 (copy),head_offset_bytes%1#0
+        extract_uint16 // on error: invalid array encoding                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0
+        l-load-copy item_offset%1#0 0                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,item_offset%1#0 (copy)
+        x-load-copy num_bytes%2#0                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,item_offset%1#0 (copy),num_bytes%2#0 (copy)
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,offset_is_correct%1#0
+        assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[]) (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0
+        l-load-copy array_data%1#0 1                                                            (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,array_data%1#0 (copy)
+        len                                                                                     (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,total_length%3#0
+        l-load array_data%1#0 2                                                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | item_offset%1#0,total_length%3#0,array_data%1#0
+        l-load item_offset%1#0 2                                                                (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | total_length%3#0,array_data%1#0,item_offset%1#0
+        l-load total_length%3#0 2                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | array_data%1#0,item_offset%1#0,total_length%3#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0
+        l-load-copy extract_to_end%1#0 0                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,extract_to_end%1#0 (copy)
+        len                                                                                     (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0
+        l-load-copy extract_to_end%1#0 1                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_to_end%1#0 (copy)
+        int 8                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_to_end%1#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0
+        l-load-copy extract_uint16%3#0 0                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,extract_uint16%3#0 (copy)
+        int 18                                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,extract_uint16%3#0 (copy),18
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0,eq%3#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,tuple_len%2#0,extract_uint16%3#0
+        l-load extract_to_end%1#0 2                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | tuple_len%2#0,extract_uint16%3#0,extract_to_end%1#0
+        l-load extract_uint16%3#0 1                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | tuple_len%2#0,extract_to_end%1#0,extract_uint16%3#0
+        l-load tuple_len%2#0 2                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | extract_to_end%1#0,extract_uint16%3#0,tuple_len%2#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0
+        l-load-copy substring3%3#0 0                                                            (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,substring3%3#0 (copy)
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,substring3%3#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,aggregate%array_length%3#0
+        l-store-copy aggregate%array_length%3#0 0                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
+        v-store aggregate%array_length%3#0                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,aggregate%array_length%3#0
+        l-load aggregate%array_length%3#0 0                                                     (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,aggregate%array_length%3#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,aggregate%array_length%3#0,2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | substring3%3#0,num_bytes%3#0
+        x-store num_bytes%3#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,index%1#0 | substring3%3#0
+        l-load substring3%3#0 0                                                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,index%1#0 | substring3%3#0
+        extract 2 0                                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,index%1#0 | array_data%2#0
+        x-store array_data%2#0                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 |
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        x-store index%2#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
+        b set_nested_struct_for_header@7                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
 
-    set_nested_struct_for_header@7:
+    set_nested_struct_for_header@7:                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%2#0                                                                        index%2#0
-        v-load aggregate%array_length%3#0                                                       index%2#0,aggregate%array_length%3#0
-        <                                                                                       continue_looping%2#0
-        bz set_nested_struct_after_for@10 ; b set_nested_struct_for_body@8
+        x-load-copy index%2#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 | index%2#0 (copy)
+        v-load aggregate%array_length%3#0                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 | index%2#0 (copy),aggregate%array_length%3#0
+        <                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 | continue_looping%2#0
+        bz set_nested_struct_after_for@10 ; b set_nested_struct_for_body@8                      (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
 
-    set_nested_struct_for_body@8:
+    set_nested_struct_for_body@8:                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load index%2#0                                                                        index%2#0
-        l-store-copy index%2#0 0                                                                index%2#0,index%2#0 (copy)
-        int 2                                                                                   index%2#0,index%2#0 (copy),2
-        *                                                                                       index%2#0,head_offset_bytes%2#0
-        v-load array_data%2#0                                                                   index%2#0,head_offset_bytes%2#0,array_data%2#0
-        l-store-copy array_data%2#0 1                                                           index%2#0,array_data%2#0,head_offset_bytes%2#0,array_data%2#0 (copy)
-        l-load head_offset_bytes%2#0 1                                                          index%2#0,array_data%2#0,array_data%2#0 (copy),head_offset_bytes%2#0
-        extract_uint16 // on error: invalid array encoding                                      index%2#0,array_data%2#0,item_offset%2#0
-        l-load-copy item_offset%2#0 0                                                           index%2#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy)
-        v-load num_bytes%3#0                                                                    index%2#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy),num_bytes%3#0
-        l-store-copy num_bytes%3#0 3                                                            index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy),num_bytes%3#0 (copy)
-        ==                                                                                      index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,offset_is_correct%2#0
-        assert // invalid tail pointer for (len+(len+uint64[])[])                               index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0
-        l-load-copy array_data%2#0 1                                                            index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,array_data%2#0 (copy)
-        len                                                                                     index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,total_length%5#0
-        l-load array_data%2#0 2                                                                 index%2#0,num_bytes%3#0,item_offset%2#0,total_length%5#0,array_data%2#0
-        l-load item_offset%2#0 2                                                                index%2#0,num_bytes%3#0,total_length%5#0,array_data%2#0,item_offset%2#0
-        l-load total_length%5#0 2                                                               index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,total_length%5#0
-        substring3                                                                              index%2#0,num_bytes%3#0,extract_to_end%2#0
-        int 0                                                                                   index%2#0,num_bytes%3#0,extract_to_end%2#0,0
-        extract_uint16 // on error: invalid array length header                                 index%2#0,num_bytes%3#0,aggregate%array_length%4#0
-        int 8                                                                                   index%2#0,num_bytes%3#0,aggregate%array_length%4#0,8
-        *                                                                                       index%2#0,num_bytes%3#0,mul%1#0
-        int 2                                                                                   index%2#0,num_bytes%3#0,mul%1#0,2
-        +                                                                                       index%2#0,num_bytes%3#0,add%3#0
-        l-load num_bytes%3#0 1                                                                  index%2#0,add%3#0,num_bytes%3#0
-        l-load add%3#0 1                                                                        index%2#0,num_bytes%3#0,add%3#0
-        +                                                                                       index%2#0,num_bytes%3#0
-        v-store num_bytes%3#0                                                                   index%2#0
-        l-load index%2#0 0                                                                      index%2#0
-        int 1                                                                                   index%2#0,1
-        +                                                                                       index%2#0
-        v-store index%2#0
-        b set_nested_struct_for_header@7
+        x-load index%2#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        l-store-copy index%2#0 0                                                                (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,index%2#0 (copy)
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,index%2#0 (copy),2
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,head_offset_bytes%2#0
+        x-load-copy array_data%2#0                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,head_offset_bytes%2#0,array_data%2#0
+        l-store-copy array_data%2#0 1                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,array_data%2#0,head_offset_bytes%2#0,array_data%2#0 (copy)
+        l-load head_offset_bytes%2#0 1                                                          (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,array_data%2#0,array_data%2#0 (copy),head_offset_bytes%2#0
+        extract_uint16 // on error: invalid array encoding                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,array_data%2#0,item_offset%2#0
+        l-load-copy item_offset%2#0 0                                                           (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy)
+        x-load num_bytes%3#0                                                                    (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy),num_bytes%3#0
+        l-store-copy num_bytes%3#0 3                                                            (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,item_offset%2#0 (copy),num_bytes%3#0 (copy)
+        ==                                                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,offset_is_correct%2#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0
+        l-load-copy array_data%2#0 1                                                            (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,array_data%2#0 (copy)
+        len                                                                                     (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,total_length%5#0
+        l-load array_data%2#0 2                                                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,item_offset%2#0,total_length%5#0,array_data%2#0
+        l-load item_offset%2#0 2                                                                (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,total_length%5#0,array_data%2#0,item_offset%2#0
+        l-load total_length%5#0 2                                                               (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,array_data%2#0,item_offset%2#0,total_length%5#0
+        substring3                                                                              (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,extract_to_end%2#0
+        int 0                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,extract_to_end%2#0,0
+        extract_uint16 // on error: invalid array length header                                 (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,aggregate%array_length%4#0
+        int 8                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,aggregate%array_length%4#0,8
+        *                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,mul%1#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,mul%1#0,2
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,add%3#0
+        l-load num_bytes%3#0 1                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,add%3#0,num_bytes%3#0
+        l-load add%3#0 1                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0,add%3#0
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,num_bytes%3#0
+        x-store num_bytes%3#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        l-load index%2#0 0                                                                      (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        int 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0,1
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        x-store index%2#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
+        b set_nested_struct_for_header@7                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
 
-    set_nested_struct_after_for@10:
+    set_nested_struct_after_for@10:                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0,index%2#0 |
+        x-load index%2#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 | index%2#0
+        pop 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,array_data%2#0,index%1#0 |
+        x-load array_data%2#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,index%1#0 | array_data%2#0
+        pop 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%3#0,num_bytes%2#0,index%1#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load num_bytes%3#0                                                                    num_bytes%3#0
-        int 20                                                                                  num_bytes%3#0,20
-        +                                                                                       add%4#0
-        v-load num_bytes%2#0                                                                    add%4#0,num_bytes%2#0
-        l-load add%4#0 1                                                                        num_bytes%2#0,add%4#0
-        +                                                                                       num_bytes%2#0
-        v-store num_bytes%2#0
-        v-load index%1#0                                                                        index%1#0
-        int 1                                                                                   index%1#0,1
-        +                                                                                       index%1#0
-        v-store index%1#0
-        b set_nested_struct_for_header@5
+        x-load num_bytes%3#0                                                                    (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | num_bytes%3#0
+        int 20                                                                                  (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | num_bytes%3#0,20
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 | add%4#0
+        x-load num_bytes%2#0                                                                    (𝕏) struct#0,tuple_len%0#0,index%1#0 | add%4#0,num_bytes%2#0
+        l-load add%4#0 1                                                                        (𝕏) struct#0,tuple_len%0#0,index%1#0 | num_bytes%2#0,add%4#0
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,index%1#0 | num_bytes%2#0
+        x-store num_bytes%2#0                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
+        x-load index%1#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | index%1#0
+        int 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | index%1#0,1
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | index%1#0
+        x-store index%1#0                                                                       (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
+        b set_nested_struct_for_header@5                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
 
-    set_nested_struct_after_for@12:
+    set_nested_struct_after_for@12:                                                             (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0,index%1#0 |
+        x-load index%1#0                                                                        (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 | index%1#0
+        pop 1                                                                                   (𝕏) struct#0,tuple_len%0#0,num_bytes%2#0 |
         // box_storage/contract.py:230
         // @arc4.abimethod()
-        v-load num_bytes%2#0                                                                    num_bytes%2#0
-        int 2                                                                                   num_bytes%2#0,2
-        +                                                                                       num_bytes%5#0
-        v-load add%2#0                                                                          num_bytes%5#0,add%2#0
-        l-load num_bytes%5#0 1                                                                  add%2#0,num_bytes%5#0
-        +                                                                                       add%5#0
-        v-load tuple_len%0#0                                                                    add%5#0,tuple_len%0#0
-        l-load add%5#0 1                                                                        tuple_len%0#0,add%5#0
-        ==                                                                                      eq%4#0
-        assert // invalid number of bytes for examples.box_storage.contract.NestedStruct
+        x-load num_bytes%2#0                                                                    (𝕏) struct#0,tuple_len%0#0 | num_bytes%2#0
+        int 2                                                                                   (𝕏) struct#0,tuple_len%0#0 | num_bytes%2#0,2
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0 | num_bytes%5#0
+        v-load add%2#0                                                                          (𝕏) struct#0,tuple_len%0#0 | num_bytes%5#0,add%2#0
+        l-load num_bytes%5#0 1                                                                  (𝕏) struct#0,tuple_len%0#0 | add%2#0,num_bytes%5#0
+        +                                                                                       (𝕏) struct#0,tuple_len%0#0 | add%5#0
+        x-load tuple_len%0#0                                                                    (𝕏) struct#0 | add%5#0,tuple_len%0#0
+        l-load add%5#0 1                                                                        (𝕏) struct#0 | tuple_len%0#0,add%5#0
+        ==                                                                                      (𝕏) struct#0 | eq%4#0
+        assert // invalid number of bytes for examples.box_storage.contract.NestedStruct        (𝕏) struct#0 |
         // box_storage/contract.py:233
         // assert struct.a, "struct.a is truthy"
-        v-load struct#0                                                                         struct#0
+        x-load struct#0                                                                         struct#0
         int 0                                                                                   struct#0,0
         extract_uint64                                                                          tmp%0#1
         assert // struct.a is truthy
@@ -2600,134 +2612,138 @@ subroutine sum_dynamic_arr_struct:
         l-load tmp%0#1 1                                                                        tmp%2#1,tmp%0#1
         l-load tmp%2#1 1                                                                        tmp%0#1,tmp%2#1
         +                                                                                       total#0
-        v-store total#0
+        x-store total#0                                                                         (𝕏) total#0 |
         // box_storage/contract.py:271
         // for val in self.dynamic_arr_struct.value.arr:
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 20                                                                                  "dynamic_arr_struct",20
-        int 2                                                                                   "dynamic_arr_struct",20,2
-        box_extract                                                                             box%box_extract%6#0
-        btoi                                                                                    box%btoi%1#0
-        v-store box%btoi%1#0
-        int 0                                                                                   0
-        v-store item_index_internal%0#0
-        b sum_dynamic_arr_struct_for_header@2
+        byte "dynamic_arr_struct"                                                               (𝕏) total#0 | "dynamic_arr_struct"
+        int 20                                                                                  (𝕏) total#0 | "dynamic_arr_struct",20
+        int 2                                                                                   (𝕏) total#0 | "dynamic_arr_struct",20,2
+        box_extract                                                                             (𝕏) total#0 | box%box_extract%6#0
+        btoi                                                                                    (𝕏) total#0 | box%btoi%1#0
+        v-store box%btoi%1#0                                                                    (𝕏) total#0 |
+        int 0                                                                                   (𝕏) total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) total#0,item_index_internal%0#0 |
+        b sum_dynamic_arr_struct_for_header@2                                                   (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_dynamic_arr_struct_for_header@2:
+    sum_dynamic_arr_struct_for_header@2:                                                        (𝕏) total#0,item_index_internal%0#0 |
         // box_storage/contract.py:271
         // for val in self.dynamic_arr_struct.value.arr:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        v-load box%btoi%1#0                                                                     item_index_internal%0#0,box%btoi%1#0
-        <                                                                                       continue_looping%0#0
-        bz sum_dynamic_arr_struct_after_for@5 ; b sum_dynamic_arr_struct_for_body@3
+        x-load-copy item_index_internal%0#0                                                     (𝕏) total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
+        v-load box%btoi%1#0                                                                     (𝕏) total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),box%btoi%1#0
+        <                                                                                       (𝕏) total#0,item_index_internal%0#0 | continue_looping%0#0
+        bz sum_dynamic_arr_struct_after_for@5 ; b sum_dynamic_arr_struct_for_body@3             (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_dynamic_arr_struct_for_body@3:
+    sum_dynamic_arr_struct_for_body@3:                                                          (𝕏) total#0,item_index_internal%0#0 |
         // box_storage/contract.py:271
         // for val in self.dynamic_arr_struct.value.arr:
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 20                                                                                  "dynamic_arr_struct",20
-        int 2                                                                                   "dynamic_arr_struct",20,2
-        box_extract                                                                             box%box_extract%7#0
-        btoi                                                                                    box%btoi%2#0
-        v-load item_index_internal%0#0                                                          box%btoi%2#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                  item_index_internal%0#0,box%btoi%2#0,item_index_internal%0#0 (copy)
-        l-load box%btoi%2#0 1                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),box%btoi%2#0
-        <                                                                                       item_index_internal%0#0,box%index_ok%0#0
-        assert // index out of bounds                                                           item_index_internal%0#0
-        l-load-copy item_index_internal%0#0 0                                                   item_index_internal%0#0,item_index_internal%0#0 (copy)
-        int 8                                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                       item_index_internal%0#0,box%element_offset%0#0
-        int 22                                                                                  item_index_internal%0#0,box%element_offset%0#0,22
-        l-load box%element_offset%0#0 1                                                         item_index_internal%0#0,22,box%element_offset%0#0
-        +                                                                                       item_index_internal%0#0,box%offset%7#0
-        byte "dynamic_arr_struct"                                                               item_index_internal%0#0,box%offset%7#0,"dynamic_arr_struct"
-        l-load box%offset%7#0 1                                                                 item_index_internal%0#0,"dynamic_arr_struct",box%offset%7#0
-        int 8                                                                                   item_index_internal%0#0,"dynamic_arr_struct",box%offset%7#0,8
-        box_extract // on error: index out of bounds                                            item_index_internal%0#0,box%box_extract%8#0
-        btoi                                                                                    item_index_internal%0#0,val#0
+        byte "dynamic_arr_struct"                                                               (𝕏) total#0,item_index_internal%0#0 | "dynamic_arr_struct"
+        int 20                                                                                  (𝕏) total#0,item_index_internal%0#0 | "dynamic_arr_struct",20
+        int 2                                                                                   (𝕏) total#0,item_index_internal%0#0 | "dynamic_arr_struct",20,2
+        box_extract                                                                             (𝕏) total#0,item_index_internal%0#0 | box%box_extract%7#0
+        btoi                                                                                    (𝕏) total#0,item_index_internal%0#0 | box%btoi%2#0
+        x-load item_index_internal%0#0                                                          (𝕏) total#0 | box%btoi%2#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                  (𝕏) total#0 | item_index_internal%0#0,box%btoi%2#0,item_index_internal%0#0 (copy)
+        l-load box%btoi%2#0 1                                                                   (𝕏) total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),box%btoi%2#0
+        <                                                                                       (𝕏) total#0 | item_index_internal%0#0,box%index_ok%0#0
+        assert // index out of bounds                                                           (𝕏) total#0 | item_index_internal%0#0
+        l-load-copy item_index_internal%0#0 0                                                   (𝕏) total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
+        int 8                                                                                   (𝕏) total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),8
+        *                                                                                       (𝕏) total#0 | item_index_internal%0#0,box%element_offset%0#0
+        int 22                                                                                  (𝕏) total#0 | item_index_internal%0#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                         (𝕏) total#0 | item_index_internal%0#0,22,box%element_offset%0#0
+        +                                                                                       (𝕏) total#0 | item_index_internal%0#0,box%offset%7#0
+        byte "dynamic_arr_struct"                                                               (𝕏) total#0 | item_index_internal%0#0,box%offset%7#0,"dynamic_arr_struct"
+        l-load box%offset%7#0 1                                                                 (𝕏) total#0 | item_index_internal%0#0,"dynamic_arr_struct",box%offset%7#0
+        int 8                                                                                   (𝕏) total#0 | item_index_internal%0#0,"dynamic_arr_struct",box%offset%7#0,8
+        box_extract // on error: index out of bounds                                            (𝕏) total#0 | item_index_internal%0#0,box%box_extract%8#0
+        btoi                                                                                    (𝕏) total#0 | item_index_internal%0#0,val#0
         // box_storage/contract.py:272
         // total += val
-        v-load total#0                                                                          item_index_internal%0#0,val#0,total#0
+        x-load total#0                                                                          item_index_internal%0#0,val#0,total#0
         l-load val#0 1                                                                          item_index_internal%0#0,total#0,val#0
         +                                                                                       item_index_internal%0#0,total#0
-        v-store total#0                                                                         item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                        item_index_internal%0#0
-        int 1                                                                                   item_index_internal%0#0,1
-        +                                                                                       item_index_internal%0#0
-        v-store item_index_internal%0#0
-        b sum_dynamic_arr_struct_for_header@2
+        x-store total#0                                                                         (𝕏) total#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        (𝕏) total#0 | item_index_internal%0#0
+        int 1                                                                                   (𝕏) total#0 | item_index_internal%0#0,1
+        +                                                                                       (𝕏) total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) total#0,item_index_internal%0#0 |
+        b sum_dynamic_arr_struct_for_header@2                                                   (𝕏) total#0,item_index_internal%0#0 |
 
-    sum_dynamic_arr_struct_after_for@5:
+    sum_dynamic_arr_struct_after_for@5:                                                         (𝕏) total#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                          (𝕏) total#0 | item_index_internal%0#0
+        pop 1                                                                                   (𝕏) total#0 |
         // box_storage/contract.py:273
         // for val in self.dynamic_arr_struct.value.arr2:
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 18                                                                                  "dynamic_arr_struct",18
-        int 2                                                                                   "dynamic_arr_struct",18,2
-        box_extract                                                                             box%box_extract%12#0
-        btoi                                                                                    box%btoi%5#0
-        byte "dynamic_arr_struct"                                                               box%btoi%5#0,"dynamic_arr_struct"
-        l-load box%btoi%5#0 1                                                                   "dynamic_arr_struct",box%btoi%5#0
-        int 2                                                                                   "dynamic_arr_struct",box%btoi%5#0,2
-        box_extract                                                                             box%box_extract%13#0
-        btoi                                                                                    box%btoi%6#0
-        v-store box%btoi%6#0
-        int 0                                                                                   0
-        v-store item_index_internal%1#0
-        b sum_dynamic_arr_struct_for_header@6
+        byte "dynamic_arr_struct"                                                               (𝕏) total#0 | "dynamic_arr_struct"
+        int 18                                                                                  (𝕏) total#0 | "dynamic_arr_struct",18
+        int 2                                                                                   (𝕏) total#0 | "dynamic_arr_struct",18,2
+        box_extract                                                                             (𝕏) total#0 | box%box_extract%12#0
+        btoi                                                                                    (𝕏) total#0 | box%btoi%5#0
+        byte "dynamic_arr_struct"                                                               (𝕏) total#0 | box%btoi%5#0,"dynamic_arr_struct"
+        l-load box%btoi%5#0 1                                                                   (𝕏) total#0 | "dynamic_arr_struct",box%btoi%5#0
+        int 2                                                                                   (𝕏) total#0 | "dynamic_arr_struct",box%btoi%5#0,2
+        box_extract                                                                             (𝕏) total#0 | box%box_extract%13#0
+        btoi                                                                                    (𝕏) total#0 | box%btoi%6#0
+        x-store box%btoi%6#0                                                                    (𝕏) box%btoi%6#0,total#0 |
+        int 0                                                                                   (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0
+        x-store item_index_internal%1#0                                                         (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
+        b sum_dynamic_arr_struct_for_header@6                                                   (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
 
-    sum_dynamic_arr_struct_for_header@6:
+    sum_dynamic_arr_struct_for_header@6:                                                        (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
         // box_storage/contract.py:273
         // for val in self.dynamic_arr_struct.value.arr2:
-        v-load item_index_internal%1#0                                                          item_index_internal%1#0
-        v-load box%btoi%6#0                                                                     item_index_internal%1#0,box%btoi%6#0
-        <                                                                                       continue_looping%1#0
-        bz sum_dynamic_arr_struct_after_for@9 ; b sum_dynamic_arr_struct_for_body@7
+        x-load-copy item_index_internal%1#0                                                     (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | item_index_internal%1#0 (copy)
+        x-load-copy box%btoi%6#0                                                                (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | item_index_internal%1#0 (copy),box%btoi%6#0 (copy)
+        <                                                                                       (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | continue_looping%1#0
+        bz sum_dynamic_arr_struct_after_for@9 ; b sum_dynamic_arr_struct_for_body@7             (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
 
-    sum_dynamic_arr_struct_for_body@7:
+    sum_dynamic_arr_struct_for_body@7:                                                          (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
         // box_storage/contract.py:273
         // for val in self.dynamic_arr_struct.value.arr2:
-        byte "dynamic_arr_struct"                                                               "dynamic_arr_struct"
-        int 18                                                                                  "dynamic_arr_struct",18
-        int 2                                                                                   "dynamic_arr_struct",18,2
-        box_extract                                                                             box%box_extract%14#0
-        btoi                                                                                    box%btoi%7#0
-        int 2                                                                                   box%btoi%7#0,2
-        +                                                                                       box%add%4#0
-        v-load item_index_internal%1#0                                                          box%add%4#0,item_index_internal%1#0
-        l-store-copy item_index_internal%1#0 1                                                  item_index_internal%1#0,box%add%4#0,item_index_internal%1#0 (copy)
-        int 8                                                                                   item_index_internal%1#0,box%add%4#0,item_index_internal%1#0 (copy),8
-        *                                                                                       item_index_internal%1#0,box%add%4#0,box%element_offset%1#0
-        l-load box%add%4#0 1                                                                    item_index_internal%1#0,box%element_offset%1#0,box%add%4#0
-        l-load box%element_offset%1#0 1                                                         item_index_internal%1#0,box%add%4#0,box%element_offset%1#0
-        +                                                                                       item_index_internal%1#0,box%offset%11#0
-        byte "dynamic_arr_struct"                                                               item_index_internal%1#0,box%offset%11#0,"dynamic_arr_struct"
-        l-load box%offset%11#0 1                                                                item_index_internal%1#0,"dynamic_arr_struct",box%offset%11#0
-        int 8                                                                                   item_index_internal%1#0,"dynamic_arr_struct",box%offset%11#0,8
-        box_extract // on error: index out of bounds                                            item_index_internal%1#0,box%box_extract%15#0
-        btoi                                                                                    item_index_internal%1#0,val#0
+        byte "dynamic_arr_struct"                                                               (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | "dynamic_arr_struct"
+        int 18                                                                                  (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | "dynamic_arr_struct",18
+        int 2                                                                                   (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | "dynamic_arr_struct",18,2
+        box_extract                                                                             (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | box%box_extract%14#0
+        btoi                                                                                    (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | box%btoi%7#0
+        int 2                                                                                   (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | box%btoi%7#0,2
+        +                                                                                       (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 | box%add%4#0
+        x-load item_index_internal%1#0                                                          (𝕏) box%btoi%6#0,total#0 | box%add%4#0,item_index_internal%1#0
+        l-store-copy item_index_internal%1#0 1                                                  (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%add%4#0,item_index_internal%1#0 (copy)
+        int 8                                                                                   (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%add%4#0,item_index_internal%1#0 (copy),8
+        *                                                                                       (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%add%4#0,box%element_offset%1#0
+        l-load box%add%4#0 1                                                                    (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%element_offset%1#0,box%add%4#0
+        l-load box%element_offset%1#0 1                                                         (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%add%4#0,box%element_offset%1#0
+        +                                                                                       (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%offset%11#0
+        byte "dynamic_arr_struct"                                                               (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%offset%11#0,"dynamic_arr_struct"
+        l-load box%offset%11#0 1                                                                (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,"dynamic_arr_struct",box%offset%11#0
+        int 8                                                                                   (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,"dynamic_arr_struct",box%offset%11#0,8
+        box_extract // on error: index out of bounds                                            (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,box%box_extract%15#0
+        btoi                                                                                    (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,val#0
         // box_storage/contract.py:274
         // total += val
-        v-load total#0                                                                          item_index_internal%1#0,val#0,total#0
-        l-load val#0 1                                                                          item_index_internal%1#0,total#0,val#0
-        +                                                                                       item_index_internal%1#0,total#0
-        v-store total#0                                                                         item_index_internal%1#0
-        l-load item_index_internal%1#0 0                                                        item_index_internal%1#0
-        int 1                                                                                   item_index_internal%1#0,1
-        +                                                                                       item_index_internal%1#0
-        v-store item_index_internal%1#0
-        b sum_dynamic_arr_struct_for_header@6
+        x-load total#0                                                                          (𝕏) box%btoi%6#0 | item_index_internal%1#0,val#0,total#0
+        l-load val#0 1                                                                          (𝕏) box%btoi%6#0 | item_index_internal%1#0,total#0,val#0
+        +                                                                                       (𝕏) box%btoi%6#0 | item_index_internal%1#0,total#0
+        x-store total#0                                                                         (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0
+        l-load item_index_internal%1#0 0                                                        (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0
+        int 1                                                                                   (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0,1
+        +                                                                                       (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0
+        x-store item_index_internal%1#0                                                         (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
+        b sum_dynamic_arr_struct_for_header@6                                                   (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
 
-    sum_dynamic_arr_struct_after_for@9:
+    sum_dynamic_arr_struct_after_for@9:                                                         (𝕏) box%btoi%6#0,total#0,item_index_internal%1#0 |
+        x-load item_index_internal%1#0                                                          (𝕏) box%btoi%6#0,total#0 | item_index_internal%1#0
+        pop 1                                                                                   (𝕏) box%btoi%6#0,total#0 |
         // box_storage/contract.py:266
         // @arc4.abimethod
-        v-load total#0                                                                          total#0
-        itob                                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                  tmp%2#0
-        log
-        int 1                                                                                   1
-        return
+        x-load total#0                                                                          (𝕏) box%btoi%6#0 | total#0
+        itob                                                                                    (𝕏) box%btoi%6#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                         (𝕏) box%btoi%6#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕏) box%btoi%6#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                  (𝕏) box%btoi%6#0 | tmp%2#0
+        log                                                                                     (𝕏) box%btoi%6#0 |
+        int 1                                                                                   (𝕏) box%btoi%6#0 | 1
+        return                                                                                  (𝕏) box%btoi%6#0 |
 
 
 // examples.box_storage.contract.BoxContract.set_bool[routing]() -> void:
@@ -2795,86 +2811,88 @@ subroutine sum_bools:
         assert // invalid number of bytes for arc4.uint64                                       tmp%0#0
         l-load tmp%0#0 0                                                                        tmp%0#0
         btoi                                                                                    stop_at_total#0
-        v-store stop_at_total#0
+        x-store stop_at_total#0                                                                 (𝕏) stop_at_total#0 |
         // box_storage/contract.py:287
         // total = UInt64()
-        int 0                                                                                   0
-        v-store total#0
+        int 0                                                                                   (𝕏) stop_at_total#0 | total#0
+        x-store total#0                                                                         (𝕏) stop_at_total#0,total#0 |
         // box_storage/contract.py:288
         // for value in self.too_many_bools.value:
-        byte "too_many_bools"                                                                   "too_many_bools"
-        box_len                                                                                 aggregate%box_get%0#0,aggregate%box_get%1#0
-        l-store aggregate%box_get%1#0 1                                                         aggregate%box_get%1#0,aggregate%box_get%0#0
-        pop 1                                                                                   aggregate%box_get%1#0
-        l-load aggregate%box_get%1#0 0                                                          aggregate%box_get%1#0
-        assert // check self.too_many_bools exists
-        int 0                                                                                   0
-        v-store item_index_internal%0#0
-        b sum_bools_for_header@2
+        byte "too_many_bools"                                                                   (𝕏) stop_at_total#0,total#0 | "too_many_bools"
+        box_len                                                                                 (𝕏) stop_at_total#0,total#0 | aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                         (𝕏) stop_at_total#0,total#0 | aggregate%box_get%1#0,aggregate%box_get%0#0
+        pop 1                                                                                   (𝕏) stop_at_total#0,total#0 | aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                          (𝕏) stop_at_total#0,total#0 | aggregate%box_get%1#0
+        assert // check self.too_many_bools exists                                              (𝕏) stop_at_total#0,total#0 |
+        int 0                                                                                   (𝕏) stop_at_total#0,total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
+        b sum_bools_for_header@2                                                                (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_for_header@2:
+    sum_bools_for_header@2:                                                                     (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:288
         // for value in self.too_many_bools.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        int 33000                                                                               item_index_internal%0#0,33000
-        <                                                                                       continue_looping%0#0
-        bz sum_bools_after_for@9 ; b sum_bools_for_body@3
+        x-load-copy item_index_internal%0#0                                                     (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
+        int 33000                                                                               (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),33000
+        <                                                                                       (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | continue_looping%0#0
+        bz sum_bools_after_for@9 ; b sum_bools_for_body@3                                       (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_for_body@3:
+    sum_bools_for_body@3:                                                                       (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:288
         // for value in self.too_many_bools.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 0                                                  item_index_internal%0#0,item_index_internal%0#0 (copy)
-        int 8                                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        /                                                                                       item_index_internal%0#0,box%element_byte_offset%0#0
-        l-load item_index_internal%0#0 1                                                        box%element_byte_offset%0#0,item_index_internal%0#0
-        int 8                                                                                   box%element_byte_offset%0#0,item_index_internal%0#0,8
-        %                                                                                       box%element_byte_offset%0#0,box%element_bit_offset%0#0
-        byte "too_many_bools"                                                                   box%element_byte_offset%0#0,box%element_bit_offset%0#0,"too_many_bools"
-        l-load box%element_byte_offset%0#0 2                                                    box%element_bit_offset%0#0,"too_many_bools",box%element_byte_offset%0#0
-        int 1                                                                                   box%element_bit_offset%0#0,"too_many_bools",box%element_byte_offset%0#0,1
-        box_extract // on error: index out of bounds                                            box%element_bit_offset%0#0,box%box_extract%0#0
-        l-load box%element_bit_offset%0#0 1                                                     box%box_extract%0#0,box%element_bit_offset%0#0
-        getbit                                                                                  value#0
+        x-load-copy item_index_internal%0#0                                                     (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 0                                                  (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
+        int 8                                                                                   (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),8
+        /                                                                                       (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | item_index_internal%0#0,box%element_byte_offset%0#0
+        l-load item_index_internal%0#0 1                                                        (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_byte_offset%0#0,item_index_internal%0#0
+        int 8                                                                                   (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_byte_offset%0#0,item_index_internal%0#0,8
+        %                                                                                       (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_byte_offset%0#0,box%element_bit_offset%0#0
+        byte "too_many_bools"                                                                   (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_byte_offset%0#0,box%element_bit_offset%0#0,"too_many_bools"
+        l-load box%element_byte_offset%0#0 2                                                    (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_bit_offset%0#0,"too_many_bools",box%element_byte_offset%0#0
+        int 1                                                                                   (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_bit_offset%0#0,"too_many_bools",box%element_byte_offset%0#0,1
+        box_extract // on error: index out of bounds                                            (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%element_bit_offset%0#0,box%box_extract%0#0
+        l-load box%element_bit_offset%0#0 1                                                     (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | box%box_extract%0#0,box%element_bit_offset%0#0
+        getbit                                                                                  (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | value#0
         // box_storage/contract.py:289
         // if value:
-        bz sum_bools_after_if_else@5 ; b sum_bools_if_body@4
+        bz sum_bools_after_if_else@5 ; b sum_bools_if_body@4                                    (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_if_body@4:
+    sum_bools_if_body@4:                                                                        (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:290
         // total += 1
-        v-load total#0                                                                          total#0
-        int 1                                                                                   total#0,1
-        +                                                                                       total#0
-        v-store total#0
-        b sum_bools_after_if_else@5
+        x-load total#0                                                                          (𝕏) stop_at_total#0,item_index_internal%0#0 | total#0
+        int 1                                                                                   (𝕏) stop_at_total#0,item_index_internal%0#0 | total#0,1
+        +                                                                                       (𝕏) stop_at_total#0,item_index_internal%0#0 | total#0
+        x-store total#0                                                                         (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
+        b sum_bools_after_if_else@5                                                             (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_after_if_else@5:
+    sum_bools_after_if_else@5:                                                                  (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:291
         // if total == stop_at_total:
-        v-load total#0                                                                          total#0
-        v-load stop_at_total#0                                                                  total#0,stop_at_total#0
-        ==                                                                                      tmp%2#1
-        bz sum_bools_after_if_else@7 ; b sum_bools_after_for@9
+        x-load-copy total#0                                                                     (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | total#0 (copy)
+        x-load-copy stop_at_total#0                                                             (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | total#0 (copy),stop_at_total#0 (copy)
+        ==                                                                                      (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 | tmp%2#1
+        bz sum_bools_after_if_else@7 ; b sum_bools_after_for@9                                  (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_after_if_else@7:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        int 1                                                                                   item_index_internal%0#0,1
-        +                                                                                       item_index_internal%0#0
-        v-store item_index_internal%0#0
-        b sum_bools_for_header@2
+    sum_bools_after_if_else@7:                                                                  (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                          (𝕏) stop_at_total#0,total#0 | item_index_internal%0#0
+        int 1                                                                                   (𝕏) stop_at_total#0,total#0 | item_index_internal%0#0,1
+        +                                                                                       (𝕏) stop_at_total#0,total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
+        b sum_bools_for_header@2                                                                (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
 
-    sum_bools_after_for@9:
+    sum_bools_after_for@9:                                                                      (𝕏) stop_at_total#0,total#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                          (𝕏) stop_at_total#0,total#0 | item_index_internal%0#0
+        pop 1                                                                                   (𝕏) stop_at_total#0,total#0 |
         // box_storage/contract.py:285
         // @arc4.abimethod()
-        v-load total#0                                                                          total#0
-        itob                                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                  tmp%4#0
-        log
-        int 1                                                                                   1
-        return
+        x-load total#0                                                                          (𝕏) stop_at_total#0 | total#0
+        itob                                                                                    (𝕏) stop_at_total#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                         (𝕏) stop_at_total#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕏) stop_at_total#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                  (𝕏) stop_at_total#0 | tmp%4#0
+        log                                                                                     (𝕏) stop_at_total#0 |
+        int 1                                                                                   (𝕏) stop_at_total#0 | 1
+        return                                                                                  (𝕏) stop_at_total#0 |
 
 
 // examples.box_storage.contract.BoxContract.create_dynamic_box[routing]() -> void:
@@ -2907,58 +2925,58 @@ subroutine append_dynamic_box:
         assert // invalid number of bytes for arc4.uint64                                       tmp%0#0
         l-load tmp%0#0 0                                                                        tmp%0#0
         btoi                                                                                    times#0
-        v-store times#0
+        x-store times#0                                                                         (𝕏) times#0 |
         // box_storage/contract.py:305
         // for i in urange(times):
-        int 0                                                                                   value_internal%0#0
-        v-store i#0
-        b append_dynamic_box_for_header@2
+        int 0                                                                                   (𝕏) times#0 | i#0
+        x-store i#0                                                                             (𝕏) times#0,i#0 |
+        b append_dynamic_box_for_header@2                                                       (𝕏) times#0,i#0 |
 
-    append_dynamic_box_for_header@2:
+    append_dynamic_box_for_header@2:                                                            (𝕏) times#0,i#0 |
         // box_storage/contract.py:305
         // for i in urange(times):
-        v-load i#0                                                                              i#0
-        v-load times#0                                                                          i#0,times#0
-        <                                                                                       continue_looping%0#0
-        bz append_dynamic_box_after_for@5 ; b append_dynamic_box_for_body@3
+        x-load-copy i#0                                                                         (𝕏) times#0,i#0 | i#0 (copy)
+        x-load-copy times#0                                                                     (𝕏) times#0,i#0 | i#0 (copy),times#0 (copy)
+        <                                                                                       (𝕏) times#0,i#0 | continue_looping%0#0
+        bz append_dynamic_box_after_for@5 ; b append_dynamic_box_for_body@3                     (𝕏) times#0,i#0 |
 
-    append_dynamic_box_for_body@3:
+    append_dynamic_box_for_body@3:                                                              (𝕏) times#0,i#0 |
         // box_storage/contract.py:306
         // self.dynamic_box.value.append(i)
-        v-load i#0                                                                              i#0
-        l-store-copy i#0 0                                                                      i#0,i#0 (copy)
-        itob                                                                                    i#0,aggregate%val_as_bytes%0#0
-        byte "dynamic_box"                                                                      i#0,aggregate%val_as_bytes%0#0,"dynamic_box"
-        int 0                                                                                   i#0,aggregate%val_as_bytes%0#0,"dynamic_box",0
-        l-load aggregate%val_as_bytes%0#0 2                                                     i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0
-        int 1                                                                                   i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0,1
-        int 8                                                                                   i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0,1,8
-        callsub box_dynamic_array_concat_fixed                                                  i#0
+        x-load i#0                                                                              (𝕏) times#0 | i#0
+        l-store-copy i#0 0                                                                      (𝕏) times#0 | i#0,i#0 (copy)
+        itob                                                                                    (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0
+        byte "dynamic_box"                                                                      (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_box"
+        int 0                                                                                   (𝕏) times#0 | i#0,aggregate%val_as_bytes%0#0,"dynamic_box",0
+        l-load aggregate%val_as_bytes%0#0 2                                                     (𝕏) times#0 | i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0
+        int 1                                                                                   (𝕏) times#0 | i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0,1
+        int 8                                                                                   (𝕏) times#0 | i#0,"dynamic_box",0,aggregate%val_as_bytes%0#0,1,8
+        callsub box_dynamic_array_concat_fixed                                                  (𝕏) times#0 | i#0
         // box_storage/contract.py:305
         // for i in urange(times):
-        l-load i#0 0                                                                            i#0
-        int 1                                                                                   i#0,1
-        +                                                                                       value_internal%0#0
-        v-store i#0
-        b append_dynamic_box_for_header@2
+        l-load i#0 0                                                                            (𝕏) times#0 | i#0
+        int 1                                                                                   (𝕏) times#0 | i#0,1
+        +                                                                                       (𝕏) times#0 | i#0
+        x-store i#0                                                                             (𝕏) times#0,i#0 |
+        b append_dynamic_box_for_header@2                                                       (𝕏) times#0,i#0 |
 
-    append_dynamic_box_after_for@5:
+    append_dynamic_box_after_for@5:                                                             (𝕏) times#0,i#0 |
         // box_storage/contract.py:307
         // return self.dynamic_box.value.length
-        byte "dynamic_box"                                                                      "dynamic_box"
-        int 0                                                                                   "dynamic_box",0
-        int 2                                                                                   "dynamic_box",0,2
-        box_extract                                                                             box%box_extract%0#0
-        btoi                                                                                    box%btoi%0#0
+        byte "dynamic_box"                                                                      (𝕏) times#0,i#0 | "dynamic_box"
+        int 0                                                                                   (𝕏) times#0,i#0 | "dynamic_box",0
+        int 2                                                                                   (𝕏) times#0,i#0 | "dynamic_box",0,2
+        box_extract                                                                             (𝕏) times#0,i#0 | box%box_extract%0#0
+        btoi                                                                                    (𝕏) times#0,i#0 | box%btoi%0#0
         // box_storage/contract.py:303
         // @arc4.abimethod
-        itob                                                                                    aggregate%val_as_bytes%1#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%1#0,0x151f7c75
-        l-load aggregate%val_as_bytes%1#0 1                                                     0x151f7c75,aggregate%val_as_bytes%1#0
-        concat                                                                                  tmp%4#0
-        log
-        int 1                                                                                   1
-        return
+        itob                                                                                    (𝕏) times#0,i#0 | aggregate%val_as_bytes%1#0
+        byte 0x151f7c75                                                                         (𝕏) times#0,i#0 | aggregate%val_as_bytes%1#0,0x151f7c75
+        l-load aggregate%val_as_bytes%1#0 1                                                     (𝕏) times#0,i#0 | 0x151f7c75,aggregate%val_as_bytes%1#0
+        concat                                                                                  (𝕏) times#0,i#0 | tmp%4#0
+        log                                                                                     (𝕏) times#0,i#0 |
+        int 1                                                                                   (𝕏) times#0,i#0 | 1
+        return                                                                                  (𝕏) times#0,i#0 |
 
 
 // examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]() -> void:
@@ -2974,53 +2992,53 @@ subroutine pop_dynamic_box:
         assert // invalid number of bytes for arc4.uint64                                       tmp%0#0
         l-load tmp%0#0 0                                                                        tmp%0#0
         btoi                                                                                    times#0
-        v-store times#0
+        x-store times#0                                                                         (𝕏) times#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        int 0                                                                                   value_internal%0#0
-        v-store _pop#0
-        b pop_dynamic_box_for_header@2
+        int 0                                                                                   (𝕏) times#0 | _pop#0
+        x-store _pop#0                                                                          (𝕏) times#0,_pop#0 |
+        b pop_dynamic_box_for_header@2                                                          (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_box_for_header@2:
+    pop_dynamic_box_for_header@2:                                                               (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        v-load times#0                                                                          _pop#0,times#0
-        <                                                                                       continue_looping%0#0
-        bz pop_dynamic_box_after_for@5 ; b pop_dynamic_box_for_body@3
+        x-load-copy _pop#0                                                                      (𝕏) times#0,_pop#0 | _pop#0 (copy)
+        x-load-copy times#0                                                                     (𝕏) times#0,_pop#0 | _pop#0 (copy),times#0 (copy)
+        <                                                                                       (𝕏) times#0,_pop#0 | continue_looping%0#0
+        bz pop_dynamic_box_after_for@5 ; b pop_dynamic_box_for_body@3                           (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_box_for_body@3:
+    pop_dynamic_box_for_body@3:                                                                 (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:312
         // self.dynamic_box.value.pop()
-        byte "dynamic_box"                                                                      "dynamic_box"
-        int 0                                                                                   "dynamic_box",0
-        int 8                                                                                   "dynamic_box",0,8
-        callsub box_dynamic_array_pop_fixed_size
+        byte "dynamic_box"                                                                      (𝕏) times#0,_pop#0 | "dynamic_box"
+        int 0                                                                                   (𝕏) times#0,_pop#0 | "dynamic_box",0
+        int 8                                                                                   (𝕏) times#0,_pop#0 | "dynamic_box",0,8
+        callsub box_dynamic_array_pop_fixed_size                                                (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:311
         // for _pop in urange(times):
-        v-load _pop#0                                                                           _pop#0
-        int 1                                                                                   _pop#0,1
-        +                                                                                       value_internal%0#0
-        v-store _pop#0
-        b pop_dynamic_box_for_header@2
+        x-load _pop#0                                                                           (𝕏) times#0 | _pop#0
+        int 1                                                                                   (𝕏) times#0 | _pop#0,1
+        +                                                                                       (𝕏) times#0 | _pop#0
+        x-store _pop#0                                                                          (𝕏) times#0,_pop#0 |
+        b pop_dynamic_box_for_header@2                                                          (𝕏) times#0,_pop#0 |
 
-    pop_dynamic_box_after_for@5:
+    pop_dynamic_box_after_for@5:                                                                (𝕏) times#0,_pop#0 |
         // box_storage/contract.py:314
         // return self.dynamic_box.value.length
-        byte "dynamic_box"                                                                      "dynamic_box"
-        int 0                                                                                   "dynamic_box",0
-        int 2                                                                                   "dynamic_box",0,2
-        box_extract                                                                             box%box_extract%0#0
-        btoi                                                                                    box%btoi%0#0
+        byte "dynamic_box"                                                                      (𝕏) times#0,_pop#0 | "dynamic_box"
+        int 0                                                                                   (𝕏) times#0,_pop#0 | "dynamic_box",0
+        int 2                                                                                   (𝕏) times#0,_pop#0 | "dynamic_box",0,2
+        box_extract                                                                             (𝕏) times#0,_pop#0 | box%box_extract%0#0
+        btoi                                                                                    (𝕏) times#0,_pop#0 | box%btoi%0#0
         // box_storage/contract.py:309
         // @arc4.abimethod
-        itob                                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                  tmp%4#0
-        log
-        int 1                                                                                   1
-        return
+        itob                                                                                    (𝕏) times#0,_pop#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                         (𝕏) times#0,_pop#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕏) times#0,_pop#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                  (𝕏) times#0,_pop#0 | tmp%4#0
+        log                                                                                     (𝕏) times#0,_pop#0 |
+        int 1                                                                                   (𝕏) times#0,_pop#0 | 1
+        return                                                                                  (𝕏) times#0,_pop#0 |
 
 
 // examples.box_storage.contract.BoxContract.sum_dynamic_box[routing]() -> void:
@@ -3028,66 +3046,68 @@ subroutine sum_dynamic_box:
     sum_dynamic_box_block@0:
         // box_storage/contract.py:318
         // total = UInt64()
-        int 0                                                                                   0
-        v-store total#0
+        int 0                                                                                   total#0
+        x-store total#0                                                                         (𝕏) total#0 |
         // box_storage/contract.py:319
         // for val in self.dynamic_box.value:
-        byte "dynamic_box"                                                                      "dynamic_box"
-        int 0                                                                                   "dynamic_box",0
-        int 2                                                                                   "dynamic_box",0,2
-        box_extract                                                                             box%box_extract%0#0
-        btoi                                                                                    box%btoi%0#0
-        v-store box%btoi%0#0
-        int 0                                                                                   0
-        v-store item_index_internal%0#0
-        b sum_dynamic_box_for_header@2
+        byte "dynamic_box"                                                                      (𝕏) total#0 | "dynamic_box"
+        int 0                                                                                   (𝕏) total#0 | "dynamic_box",0
+        int 2                                                                                   (𝕏) total#0 | "dynamic_box",0,2
+        box_extract                                                                             (𝕏) total#0 | box%box_extract%0#0
+        btoi                                                                                    (𝕏) total#0 | box%btoi%0#0
+        x-store box%btoi%0#0                                                                    (𝕏) box%btoi%0#0,total#0 |
+        int 0                                                                                   (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
+        b sum_dynamic_box_for_header@2                                                          (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
 
-    sum_dynamic_box_for_header@2:
+    sum_dynamic_box_for_header@2:                                                               (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:319
         // for val in self.dynamic_box.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        v-load box%btoi%0#0                                                                     item_index_internal%0#0,box%btoi%0#0
-        <                                                                                       continue_looping%0#0
-        bz sum_dynamic_box_after_for@5 ; b sum_dynamic_box_for_body@3
+        x-load-copy item_index_internal%0#0                                                     (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
+        x-load-copy box%btoi%0#0                                                                (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),box%btoi%0#0 (copy)
+        <                                                                                       (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 | continue_looping%0#0
+        bz sum_dynamic_box_after_for@5 ; b sum_dynamic_box_for_body@3                           (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
 
-    sum_dynamic_box_for_body@3:
+    sum_dynamic_box_for_body@3:                                                                 (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
         // box_storage/contract.py:319
         // for val in self.dynamic_box.value:
-        v-load item_index_internal%0#0                                                          item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 0                                                  item_index_internal%0#0,item_index_internal%0#0 (copy)
-        int 8                                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                       item_index_internal%0#0,box%element_offset%0#0
-        int 2                                                                                   item_index_internal%0#0,box%element_offset%0#0,2
-        l-load box%element_offset%0#0 1                                                         item_index_internal%0#0,2,box%element_offset%0#0
-        +                                                                                       item_index_internal%0#0,box%offset%0#0
-        byte "dynamic_box"                                                                      item_index_internal%0#0,box%offset%0#0,"dynamic_box"
-        l-load box%offset%0#0 1                                                                 item_index_internal%0#0,"dynamic_box",box%offset%0#0
-        int 8                                                                                   item_index_internal%0#0,"dynamic_box",box%offset%0#0,8
-        box_extract // on error: index out of bounds                                            item_index_internal%0#0,box%box_extract%1#0
-        btoi                                                                                    item_index_internal%0#0,val#0
+        x-load item_index_internal%0#0                                                          (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 0                                                  (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
+        int 8                                                                                   (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),8
+        *                                                                                       (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,box%element_offset%0#0
+        int 2                                                                                   (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,box%element_offset%0#0,2
+        l-load box%element_offset%0#0 1                                                         (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,2,box%element_offset%0#0
+        +                                                                                       (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,box%offset%0#0
+        byte "dynamic_box"                                                                      (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,box%offset%0#0,"dynamic_box"
+        l-load box%offset%0#0 1                                                                 (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,"dynamic_box",box%offset%0#0
+        int 8                                                                                   (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,"dynamic_box",box%offset%0#0,8
+        box_extract // on error: index out of bounds                                            (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,box%box_extract%1#0
+        btoi                                                                                    (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,val#0
         // box_storage/contract.py:320
         // total += val
-        v-load total#0                                                                          item_index_internal%0#0,val#0,total#0
-        l-load val#0 1                                                                          item_index_internal%0#0,total#0,val#0
-        +                                                                                       item_index_internal%0#0,total#0
-        v-store total#0                                                                         item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                        item_index_internal%0#0
-        int 1                                                                                   item_index_internal%0#0,1
-        +                                                                                       item_index_internal%0#0
-        v-store item_index_internal%0#0
-        b sum_dynamic_box_for_header@2
+        x-load total#0                                                                          (𝕏) box%btoi%0#0 | item_index_internal%0#0,val#0,total#0
+        l-load val#0 1                                                                          (𝕏) box%btoi%0#0 | item_index_internal%0#0,total#0,val#0
+        +                                                                                       (𝕏) box%btoi%0#0 | item_index_internal%0#0,total#0
+        x-store total#0                                                                         (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        int 1                                                                                   (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0,1
+        +                                                                                       (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                         (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
+        b sum_dynamic_box_for_header@2                                                          (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
 
-    sum_dynamic_box_after_for@5:
+    sum_dynamic_box_after_for@5:                                                                (𝕏) box%btoi%0#0,total#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                          (𝕏) box%btoi%0#0,total#0 | item_index_internal%0#0
+        pop 1                                                                                   (𝕏) box%btoi%0#0,total#0 |
         // box_storage/contract.py:316
         // @arc4.abimethod
-        v-load total#0                                                                          total#0
-        itob                                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                  tmp%2#0
-        log
-        int 1                                                                                   1
-        return
+        x-load total#0                                                                          (𝕏) box%btoi%0#0 | total#0
+        itob                                                                                    (𝕏) box%btoi%0#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                         (𝕏) box%btoi%0#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕏) box%btoi%0#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                  (𝕏) box%btoi%0#0 | tmp%2#0
+        log                                                                                     (𝕏) box%btoi%0#0 |
+        int 1                                                                                   (𝕏) box%btoi%0#0 | 1
+        return                                                                                  (𝕏) box%btoi%0#0 |
 
 
 // examples.box_storage.contract.BoxContract.write_dynamic_box[routing]() -> void:

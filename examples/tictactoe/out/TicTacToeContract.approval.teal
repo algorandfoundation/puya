@@ -108,13 +108,13 @@ new_game_bool_merge@9:
     bytec_0 // "game"
     app_global_get_ex
     assert // check self.game exists
-    dig 1
+    swap
     intc_2 // 3
     *
     dup2
     intc_2 // 3
     extract3 // on error: index access is out of bounds
-    dig 4
+    uncover 3
     bytec 4 // 0x01
     replace3 // on error: index access is out of bounds
     replace3 // on error: index access is out of bounds
@@ -249,8 +249,7 @@ play:
 play_after_if_else@4:
     // tictactoe/tictactoe.py:58
     // self.make_move(player, move)
-    dig 2
-    dig 2
+    cover 2
     callsub make_move
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
@@ -289,7 +288,7 @@ make_move:
     // def make_move(self, player: arc4.UInt8, move: Move) -> None:
     proto 3 0
     intc_0 // 0
-    dupn 5
+    dupn 4
     // tictactoe/tictactoe.py:63
     // assert column < 3 and row < 3, "Move must be in range"
     frame_dig -2
@@ -356,7 +355,7 @@ make_move_bool_merge@4:
     swap
     dup
     cover 2
-    frame_bury 5
+    frame_bury 4
     assert // check self.game exists
     // tictactoe/tictactoe.py:76
     // if g[row][0] == g[row][1] == g[row][2]:
@@ -364,18 +363,18 @@ make_move_bool_merge@4:
     intc_2 // 3
     extract3 // on error: index access is out of bounds
     dup
-    frame_bury 2
+    frame_bury 1
     dup
     extract 0 1 // on error: index access is out of bounds
     swap
     extract 1 1 // on error: index access is out of bounds
     dup
-    frame_bury 3
+    frame_bury 2
     b==
     bz make_move_after_if_else@13
-    frame_dig 2
+    frame_dig 1
     extract 2 1 // on error: index access is out of bounds
-    frame_dig 3
+    frame_dig 2
     b==
     bz make_move_after_if_else@13
     // tictactoe/tictactoe.py:77
@@ -415,33 +414,34 @@ make_move_else_body@6:
 make_move_after_if_else@13:
     // tictactoe/tictactoe.py:79
     // if g[0][column] == g[1][column] == g[2][column]:
-    frame_dig 5
+    frame_dig 4
     dup
     extract 0 3 // on error: index access is out of bounds
     dup
-    frame_bury 4
+    frame_bury 3
     frame_dig -2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
     swap
     extract 3 3 // on error: index access is out of bounds
     dup
-    frame_bury 0
+    cover 2
     frame_dig -2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
     dup
-    frame_bury 1
+    frame_bury 0
     b==
     bz make_move_after_if_else@16
-    frame_dig 5
+    frame_dig 4
     extract 6 3 // on error: index access is out of bounds
     frame_dig -2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    frame_dig 1
+    frame_dig 0
     b==
     bz make_move_after_if_else@16
+    pop
     // tictactoe/tictactoe.py:80
     // return True
     intc_1 // 1
@@ -453,19 +453,18 @@ make_move_after_if_else@16:
     // tictactoe/tictactoe.py:82-83
     // # if player owns center, check diagonals
     // if player == g[1][1]:
-    frame_dig 0
     extract 1 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
-    frame_dig 4
+    frame_dig 3
     extract 0 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@20
-    frame_dig 5
+    frame_dig 4
     extract 6 3 // on error: index access is out of bounds
     extract 2 1 // on error: index access is out of bounds
     frame_dig -3
@@ -481,12 +480,12 @@ make_move_after_if_else@16:
 make_move_after_if_else@20:
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
-    frame_dig 4
+    frame_dig 3
     extract 2 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
-    frame_dig 5
+    frame_dig 4
     extract 6 3 // on error: index access is out of bounds
     extract 0 1 // on error: index access is out of bounds
     frame_dig -3

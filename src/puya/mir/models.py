@@ -13,7 +13,7 @@ from puya.ir.utils import format_bytes
 from puya.program_refs import ProgramKind
 
 if t.TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, Mapping, Sequence
 
     from puya.ir.types_ import AVMBytesEncoding
     from puya.mir.visitor import MIRVisitor
@@ -280,18 +280,23 @@ class StoreXStack(StoreOp):
 @attrs.frozen(eq=False)
 class LoadXStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    copy: bool
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
-        return (self.local_id,)
+        produces = self.local_id
+        if self.copy:
+            produces += " (copy)"
+        return (produces,)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_x_stack(self)
 
     def __str__(self) -> str:
-        return f"x-load {self.local_id}"
+        op = "x-load-copy" if self.copy else "x-load"
+        return f"{op} {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -452,6 +457,9 @@ class Assert(Op):
 
 @attrs.frozen(eq=False)
 class ControlOp(BaseOp, abc.ABC):
+    # True when this op's lowering disposes/ignores any residual stack
+    consumes_stack: typing.ClassVar[bool] = False
+
     @abc.abstractmethod
     def targets(self) -> Sequence[str]: ...
 
@@ -465,9 +473,11 @@ class ControlOp(BaseOp, abc.ABC):
 
 @attrs.frozen(eq=False)
 class RetSub(ControlOp):
+    # lowering ensures return values are at base of frame, AVM discards anything above that
+    consumes_stack: typing.ClassVar[bool] = True
+
     returns: int
     fx_height: int = 0
-    # l-stack is discarded after this op
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
@@ -486,6 +496,9 @@ class RetSub(ControlOp):
 
 @attrs.frozen(eq=False)
 class ProgramExit(ControlOp):
+    # AVM reads top-of-stack as exit code and discards the rest
+    consumes_stack: typing.ClassVar[bool] = True
+
     consumes: int = attrs.field(default=1, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
@@ -504,6 +517,9 @@ class ProgramExit(ControlOp):
 
 @attrs.frozen(eq=False, kw_only=True)
 class Err(ControlOp):
+    # AVM `err` halts execution and the stack is discarded
+    consumes_stack: typing.ClassVar[bool] = True
+
     error_message: str | None
     explicit: bool
     consumes: int = attrs.field(default=0, init=False)
@@ -620,13 +636,13 @@ class MemoryBasicBlock:
     # the ordering of values on the stack is used by debug maps
     # the assumption is lower levels won't change the order of variables in the stack
     # however they can introduce changes that do that ordering more efficiently
-    x_stack_in: Sequence[str] | None = None
+    x_stack_in: tuple[str, ...] = ()
     """local_ids on x-stack on entry to a block"""
-    x_stack_out: Sequence[str] | None = None
+    x_stack_out: tuple[str, ...] = ()
     """local_ids on x-stack on exit from a block"""
-    f_stack_in: Sequence[str] = attrs.field(factory=list)
+    f_stack_in: tuple[str, ...] = ()
     """local_ids on f-stack on entry to a block"""
-    f_stack_out: Sequence[str] = attrs.field(factory=list)
+    f_stack_out: tuple[str, ...] = ()
     """local_ids on f-stack on exit from a block"""
 
     @property
@@ -638,11 +654,11 @@ class MemoryBasicBlock:
 
     @property
     def entry_stack_height(self) -> int:
-        return len(self.f_stack_in) + len(self.x_stack_in or ())
+        return len(self.f_stack_in) + len(self.x_stack_in)
 
     @property
     def exit_stack_height(self) -> int:
-        return len(self.f_stack_out) + len(self.x_stack_out or ())
+        return len(self.f_stack_out) + len(self.x_stack_out)
 
     @property
     def successors(self) -> Sequence[str]:
@@ -699,6 +715,16 @@ class MemorySubroutine:
     body: Sequence[MemoryBasicBlock]
     pre_alloc: FStackPreAllocation | None
     source_location: SourceLocation | None
+
+    @cached_property
+    def local_id_types(self) -> Mapping[str, AVMType]:
+        result = dict[str, AVMType]()
+        for block in self.body:
+            for op in block.ops:
+                if isinstance(op, StoreOp | LoadOp):
+                    existing = result.get(op.local_id, op.atype)
+                    result[op.local_id] = existing | op.atype
+        return result
 
 
 @attrs.frozen(kw_only=True)

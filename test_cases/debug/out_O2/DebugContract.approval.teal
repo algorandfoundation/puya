@@ -5,10 +5,7 @@
 main:
     intcblock 8 1 10 TMPL_A_MULT
     bytecblock " " 0x30313233343536373839
-    pushint 0
-    dup
     pushbytes ""
-    dupn 4
     txn NumAppArgs
     bz main___algopy_default_create@5
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
@@ -37,7 +34,7 @@ main_test_route@3:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 4
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -46,95 +43,84 @@ main_test_route@3:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 4
+    bury 5
     dig 2
     intc_3 // TMPL_A_MULT
     *
-    bury 8
+    cover 3
     cover 2
     +
     dup
-    bury 6
+    cover 3
     dup
     uncover 2
     *
     dup
-    bury 5
+    cover 4
     <
     bz main_else_body@10
-    dig 4
-    dig 2
+    dig 3
     +
-    bury 5
 
 main_after_if_else@19:
-    dig 4
-    dig 4
+    dup
+    dig 2
     +
-    dig 3
+    uncover 3
     <
     bz main_else_body@21
-    dig 4
     dup
-    dig 3
+    uncover 3
     callsub some_func
     *
-    bury 5
 
 main_after_if_else@22:
-    dig 3
+    dig 1
     dup
     callsub itoa
-    bury 8
-    dig 5
+    cover 3
+    dig 1
     dup
     uncover 2
     +
     dup
-    bury 5
+    cover 4
     dup
     callsub itoa
-    bury 8
+    cover 4
     <
     bz main_after_if_else@24
-    dig 4
     dig 3
     +
-    bury 5
 
 main_after_if_else@24:
-    dig 4
-    dig 4
+    dup
+    dig 2
     <
     bz main_after_if_else@26
-    dig 4
-    dig 4
+    dig 1
     +
-    bury 5
 
 main_after_if_else@26:
-    dig 3
-    dig 3
+    swap
+    uncover 3
     +
-    dig 5
+    dig 1
     >
     bz main_after_if_else@28
-    dig 4
-    dig 1
+    dig 3
     *
-    bury 5
 
 main_after_if_else@28:
-    dig 4
     dup
     callsub itoa
     bytec_0 // " "
     concat
-    dig 8
+    uncover 3
     concat
     bytec_0 // " "
     concat
-    dig 7
+    uncover 2
     concat
     log
     itob
@@ -146,45 +132,41 @@ main_after_if_else@28:
     return
 
 main_else_body@21:
-    dig 3
+    uncover 2
+    pop
+    swap
     dup
-    dig 2
+    dig 3
     callsub some_func
     *
-    bury 4
+    swap
     b main_after_if_else@22
 
 main_else_body@10:
-    dig 4
+    dup
     dig 3
     <
     bz main_else_body@12
     dig 4
-    dig 1
     +
-    bury 5
     b main_after_if_else@19
 
 main_else_body@12:
-    dig 3
-    dig 5
+    dup2
     <
     bz main_else_body@14
-    dig 4
     pushint 3
     *
-    bury 5
     b main_after_if_else@19
 
 main_else_body@14:
-    dig 3
-    dig 5
+    dup2
     >
     bz main_after_if_else@19
-    dig 3
-    dig 5
+    swap
+    dig 1
     +
-    bury 4
+    swap
     b main_after_if_else@19
 
 main___algopy_default_create@5:

@@ -5,9 +5,7 @@
 main:
     intcblock 1 0
     bytecblock "local"
-    intc_1 // 0
     pushbytes ""
-    dup
     // local_state/local_state_with_offsets.py:19
     // if Txn.application_id == 0:
     txn ApplicationID
@@ -22,9 +20,9 @@ main_after_if_else@4:
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
-    bury 3
+    bury 2
     bz main_after_if_else@7
-    dig 1
+    dup
     intc_0 // OptIn
     ==
     bnz main_after_if_else@7
@@ -48,11 +46,9 @@ main_after_if_else@9:
     // offset = op.btoi(Txn.application_args(0))
     txna ApplicationArgs 0
     btoi
-    bury 1
     // local_state/local_state_with_offsets.py:27
     // method = Txn.application_args(1)
     txna ApplicationArgs 1
-    bury 3
     // local_state/local_state_with_offsets.py:28
     // if Txn.num_app_args == 2:
     txn NumAppArgs
@@ -61,13 +57,13 @@ main_after_if_else@9:
     bz main_else_body@20
     // local_state/local_state_with_offsets.py:29
     // if method == b"get_guaranteed_data":
-    dig 2
+    dup
     pushbytes 0x6765745f67756172616e746565645f64617461
     ==
     bz main_else_body@12
+    pop
     // local_state/local_state_with_offsets.py:55
     // return self.local[for_account]
-    dup
     intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex
@@ -85,13 +81,13 @@ main_after_if_else@19:
 main_else_body@12:
     // local_state/local_state_with_offsets.py:31
     // elif method == b"get_data_or_assert":
-    dig 2
+    dup
     pushbytes 0x6765745f646174615f6f725f617373657274
     ==
     bz main_else_body@14
+    pop
     // local_state/local_state_with_offsets.py:63
     // result, exists = self.local.maybe(for_account)
-    dup
     intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex
@@ -106,13 +102,11 @@ main_else_body@12:
 main_else_body@14:
     // local_state/local_state_with_offsets.py:33
     // elif method == b"delete_data":
-    dig 2
     pushbytes 0x64656c6574655f64617461
     ==
     bz main_else_body@16
     // local_state/local_state_with_offsets.py:73
     // del self.local[for_account]
-    dup
     bytec_0 // "local"
     app_local_del
     // local_state/local_state_with_offsets.py:35
@@ -135,18 +129,19 @@ main_else_body@20:
     bz main_else_body@28
     // local_state/local_state_with_offsets.py:40
     // if method == b"set_data":
-    dig 2
+    dup
     pushbytes 0x7365745f64617461
     ==
     bz main_else_body@23
+    pop
+    // local_state/local_state_with_offsets.py:69
+    // self.local[for_account] = value
+    bytec_0 // "local"
     // local_state/local_state_with_offsets.py:41
     // self.set_data(offset, Txn.application_args(2))
     txna ApplicationArgs 2
     // local_state/local_state_with_offsets.py:69
     // self.local[for_account] = value
-    dig 1
-    bytec_0 // "local"
-    uncover 2
     app_local_put
 
 main_after_if_else@27:
@@ -158,7 +153,6 @@ main_after_if_else@27:
 main_else_body@23:
     // local_state/local_state_with_offsets.py:42
     // elif method == b"get_data_with_default":
-    dig 2
     pushbytes 0x6765745f646174615f776974685f64656661756c74
     ==
     bz main_else_body@25
@@ -167,7 +161,7 @@ main_else_body@23:
     txna ApplicationArgs 2
     // local_state/local_state_with_offsets.py:59
     // return self.local.get(for_account, default)
-    dig 1
+    swap
     intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex

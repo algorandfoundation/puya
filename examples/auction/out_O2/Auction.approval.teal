@@ -5,7 +5,6 @@
 main:
     intcblock 0 1 8 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
-    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "auction_end"
@@ -79,8 +78,6 @@ main_claim_bids_route@10:
     intc_0 // 0
     bytec 5 // "claim"
     app_local_get_ex
-    swap
-    bury 2
     assert // check self.claimable_amount exists for account
     txn Sender
     intc_0 // 0
@@ -102,8 +99,6 @@ main_after_if_else@22:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    dig 1
-    swap
     -
     txn Sender
     bytec 5 // "claim"

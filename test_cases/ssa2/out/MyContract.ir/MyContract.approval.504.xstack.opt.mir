@@ -4,54 +4,56 @@ subroutine main:
     main_block@0:
         // ssa2/contract.py:8
         // a = UInt64(1) + 2
-        int 3                                   3
-        v-store a#0
+        int 3                                   a#0
+        x-store a#0                             (𝕏) a#0 |
         // ssa2/contract.py:9
         // b = UInt64(4) * 5
-        int 20                                  20
-        v-store b#0
+        int 20                                  (𝕏) a#0 | b#0
+        x-store b#0                             (𝕏) b#0,a#0 |
         // ssa2/contract.py:15
         // for i in urange(5):
-        int 0                                   value_internal%0#0
-        v-store i#0
-        b main_for_header@1
+        int 0                                   (𝕏) b#0,a#0 | i#0
+        x-store i#0                             (𝕏) b#0,a#0,i#0 |
+        b main_for_header@1                     (𝕏) b#0,a#0,i#0 |
 
-    main_for_header@1:
+    main_for_header@1:                          (𝕏) b#0,a#0,i#0 |
         // ssa2/contract.py:15
         // for i in urange(5):
-        v-load i#0                              i#0
-        int 5                                   i#0,5
-        <                                       continue_looping%0#0
-        bz main_after_for@4 ; b main_for_body@2
+        x-load-copy i#0                         (𝕏) b#0,a#0,i#0 | i#0 (copy)
+        int 5                                   (𝕏) b#0,a#0,i#0 | i#0 (copy),5
+        <                                       (𝕏) b#0,a#0,i#0 | continue_looping%0#0
+        bz main_after_for@4 ; b main_for_body@2 (𝕏) b#0,a#0,i#0 |
 
-    main_for_body@2:
+    main_for_body@2:                            (𝕏) b#0,a#0,i#0 |
         // ssa2/contract.py:16
         // b = b + a
-        v-load b#0                              b#0
-        v-load a#0                              b#0,a#0
-        l-store-copy a#0 1                      a#0,b#0,a#0 (copy)
-        +                                       a#0,b#0
-        v-store b#0                             a#0
+        x-load b#0                              (𝕏) a#0,i#0 | b#0
+        x-load a#0                              (𝕏) i#0 | b#0,a#0
+        l-store-copy a#0 1                      (𝕏) i#0 | a#0,b#0,a#0 (copy)
+        +                                       (𝕏) i#0 | a#0,b#0
+        x-store b#0                             (𝕏) b#0,i#0 | a#0
         // ssa2/contract.py:17
         // a = a + i
-        l-load a#0 0                            a#0
-        v-load i#0                              a#0,i#0
-        l-store-copy i#0 1                      i#0,a#0,i#0 (copy)
-        +                                       i#0,a#0
-        v-store a#0                             i#0
+        l-load a#0 0                            (𝕏) b#0,i#0 | a#0
+        x-load i#0                              (𝕏) b#0 | a#0,i#0
+        l-store-copy i#0 1                      (𝕏) b#0 | i#0,a#0,i#0 (copy)
+        +                                       (𝕏) b#0 | i#0,a#0
+        x-store a#0                             (𝕏) b#0,a#0 | i#0
         // ssa2/contract.py:15
         // for i in urange(5):
-        l-load i#0 0                            i#0
-        int 1                                   i#0,1
-        +                                       value_internal%0#0
-        v-store i#0
-        b main_for_header@1
+        l-load i#0 0                            (𝕏) b#0,a#0 | i#0
+        int 1                                   (𝕏) b#0,a#0 | i#0,1
+        +                                       (𝕏) b#0,a#0 | i#0
+        x-store i#0                             (𝕏) b#0,a#0,i#0 |
+        b main_for_header@1                     (𝕏) b#0,a#0,i#0 |
 
-    main_after_for@4:
+    main_after_for@4:                           (𝕏) b#0,a#0,i#0 |
+        x-load i#0                              (𝕏) b#0,a#0 | i#0
+        pop 1                                   (𝕏) b#0,a#0 |
         // ssa2/contract.py:18
         // return a + b
-        v-load a#0                              a#0
-        v-load b#0                              a#0,b#0
+        x-load a#0                              (𝕏) b#0 | a#0
+        x-load b#0                              a#0,b#0
         +                                       tmp%4#0
         return
 

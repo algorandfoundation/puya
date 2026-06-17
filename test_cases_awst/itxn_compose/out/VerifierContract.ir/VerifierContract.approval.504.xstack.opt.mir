@@ -41,19 +41,19 @@ subroutine main:
 // tests/approvals/itxn-compose.algo.ts::VerifierContract.verify[routing]() -> void:
 subroutine verify:
     verify_block@0:
-        int 0                                                     0
-        v-store i#0
-        b verify_while_top@2
+        int 0                                                     i#0
+        x-store i#0                                               (𝕏) i#0 |
+        b verify_while_top@2                                      (𝕏) i#0 |
 
-    verify_while_top@2:
-        txn GroupIndex                                            tmp%0#0
-        v-load i#0                                                tmp%0#0,i#0
-        l-load tmp%0#0 1                                          i#0,tmp%0#0
-        <                                                         tmp%1#0
-        bz verify_after_while@4 ; b verify_while_body@3
+    verify_while_top@2:                                           (𝕏) i#0 |
+        txn GroupIndex                                            (𝕏) i#0 | tmp%0#0
+        x-load-copy i#0                                           (𝕏) i#0 | tmp%0#0,i#0 (copy)
+        l-load tmp%0#0 1                                          (𝕏) i#0 | i#0 (copy),tmp%0#0
+        <                                                         (𝕏) i#0 | tmp%1#0
+        bz verify_after_while@4 ; b verify_while_body@3           (𝕏) i#0 |
 
-    verify_while_body@3:
-        v-load i#0                                                i#0
+    verify_while_body@3:                                          (𝕏) i#0 |
+        x-load i#0                                                i#0
         l-store-copy i#0 0                                        i#0,i#0 (copy)
         gtxns TypeEnum                                            i#0,tmp%2#0
         int 1                                                     i#0,tmp%2#0,1
@@ -62,11 +62,11 @@ subroutine verify:
         l-load i#0 0                                              i#0
         int 1                                                     i#0,1
         +                                                         i#0
-        v-store i#0
-        b verify_while_top@2
+        x-store i#0                                               (𝕏) i#0 |
+        b verify_while_top@2                                      (𝕏) i#0 |
 
-    verify_after_while@4:
-        int 1                                                     1
-        return
+    verify_after_while@4:                                         (𝕏) i#0 |
+        int 1                                                     (𝕏) i#0 | 1
+        return                                                    (𝕏) i#0 |
 
 

@@ -68,108 +68,108 @@ subroutine new_game:
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
         int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
         extract_uint64                                                                 tmp%0#0,move.0#0
-        v-store move.0#0                                                               tmp%0#0
-        l-load tmp%0#0 0                                                               tmp%0#0
-        int 8                                                                          tmp%0#0,8
-        extract_uint64                                                                 move.1#0
-        v-store move.1#0
+        x-store move.0#0                                                               (𝕏) move.0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                               (𝕏) move.0#0 | tmp%0#0
+        int 8                                                                          (𝕏) move.0#0 | tmp%0#0,8
+        extract_uint64                                                                 (𝕏) move.0#0 | move.1#0
+        x-store move.1#0                                                               (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:22
         // if Txn.application_id:
-        txn ApplicationID                                                              tmp%0#1
-        bz new_game_after_if_else@5 ; b new_game_if_body@2
+        txn ApplicationID                                                              (𝕏) move.0#0,move.1#0 | tmp%0#1
+        bz new_game_after_if_else@5 ; b new_game_if_body@2                             (𝕏) move.0#0,move.1#0 |
 
-    new_game_if_body@2:
+    new_game_if_body@2:                                                                (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:25
         // if self.challenger:
-        int 0                                                                          0
-        byte "challenger"                                                              0,"challenger"
-        app_global_get_ex                                                              _%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                     maybe_exists%0#0,_%0#0
-        pop 1                                                                          maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                      maybe_exists%0#0
-        bz new_game_after_if_else@4 ; b new_game_if_body@3
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        byte "challenger"                                                              (𝕏) move.0#0,move.1#0 | 0,"challenger"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | _%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                     (𝕏) move.0#0,move.1#0 | maybe_exists%0#0,_%0#0
+        pop 1                                                                          (𝕏) move.0#0,move.1#0 | maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                      (𝕏) move.0#0,move.1#0 | maybe_exists%0#0
+        bz new_game_after_if_else@4 ; b new_game_if_body@3                             (𝕏) move.0#0,move.1#0 |
 
-    new_game_if_body@3:
+    new_game_if_body@3:                                                                (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:26
         // assert self.winner, "Game isn't over"
-        int 0                                                                          0
-        byte "winner"                                                                  0,"winner"
-        app_global_get_ex                                                              _%1#0,maybe_exists%1#0
-        l-store maybe_exists%1#0 1                                                     maybe_exists%1#0,_%1#0
-        pop 1                                                                          maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                      maybe_exists%1#0
-        assert // Game isn't over
-        b new_game_after_if_else@4
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        byte "winner"                                                                  (𝕏) move.0#0,move.1#0 | 0,"winner"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | _%1#0,maybe_exists%1#0
+        l-store maybe_exists%1#0 1                                                     (𝕏) move.0#0,move.1#0 | maybe_exists%1#0,_%1#0
+        pop 1                                                                          (𝕏) move.0#0,move.1#0 | maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                      (𝕏) move.0#0,move.1#0 | maybe_exists%1#0
+        assert // Game isn't over                                                      (𝕏) move.0#0,move.1#0 |
+        b new_game_after_if_else@4                                                     (𝕏) move.0#0,move.1#0 |
 
-    new_game_after_if_else@4:
+    new_game_after_if_else@4:                                                          (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:28
         // del self.challenger.value
-        byte "challenger"                                                              "challenger"
-        app_global_del
+        byte "challenger"                                                              (𝕏) move.0#0,move.1#0 | "challenger"
+        app_global_del                                                                 (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:29
         // del self.winner.value
-        byte "winner"                                                                  "winner"
-        app_global_del
-        b new_game_after_if_else@5
+        byte "winner"                                                                  (𝕏) move.0#0,move.1#0 | "winner"
+        app_global_del                                                                 (𝕏) move.0#0,move.1#0 |
+        b new_game_after_if_else@5                                                     (𝕏) move.0#0,move.1#0 |
 
-    new_game_after_if_else@5:
+    new_game_after_if_else@5:                                                          (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:30
         // self.host = Txn.sender
-        txn Sender                                                                     tmp%2#1
-        byte "host"                                                                    tmp%2#1,"host"
-        l-load tmp%2#1 1                                                               "host",tmp%2#1
-        app_global_put
+        txn Sender                                                                     (𝕏) move.0#0,move.1#0 | tmp%2#1
+        byte "host"                                                                    (𝕏) move.0#0,move.1#0 | tmp%2#1,"host"
+        l-load tmp%2#1 1                                                               (𝕏) move.0#0,move.1#0 | "host",tmp%2#1
+        app_global_put                                                                 (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:31
         // self.game = Game.from_bytes(op.bzero(9))
-        int 9                                                                          9
-        bzero                                                                          tmp%3#0
-        byte "game"                                                                    tmp%3#0,"game"
-        l-load tmp%3#0 1                                                               "game",tmp%3#0
-        app_global_put
+        int 9                                                                          (𝕏) move.0#0,move.1#0 | 9
+        bzero                                                                          (𝕏) move.0#0,move.1#0 | tmp%3#0
+        byte "game"                                                                    (𝕏) move.0#0,move.1#0 | tmp%3#0,"game"
+        l-load tmp%3#0 1                                                               (𝕏) move.0#0,move.1#0 | "game",tmp%3#0
+        app_global_put                                                                 (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:33
         // assert column < 3 and row < 3, "Move must be in range"
-        v-load move.0#0                                                                move.0#0
-        int 3                                                                          move.0#0,3
-        <                                                                              tmp%4#0
-        bz new_game_bool_false@8 ; b new_game_and_contd@6
+        x-load-copy move.0#0                                                           (𝕏) move.0#0,move.1#0 | move.0#0 (copy)
+        int 3                                                                          (𝕏) move.0#0,move.1#0 | move.0#0 (copy),3
+        <                                                                              (𝕏) move.0#0,move.1#0 | tmp%4#0
+        bz new_game_bool_false@8 ; b new_game_and_contd@6                              (𝕏) move.0#0,move.1#0 |
 
-    new_game_and_contd@6:
+    new_game_and_contd@6:                                                              (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:33
         // assert column < 3 and row < 3, "Move must be in range"
-        v-load move.1#0                                                                move.1#0
-        int 3                                                                          move.1#0,3
-        <                                                                              tmp%5#0
-        bz new_game_bool_false@8 ; b new_game_bool_true@7
+        x-load-copy move.1#0                                                           (𝕏) move.0#0,move.1#0 | move.1#0 (copy)
+        int 3                                                                          (𝕏) move.0#0,move.1#0 | move.1#0 (copy),3
+        <                                                                              (𝕏) move.0#0,move.1#0 | tmp%5#0
+        bz new_game_bool_false@8 ; b new_game_bool_true@7                              (𝕏) move.0#0,move.1#0 |
 
-    new_game_bool_true@7:
-        int 1                                                                          1
-        x-store and_result%0#0                                                         (𝕏) and_result%0#0 |
-        b new_game_bool_merge@9                                                        (𝕏) and_result%0#0 |
+    new_game_bool_true@7:                                                              (𝕏) move.0#0,move.1#0 |
+        int 1                                                                          (𝕏) move.0#0,move.1#0 | 1
+        x-store and_result%0#0                                                         (𝕏) move.0#0,move.1#0,and_result%0#0 |
+        b new_game_bool_merge@9                                                        (𝕏) move.0#0,move.1#0,and_result%0#0 |
 
-    new_game_bool_false@8:
-        int 0                                                                          0
-        x-store and_result%0#0                                                         (𝕏) and_result%0#0 |
-        b new_game_bool_merge@9                                                        (𝕏) and_result%0#0 |
+    new_game_bool_false@8:                                                             (𝕏) move.0#0,move.1#0 |
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        x-store and_result%0#0                                                         (𝕏) move.0#0,move.1#0,and_result%0#0 |
+        b new_game_bool_merge@9                                                        (𝕏) move.0#0,move.1#0,and_result%0#0 |
 
-    new_game_bool_merge@9:                                                             (𝕏) and_result%0#0 |
+    new_game_bool_merge@9:                                                             (𝕏) move.0#0,move.1#0,and_result%0#0 |
         // tictactoe/tictactoe.py:33
         // assert column < 3 and row < 3, "Move must be in range"
-        x-load and_result%0#0                                                          and_result%0#0
-        assert // Move must be in range
+        x-load and_result%0#0                                                          (𝕏) move.0#0,move.1#0 | and_result%0#0
+        assert // Move must be in range                                                (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:34
         // self.game[row][column] = arc4.UInt8(HOST)
-        int 0                                                                          0
-        byte "game"                                                                    0,"game"
-        app_global_get_ex                                                              maybe_value%0#0,maybe_exists%2#0
-        assert // check self.game exists                                               maybe_value%0#0
-        v-load move.1#0                                                                maybe_value%0#0,move.1#0
-        int 3                                                                          maybe_value%0#0,move.1#0,3
-        *                                                                              maybe_value%0#0,aggregate%bytes_offset%0#0
-        l-load-copy maybe_value%0#0 1                                                  maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy)
-        l-load-copy aggregate%bytes_offset%0#0 1                                       maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy),aggregate%bytes_offset%0#0 (copy)
-        int 3                                                                          maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy),aggregate%bytes_offset%0#0 (copy),3
-        extract3 // on error: index access is out of bounds                            maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        v-load move.0#0                                                                maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,move.0#0
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        byte "game"                                                                    (𝕏) move.0#0,move.1#0 | 0,"game"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | maybe_value%0#0,maybe_exists%2#0
+        assert // check self.game exists                                               (𝕏) move.0#0,move.1#0 | maybe_value%0#0
+        x-load move.1#0                                                                (𝕏) move.0#0 | maybe_value%0#0,move.1#0
+        int 3                                                                          (𝕏) move.0#0 | maybe_value%0#0,move.1#0,3
+        *                                                                              (𝕏) move.0#0 | maybe_value%0#0,aggregate%bytes_offset%0#0
+        l-load-copy maybe_value%0#0 1                                                  (𝕏) move.0#0 | maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy)
+        l-load-copy aggregate%bytes_offset%0#0 1                                       (𝕏) move.0#0 | maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy),aggregate%bytes_offset%0#0 (copy)
+        int 3                                                                          (𝕏) move.0#0 | maybe_value%0#0,aggregate%bytes_offset%0#0,maybe_value%0#0 (copy),aggregate%bytes_offset%0#0 (copy),3
+        extract3 // on error: index access is out of bounds                            (𝕏) move.0#0 | maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
+        x-load move.0#0                                                                maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,move.0#0
         byte 0x01                                                                      maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,move.0#0,0x01
         replace3 // on error: index access is out of bounds                            maybe_value%0#0,aggregate%bytes_offset%0#0,aggregate%updated_array%0#0
         l-load maybe_value%0#0 2                                                       aggregate%bytes_offset%0#0,aggregate%updated_array%0#0,maybe_value%0#0
@@ -275,86 +275,86 @@ subroutine play:
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
         int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
         extract_uint64                                                                 tmp%0#0,move.0#0
-        v-store move.0#0                                                               tmp%0#0
-        l-load tmp%0#0 0                                                               tmp%0#0
-        int 8                                                                          tmp%0#0,8
-        extract_uint64                                                                 move.1#0
-        v-store move.1#0
+        x-store move.0#0                                                               (𝕏) move.0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                               (𝕏) move.0#0 | tmp%0#0
+        int 8                                                                          (𝕏) move.0#0 | tmp%0#0,8
+        extract_uint64                                                                 (𝕏) move.0#0 | move.1#0
+        x-store move.1#0                                                               (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:49
         // assert not self.winner, "Game is already finished"
-        int 0                                                                          0
-        byte "winner"                                                                  0,"winner"
-        app_global_get_ex                                                              _%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                     maybe_exists%0#0,_%0#0
-        pop 1                                                                          maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                      maybe_exists%0#0
-        !                                                                              tmp%0#1
-        assert // Game is already finished
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        byte "winner"                                                                  (𝕏) move.0#0,move.1#0 | 0,"winner"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | _%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                     (𝕏) move.0#0,move.1#0 | maybe_exists%0#0,_%0#0
+        pop 1                                                                          (𝕏) move.0#0,move.1#0 | maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                      (𝕏) move.0#0,move.1#0 | maybe_exists%0#0
+        !                                                                              (𝕏) move.0#0,move.1#0 | tmp%0#1
+        assert // Game is already finished                                             (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:50
         // if self.turns % 2:
-        int 0                                                                          0
-        byte "turns"                                                                   0,"turns"
-        app_global_get_ex                                                              maybe_value%0#0,maybe_exists%1#0
-        assert // check self.turns exists                                              maybe_value%0#0
-        l-load maybe_value%0#0 0                                                       maybe_value%0#0
-        int 2                                                                          maybe_value%0#0,2
-        %                                                                              tmp%1#1
-        bz play_else_body@3 ; b play_if_body@2
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | 0
+        byte "turns"                                                                   (𝕏) move.0#0,move.1#0 | 0,"turns"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | maybe_value%0#0,maybe_exists%1#0
+        assert // check self.turns exists                                              (𝕏) move.0#0,move.1#0 | maybe_value%0#0
+        l-load maybe_value%0#0 0                                                       (𝕏) move.0#0,move.1#0 | maybe_value%0#0
+        int 2                                                                          (𝕏) move.0#0,move.1#0 | maybe_value%0#0,2
+        %                                                                              (𝕏) move.0#0,move.1#0 | tmp%1#1
+        bz play_else_body@3 ; b play_if_body@2                                         (𝕏) move.0#0,move.1#0 |
 
-    play_if_body@2:
+    play_if_body@2:                                                                    (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:51
         // assert Txn.sender == self.host, "It is the host's turn"
-        txn Sender                                                                     tmp%3#0
-        int 0                                                                          tmp%3#0,0
-        byte "host"                                                                    tmp%3#0,0,"host"
-        app_global_get_ex                                                              tmp%3#0,maybe_value%1#0,maybe_exists%2#0
-        assert // check self.host exists                                               tmp%3#0,maybe_value%1#0
-        l-load tmp%3#0 1                                                               maybe_value%1#0,tmp%3#0
-        l-load maybe_value%1#0 1                                                       tmp%3#0,maybe_value%1#0
-        ==                                                                             tmp%4#0
-        assert // It is the host's turn
+        txn Sender                                                                     (𝕏) move.0#0,move.1#0 | tmp%3#0
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | tmp%3#0,0
+        byte "host"                                                                    (𝕏) move.0#0,move.1#0 | tmp%3#0,0,"host"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | tmp%3#0,maybe_value%1#0,maybe_exists%2#0
+        assert // check self.host exists                                               (𝕏) move.0#0,move.1#0 | tmp%3#0,maybe_value%1#0
+        l-load tmp%3#0 1                                                               (𝕏) move.0#0,move.1#0 | maybe_value%1#0,tmp%3#0
+        l-load maybe_value%1#0 1                                                       (𝕏) move.0#0,move.1#0 | tmp%3#0,maybe_value%1#0
+        ==                                                                             (𝕏) move.0#0,move.1#0 | tmp%4#0
+        assert // It is the host's turn                                                (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:52
         // player = arc4.UInt8(HOST)
-        byte 0x01                                                                      0x01
-        x-store player#0                                                               (𝕏) player#0 |
-        b play_after_if_else@4                                                         (𝕏) player#0 |
+        byte 0x01                                                                      (𝕏) move.0#0,move.1#0 | 0x01
+        x-store player#0                                                               (𝕏) move.0#0,move.1#0,player#0 |
+        b play_after_if_else@4                                                         (𝕏) move.0#0,move.1#0,player#0 |
 
-    play_else_body@3:
+    play_else_body@3:                                                                  (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:54
         // assert Txn.sender == self.challenger.get(
-        txn Sender                                                                     tmp%6#0
+        txn Sender                                                                     (𝕏) move.0#0,move.1#0 | tmp%6#0
         // tictactoe/tictactoe.py:55
         // default=Account()
-        global ZeroAddress                                                             tmp%6#0,tmp%7#0
+        global ZeroAddress                                                             (𝕏) move.0#0,move.1#0 | tmp%6#0,tmp%7#0
         // tictactoe/tictactoe.py:54
         // assert Txn.sender == self.challenger.get(
-        int 0                                                                          tmp%6#0,tmp%7#0,0
-        byte "challenger"                                                              tmp%6#0,tmp%7#0,0,"challenger"
-        app_global_get_ex                                                              tmp%6#0,tmp%7#0,maybe_value%2#0,maybe_exists%3#0
+        int 0                                                                          (𝕏) move.0#0,move.1#0 | tmp%6#0,tmp%7#0,0
+        byte "challenger"                                                              (𝕏) move.0#0,move.1#0 | tmp%6#0,tmp%7#0,0,"challenger"
+        app_global_get_ex                                                              (𝕏) move.0#0,move.1#0 | tmp%6#0,tmp%7#0,maybe_value%2#0,maybe_exists%3#0
         // tictactoe/tictactoe.py:54-56
         // assert Txn.sender == self.challenger.get(
         //     default=Account()
         // ), "It is the challenger's turn"
-        l-load tmp%7#0 2                                                               tmp%6#0,maybe_value%2#0,maybe_exists%3#0,tmp%7#0
-        l-load maybe_value%2#0 2                                                       tmp%6#0,maybe_exists%3#0,tmp%7#0,maybe_value%2#0
-        l-load maybe_exists%3#0 2                                                      tmp%6#0,tmp%7#0,maybe_value%2#0,maybe_exists%3#0
-        select                                                                         tmp%6#0,state_get%0#0
-        l-load tmp%6#0 1                                                               state_get%0#0,tmp%6#0
-        l-load state_get%0#0 1                                                         tmp%6#0,state_get%0#0
-        ==                                                                             tmp%8#0
-        assert // It is the challenger's turn
+        l-load tmp%7#0 2                                                               (𝕏) move.0#0,move.1#0 | tmp%6#0,maybe_value%2#0,maybe_exists%3#0,tmp%7#0
+        l-load maybe_value%2#0 2                                                       (𝕏) move.0#0,move.1#0 | tmp%6#0,maybe_exists%3#0,tmp%7#0,maybe_value%2#0
+        l-load maybe_exists%3#0 2                                                      (𝕏) move.0#0,move.1#0 | tmp%6#0,tmp%7#0,maybe_value%2#0,maybe_exists%3#0
+        select                                                                         (𝕏) move.0#0,move.1#0 | tmp%6#0,state_get%0#0
+        l-load tmp%6#0 1                                                               (𝕏) move.0#0,move.1#0 | state_get%0#0,tmp%6#0
+        l-load state_get%0#0 1                                                         (𝕏) move.0#0,move.1#0 | tmp%6#0,state_get%0#0
+        ==                                                                             (𝕏) move.0#0,move.1#0 | tmp%8#0
+        assert // It is the challenger's turn                                          (𝕏) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:57
         // player = arc4.UInt8(CHALLENGER)
-        byte 0x02                                                                      0x02
-        x-store player#0                                                               (𝕏) player#0 |
-        b play_after_if_else@4                                                         (𝕏) player#0 |
+        byte 0x02                                                                      (𝕏) move.0#0,move.1#0 | 0x02
+        x-store player#0                                                               (𝕏) move.0#0,move.1#0,player#0 |
+        b play_after_if_else@4                                                         (𝕏) move.0#0,move.1#0,player#0 |
 
-    play_after_if_else@4:                                                              (𝕏) player#0 |
+    play_after_if_else@4:                                                              (𝕏) move.0#0,move.1#0,player#0 |
         // tictactoe/tictactoe.py:58
         // self.make_move(player, move)
-        x-load player#0                                                                player#0
-        v-load move.0#0                                                                player#0,move.0#0
-        v-load move.1#0                                                                player#0,move.0#0,move.1#0
+        x-load player#0                                                                (𝕏) move.0#0,move.1#0 | player#0
+        x-load move.0#0                                                                (𝕏) move.1#0 | player#0,move.0#0
+        x-load move.1#0                                                                player#0,move.0#0,move.1#0
         callsub make_move
         // tictactoe/tictactoe.py:47
         // @arc4.abimethod
@@ -503,32 +503,34 @@ subroutine make_move:
         l-load g#0 1                                                                   (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,g#0
         extract 3 3 // on error: index access is out of bounds                         (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0
         l-store-copy aggregate%encoded_element%11#0 0                                  (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0,aggregate%encoded_element%11#0 (copy)
-        v-store aggregate%encoded_element%11#0                                         (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0
-        l-load aggregate%encoded_element%11#0 0                                        (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0
-        p-load move.0#0                                                                (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0,move.0#0 (copy)
-        int 1                                                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0,move.0#0 (copy),1
-        extract3 // on error: index access is out of bounds                            (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
-        l-store-copy aggregate%encoded_element%12#0 0                                  (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0,aggregate%encoded_element%12#0 (copy)
-        v-store aggregate%encoded_element%12#0                                         (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
-        l-load aggregate%encoded_element%10#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%12#0,aggregate%encoded_element%10#0
-        l-load aggregate%encoded_element%12#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
-        b==                                                                            (𝕡) player#0,move.0#0,move.1#0 | tmp%2#1
-        bz make_move_after_if_else@16 ; b make_move_and_contd@14                       (𝕡) player#0,move.0#0,move.1#0 |
+        x-store aggregate%encoded_element%11#0                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0
+        l-load aggregate%encoded_element%11#0 0                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0
+        p-load move.0#0                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0,move.0#0 (copy)
+        int 1                                                                          (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%11#0,move.0#0 (copy),1
+        extract3 // on error: index access is out of bounds                            (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
+        l-store-copy aggregate%encoded_element%12#0 0                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0,aggregate%encoded_element%12#0 (copy)
+        v-store aggregate%encoded_element%12#0                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
+        l-load aggregate%encoded_element%10#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%12#0,aggregate%encoded_element%10#0
+        l-load aggregate%encoded_element%12#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%10#0,aggregate%encoded_element%12#0
+        b==                                                                            (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | tmp%2#1
+        bz make_move_after_if_else@16 ; b make_move_and_contd@14                       (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 |
 
-    make_move_and_contd@14:                                                            (𝕡) player#0,move.0#0,move.1#0 |
+    make_move_and_contd@14:                                                            (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 |
         // tictactoe/tictactoe.py:79
         // if g[0][column] == g[1][column] == g[2][column]:
-        v-load g#0                                                                     (𝕡) player#0,move.0#0,move.1#0 | g#0
-        extract 6 3 // on error: index access is out of bounds                         (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%13#0
-        p-load move.0#0                                                                (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%13#0,move.0#0 (copy)
-        int 1                                                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%13#0,move.0#0 (copy),1
-        extract3 // on error: index access is out of bounds                            (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%14#0
-        v-load aggregate%encoded_element%12#0                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%14#0,aggregate%encoded_element%12#0
-        l-load aggregate%encoded_element%14#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%12#0,aggregate%encoded_element%14#0
-        b==                                                                            (𝕡) player#0,move.0#0,move.1#0 | tmp%3#0
-        bz make_move_after_if_else@16 ; b make_move_if_body@15                         (𝕡) player#0,move.0#0,move.1#0 |
+        v-load g#0                                                                     (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | g#0
+        extract 6 3 // on error: index access is out of bounds                         (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%13#0
+        p-load move.0#0                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%13#0,move.0#0 (copy)
+        int 1                                                                          (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%13#0,move.0#0 (copy),1
+        extract3 // on error: index access is out of bounds                            (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%14#0
+        v-load aggregate%encoded_element%12#0                                          (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%14#0,aggregate%encoded_element%12#0
+        l-load aggregate%encoded_element%14#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | aggregate%encoded_element%12#0,aggregate%encoded_element%14#0
+        b==                                                                            (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 | tmp%3#0
+        bz make_move_after_if_else@16 ; b make_move_if_body@15                         (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 |
 
-    make_move_if_body@15:                                                              (𝕡) player#0,move.0#0,move.1#0 |
+    make_move_if_body@15:                                                              (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 |
+        x-load aggregate%encoded_element%11#0                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%11#0
+        pop 1                                                                          (𝕡) player#0,move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:80
         // return True
         int 1                                                                          (𝕡) player#0,move.0#0,move.1#0 | examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0
@@ -537,10 +539,10 @@ subroutine make_move:
         // if self.did_win(player, column=column, row=row):
         b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕏) tmp%5#0 | 
 
-    make_move_after_if_else@16:                                                        (𝕡) player#0,move.0#0,move.1#0 |
+    make_move_after_if_else@16:                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕏) aggregate%encoded_element%11#0 |
         // tictactoe/tictactoe.py:83
         // if player == g[1][1]:
-        v-load aggregate%encoded_element%11#0                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%11#0
+        x-load aggregate%encoded_element%11#0                                          (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%11#0
         extract 1 1 // on error: index access is out of bounds                         (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%16#0
         p-load player#0                                                                (𝕡) player#0,move.0#0,move.1#0 | aggregate%encoded_element%16#0,player#0 (copy)
         l-load aggregate%encoded_element%16#0 1                                        (𝕡) player#0,move.0#0,move.1#0 | player#0 (copy),aggregate%encoded_element%16#0

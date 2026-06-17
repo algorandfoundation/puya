@@ -30,88 +30,92 @@ subroutine main:
         // oca = Txn.on_completion
         txn OnCompletion                                                               oca#0
         l-store-copy oca#0 0                                                           oca#0,oca#0 (copy)
-        v-store oca#0                                                                  oca#0
+        x-store oca#0                                                                  (𝕏) oca#0 | oca#0
         // simplish/contract.py:34
         // sender = Txn.sender
-        txn Sender                                                                     oca#0,sender#0
-        v-store sender#0                                                               oca#0
+        txn Sender                                                                     (𝕏) oca#0 | oca#0,sender#0
+        x-store sender#0                                                               (𝕏) oca#0,sender#0 | oca#0
         // simplish/contract.py:35-38
         // if oca in (
         //     OnCompleteAction.UpdateApplication,
         //     OnCompleteAction.DeleteApplication,
         // ):
-        l-load oca#0 0                                                                 oca#0
+        l-load oca#0 0                                                                 (𝕏) oca#0,sender#0 | oca#0
         // simplish/contract.py:36
         // OnCompleteAction.UpdateApplication,
-        int UpdateApplication                                                          oca#0,UpdateApplication
+        int UpdateApplication                                                          (𝕏) oca#0,sender#0 | oca#0,UpdateApplication
         // simplish/contract.py:35-38
         // if oca in (
         //     OnCompleteAction.UpdateApplication,
         //     OnCompleteAction.DeleteApplication,
         // ):
-        ==                                                                             tmp%5#0
-        bz main_or_contd@5 ; b main_if_body@6
+        ==                                                                             (𝕏) oca#0,sender#0 | tmp%5#0
+        bz main_or_contd@5 ; b main_if_body@6                                          (𝕏) oca#0,sender#0 |
 
-    main_or_contd@5:
+    main_or_contd@5:                                                                   (𝕏) oca#0,sender#0 |
         // simplish/contract.py:35-38
         // if oca in (
         //     OnCompleteAction.UpdateApplication,
         //     OnCompleteAction.DeleteApplication,
         // ):
-        v-load oca#0                                                                   oca#0
+        x-load-copy oca#0                                                              (𝕏) oca#0,sender#0 | oca#0 (copy)
         // simplish/contract.py:37
         // OnCompleteAction.DeleteApplication,
-        int DeleteApplication                                                          oca#0,DeleteApplication
+        int DeleteApplication                                                          (𝕏) oca#0,sender#0 | oca#0 (copy),DeleteApplication
         // simplish/contract.py:35-38
         // if oca in (
         //     OnCompleteAction.UpdateApplication,
         //     OnCompleteAction.DeleteApplication,
         // ):
-        ==                                                                             tmp%6#0
-        bz main_after_if_else@9 ; b main_if_body@6
+        ==                                                                             (𝕏) oca#0,sender#0 | tmp%6#0
+        bz main_after_if_else@9 ; b main_if_body@6                                     (𝕏) oca#0,sender#0 |
 
-    main_if_body@6:
+    main_if_body@6:                                                                    (𝕏) oca#0,sender#0 |
         // simplish/contract.py:39
         // if oca == OnCompleteAction.DeleteApplication:
-        v-load oca#0                                                                   oca#0
-        int DeleteApplication                                                          oca#0,DeleteApplication
-        ==                                                                             tmp%7#0
-        bz main_after_if_else@8 ; b main_if_body@7
+        x-load oca#0                                                                   (𝕏) sender#0 | oca#0
+        int DeleteApplication                                                          (𝕏) sender#0 | oca#0,DeleteApplication
+        ==                                                                             (𝕏) sender#0 | tmp%7#0
+        bz main_after_if_else@8 ; b main_if_body@7                                     (𝕏) sender#0 |
 
-    main_if_body@7:
+    main_if_body@7:                                                                    (𝕏) sender#0 |
         // simplish/contract.py:40
         // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
-        int 0                                                                          0
-        byte "counter"                                                                 0,"counter"
-        app_global_get_ex                                                              maybe_value%0#0,maybe_exists%0#0
-        assert // check self.counter exists                                            maybe_value%0#0
-        l-load maybe_value%0#0 0                                                       maybe_value%0#0
-        callsub itoa                                                                   tmp%8#0
-        byte 0x4920776173207573656420                                                  tmp%8#0,0x4920776173207573656420
-        l-load tmp%8#0 1                                                               0x4920776173207573656420,tmp%8#0
-        concat                                                                         tmp%9#0
-        byte 0x2074696d65287329206265666f726520492064696564                            tmp%9#0,0x2074696d65287329206265666f726520492064696564
-        concat                                                                         tmp%10#0
-        log
-        b main_after_if_else@8
+        int 0                                                                          (𝕏) sender#0 | 0
+        byte "counter"                                                                 (𝕏) sender#0 | 0,"counter"
+        app_global_get_ex                                                              (𝕏) sender#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.counter exists                                            (𝕏) sender#0 | maybe_value%0#0
+        l-load maybe_value%0#0 0                                                       (𝕏) sender#0 | maybe_value%0#0
+        callsub itoa                                                                   (𝕏) sender#0 | tmp%8#0
+        byte 0x4920776173207573656420                                                  (𝕏) sender#0 | tmp%8#0,0x4920776173207573656420
+        l-load tmp%8#0 1                                                               (𝕏) sender#0 | 0x4920776173207573656420,tmp%8#0
+        concat                                                                         (𝕏) sender#0 | tmp%9#0
+        byte 0x2074696d65287329206265666f726520492064696564                            (𝕏) sender#0 | tmp%9#0,0x2074696d65287329206265666f726520492064696564
+        concat                                                                         (𝕏) sender#0 | tmp%10#0
+        log                                                                            (𝕏) sender#0 |
+        b main_after_if_else@8                                                         (𝕏) sender#0 |
 
-    main_after_if_else@8:
+    main_after_if_else@8:                                                              (𝕏) sender#0 |
         // simplish/contract.py:41
         // return Global.creator_address == sender
-        global CreatorAddress                                                          tmp%11#0
-        v-load sender#0                                                                tmp%11#0,sender#0
+        global CreatorAddress                                                          (𝕏) sender#0 | tmp%11#0
+        x-load sender#0                                                                tmp%11#0,sender#0
         ==                                                                             tmp%12#0
         return
 
-    main_after_if_else@9:
+    main_after_if_else@9:                                                              (𝕏) oca#0,sender#0 |
         // simplish/contract.py:43
         // if oca == OnCompleteAction.OptIn:
-        v-load oca#0                                                                   oca#0
-        int OptIn                                                                      oca#0,OptIn
-        ==                                                                             tmp%13#0
-        bz main_after_if_else@13 ; b main_if_body@10
+        x-load-copy oca#0                                                              (𝕏) oca#0,sender#0 | oca#0 (copy)
+        int OptIn                                                                      (𝕏) oca#0,sender#0 | oca#0 (copy),OptIn
+        ==                                                                             (𝕏) oca#0,sender#0 | tmp%13#0
+        bz main_after_if_else@13 ; b main_if_body@10                                   (𝕏) oca#0,sender#0 |
 
-    main_if_body@10:
+    main_if_body@10:                                                                   (𝕏) oca#0,sender#0 |
+        x-load sender#0                                                                (𝕏) oca#0 | sender#0
+        pop 1                                                                          (𝕏) oca#0 |
+        x-load oca#0                                                                   oca#0
+        pop 1
         // simplish/contract.py:44
         // if Txn.num_app_args > 0:
         txn NumAppArgs                                                                 tmp%14#0
@@ -135,59 +139,63 @@ subroutine main:
         int 1                                                                          1
         return
 
-    main_after_if_else@13:
+    main_after_if_else@13:                                                             (𝕏) oca#0,sender#0 |
         // simplish/contract.py:47
         // if oca != OnCompleteAction.NoOp:
-        v-load oca#0                                                                   oca#0
-        bz main_after_if_else@15 ; b main_if_body@14
+        x-load oca#0                                                                   (𝕏) sender#0 | oca#0
+        bz main_after_if_else@15 ; b main_if_body@14                                   (𝕏) sender#0 |
 
-    main_if_body@14:
+    main_if_body@14:                                                                   (𝕏) sender#0 |
         // simplish/contract.py:48
         // return False
-        int 0                                                                          0
-        return
+        int 0                                                                          (𝕏) sender#0 | 0
+        return                                                                         (𝕏) sender#0 |
 
-    main_after_if_else@15:
+    main_after_if_else@15:                                                             (𝕏) sender#0 |
         // simplish/contract.py:50
         // if (num_app_args := Txn.num_app_args) > 0:
-        txn NumAppArgs                                                                 num_app_args#0
-        l-store-copy num_app_args#0 0                                                  num_app_args#0,num_app_args#0 (copy)
-        v-store num_app_args#0                                                         num_app_args#0
-        l-load num_app_args#0 0                                                        num_app_args#0
-        bz main_else_body@17 ; b main_if_body@16
+        txn NumAppArgs                                                                 (𝕏) sender#0 | num_app_args#0
+        l-store-copy num_app_args#0 0                                                  (𝕏) sender#0 | num_app_args#0,num_app_args#0 (copy)
+        x-store num_app_args#0                                                         (𝕏) sender#0,num_app_args#0 | num_app_args#0
+        l-load num_app_args#0 0                                                        (𝕏) sender#0,num_app_args#0 | num_app_args#0
+        bz main_else_body@17 ; b main_if_body@16                                       (𝕏) sender#0,num_app_args#0 |
 
-    main_if_body@16:
+    main_if_body@16:                                                                   (𝕏) sender#0,num_app_args#0 |
+        x-load sender#0                                                                (𝕏) num_app_args#0 | sender#0
+        pop 1                                                                          (𝕏) num_app_args#0 |
         // simplish/contract.py:51
         // method_name = Txn.application_args(0)
-        txna ApplicationArgs 0                                                         method_name#0
-        l-store-copy method_name#0 0                                                   method_name#0,method_name#0 (copy)
-        v-store method_name#0                                                          method_name#0
+        txna ApplicationArgs 0                                                         (𝕏) num_app_args#0 | method_name#0
+        l-store-copy method_name#0 0                                                   (𝕏) num_app_args#0 | method_name#0,method_name#0 (copy)
+        x-store method_name#0                                                          (𝕏) num_app_args#0,method_name#0 | method_name#0
         // simplish/contract.py:72
         // assert num_app_args == 2, "insufficient arguments"
-        v-load num_app_args#0                                                          method_name#0,num_app_args#0
-        int 2                                                                          method_name#0,num_app_args#0,2
-        ==                                                                             method_name#0,tmp%0#0
-        assert // insufficient arguments                                               method_name#0
+        x-load num_app_args#0                                                          (𝕏) method_name#0 | method_name#0,num_app_args#0
+        int 2                                                                          (𝕏) method_name#0 | method_name#0,num_app_args#0,2
+        ==                                                                             (𝕏) method_name#0 | method_name#0,tmp%0#0
+        assert // insufficient arguments                                               (𝕏) method_name#0 | method_name#0
         // simplish/contract.py:73
         // radius = btoi(Txn.application_args(1))
-        txna ApplicationArgs 1                                                         method_name#0,tmp%1#1
-        btoi                                                                           method_name#0,radius#0
-        v-store radius#0                                                               method_name#0
+        txna ApplicationArgs 1                                                         (𝕏) method_name#0 | method_name#0,tmp%1#1
+        btoi                                                                           (𝕏) method_name#0 | method_name#0,radius#0
+        x-store radius#0                                                               (𝕏) method_name#0,radius#0 | method_name#0
         // simplish/contract.py:75
         // status = True
-        int 1                                                                          method_name#0,1
-        v-store status#0                                                               method_name#0
+        int 1                                                                          (𝕏) method_name#0,radius#0 | method_name#0,1
+        v-store status#0                                                               (𝕏) method_name#0,radius#0 | method_name#0
         // simplish/contract.py:76
         // if method_name == b"circle_area":
-        l-load method_name#0 0                                                         method_name#0
-        byte 0x636972636c655f61726561                                                  method_name#0,0x636972636c655f61726561
-        ==                                                                             tmp%3#1
-        bz main_else_body@29 ; b main_if_body@28
+        l-load method_name#0 0                                                         (𝕏) method_name#0,radius#0 | method_name#0
+        byte 0x636972636c655f61726561                                                  (𝕏) method_name#0,radius#0 | method_name#0,0x636972636c655f61726561
+        ==                                                                             (𝕏) method_name#0,radius#0 | tmp%3#1
+        bz main_else_body@29 ; b main_if_body@28                                       (𝕏) method_name#0,radius#0 |
 
-    main_if_body@28:
+    main_if_body@28:                                                                   (𝕏) method_name#0,radius#0 |
+        x-load method_name#0                                                           (𝕏) radius#0 | method_name#0
+        pop 1                                                                          (𝕏) radius#0 |
         // simplish/contract.py:113
         // result = radius**2 * SCALED_PI // SCALE
-        v-load radius#0                                                                radius#0
+        x-load radius#0                                                                radius#0
         int 2                                                                          radius#0,2
         exp                                                                            tmp%0#2
         int 314159                                                                     tmp%0#2,314159
@@ -200,18 +208,20 @@ subroutine main:
         x-store result#5                                                               (𝕏) result#5 |
         b main_after_if_else@36                                                        (𝕏) result#5 |
 
-    main_else_body@29:
+    main_else_body@29:                                                                 (𝕏) method_name#0,radius#0 |
         // simplish/contract.py:79
         // elif method_name == b"circle_circumference":
-        v-load method_name#0                                                           method_name#0
-        byte 0x636972636c655f63697263756d666572656e6365                                method_name#0,0x636972636c655f63697263756d666572656e6365
-        ==                                                                             tmp%6#0
-        bz main_else_body@31 ; b main_if_body@30
+        x-load-copy method_name#0                                                      (𝕏) method_name#0,radius#0 | method_name#0 (copy)
+        byte 0x636972636c655f63697263756d666572656e6365                                (𝕏) method_name#0,radius#0 | method_name#0 (copy),0x636972636c655f63697263756d666572656e6365
+        ==                                                                             (𝕏) method_name#0,radius#0 | tmp%6#0
+        bz main_else_body@31 ; b main_if_body@30                                       (𝕏) method_name#0,radius#0 |
 
-    main_if_body@30:
+    main_if_body@30:                                                                   (𝕏) method_name#0,radius#0 |
+        x-load method_name#0                                                           (𝕏) radius#0 | method_name#0
+        pop 1                                                                          (𝕏) radius#0 |
         // simplish/contract.py:107
         // return radius * two_pi // SCALE
-        v-load radius#0                                                                radius#0
+        x-load radius#0                                                                radius#0
         // simplish/contract.py:106
         // two_pi = UInt64(2) * SCALED_PI
         int 628318                                                                     radius#0,628318
@@ -226,18 +236,18 @@ subroutine main:
         x-store result#5                                                               (𝕏) result#5 |
         b main_after_if_else@36                                                        (𝕏) result#5 |
 
-    main_else_body@31:
+    main_else_body@31:                                                                 (𝕏) method_name#0,radius#0 |
         // simplish/contract.py:82
         // elif method_name == b"circle_report":
-        v-load method_name#0                                                           method_name#0
-        byte 0x636972636c655f7265706f7274                                              method_name#0,0x636972636c655f7265706f7274
-        ==                                                                             tmp%9#1
-        bz main_else_body@33 ; b main_if_body@32
+        x-load method_name#0                                                           (𝕏) radius#0 | method_name#0
+        byte 0x636972636c655f7265706f7274                                              (𝕏) radius#0 | method_name#0,0x636972636c655f7265706f7274
+        ==                                                                             (𝕏) radius#0 | tmp%9#1
+        bz main_else_body@33 ; b main_if_body@32                                       (𝕏) radius#0 |
 
-    main_if_body@32:
+    main_if_body@32:                                                                   (𝕏) radius#0 |
         // simplish/contract.py:113
         // result = radius**2 * SCALED_PI // SCALE
-        v-load radius#0                                                                radius#0
+        x-load radius#0                                                                radius#0
         l-store-copy radius#0 0                                                        radius#0,radius#0 (copy)
         int 2                                                                          radius#0,radius#0 (copy),2
         exp                                                                            radius#0,tmp%0#2
@@ -315,7 +325,9 @@ subroutine main:
         x-store result#5                                                               (𝕏) result#5 |
         b main_after_if_else@36                                                        (𝕏) result#5 |
 
-    main_else_body@33:
+    main_else_body@33:                                                                 (𝕏) radius#0 |
+        x-load radius#0                                                                radius#0
+        pop 1
         // simplish/contract.py:93
         // status = False
         int 0                                                                          0
@@ -328,72 +340,78 @@ subroutine main:
 
     main_after_if_else@36:                                                             (𝕏) result#5 |
         v-load status#0                                                                (𝕏) result#5 | status#0
-        x-store result#1                                                               (𝕏) result#1,result#5 |
+        x-store result#1                                                               (𝕏) result#5,result#1 |
         x-load result#5                                                                (𝕏) result#1 | result#5
-        v-store msg#1                                                                  (𝕏) result#1 |
-        b main_after_if_else@24                                                        (𝕏) result#1 |
+        x-store msg#1                                                                  (𝕏) result#1,msg#1 |
+        b main_after_if_else@24                                                        (𝕏) result#1,msg#1 |
 
-    main_else_body@17:
+    main_else_body@17:                                                                 (𝕏) sender#0,num_app_args#0 |
+        x-load num_app_args#0                                                          (𝕏) sender#0 | num_app_args#0
+        pop 1                                                                          (𝕏) sender#0 |
         // simplish/contract.py:53
         // elif Txn.num_assets == 1:
-        txn NumAssets                                                                  tmp%23#0
-        int 1                                                                          tmp%23#0,1
-        ==                                                                             tmp%24#0
-        bz main_else_body@22 ; b main_if_body@18
+        txn NumAssets                                                                  (𝕏) sender#0 | tmp%23#0
+        int 1                                                                          (𝕏) sender#0 | tmp%23#0,1
+        ==                                                                             (𝕏) sender#0 | tmp%24#0
+        bz main_else_body@22 ; b main_if_body@18                                       (𝕏) sender#0 |
 
-    main_if_body@18:
+    main_if_body@18:                                                                   (𝕏) sender#0 |
         // simplish/contract.py:54
         // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
-        v-load sender#0                                                                sender#0
+        x-load sender#0                                                                sender#0
         int 0                                                                          sender#0,0
         asset_holding_get AssetBalance                                                 asset_balance#0,asset_exists#0
         l-store asset_exists#0 1                                                       asset_exists#0,asset_balance#0
-        v-store asset_balance#0                                                        asset_exists#0
+        x-store asset_balance#0                                                        (𝕏) asset_balance#0 | asset_exists#0
         // simplish/contract.py:55
         // if not asset_exists:
-        l-load asset_exists#0 0                                                        asset_exists#0
-        bz main_if_body@19 ; b main_else_body@20
+        l-load asset_exists#0 0                                                        (𝕏) asset_balance#0 | asset_exists#0
+        bz main_if_body@19 ; b main_else_body@20                                       (𝕏) asset_balance#0 |
 
-    main_if_body@19:
+    main_if_body@19:                                                                   (𝕏) asset_balance#0 |
+        x-load asset_balance#0                                                         asset_balance#0
+        pop 1
         // simplish/contract.py:56
         // msg = Bytes(b"You do not have any of the asset")
         byte 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574        0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
-        v-store msg#1
-        b main_after_if_else@21
+        x-store msg#1                                                                  (𝕏) msg#1 |
+        b main_after_if_else@21                                                        (𝕏) msg#1 |
 
-    main_else_body@20:
+    main_else_body@20:                                                                 (𝕏) asset_balance#0 |
         // simplish/contract.py:58
         // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
-        v-load asset_balance#0                                                         asset_balance#0
+        x-load asset_balance#0                                                         asset_balance#0
         callsub itoa                                                                   tmp%27#0
         byte 0x596f7520686176652061737365742062616c616e63653a20                        tmp%27#0,0x596f7520686176652061737365742062616c616e63653a20
         l-load tmp%27#0 1                                                              0x596f7520686176652061737365742062616c616e63653a20,tmp%27#0
         concat                                                                         msg#1
-        v-store msg#1
-        b main_after_if_else@21
+        x-store msg#1                                                                  (𝕏) msg#1 |
+        b main_after_if_else@21                                                        (𝕏) msg#1 |
 
-    main_after_if_else@21:
+    main_after_if_else@21:                                                             (𝕏) msg#1 |
         // simplish/contract.py:59
         // result = True
-        int 1                                                                          1
-        x-store result#1                                                               (𝕏) result#1 |
-        b main_after_if_else@24                                                        (𝕏) result#1 |
+        int 1                                                                          (𝕏) msg#1 | 1
+        x-store result#1                                                               (𝕏) result#1,msg#1 |
+        b main_after_if_else@24                                                        (𝕏) result#1,msg#1 |
 
-    main_else_body@22:
+    main_else_body@22:                                                                 (𝕏) sender#0 |
+        x-load sender#0                                                                sender#0
+        pop 1
         // simplish/contract.py:61
         // msg = Bytes(b"not enough app args or foreign assets")
         byte 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
-        v-store msg#1
+        x-store msg#1                                                                  (𝕏) msg#1 |
         // simplish/contract.py:62
         // result = False
-        int 0                                                                          0
-        x-store result#1                                                               (𝕏) result#1 |
-        b main_after_if_else@24                                                        (𝕏) result#1 |
+        int 0                                                                          (𝕏) msg#1 | 0
+        x-store result#1                                                               (𝕏) result#1,msg#1 |
+        b main_after_if_else@24                                                        (𝕏) result#1,msg#1 |
 
-    main_after_if_else@24:                                                             (𝕏) result#1 |
+    main_after_if_else@24:                                                             (𝕏) result#1,msg#1 |
         // simplish/contract.py:63
         // log(msg)
-        v-load msg#1                                                                   (𝕏) result#1 | msg#1
+        x-load msg#1                                                                   (𝕏) result#1 | msg#1
         log                                                                            (𝕏) result#1 |
         // simplish/contract.py:99
         // log("Incrementing counter!")

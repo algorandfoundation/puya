@@ -553,86 +553,92 @@ subroutine mint:
         l-load a_xfer#0 2                                                                         b_xfer#0,maybe_value%2#0,a_xfer#0
         gtxns AssetAmount                                                                         b_xfer#0,maybe_value%2#0,a_amount#0
         l-store-copy a_amount#0 0                                                                 b_xfer#0,maybe_value%2#0,a_amount#0,a_amount#0 (copy)
-        v-store a_amount#0                                                                        b_xfer#0,maybe_value%2#0,a_amount#0
-        l-load-copy a_amount#0 0                                                                  b_xfer#0,maybe_value%2#0,a_amount#0,a_amount#0 (copy)
-        assert // amount minimum not met                                                          b_xfer#0,maybe_value%2#0,a_amount#0
+        x-store a_amount#0                                                                        (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0
+        l-load-copy a_amount#0 0                                                                  (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,a_amount#0 (copy)
+        assert // amount minimum not met                                                          (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0
         // amm/contract.py:130
         // b_xfer.asset_receiver == Global.current_application_address
-        l-load-copy b_xfer#0 2                                                                    b_xfer#0,maybe_value%2#0,a_amount#0,b_xfer#0 (copy)
-        gtxns AssetReceiver                                                                       b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0
-        global CurrentApplicationAddress                                                          b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0,tmp%17#0
-        l-load tmp%16#0 1                                                                         b_xfer#0,maybe_value%2#0,a_amount#0,tmp%17#0,tmp%16#0
-        l-load tmp%17#0 1                                                                         b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0,tmp%17#0
-        ==                                                                                        b_xfer#0,maybe_value%2#0,a_amount#0,tmp%18#0
+        l-load-copy b_xfer#0 2                                                                    (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,b_xfer#0 (copy)
+        gtxns AssetReceiver                                                                       (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0
+        global CurrentApplicationAddress                                                          (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0,tmp%17#0
+        l-load tmp%16#0 1                                                                         (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%17#0,tmp%16#0
+        l-load tmp%17#0 1                                                                         (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%16#0,tmp%17#0
+        ==                                                                                        (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%18#0
         // amm/contract.py:129-131
         // assert (
         //     b_xfer.asset_receiver == Global.current_application_address
         // ), "receiver not app address"
-        assert // receiver not app address                                                        b_xfer#0,maybe_value%2#0,a_amount#0
+        assert // receiver not app address                                                        (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0
         // amm/contract.py:132
         // assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
-        l-load-copy b_xfer#0 2                                                                    b_xfer#0,maybe_value%2#0,a_amount#0,b_xfer#0 (copy)
-        gtxns XferAsset                                                                           b_xfer#0,maybe_value%2#0,a_amount#0,tmp%19#0
-        l-load maybe_value%2#0 2                                                                  b_xfer#0,a_amount#0,tmp%19#0,maybe_value%2#0
-        ==                                                                                        b_xfer#0,a_amount#0,tmp%20#0
-        assert // asset b incorrect                                                               b_xfer#0,a_amount#0
+        l-load-copy b_xfer#0 2                                                                    (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,b_xfer#0 (copy)
+        gtxns XferAsset                                                                           (𝕏) a_amount#0 | b_xfer#0,maybe_value%2#0,a_amount#0,tmp%19#0
+        l-load maybe_value%2#0 2                                                                  (𝕏) a_amount#0 | b_xfer#0,a_amount#0,tmp%19#0,maybe_value%2#0
+        ==                                                                                        (𝕏) a_amount#0 | b_xfer#0,a_amount#0,tmp%20#0
+        assert // asset b incorrect                                                               (𝕏) a_amount#0 | b_xfer#0,a_amount#0
         // amm/contract.py:133
         // assert b_xfer.asset_amount > 0, "amount minimum not met"
-        l-load b_xfer#0 1                                                                         a_amount#0,b_xfer#0
-        gtxns AssetAmount                                                                         a_amount#0,b_amount#0
-        l-store-copy b_amount#0 0                                                                 a_amount#0,b_amount#0,b_amount#0 (copy)
-        v-store b_amount#0                                                                        a_amount#0,b_amount#0
-        l-load b_amount#0 0                                                                       a_amount#0,b_amount#0
-        assert // amount minimum not met                                                          a_amount#0
+        l-load b_xfer#0 1                                                                         (𝕏) a_amount#0 | a_amount#0,b_xfer#0
+        gtxns AssetAmount                                                                         (𝕏) a_amount#0 | a_amount#0,b_amount#0
+        l-store-copy b_amount#0 0                                                                 (𝕏) a_amount#0 | a_amount#0,b_amount#0,b_amount#0 (copy)
+        x-store b_amount#0                                                                        (𝕏) b_amount#0,a_amount#0 | a_amount#0,b_amount#0
+        l-load b_amount#0 0                                                                       (𝕏) b_amount#0,a_amount#0 | a_amount#0,b_amount#0
+        assert // amount minimum not met                                                          (𝕏) b_amount#0,a_amount#0 | a_amount#0
         // amm/contract.py:136
         // pool_balance=self._current_pool_balance(),
-        callsub _current_pool_balance                                                             a_amount#0,pool_balance#0
-        v-store pool_balance#0                                                                    a_amount#0
+        callsub _current_pool_balance                                                             (𝕏) b_amount#0,a_amount#0 | a_amount#0,pool_balance#0
+        x-store pool_balance#0                                                                    (𝕏) b_amount#0,a_amount#0,pool_balance#0 | a_amount#0
         // amm/contract.py:137
         // a_balance=self._current_a_balance(),
-        callsub _current_a_balance                                                                a_amount#0,a_balance#0
-        l-store-copy a_balance#0 0                                                                a_amount#0,a_balance#0,a_balance#0 (copy)
-        v-store a_balance#0                                                                       a_amount#0,a_balance#0
+        callsub _current_a_balance                                                                (𝕏) b_amount#0,a_amount#0,pool_balance#0 | a_amount#0,a_balance#0
+        l-store-copy a_balance#0 0                                                                (𝕏) b_amount#0,a_amount#0,pool_balance#0 | a_amount#0,a_balance#0,a_balance#0 (copy)
+        x-store a_balance#0                                                                       (𝕏) b_amount#0,a_amount#0,a_balance#0,pool_balance#0 | a_amount#0,a_balance#0
         // amm/contract.py:138
         // b_balance=self._current_b_balance(),
-        callsub _current_b_balance                                                                a_amount#0,a_balance#0,b_balance#0
-        v-store b_balance#0                                                                       a_amount#0,a_balance#0
+        callsub _current_b_balance                                                                (𝕏) b_amount#0,a_amount#0,a_balance#0,pool_balance#0 | a_amount#0,a_balance#0,b_balance#0
+        x-store b_balance#0                                                                       (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | a_amount#0,a_balance#0
         // amm/contract.py:334
         // is_initial_mint = a_balance == a_amount and b_balance == b_amount
-        l-load a_balance#0 0                                                                      a_amount#0,a_balance#0
-        l-load a_amount#0 1                                                                       a_balance#0,a_amount#0
-        ==                                                                                        tmp%0#1
-        bz mint_bool_false@4 ; b mint_and_contd@2
+        l-load a_balance#0 0                                                                      (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | a_amount#0,a_balance#0
+        l-load a_amount#0 1                                                                       (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | a_balance#0,a_amount#0
+        ==                                                                                        (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | tmp%0#1
+        bz mint_bool_false@4 ; b mint_and_contd@2                                                 (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
 
-    mint_and_contd@2:
+    mint_and_contd@2:                                                                             (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
         // amm/contract.py:334
         // is_initial_mint = a_balance == a_amount and b_balance == b_amount
-        v-load b_balance#0                                                                        b_balance#0
-        v-load b_amount#0                                                                         b_balance#0,b_amount#0
-        ==                                                                                        tmp%1#1
-        bz mint_bool_false@4 ; b mint_bool_true@3
+        x-load-copy b_balance#0                                                                   (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | b_balance#0 (copy)
+        x-load-copy b_amount#0                                                                    (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | b_balance#0 (copy),b_amount#0 (copy)
+        ==                                                                                        (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | tmp%1#1
+        bz mint_bool_false@4 ; b mint_bool_true@3                                                 (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
 
-    mint_bool_true@3:
-        int 1                                                                                     and_result%0#0
-        x-store is_initial_mint#0                                                                 (𝕏) is_initial_mint#0 |
-        b mint_bool_merge@5                                                                       (𝕏) is_initial_mint#0 |
+    mint_bool_true@3:                                                                             (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
+        int 1                                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | and_result%0#0
+        x-store is_initial_mint#0                                                                 (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0,is_initial_mint#0 |
+        b mint_bool_merge@5                                                                       (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0,is_initial_mint#0 |
 
-    mint_bool_false@4:
-        int 0                                                                                     and_result%0#0
-        x-store is_initial_mint#0                                                                 (𝕏) is_initial_mint#0 |
-        b mint_bool_merge@5                                                                       (𝕏) is_initial_mint#0 |
+    mint_bool_false@4:                                                                            (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
+        int 0                                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | and_result%0#0
+        x-store is_initial_mint#0                                                                 (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0,is_initial_mint#0 |
+        b mint_bool_merge@5                                                                       (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0,is_initial_mint#0 |
 
-    mint_bool_merge@5:                                                                            (𝕏) is_initial_mint#0 |
+    mint_bool_merge@5:                                                                            (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0,is_initial_mint#0 |
         // amm/contract.py:335
         // if is_initial_mint:
-        x-load is_initial_mint#0                                                                  is_initial_mint#0
-        bz mint_after_if_else@7 ; b mint_if_body@6
+        x-load is_initial_mint#0                                                                  (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | is_initial_mint#0
+        bz mint_after_if_else@7 ; b mint_if_body@6                                                (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
 
-    mint_if_body@6:
+    mint_if_body@6:                                                                               (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
+        x-load pool_balance#0                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0 | pool_balance#0
+        pop 1                                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0 |
+        x-load b_balance#0                                                                        (𝕏) b_amount#0,a_amount#0,a_balance#0 | b_balance#0
+        pop 1                                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0 |
+        x-load a_balance#0                                                                        (𝕏) b_amount#0,a_amount#0 | a_balance#0
+        pop 1                                                                                     (𝕏) b_amount#0,a_amount#0 |
         // amm/contract.py:336
         // return op.sqrt(a_amount * b_amount) - SCALE
-        v-load a_amount#0                                                                         a_amount#0
-        v-load b_amount#0                                                                         a_amount#0,b_amount#0
+        x-load a_amount#0                                                                         (𝕏) b_amount#0 | a_amount#0
+        x-load b_amount#0                                                                         a_amount#0,b_amount#0
         *                                                                                         tmp%2#2
         sqrt                                                                                      tmp%3#0
         int 1000                                                                                  tmp%3#0,1000
@@ -648,52 +654,54 @@ subroutine mint:
         // )
         b mint_after_inlined_examples.amm.contract.tokens_to_mint@10                              (𝕏) to_mint#0 |
 
-    mint_after_if_else@7:
+    mint_after_if_else@7:                                                                         (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 |
         // amm/contract.py:337
         // issued = TOTAL_SUPPLY - pool_balance
-        int 10000000000                                                                           10000000000
-        v-load pool_balance#0                                                                     10000000000,pool_balance#0
-        -                                                                                         issued#0
-        x-store issued#0                                                                          (𝕏) issued#0 |
+        int 10000000000                                                                           (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,pool_balance#0 | 10000000000
+        x-load pool_balance#0                                                                     (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0 | 10000000000,pool_balance#0
+        -                                                                                         (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0 | issued#0
+        x-store issued#0                                                                          (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,issued#0 |
         // amm/contract.py:338
         // a_ratio = SCALE * a_amount // (a_balance - a_amount)
-        int 1000                                                                                  (𝕏) issued#0 | 1000
-        v-load a_amount#0                                                                         (𝕏) issued#0 | 1000,a_amount#0
-        l-store-copy a_amount#0 1                                                                 (𝕏) issued#0 | a_amount#0,1000,a_amount#0 (copy)
-        *                                                                                         (𝕏) issued#0 | a_amount#0,tmp%6#0
-        v-load a_balance#0                                                                        (𝕏) issued#0 | a_amount#0,tmp%6#0,a_balance#0
-        l-load a_amount#0 2                                                                       (𝕏) issued#0 | tmp%6#0,a_balance#0,a_amount#0
-        -                                                                                         (𝕏) issued#0 | tmp%6#0,tmp%7#2
-        l-load tmp%6#0 1                                                                          (𝕏) issued#0 | tmp%7#2,tmp%6#0
-        l-load tmp%7#2 1                                                                          (𝕏) issued#0 | tmp%6#0,tmp%7#2
-        /                                                                                         (𝕏) issued#0 | a_ratio#0
-        l-store-copy a_ratio#0 0                                                                  (𝕏) issued#0 | a_ratio#0,a_ratio#0 (copy)
-        v-store a_ratio#0                                                                         (𝕏) issued#0 | a_ratio#0
+        int 1000                                                                                  (𝕏) b_amount#0,a_amount#0,a_balance#0,b_balance#0,issued#0 | 1000
+        x-load a_amount#0                                                                         (𝕏) b_amount#0,a_balance#0,b_balance#0,issued#0 | 1000,a_amount#0
+        l-store-copy a_amount#0 1                                                                 (𝕏) b_amount#0,a_balance#0,b_balance#0,issued#0 | a_amount#0,1000,a_amount#0 (copy)
+        *                                                                                         (𝕏) b_amount#0,a_balance#0,b_balance#0,issued#0 | a_amount#0,tmp%6#0
+        x-load a_balance#0                                                                        (𝕏) b_amount#0,b_balance#0,issued#0 | a_amount#0,tmp%6#0,a_balance#0
+        l-load a_amount#0 2                                                                       (𝕏) b_amount#0,b_balance#0,issued#0 | tmp%6#0,a_balance#0,a_amount#0
+        -                                                                                         (𝕏) b_amount#0,b_balance#0,issued#0 | tmp%6#0,tmp%7#2
+        l-load tmp%6#0 1                                                                          (𝕏) b_amount#0,b_balance#0,issued#0 | tmp%7#2,tmp%6#0
+        l-load tmp%7#2 1                                                                          (𝕏) b_amount#0,b_balance#0,issued#0 | tmp%6#0,tmp%7#2
+        /                                                                                         (𝕏) b_amount#0,b_balance#0,issued#0 | a_ratio#0
+        l-store-copy a_ratio#0 0                                                                  (𝕏) b_amount#0,b_balance#0,issued#0 | a_ratio#0,a_ratio#0 (copy)
+        x-store a_ratio#0                                                                         (𝕏) b_amount#0,b_balance#0,issued#0,a_ratio#0 | a_ratio#0
         // amm/contract.py:339
         // b_ratio = SCALE * b_amount // (b_balance - b_amount)
-        int 1000                                                                                  (𝕏) issued#0 | a_ratio#0,1000
-        v-load b_amount#0                                                                         (𝕏) issued#0 | a_ratio#0,1000,b_amount#0
-        l-store-copy b_amount#0 1                                                                 (𝕏) issued#0 | a_ratio#0,b_amount#0,1000,b_amount#0 (copy)
-        *                                                                                         (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#0
-        v-load b_balance#0                                                                        (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#0,b_balance#0
-        l-load b_amount#0 2                                                                       (𝕏) issued#0 | a_ratio#0,tmp%9#0,b_balance#0,b_amount#0
-        -                                                                                         (𝕏) issued#0 | a_ratio#0,tmp%9#0,tmp%10#2
-        l-load tmp%9#0 1                                                                          (𝕏) issued#0 | a_ratio#0,tmp%10#2,tmp%9#0
-        l-load tmp%10#2 1                                                                         (𝕏) issued#0 | a_ratio#0,tmp%9#0,tmp%10#2
-        /                                                                                         (𝕏) issued#0 | a_ratio#0,b_ratio#0
-        l-store-copy b_ratio#0 0                                                                  (𝕏) issued#0 | a_ratio#0,b_ratio#0,b_ratio#0 (copy)
-        v-store b_ratio#0                                                                         (𝕏) issued#0 | a_ratio#0,b_ratio#0
+        int 1000                                                                                  (𝕏) b_amount#0,b_balance#0,issued#0,a_ratio#0 | a_ratio#0,1000
+        x-load b_amount#0                                                                         (𝕏) b_balance#0,issued#0,a_ratio#0 | a_ratio#0,1000,b_amount#0
+        l-store-copy b_amount#0 1                                                                 (𝕏) b_balance#0,issued#0,a_ratio#0 | a_ratio#0,b_amount#0,1000,b_amount#0 (copy)
+        *                                                                                         (𝕏) b_balance#0,issued#0,a_ratio#0 | a_ratio#0,b_amount#0,tmp%9#0
+        x-load b_balance#0                                                                        (𝕏) issued#0,a_ratio#0 | a_ratio#0,b_amount#0,tmp%9#0,b_balance#0
+        l-load b_amount#0 2                                                                       (𝕏) issued#0,a_ratio#0 | a_ratio#0,tmp%9#0,b_balance#0,b_amount#0
+        -                                                                                         (𝕏) issued#0,a_ratio#0 | a_ratio#0,tmp%9#0,tmp%10#2
+        l-load tmp%9#0 1                                                                          (𝕏) issued#0,a_ratio#0 | a_ratio#0,tmp%10#2,tmp%9#0
+        l-load tmp%10#2 1                                                                         (𝕏) issued#0,a_ratio#0 | a_ratio#0,tmp%9#0,tmp%10#2
+        /                                                                                         (𝕏) issued#0,a_ratio#0 | a_ratio#0,b_ratio#0
+        l-store-copy b_ratio#0 0                                                                  (𝕏) issued#0,a_ratio#0 | a_ratio#0,b_ratio#0,b_ratio#0 (copy)
+        x-store b_ratio#0                                                                         (𝕏) issued#0,a_ratio#0,b_ratio#0 | a_ratio#0,b_ratio#0
         // amm/contract.py:340
         // if a_ratio < b_ratio:
-        l-load a_ratio#0 1                                                                        (𝕏) issued#0 | b_ratio#0,a_ratio#0
-        l-load b_ratio#0 1                                                                        (𝕏) issued#0 | a_ratio#0,b_ratio#0
-        <                                                                                         (𝕏) issued#0 | tmp%12#1
-        bz mint_else_body@9 ; b mint_if_body@8                                                    (𝕏) issued#0 |
+        l-load a_ratio#0 1                                                                        (𝕏) issued#0,a_ratio#0,b_ratio#0 | b_ratio#0,a_ratio#0
+        l-load b_ratio#0 1                                                                        (𝕏) issued#0,a_ratio#0,b_ratio#0 | a_ratio#0,b_ratio#0
+        <                                                                                         (𝕏) issued#0,a_ratio#0,b_ratio#0 | tmp%12#1
+        bz mint_else_body@9 ; b mint_if_body@8                                                    (𝕏) issued#0,a_ratio#0,b_ratio#0 |
 
-    mint_if_body@8:                                                                               (𝕏) issued#0 |
+    mint_if_body@8:                                                                               (𝕏) issued#0,a_ratio#0,b_ratio#0 |
+        x-load b_ratio#0                                                                          (𝕏) issued#0,a_ratio#0 | b_ratio#0
+        pop 1                                                                                     (𝕏) issued#0,a_ratio#0 |
         // amm/contract.py:341
         // return a_ratio * issued // SCALE
-        v-load a_ratio#0                                                                          (𝕏) issued#0 | a_ratio#0
+        x-load a_ratio#0                                                                          (𝕏) issued#0 | a_ratio#0
         x-load issued#0                                                                           a_ratio#0,issued#0
         *                                                                                         tmp%13#1
         int 1000                                                                                  tmp%13#1,1000
@@ -709,10 +717,12 @@ subroutine mint:
         // )
         b mint_after_inlined_examples.amm.contract.tokens_to_mint@10                              (𝕏) to_mint#0 |
 
-    mint_else_body@9:                                                                             (𝕏) issued#0 |
+    mint_else_body@9:                                                                             (𝕏) issued#0,a_ratio#0,b_ratio#0 |
+        x-load a_ratio#0                                                                          (𝕏) issued#0,b_ratio#0 | a_ratio#0
+        pop 1                                                                                     (𝕏) issued#0,b_ratio#0 |
         // amm/contract.py:343
         // return b_ratio * issued // SCALE
-        v-load b_ratio#0                                                                          (𝕏) issued#0 | b_ratio#0
+        x-load b_ratio#0                                                                          (𝕏) issued#0 | b_ratio#0
         x-load issued#0                                                                           b_ratio#0,issued#0
         *                                                                                         tmp%15#1
         int 1000                                                                                  tmp%15#1,1000
@@ -1014,22 +1024,22 @@ subroutine swap:
         l-load-copy swap_xfer#0 2                                                                 swap_xfer#0,maybe_value%0#0,maybe_value%1#0,swap_xfer#0 (copy)
         gtxns AssetAmount                                                                         swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0
         l-store-copy in_amount#0 0                                                                swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0,in_amount#0 (copy)
-        v-store in_amount#0                                                                       swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0
-        l-load in_amount#0 0                                                                      swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0
-        assert // amount minimum not met                                                          swap_xfer#0,maybe_value%0#0,maybe_value%1#0
+        x-store in_amount#0                                                                       (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0
+        l-load in_amount#0 0                                                                      (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,in_amount#0
+        assert // amount minimum not met                                                          (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0
         // amm/contract.py:232
         // assert swap_xfer.sender == Txn.sender, "sender invalid"
-        l-load-copy swap_xfer#0 2                                                                 swap_xfer#0,maybe_value%0#0,maybe_value%1#0,swap_xfer#0 (copy)
-        gtxns Sender                                                                              swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1
-        txn Sender                                                                                swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
-        l-load tmp%4#1 1                                                                          swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%5#1,tmp%4#1
-        l-load tmp%5#1 1                                                                          swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
-        ==                                                                                        swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%6#1
-        assert // sender invalid                                                                  swap_xfer#0,maybe_value%0#0,maybe_value%1#0
+        l-load-copy swap_xfer#0 2                                                                 (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,swap_xfer#0 (copy)
+        gtxns Sender                                                                              (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1
+        txn Sender                                                                                (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
+        l-load tmp%4#1 1                                                                          (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%5#1,tmp%4#1
+        l-load tmp%5#1 1                                                                          (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
+        ==                                                                                        (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%6#1
+        assert // sender invalid                                                                  (𝕏) in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0
         // amm/contract.py:234
         // match swap_xfer.xfer_asset:
-        l-load swap_xfer#0 2                                                                      maybe_value%0#0,maybe_value%1#0,swap_xfer#0
-        gtxns XferAsset                                                                           maybe_value%0#0,maybe_value%1#0,tmp%7#0
+        l-load swap_xfer#0 2                                                                      (𝕏) in_amount#0 | maybe_value%0#0,maybe_value%1#0,swap_xfer#0
+        gtxns XferAsset                                                                           (𝕏) in_amount#0 | maybe_value%0#0,maybe_value%1#0,tmp%7#0
         // amm/contract.py:234-244
         // match swap_xfer.xfer_asset:
         //     case self.asset_a:
@@ -1042,89 +1052,89 @@ subroutine swap:
         //         out_asset = self.asset_b
         //     case _:
         //         assert False, "asset id incorrect"
-        l-load maybe_value%0#0 2                                                                  maybe_value%1#0,tmp%7#0,maybe_value%0#0
-        l-load maybe_value%1#0 2                                                                  tmp%7#0,maybe_value%0#0,maybe_value%1#0
-        l-load tmp%7#0 2                                                                          maybe_value%0#0,maybe_value%1#0,tmp%7#0
-        match swap_switch_case_0@2 swap_switch_case_1@3 ; b swap_switch_case_default@4
+        l-load maybe_value%0#0 2                                                                  (𝕏) in_amount#0 | maybe_value%1#0,tmp%7#0,maybe_value%0#0
+        l-load maybe_value%1#0 2                                                                  (𝕏) in_amount#0 | tmp%7#0,maybe_value%0#0,maybe_value%1#0
+        l-load tmp%7#0 2                                                                          (𝕏) in_amount#0 | maybe_value%0#0,maybe_value%1#0,tmp%7#0
+        match swap_switch_case_0@2 swap_switch_case_1@3 ; b swap_switch_case_default@4            (𝕏) in_amount#0 |
 
-    swap_switch_case_0@2:
+    swap_switch_case_0@2:                                                                         (𝕏) in_amount#0 |
         // amm/contract.py:236
         // in_supply = self._current_b_balance()
-        callsub _current_b_balance                                                                in_supply#0
-        v-store in_supply#0
+        callsub _current_b_balance                                                                (𝕏) in_amount#0 | in_supply#0
+        x-store in_supply#0                                                                       (𝕏) in_supply#0,in_amount#0 |
         // amm/contract.py:237
         // out_supply = self._current_a_balance()
-        callsub _current_a_balance                                                                out_supply#0
-        x-store out_supply#0                                                                      (𝕏) out_supply#0 |
+        callsub _current_a_balance                                                                (𝕏) in_supply#0,in_amount#0 | out_supply#0
+        x-store out_supply#0                                                                      (𝕏) in_supply#0,out_supply#0,in_amount#0 |
         // amm/contract.py:238
         // out_asset = self.asset_a
-        int 0                                                                                     (𝕏) out_supply#0 | 0
-        byte "asset_a"                                                                            (𝕏) out_supply#0 | 0,"asset_a"
-        app_global_get_ex                                                                         (𝕏) out_supply#0 | out_asset#0,maybe_exists%4#0
-        l-store maybe_exists%4#0 1                                                                (𝕏) out_supply#0 | maybe_exists%4#0,out_asset#0
-        v-store out_asset#0                                                                       (𝕏) out_supply#0 | maybe_exists%4#0
-        l-load maybe_exists%4#0 0                                                                 (𝕏) out_supply#0 | maybe_exists%4#0
-        assert // check self.asset_a exists                                                       (𝕏) out_supply#0 |
-        b swap_switch_case_next@5                                                                 (𝕏) out_supply#0 |
+        int 0                                                                                     (𝕏) in_supply#0,out_supply#0,in_amount#0 | 0
+        byte "asset_a"                                                                            (𝕏) in_supply#0,out_supply#0,in_amount#0 | 0,"asset_a"
+        app_global_get_ex                                                                         (𝕏) in_supply#0,out_supply#0,in_amount#0 | out_asset#0,maybe_exists%4#0
+        l-store maybe_exists%4#0 1                                                                (𝕏) in_supply#0,out_supply#0,in_amount#0 | maybe_exists%4#0,out_asset#0
+        x-store out_asset#0                                                                       (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 | maybe_exists%4#0
+        l-load maybe_exists%4#0 0                                                                 (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 | maybe_exists%4#0
+        assert // check self.asset_a exists                                                       (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 |
+        b swap_switch_case_next@5                                                                 (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 |
 
-    swap_switch_case_1@3:
+    swap_switch_case_1@3:                                                                         (𝕏) in_amount#0 |
         // amm/contract.py:240
         // in_supply = self._current_a_balance()
-        callsub _current_a_balance                                                                in_supply#0
-        v-store in_supply#0
+        callsub _current_a_balance                                                                (𝕏) in_amount#0 | in_supply#0
+        x-store in_supply#0                                                                       (𝕏) in_supply#0,in_amount#0 |
         // amm/contract.py:241
         // out_supply = self._current_b_balance()
-        callsub _current_b_balance                                                                out_supply#0
-        x-store out_supply#0                                                                      (𝕏) out_supply#0 |
+        callsub _current_b_balance                                                                (𝕏) in_supply#0,in_amount#0 | out_supply#0
+        x-store out_supply#0                                                                      (𝕏) in_supply#0,out_supply#0,in_amount#0 |
         // amm/contract.py:242
         // out_asset = self.asset_b
-        int 0                                                                                     (𝕏) out_supply#0 | 0
-        byte "asset_b"                                                                            (𝕏) out_supply#0 | 0,"asset_b"
-        app_global_get_ex                                                                         (𝕏) out_supply#0 | out_asset#0,maybe_exists%5#0
-        l-store maybe_exists%5#0 1                                                                (𝕏) out_supply#0 | maybe_exists%5#0,out_asset#0
-        v-store out_asset#0                                                                       (𝕏) out_supply#0 | maybe_exists%5#0
-        l-load maybe_exists%5#0 0                                                                 (𝕏) out_supply#0 | maybe_exists%5#0
-        assert // check self.asset_b exists                                                       (𝕏) out_supply#0 |
-        b swap_switch_case_next@5                                                                 (𝕏) out_supply#0 |
+        int 0                                                                                     (𝕏) in_supply#0,out_supply#0,in_amount#0 | 0
+        byte "asset_b"                                                                            (𝕏) in_supply#0,out_supply#0,in_amount#0 | 0,"asset_b"
+        app_global_get_ex                                                                         (𝕏) in_supply#0,out_supply#0,in_amount#0 | out_asset#0,maybe_exists%5#0
+        l-store maybe_exists%5#0 1                                                                (𝕏) in_supply#0,out_supply#0,in_amount#0 | maybe_exists%5#0,out_asset#0
+        x-store out_asset#0                                                                       (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 | maybe_exists%5#0
+        l-load maybe_exists%5#0 0                                                                 (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 | maybe_exists%5#0
+        assert // check self.asset_b exists                                                       (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 |
+        b swap_switch_case_next@5                                                                 (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 |
 
-    swap_switch_case_default@4:
+    swap_switch_case_default@4:                                                                   (𝕏) in_amount#0 |
         // amm/contract.py:244
         // assert False, "asset id incorrect"
-        err // asset id incorrect
+        err // asset id incorrect                                                                 (𝕏) in_amount#0 |
 
-    swap_switch_case_next@5:                                                                      (𝕏) out_supply#0 |
+    swap_switch_case_next@5:                                                                      (𝕏) in_supply#0,out_supply#0,in_amount#0,out_asset#0 |
         // amm/contract.py:354
         // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
-        v-load in_supply#0                                                                        (𝕏) out_supply#0 | in_supply#0
-        v-load in_amount#0                                                                        (𝕏) out_supply#0 | in_supply#0,in_amount#0
-        l-store-copy in_amount#0 1                                                                (𝕏) out_supply#0 | in_amount#0,in_supply#0,in_amount#0 (copy)
-        -                                                                                         (𝕏) out_supply#0 | in_amount#0,tmp%0#0
-        int 1000                                                                                  (𝕏) out_supply#0 | in_amount#0,tmp%0#0,1000
-        l-load tmp%0#0 1                                                                          (𝕏) out_supply#0 | in_amount#0,1000,tmp%0#0
-        *                                                                                         (𝕏) out_supply#0 | in_amount#0,tmp%1#2
-        l-load in_amount#0 1                                                                      (𝕏) out_supply#0 | tmp%1#2,in_amount#0
-        int 995                                                                                   (𝕏) out_supply#0 | tmp%1#2,in_amount#0,995
-        *                                                                                         (𝕏) out_supply#0 | tmp%1#2,tmp%2#0
-        l-load tmp%1#2 1                                                                          (𝕏) out_supply#0 | tmp%2#0,tmp%1#2
-        l-load-copy tmp%2#0 1                                                                     (𝕏) out_supply#0 | tmp%2#0,tmp%1#2,tmp%2#0 (copy)
-        +                                                                                         (𝕏) out_supply#0 | tmp%2#0,in_total#0
+        x-load in_supply#0                                                                        (𝕏) out_supply#0,in_amount#0,out_asset#0 | in_supply#0
+        x-load in_amount#0                                                                        (𝕏) out_supply#0,out_asset#0 | in_supply#0,in_amount#0
+        l-store-copy in_amount#0 1                                                                (𝕏) out_supply#0,out_asset#0 | in_amount#0,in_supply#0,in_amount#0 (copy)
+        -                                                                                         (𝕏) out_supply#0,out_asset#0 | in_amount#0,tmp%0#0
+        int 1000                                                                                  (𝕏) out_supply#0,out_asset#0 | in_amount#0,tmp%0#0,1000
+        l-load tmp%0#0 1                                                                          (𝕏) out_supply#0,out_asset#0 | in_amount#0,1000,tmp%0#0
+        *                                                                                         (𝕏) out_supply#0,out_asset#0 | in_amount#0,tmp%1#2
+        l-load in_amount#0 1                                                                      (𝕏) out_supply#0,out_asset#0 | tmp%1#2,in_amount#0
+        int 995                                                                                   (𝕏) out_supply#0,out_asset#0 | tmp%1#2,in_amount#0,995
+        *                                                                                         (𝕏) out_supply#0,out_asset#0 | tmp%1#2,tmp%2#0
+        l-load tmp%1#2 1                                                                          (𝕏) out_supply#0,out_asset#0 | tmp%2#0,tmp%1#2
+        l-load-copy tmp%2#0 1                                                                     (𝕏) out_supply#0,out_asset#0 | tmp%2#0,tmp%1#2,tmp%2#0 (copy)
+        +                                                                                         (𝕏) out_supply#0,out_asset#0 | tmp%2#0,in_total#0
         // amm/contract.py:355
         // out_total = in_amount * FACTOR * out_supply
-        l-load tmp%2#0 1                                                                          (𝕏) out_supply#0 | in_total#0,tmp%2#0
-        x-load out_supply#0                                                                       in_total#0,tmp%2#0,out_supply#0
-        *                                                                                         in_total#0,out_total#0
+        l-load tmp%2#0 1                                                                          (𝕏) out_supply#0,out_asset#0 | in_total#0,tmp%2#0
+        x-load out_supply#0                                                                       (𝕏) out_asset#0 | in_total#0,tmp%2#0,out_supply#0
+        *                                                                                         (𝕏) out_asset#0 | in_total#0,out_total#0
         // amm/contract.py:356
         // return out_total // in_total
-        l-load in_total#0 1                                                                       out_total#0,in_total#0
-        /                                                                                         to_swap#0
+        l-load in_total#0 1                                                                       (𝕏) out_asset#0 | out_total#0,in_total#0
+        /                                                                                         (𝕏) out_asset#0 | to_swap#0
         // amm/contract.py:249
         // assert to_swap > 0, "send amount too low"
-        l-load-copy to_swap#0 0                                                                   to_swap#0,to_swap#0 (copy)
-        assert // send amount too low                                                             to_swap#0
+        l-load-copy to_swap#0 0                                                                   (𝕏) out_asset#0 | to_swap#0,to_swap#0 (copy)
+        assert // send amount too low                                                             (𝕏) out_asset#0 | to_swap#0
         // amm/contract.py:251
         // do_asset_transfer(receiver=Txn.sender, asset=out_asset, amount=to_swap)
-        txn Sender                                                                                to_swap#0,tmp%15#0
-        v-load out_asset#0                                                                        to_swap#0,tmp%15#0,out_asset#0
+        txn Sender                                                                                (𝕏) out_asset#0 | to_swap#0,tmp%15#0
+        x-load out_asset#0                                                                        to_swap#0,tmp%15#0,out_asset#0
         l-load to_swap#0 2                                                                        tmp%15#0,out_asset#0,to_swap#0
         callsub do_asset_transfer
         // amm/contract.py:252

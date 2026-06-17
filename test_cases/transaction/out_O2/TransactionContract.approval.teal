@@ -5,7 +5,7 @@
 main:
     intcblock 1 2 3 6
     pushbytes ""
-    dupn 2
+    dup
     txn OnCompletion
     !
     assert
@@ -21,19 +21,18 @@ main_group_init_route@11:
     intc_2 // 3
     -
     dup
-    bury 4
     txn GroupIndex
     intc_1 // 2
     -
-    bury 3
+    bury 4
     txn GroupIndex
     intc_0 // 1
     -
-    bury 2
+    bury 3
     pushint 0
+    swap
 
 main_for_body@20:
-    swap
     dup
     gtxns GroupIndex
     swap
@@ -43,7 +42,6 @@ main_for_body@20:
     ==
     assert
     switch main_for_header_1@21 main_for_header_2@22
-    dig 2
     gtxns TxID
     gtxn 0 TxID
     ==
@@ -52,13 +50,13 @@ main_for_body@20:
     return
 
 main_for_header_2@22:
-    dup
     intc_1 // 2
+    dig 2
     b main_for_body@20
 
 main_for_header_1@21:
-    dig 1
     intc_0 // 1
+    dig 3
     b main_for_body@20
 
 main_any_txn_route@10:
@@ -74,9 +72,9 @@ main_any_txn_route@10:
     -
     bury 2
     pushint 0
+    swap
 
 main_for_body@26:
-    swap
     gtxns GroupIndex
     dig 1
     ==
@@ -88,13 +86,13 @@ main_after_for@35:
     return
 
 main_for_header_2@28:
-    dup
     intc_1 // 2
+    dig 1
     b main_for_body@26
 
 main_for_header_1@27:
-    dig 1
     intc_0 // 1
+    dig 2
     b main_for_body@26
 
 main_multiple_txns_route@9:
@@ -125,9 +123,9 @@ main_multiple_txns_route@9:
     ==
     assert // transaction type is appl
     pushint 0
+    swap
 
 main_for_body@32:
-    swap
     gtxns GroupIndex
     dig 1
     ==
@@ -136,13 +134,13 @@ main_for_body@32:
     b main_after_for@35
 
 main_for_header_2@34:
-    dup
     intc_1 // 2
+    dig 1
     b main_for_body@32
 
 main_for_header_1@33:
-    dig 1
     intc_0 // 1
+    dig 2
     b main_for_body@32
 
 main_application_call_route@8:

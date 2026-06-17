@@ -4,8 +4,6 @@
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
     intcblock 1 0 5 7
-    pushbytes ""
-    dupn 2
     // arc4_types/bool.py:15
     // False if Txn.num_app_args else True  # noqa: SIM211
     txn NumAppArgs
@@ -43,43 +41,39 @@ main:
     pushint 8
     /
     dup
-    uncover 2
+    cover 4
+    swap
     intc_3 // 7
     +
     pushint 8
     /
     dup
-    cover 2
+    cover 4
     <
     bz main_after_if_else@3
-    dup
     dig 2
+    dig 4
     -
     bzero
-    dig 3
-    swap
     concat
-    bury 3
 
 main_after_if_else@3:
     intc_1 // 0
-    bury 7
-    dig 3
+    uncover 2
     pushint 16
     +
     dup
-    bury 6
+    cover 2
     // arc4_types/bool.py:45-47
     // dynamic_boolean_array.extend(
     //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
     // )
     intc_2 // 5
     +
-    bury 6
 
 main_while_top@4:
-    dig 4
-    dig 6
+    dig 2
+    dig 1
     <
     bz main_after_while@6
     // arc4_types/bool.py:45-47
@@ -87,33 +81,33 @@ main_while_top@4:
     //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
     // )
     pushbytes 0xa8
-    dig 7
+    uncover 2
     dup
     cover 2
     getbit
-    dig 4
-    dig 7
+    uncover 4
+    uncover 4
     dup
     cover 3
     uncover 2
     setbit
-    bury 5
+    cover 3
     intc_0 // 1
     +
-    bury 6
+    cover 2
     // arc4_types/bool.py:45-47
     // dynamic_boolean_array.extend(
     //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
     // )
     intc_0 // 1
     +
-    bury 7
+    swap
     b main_while_top@4
 
 main_after_while@6:
+    popn 3
     // arc4_types/bool.py:48
     // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
-    dig 2
     pushbytes 0x0005a8
     ==
     assert

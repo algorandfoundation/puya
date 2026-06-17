@@ -123,67 +123,67 @@ subroutine silly:
         p-load x#0                                           (𝕡) x#0 | x#0 (copy)
         int 2                                                (𝕡) x#0 | x#0 (copy),2
         +                                                    (𝕡) x#0 | x#3
-        l-store-copy x#3 0                                   (𝕡) x#0 | x#3,x#3 (copy)
-        v-store x#3                                          (𝕡) x#0 | x#3
+        l-store-copy x#3 0                                   (𝕡) x#0 | x#3,x#3
+        x-store x#3                                          (𝕡) x#0 | (𝕏) x#3 | x#3
         // with_reentrancy/contract.py:50
         // is_even = x % 2 == 0
-        l-load-copy x#3 0                                    (𝕡) x#0 | x#3,x#3 (copy)
-        int 2                                                (𝕡) x#0 | x#3,x#3 (copy),2
-        %                                                    (𝕡) x#0 | x#3,tmp%0#0
-        l-store-copy tmp%0#0 1                               (𝕡) x#0 | tmp%0#0,x#3,tmp%0#0 (copy)
-        v-store tmp%0#0                                      (𝕡) x#0 | tmp%0#0,x#3
+        l-load-copy x#3 0                                    (𝕡) x#0 | (𝕏) x#3 | x#3,x#3 (copy)
+        int 2                                                (𝕡) x#0 | (𝕏) x#3 | x#3,x#3 (copy),2
+        %                                                    (𝕡) x#0 | (𝕏) x#3 | x#3,tmp%0#0
+        l-store-copy tmp%0#0 1                               (𝕡) x#0 | (𝕏) x#3 | tmp%0#0,x#3,tmp%0#0
+        x-store tmp%0#0                                      (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0,x#3
         // with_reentrancy/contract.py:51
         // a = x + 2
-        l-load x#3 0                                         (𝕡) x#0 | tmp%0#0,x#3
-        int 2                                                (𝕡) x#0 | tmp%0#0,x#3,2
-        +                                                    (𝕡) x#0 | tmp%0#0,a#0
-        v-store a#0                                          (𝕡) x#0 | tmp%0#0
+        l-load x#3 0                                         (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0,x#3
+        int 2                                                (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0,x#3,2
+        +                                                    (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0,a#0
+        v-store a#0                                          (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0
         // with_reentrancy/contract.py:52
         // if is_even:
-        l-load tmp%0#0 0                                     (𝕡) x#0 | tmp%0#0
-        bz silly_if_body@2 ; b silly_else_body@3             (𝕡) x#0 |
+        l-load tmp%0#0 0                                     (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%0#0
+        bz silly_if_body@2 ; b silly_else_body@3             (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
 
-    silly_if_body@2:                                         (𝕡) x#0 |
+    silly_if_body@2:                                         (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
         // with_reentrancy/contract.py:53
         // result = a * 2
-        v-load a#0                                           (𝕡) x#0 | a#0
-        int 2                                                (𝕡) x#0 | a#0,2
-        *                                                    (𝕡) x#0 | result#2
-        l-store-copy result#2 0                              (𝕡) x#0 | result#2,result#2 (copy)
-        v-store result#2                                     (𝕡) x#0 | result#2
+        v-load a#0                                           (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | a#0
+        int 2                                                (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | a#0,2
+        *                                                    (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2
+        l-store-copy result#2 0                              (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2,result#2 (copy)
+        v-store result#2                                     (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2
         // with_reentrancy/contract.py:54
         // a = result // 2 - 2
-        l-load result#2 0                                    (𝕡) x#0 | result#2
-        int 2                                                (𝕡) x#0 | result#2,2
-        /                                                    (𝕡) x#0 | tmp%4#0
-        int 2                                                (𝕡) x#0 | tmp%4#0,2
-        -                                                    (𝕡) x#0 | a#0
-        v-store a#0                                          (𝕡) x#0 |
-        b silly_after_if_else@4                              (𝕡) x#0 |
+        l-load result#2 0                                    (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2
+        int 2                                                (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2,2
+        /                                                    (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%4#0
+        int 2                                                (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | tmp%4#0,2
+        -                                                    (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | a#0
+        v-store a#0                                          (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
+        b silly_after_if_else@4                              (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
 
-    silly_else_body@3:                                       (𝕡) x#0 |
+    silly_else_body@3:                                       (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
         // with_reentrancy/contract.py:56
         // result = silly(x)
-        v-load x#3                                           (𝕡) x#0 | x#3
-        callsub silly                                        (𝕡) x#0 | result#2
-        v-store result#2                                     (𝕡) x#0 |
-        b silly_after_if_else@4                              (𝕡) x#0 |
+        x-load-copy x#3                                      (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | x#3 (copy)
+        callsub silly                                        (𝕡) x#0 | (𝕏) x#3,tmp%0#0 | result#2
+        v-store result#2                                     (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
+        b silly_after_if_else@4                              (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
 
-    silly_after_if_else@4:                                   (𝕡) x#0 |
+    silly_after_if_else@4:                                   (𝕡) x#0 | (𝕏) x#3,tmp%0#0 |
         // with_reentrancy/contract.py:58
         // if is_even:
-        v-load tmp%0#0                                       (𝕡) x#0 | tmp%0#0
-        bz silly_if_body@5 ; b silly_after_if_else@6         (𝕡) x#0 |
+        x-load tmp%0#0                                       (𝕡) x#0 | (𝕏) x#3 | tmp%0#0
+        bz silly_if_body@5 ; b silly_after_if_else@6         (𝕡) x#0 | (𝕏) x#3 |
 
-    silly_if_body@5:                                         (𝕡) x#0 |
-        v-load a#0                                           (𝕡) x#0 | a#0
-        v-store result#2                                     (𝕡) x#0 |
-        b silly_after_if_else@6                              (𝕡) x#0 |
+    silly_if_body@5:                                         (𝕡) x#0 | (𝕏) x#3 |
+        v-load a#0                                           (𝕡) x#0 | (𝕏) x#3 | a#0
+        v-store result#2                                     (𝕡) x#0 | (𝕏) x#3 |
+        b silly_after_if_else@6                              (𝕡) x#0 | (𝕏) x#3 |
 
-    silly_after_if_else@6:                                   (𝕡) x#0 |
+    silly_after_if_else@6:                                   (𝕡) x#0 | (𝕏) x#3 |
         // with_reentrancy/contract.py:60
         // log(Bytes(b"silly3 = ") + itoa(x))
-        v-load x#3                                           (𝕡) x#0 | x#3
+        x-load x#3                                           (𝕡) x#0 | x#3
         l-store-copy x#3 0                                   (𝕡) x#0 | x#3,x#3 (copy)
         callsub itoa                                         (𝕡) x#0 | x#3,tmp%7#0
         byte 0x73696c6c7933203d20                            (𝕡) x#0 | x#3,tmp%7#0,0x73696c6c7933203d20
