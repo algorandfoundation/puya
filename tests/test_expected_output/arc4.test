@@ -601,6 +601,106 @@ class MyContract(ARC4Contract):
     def d(self, arg: Bytes) -> BoxRef: 
         return BoxRef(key=arg)
 
+## case: create_without_valid_create_action
+from algopy import *
+
+class RequireUpdateOnly(ARC4Contract):
+    @arc4.abimethod(create="require", allow_actions=["UpdateApplication"]) ## W: arc56 clients will drop UpdateApplication on completion actions for creation method
+    def create_update(self) -> None:
+        pass
+
+class RequireUpdateAndDelete(ARC4Contract):
+    @arc4.abimethod(create="require", allow_actions=["UpdateApplication", "DeleteApplication"]) ## W: arc56 clients will drop UpdateApplication on completion actions for creation method
+    def create_update_or_delete(self) -> None:
+        pass
+
+class RequireCloseOutAndDelete(ARC4Contract):
+    # CloseOut is dropped from the spec and is also a dead create path, so warn about both
+    @arc4.abimethod(create="require", allow_actions=["CloseOut", "DeleteApplication"]) ## W: arc56 clients will drop CloseOut on completion actions for creation method \
+                                                                                       ## W: CloseOut on creation will always fail; consider removing it from allow_actions
+    def create_closeout_or_delete(self) -> None:
+        pass
+
+class RequireCloseOutAndUpdate(ARC4Contract):
+    # the only other option is Update, so warn about both the dropped
+    # OCAs and the dead CloseOut path
+    @arc4.abimethod(create="require", allow_actions=["UpdateApplication", "CloseOut"]) ## W: arc56 clients will drop UpdateApplication, CloseOut on completion actions for creation method \
+                                                                                      ## W: CloseOut on creation will always fail; consider removing it from allow_actions
+    def create_update_or_closeout(self) -> None:
+        pass
+
+class RequireCloseOutOnly(ARC4Contract):
+    @arc4.baremethod(create="require", allow_actions=["CloseOut"]) ## E: required creation method with "CloseOut" as only allowed OCA will always fail, rendering the contract undeployable through this method
+    def bare_create_closeout(self) -> None:
+        pass
+
+class AllowUpdateOnly(ARC4Contract):
+    @arc4.abimethod(create="allow", allow_actions=["UpdateApplication"]) ## W: arc56 clients will drop UpdateApplication on completion actions for creation method
+    def maybe_create_update(self) -> None:
+        pass
+
+class AllowUpdateAndDelete(ARC4Contract):
+    @arc4.abimethod(create="allow", allow_actions=["UpdateApplication", "DeleteApplication"])
+    def maybe_create_update_or_delete(self) -> None:
+        pass
+
+class AllowCloseOutAndDelete(ARC4Contract):
+    # DeleteApplication creates and CloseOut goes on the `call` list, so nothing to report
+    @arc4.abimethod(create="allow", allow_actions=["CloseOut", "DeleteApplication"])
+    def maybe_create_closeout_or_delete(self) -> None:
+        pass
+
+class AllowCloseOutAndUpdate(ARC4Contract):
+    @arc4.abimethod(create="allow", allow_actions=["UpdateApplication", "CloseOut"]) ## W: arc56 clients will drop UpdateApplication, CloseOut on completion actions for creation method
+    def maybe_create_update_or_closeout(self) -> None:
+        pass
+
+class AllowCloseOutOnly(ARC4Contract):
+    # create="allow" with only CloseOut is a dead create path: create + CloseOut always fails,
+    # so allowing creation for this method makes no sense
+    @arc4.baremethod(create="allow", allow_actions=["CloseOut"]) ## E: create="allow" with "CloseOut" as only OCA is a dead create path, consider switching to create="disallow"
+    def maybe_create_closeout(self) -> None:
+        pass
+
+class CloseOutCreateWithValidSibling(ARC4Contract):
+    # even though the contract is creatable via the NoOp create below,
+    # this method can never be invoked, so it errors regardless
+    @arc4.baremethod(create="require", allow_actions=["CloseOut"]) ## E: required creation method with "CloseOut" as only allowed OCA will always fail, rendering the contract undeployable through this method
+    def bare_create_closeout(self) -> None:
+        pass
+
+    @arc4.abimethod(create="require")
+    def create_noop(self) -> None:
+        pass
+
+class BareRequireUpdateOnly(ARC4Contract):
+    @arc4.baremethod(create="require", allow_actions=["UpdateApplication"]) ## W: arc56 clients will drop UpdateApplication on completion actions for creation method
+    def bare_create_update(self) -> None:
+        pass
+
+class BareRequireCloseOutAndDelete(ARC4Contract):
+    @arc4.baremethod(create="require", allow_actions=["CloseOut", "DeleteApplication"]) ## W: arc56 clients will drop CloseOut on completion actions for creation method \
+                                                                                        ## W: CloseOut on creation will always fail; consider removing it from allow_actions
+    def bare_create_closeout_or_delete(self) -> None:
+        pass
+
+class BareRequireCloseOutAndUpdate(ARC4Contract):
+    @arc4.baremethod(create="require", allow_actions=["UpdateApplication", "CloseOut"]) ## W: arc56 clients will drop UpdateApplication, CloseOut on completion actions for creation method \
+                                                                                       ## W: CloseOut on creation will always fail; consider removing it from allow_actions
+    def bare_create_update_or_closeout(self) -> None:
+        pass
+
+class BareAllowUpdateOnly(ARC4Contract):
+    @arc4.baremethod(create="allow", allow_actions=["UpdateApplication"]) ## W: arc56 clients will drop UpdateApplication on completion actions for creation method
+    def bare_maybe_create_update(self) -> None:
+        pass
+
+class BareAllowCloseOutAndUpdate(ARC4Contract):
+    @arc4.baremethod(create="allow", allow_actions=["UpdateApplication", "CloseOut"]) ## W: arc56 clients will drop UpdateApplication, CloseOut on completion actions for creation method
+    def bare_maybe_create_update_or_closeout(self) -> None:
+        pass
+
+
 ## case: test_string
 from algopy import arc4, subroutine
 
