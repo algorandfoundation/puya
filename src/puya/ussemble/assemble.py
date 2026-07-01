@@ -1,4 +1,5 @@
 import enum
+import itertools
 import struct
 import typing
 from collections import defaultdict
@@ -19,11 +20,17 @@ from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
 
 logger = log.get_logger(__name__)
 
+_AVM_VARINT_BRANCH_VERSION = 13
+# `varintBranchInitialSize` in go-algorand assemble
+_VARINT_BRANCH_INITIAL_SIZE = 3
+
 _BRANCHING_OPS = {
     op.name
     for op in OP_SPECS.values()
     if any(i in (ImmediateKind.label, ImmediateKind.label_array) for i in op.immediates)
 }
+# note multi-branch (switch, match) remain the same for now
+_VARINT_BRANCHING_OPS = {"b", "bz", "bnz", "callsub"}
 _CONSTANT_OPS = {
     op.name for op in OP_SPECS.values() if op.name.startswith(("intc", "bytec", "push"))
 }
@@ -48,36 +55,45 @@ def assemble_bytecode_and_debug_info(
     ctx: AssembleContext, program: teal.TealProgram
 ) -> models.AssembledProgram:
     version_bytes = _encode_varuint(program.avm_version)
+    use_varint_branches = program.avm_version >= _AVM_VARINT_BRANCH_VERSION
     pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
-    pc_ops = dict[int, models.AVMOp]()
-    label_pcs = dict[str, int]()
-    op_stats = defaultdict[_OpKind, list[int]](list)
 
-    # pc includes version header
-    pc = len(version_bytes)
-    # first pass lowers teal ops, and calculate pcs
+    lowered_ops = list[models.AVMOp]()
+    label_op_index = dict[str, int]()
+    error_messages = dict[int, str]()
+
+    # first pass does avm op lowering, caching labels and error messages
     for subroutine in program.all_subroutines:
         for block in subroutine.blocks:
-            assert block.label not in label_pcs, "expected unique block labels"
-            label_pcs[block.label] = pc
-
+            assert block.label not in label_op_index, "expected unique block labels"
+            label_op_index[block.label] = len(lowered_ops)
             for op in block.ops:
-                current_event = pc_events[pc]
                 if isinstance(op, teal.Intrinsic | teal.Assert | teal.Err) and op.error_message:
-                    current_event["error"] = op.error_message
-                avm_op = _lower_op(ctx, op)
-                # actual label offsets can't be determined until all PC values are known
-                # so just use a placeholder value initially
-                op_size = len(_encode_op(avm_op, get_label_offset=lambda _: 0))
-                assert op_size, "expected non empty bytecode"
-                pc_ops[pc] = avm_op
-                pc += op_size
+                    error_messages[len(lowered_ops)] = op.error_message
+                lowered_ops.append(_lower_op(ctx, op))
+
+    # second pass calculates pcs and resolves varint branch offsets
+    pcs, branch_offsets = _compute_pcs(
+        lowered_ops,
+        label_op_index,
+        start_pc=len(version_bytes),
+        varint_branches=use_varint_branches,
+    )
+    label_pcs = {label: pcs[index] for label, index in label_op_index.items()}
+    pc_ops = {pcs[index]: avm_op for index, avm_op in enumerate(lowered_ops)}
+
+    # populate pc_events for every op in pc order
+    for index in range(len(lowered_ops)):
+        event = pc_events[pcs[index]]
+        if index in error_messages:
+            event["error"] = error_messages[index]
+    op_stats = defaultdict[_OpKind, list[int]](list)
 
     # iterate again to capture debug info using calculated pcs
     if ctx.options.debug_level:
         function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
-        pc_ops_iter = iter((*pc_ops, pc))
-        pc = next(pc_ops_iter)
+        pcs_iter = iter(pcs)
+        pc = next(pcs_iter)
         for subroutine in program.all_subroutines:
             current_event = pc_events[pc]
             current_event["subroutine"] = subroutine.signature.name
@@ -103,20 +119,22 @@ def assemble_bytecode_and_debug_info(
                         stack,
                         defined,
                     )
-                    pc = next(pc_ops_iter)
+                    pc = next(pcs_iter)
 
-    # all pc values, including pc after final op
-    pcs = [*pc_ops, pc]
-    # second pass assembles final byte code
+    # third pass assembles final byte code
     bytecode = [version_bytes]
-    for op_index, avm_op in enumerate(pc_ops.values()):
+    for op_index, avm_op in enumerate(lowered_ops):
 
         def get_label_offset(label: models.Label) -> int:
-            # label offset is the signed PC difference
-            # between the label PC location and the end of the current op
-            return label_pcs[label.name] - pcs[op_index + 1]  # noqa: B023
+            # label offset for varuint branches already cached
+            # label offset for AVM v<13 or non varuint branches is the
+            # signed PC difference between the label PC location and
+            # the end of the current op
+            return branch_offsets.get(op_index, label_pcs[label.name] - pcs[op_index + 1])  # noqa: B023
 
-        op_bytes = _encode_op(avm_op, get_label_offset=get_label_offset)
+        op_bytes = _encode_op(
+            avm_op, get_label_offset=get_label_offset, varint_label_immediates=use_varint_branches
+        )
         bytecode.append(op_bytes)
 
         op_kind = _get_op_kind(avm_op)
@@ -130,7 +148,7 @@ def assemble_bytecode_and_debug_info(
             for var in ctx.template_variable_types
         },
         stats=_get_op_stats(op_stats),
-        instruction_boundaries=[*pc_ops.keys(), pc],
+        instruction_boundaries=pcs,
     )
 
 
@@ -242,9 +260,9 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
                 immediates=[models.Label(name=label_id)],
                 source_location=loc,
             )
-        case teal.TealOp(
-            op_code="switch" | "match" as op_code, immediates=label_ids
-        ) if _is_sequence(label_ids, str):
+        case teal.TealOp(op_code="switch" | "match" as op_code, immediates=label_ids) if (
+            _is_sequence(label_ids, str)
+        ):
             return models.AVMOp(
                 op_code=op_code,
                 immediates=[[models.Label(label_id) for label_id in label_ids]],
@@ -290,9 +308,79 @@ def _resolve_template_vars[T: (int, bytes)](
     return result
 
 
-def _encode_op(op: models.AVMOp, *, get_label_offset: Callable[[models.Label], int]) -> bytes:
+def _compute_pcs(
+    ops: Sequence[models.AVMOp],
+    label_op_index: Mapping[str, int],
+    *,
+    start_pc: int,
+    varint_branches: bool,
+) -> tuple[list[int], dict[int, int]]:
+    op_sizes = list[int]()
+    varint_branch_indexes = list[int]()
+    for index, op in enumerate(ops):
+        # actual label offsets can't be determined until all PC values are known
+        # so just use placeholder values initially
+        if varint_branches and op.op_code in _VARINT_BRANCHING_OPS:
+            varint_branch_indexes.append(index)
+            op_sizes.append(
+                _VARINT_BRANCH_INITIAL_SIZE + 1
+            )  # add 1 b.c. of opcode size (see TODO below)
+        else:
+            op_size = len(
+                _encode_op(
+                    op, get_label_offset=lambda _: 0, varint_label_immediates=varint_branches
+                )
+            )
+            assert op_size, "expected non empty bytecode"
+            op_sizes.append(op_size)
+
+    branch_offsets = dict[int, int]()
+
+    # iteratively shrink varint branch placeholders to the minimum size needed,
+    # recomputing pcs until no changes are observed
+    changed = True
+    while changed:
+        changed = False
+        pcs = list(itertools.accumulate(op_sizes, initial=start_pc))
+        for index in varint_branch_indexes:
+            op = ops[index]
+            (label,) = op.immediates
+            assert isinstance(label, models.Label), "expected label immediate"
+            op_start = pcs[index]
+            op_end = pcs[index + 1]
+            dest = pcs[label_op_index[label.name]]
+            if dest == op_start:
+                raise InternalError(
+                    f"jump '{op.op_code}' to start of same instruction cannot be encoded",
+                    op.source_location,
+                )
+            # back jumps are measured from the op start, forward jumps from the op end
+            jump = (dest - op_start) if dest < op_start else (dest - op_end)
+            branch_offsets[index] = jump
+            needed = len(_encode_signed_varint(jump))
+            if needed > _VARINT_BRANCH_INITIAL_SIZE:
+                raise InternalError(
+                    f"branch target for {op.op_code} is too far away",
+                    op.source_location,
+                )
+            # TODO: for now we don't have any ops that are more than 1 byte,
+            # much less a branching op. But a soon to be merged PR will carry
+            # multi-byte opcodes. So probably a good idea to make these magic
+            # +/-1s to be the opcode size when that's done
+            if needed < op_sizes[index] - 1:
+                op_sizes[index] = needed + 1
+                changed = True
+    return pcs, branch_offsets
+
+
+def _encode_op(
+    op: models.AVMOp,
+    *,
+    get_label_offset: Callable[[models.Label], int],
+    varint_label_immediates: bool,
+) -> bytes:
     op_spec = op.op_spec
-    bytecode = _encode_uint8(op.op_spec.code)
+    bytecode = _encode_uint8(op_spec.code)
     for immediate_kind, immediate in zip(op_spec.immediates, op.immediates, strict=True):
         match immediate_kind:
             case ImmediateKind.uint8 if isinstance(immediate, int):
@@ -312,7 +400,10 @@ def _encode_op(op: models.AVMOp, *, get_label_offset: Callable[[models.Label], i
                 bytecode += _encode_bytes_array(immediate)
             case ImmediateKind.label if isinstance(immediate, models.Label):
                 offset = get_label_offset(immediate)
-                bytecode += _encode_label(offset)
+                if varint_label_immediates:
+                    bytecode += _encode_signed_varint(offset)
+                else:
+                    bytecode += _encode_label(offset)
             case ImmediateKind.label_array if _is_sequence(immediate, models.Label):
                 offsets = [get_label_offset(label) for label in immediate]
                 bytecode += _encode_label_array(offsets)
@@ -335,6 +426,12 @@ def _encode_varuint(value: int) -> bytes:
         bits = value & 0x7F
         value >>= 7
     return result + _encode_uint8(bits)
+
+
+def _encode_signed_varint(value: int) -> bytes:
+    # Go binary.Varint (zig-zag+ULEB128)
+    zig_zag = (value << 1) ^ (value >> 63)
+    return _encode_varuint(zig_zag)
 
 
 def _encode_bytes(value: bytes) -> bytes:
@@ -361,5 +458,5 @@ def _encode_bytes_array(values: Sequence[bytes]) -> bytes:
     )
 
 
-def _is_sequence[_T](maybe: object, typ: type[_T]) -> typing.TypeGuard[Sequence[_T]]:
+def _is_sequence[T](maybe: object, typ: type[T]) -> typing.TypeGuard[Sequence[T]]:
     return isinstance(maybe, Sequence) and all(isinstance(m, typ) for m in maybe)
