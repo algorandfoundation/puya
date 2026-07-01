@@ -17,7 +17,6 @@ from tests.utils import PuyaTestCase
 from tests.utils.compile import compile_from_test_case
 
 
-# TODO: add v13 coverage to compare varint branch encoding against algod (go-algorand#6600)
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
 @pytest.mark.localnet
 def test_assemble_matches_algod(
@@ -28,6 +27,15 @@ def test_assemble_matches_algod(
     )
     template_vars = compile_result.options.template_variables
     for artifact in compile_result.teal:
+        # TODO: delete this once avm13 hits localnet
+        program = (
+            artifact.program
+            if isinstance(artifact, CompiledLogicSig)
+            else artifact.approval_program
+        )
+        if int(program.teal_src.splitlines()[0].split()[2]) >= 13:
+            continue
+
         match artifact:
             case CompiledContract(approval_program=approval, clear_program=clear):
                 assemble_and_compare_program(
