@@ -7,6 +7,7 @@ import cyclopts
 
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
 from puya.errors import PuyaExitError
+from puya.ir.optimize.main import get_subroutine_optimizations
 from puya.log import LogLevel, configure_logging, get_logger
 from puya.options import LocalsCoalescingStrategy
 from puyapy.compile import compile_to_teal
@@ -42,6 +43,27 @@ _InternalOutputToggle = Annotated[
     bool, cyclopts.Parameter(group=_additional_outputs_group, negative=())
 ]
 
+def optimization_config_parser(config_text: str) -> dict[str, bool]:
+    config_text = config_text.strip()
+    if not config_text:
+        return {}
+
+    config = dict[str, bool]()
+    valid_optimization_names = { opt.id for opt in get_subroutine_optimizations() }
+    had_invalid_opt_names = False
+
+    for line in config_text.split(";"):
+        line = line.strip()
+        force_enable = not line.startswith("-")
+        pass_name = line[1:] if line.startswith(("+", "-")) else line
+        if pass_name in valid_optimization_names:
+            config[pass_name] = force_enable
+        else:
+            logger.warning(f"Ignoring unrecognized optimization pass name: {pass_name}")
+            had_invalid_opt_names = True
+    if had_invalid_opt_names:
+        logger.info(f"Known optimization passes are: {', '.join(valid_optimization_names)}")
+    return config
 
 @_app.default
 def puyapy(
@@ -67,6 +89,7 @@ def puyapy(
     optimization_level: Annotated[
         Literal[0, 1, 2], cyclopts.Parameter(alias="-O", group=_compilation_group)
     ] = 1,
+    optimization_config: Annotated[str, cyclopts.Parameter(group=_compilation_group)] = "",
     treat_warnings_as_errors: Annotated[
         bool, cyclopts.Parameter(alias="-Werror", group=_compilation_group)
     ] = False,
@@ -129,6 +152,10 @@ def puyapy(
                                 block optimization
         output_op_statistics: Output statistics about ops used for each program compiled
         optimization_level: Set optimization level of output TEAL / AVM bytecode
+        optimization_config: Configure the main optimization pipeline. Should be specified as
+                             semicolon separated list of optimization passses. `+pass_name`
+                             force-enables it and `-pass_name` force-disables it, e.g.
+                             --optimization-config="-perform_subroutine_inlining;+minimize_box_exist_asserts".
         treat_warnings_as_errors: Treat all compiler warnings as errors
         debug_level: Output debug information level, 0 = none,
                      1 = debug, 2 = reserved for future use
@@ -169,6 +196,8 @@ def puyapy(
         validate_abi_args = validate_abi_values
         validate_abi_return = validate_abi_values
 
+    parsed_optimization_config = optimization_config_parser(optimization_config)
+
     options = PuyaPyOptions(
         paths=paths,
         out_dir=out_dir,
@@ -198,6 +227,7 @@ def puyapy(
         validate_abi_return=validate_abi_return,
         template_vars_prefix=template_vars_prefix,
         cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
+        optimizations_override=parsed_optimization_config
     )
     try:
         compile_to_teal(options)
