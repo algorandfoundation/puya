@@ -7,6 +7,10 @@ import prettytable
 from puya.context import ArtifactCompileContext
 from puya.teal import models
 
+# First AVM version where algod itself auto-salts (and recognises `#pragma autosalt`)
+# Below it an explicit `#pragma autosalt false` is redundant and so is not emitted
+_LOGICSIG_OFF_CURVE_VERSION = 13
+
 
 def emit_teal(
     context: ArtifactCompileContext,
@@ -19,8 +23,15 @@ def emit_teal(
     result = [
         f"#pragma version {program.avm_version}",
         "#pragma typetrack false",
-        "",
     ]
+    # emit an explicit autosalt pragma to keep behavior in sync with algod.
+    # below v13 algod never auto-salts, so `false` there is redundant with omitting the pragma
+    # `true` is always emitted: below v13, omitting it would drop the salt puya applied
+    if program.autosalt:
+        result.append("#pragma autosalt true")
+    elif program.avm_version >= _LOGICSIG_OFF_CURVE_VERSION:
+        result.append("#pragma autosalt false")
+    result.append("")
     for idx, subroutine in enumerate(program.all_subroutines):
         if idx > 0:
             result.append("")
@@ -55,6 +66,7 @@ def emit_assembly_report(
     program: models.TealProgram,
     bytecode: bytes,
     instruction_boundaries: Sequence[int],
+    salt: bytes = b"",
 ) -> str:
     # Entries are a 5-tuple (pc, bytes, teal, source, location):
     # - When a new line is to be used it has its own row
@@ -145,6 +157,20 @@ def emit_assembly_report(
                     ]
                 )
                 isn_idx += 1
+
+    # a logicsig off-curve salt is a trailing `intcblock <n>` appended after the last op,
+    # where `n` is the searched extra byte (last byte of `salt`)
+    # it maps to no source, so show it on its own row
+    if salt:
+        writer.add_row(
+            [
+                str(len(bytecode) - len(salt)),
+                salt.hex(" "),
+                f"{indent}intcblock {salt[-1]} // off-curve salt",
+                "",
+                "",
+            ]
+        )
 
     return writer.get_string()
 
