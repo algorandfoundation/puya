@@ -1,6 +1,7 @@
 from puya.awst import nodes as awst_nodes
 from puya.awst.validation.abi_method_name import AbiMethodNameValidator
 from puya.awst.validation.arc4_create_actions import ARC4CreateActionsValidator
+from puya.awst.validation.autosalt import AutosaltValidator
 from puya.awst.validation.base_invoker import BaseInvokerValidator
 from puya.awst.validation.immutable import ImmutableValidator
 from puya.awst.validation.inner_transactions import (
@@ -24,3 +25,4 @@ def validate_awst(module: awst_nodes.AWST) -> None:
     AbiMethodNameValidator.validate(module)
     ARC4CreateActionsValidator.validate(module)
     LoggedErrorsValidator.validate(module)
+    AutosaltValidator.validate(module)
