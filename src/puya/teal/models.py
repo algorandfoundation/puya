@@ -667,6 +667,7 @@ class TealProgram:
     avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]
+    autosalt: bool = False
 
     @property
     def all_subroutines(self) -> Iterable[TealSubroutine]:
