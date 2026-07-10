@@ -293,6 +293,7 @@ def _build_logic_sig_ir(
         program,
         kind=ProgramKind.logic_signature,
         avm_version=avm_version,
+        autosalt=logic_sig.autosalt,
         reserved_scratch_space=logic_sig.reserved_scratch_space,
     )
     return LogicSignature(
@@ -383,6 +384,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         contract.approval_program,
         kind=ProgramKind.approval,
         avm_version=avm_version,
+        autosalt=contract.autosalt,
         reserved_scratch_space=contract.reserved_scratch_space,
     )
     clear_state_ir = _make_program(
@@ -390,6 +392,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         contract.clear_program,
         kind=ProgramKind.clear_state,
         avm_version=avm_version,
+        autosalt=contract.autosalt,
         reserved_scratch_space=contract.reserved_scratch_space,
     )
     return Contract(
@@ -452,6 +455,7 @@ def _make_program(
     *,
     kind: ProgramKind,
     avm_version: int,
+    autosalt: bool | None,
     reserved_scratch_space: Set[int],
 ) -> Program:
     assert not main.args, "main method should not have args"
@@ -472,6 +476,7 @@ def _make_program(
         main=main_sub,
         subroutines=tuple(ctx.subroutines.values()),
         avm_version=avm_version,
+        autosalt=autosalt,
         slot_allocation=SlotAllocation(
             reserved=reserved_scratch_space,
             strategy=SlotAllocationStrategy.none,

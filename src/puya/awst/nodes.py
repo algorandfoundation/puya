@@ -2501,6 +2501,8 @@ class LogicSignature(RootNode):
     reserved_scratch_space: Set[int]
     """Scratch slots that the logicsig is explicitly setting aside for direct/explicit usage."""
     avm_version: int | None = attrs.field(validator=_validate_avm_version)
+    autosalt: bool | None = None
+    """Off-curve autosalt override. `None` applies the default (salt lsigs on v>=13)"""
     validate_encoding: bool | None = None
 
     @program.validator
@@ -2627,6 +2629,8 @@ class Contract(RootNode):
     """Scratch slots that the contract is explicitly setting aside for direct/explicit usage."""
     avm_version: int | None = attrs.field(validator=_validate_avm_version)
     """AVM version to target, defaults to options.target_avm_version"""
+    autosalt: bool | None = None
+    """Off-curve autosalt override. `None` leaves contracts unsalted (#pragma emitted on v>=13)"""
 
     @approval_program.validator
     def check_approval(self, _attribute: object, approval: ContractMethod) -> None:

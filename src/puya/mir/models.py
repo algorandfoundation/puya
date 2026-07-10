@@ -740,6 +740,7 @@ class Program:
     subroutines: list[MemorySubroutine]
     avm_version: int
     slot_allocation: SlotAllocation | None
+    autosalt: bool | None = None
 
     @property
     def all_subroutines(self) -> Iterator[MemorySubroutine]:

@@ -49,6 +49,7 @@ StatementResult: typing.TypeAlias = list[DeferredRootNode]
 class _LogicSigDecoratorInfo:
     name_override: str | None
     avm_version: int | None
+    autosalt: bool | None
     scratch_slots: Set[int]
     validate_encoding: bool | None
 
@@ -116,6 +117,7 @@ class ModuleASTConverter(
                     docstring=func_def.docstring,
                     source_location=logicsig_dec.loc,
                     avm_version=info.avm_version,
+                    autosalt=info.autosalt,
                     reserved_scratch_space=info.scratch_slots,
                     validate_encoding=info.validate_encoding,
                 )
@@ -149,6 +151,7 @@ class ModuleASTConverter(
     def _process_logic_sig_decorator(self, decorator: DecoratorInfo) -> _LogicSigDecoratorInfo:
         name_override = None
         avm_version = None
+        autosalt: bool | None = None
         validate_encoding: bool | None = None
         scratch_slot_reservations = set[int]()
         for arg_data in decorator.args or ():
@@ -166,6 +169,12 @@ class ModuleASTConverter(
                         avm_version = version_const
                     else:
                         self.context.error("expected an int", arg)
+                case "autosalt":
+                    autosalt_const = self.visit_expression(arg)
+                    if isinstance(autosalt_const, bool):
+                        autosalt = autosalt_const
+                    else:
+                        self.context.error("expected a bool", arg)
                 case "validate_encoding":
                     enc_const = self.visit_expression(arg)
                     if not isinstance(enc_const, str):
@@ -196,6 +205,7 @@ class ModuleASTConverter(
         return _LogicSigDecoratorInfo(
             name_override=name_override,
             avm_version=avm_version,
+            autosalt=autosalt,
             scratch_slots=scratch_slot_reservations,
             validate_encoding=validate_encoding,
         )
@@ -618,6 +628,7 @@ def _process_contract_class_options(
     scratch_slot_reservations = set[int]()
     state_totals = None
     avm_version = None
+    autosalt: bool | None = None
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -665,6 +676,12 @@ def _process_contract_class_options(
                         avm_version = version_value
                     else:
                         context.error("unexpected argument type", kw_expr)
+                case "autosalt":
+                    autosalt_value = expr_visitor.visit_expression(kw_expr)
+                    if isinstance(autosalt_value, bool):
+                        autosalt = autosalt_value
+                    else:
+                        context.error("unexpected argument type", kw_expr)
                 case "metaclass":
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
@@ -674,6 +691,7 @@ def _process_contract_class_options(
         scratch_slot_reservations=scratch_slot_reservations,
         state_totals=state_totals,
         avm_version=avm_version,
+        autosalt=autosalt,
     )
 
 

@@ -1491,6 +1491,7 @@ class Program(Context):
     subroutines: Sequence[Subroutine]
     avm_version: int
     slot_allocation: SlotAllocation
+    autosalt: bool | None = None
     source_location: SourceLocation | None = None
 
     def __attrs_post_init__(self) -> None:

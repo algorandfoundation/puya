@@ -233,6 +233,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             reserved_scratch_space=self.fragment.reserved_scratch_space,
             state_totals=self.fragment.options.state_totals,
             avm_version=self.fragment.options.avm_version,
+            autosalt=self.fragment.options.autosalt,
         )
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:

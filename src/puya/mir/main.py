@@ -42,6 +42,7 @@ def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -
         subroutines=mir_subroutines,
         avm_version=program_ir.avm_version,
         slot_allocation=mir_allocation,
+        autosalt=program_ir.autosalt,
     )
     if ctx.options.output_memory_ir:
         output_memory_ir(ctx, result, qualifier="build")
