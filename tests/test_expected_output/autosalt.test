@@ -1,0 +1,56 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: autosalt_false_on_logicsig_warns_any_version
+
+from algopy import UInt64, logicsig
+
+@logicsig(avm_version=13, autosalt=False)  ## W: autosalt=False leaves this LogicSig's address on-curve, i.e. potentially decodable as a public key
+def unsafe_sig_v13() -> UInt64:
+    return UInt64(1)
+
+@logicsig(avm_version=12, autosalt=False)  ## W: autosalt=False leaves this LogicSig's address on-curve, i.e. potentially decodable as a public key
+def unsafe_sig_v12() -> UInt64:
+    return UInt64(1)
+
+@logicsig(avm_version=12)
+def default_sig_v12() -> UInt64:
+    return UInt64(1)
+
+@logicsig(avm_version=13)
+def default_sig_v13() -> UInt64:
+    return UInt64(1)
+
+@logicsig(avm_version=13, autosalt=True)
+def salted_sig_v13() -> UInt64:
+    return UInt64(1)
+
+@logicsig(avm_version=12, autosalt=True)
+def salted_sig_v12() -> UInt64:
+    return UInt64(1)
+
+## case: autosalt_true_on_contract_warns
+
+from algopy import Contract
+
+class SaltedContract(Contract, autosalt=True):  ## W: autosalt=True has no security benefit for a contract since its program hash is never used as a spendable address
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+class DefaultContract(Contract):
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+class UnsaltedContract(Contract, autosalt=False):
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
