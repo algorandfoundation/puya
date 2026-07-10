@@ -130,6 +130,43 @@ def method_selector_hash(method_signature: str) -> bytes:
     return sha512_256_hash(method_signature.encode("utf8"))[:4]
 
 
+# TODO: what follows is an AI assisted translation of the check as performed in
+# filippo.io/edwards25519 (Point.SetBytes).
+# When a decision is made as to what the "single source of truth" for this check
+# should be for python packages, we should replace this for said dependency.
+def is_edwards25519_point(encoded: bytes) -> bool:
+    """Whether ``encoded`` decodes as an Edwards25519 curve point, mirroring go-algorand's
+    ``crypto.IsEdwards25519Point`` (filippo's ``Point.SetBytes`` succeeding); used to
+    off-curve-harden LogicSig addresses by salting until the hash is *not* a point.
+
+    Deliberately broader than strict Ed25519 public-key validation - small-order points and a
+    non-canonical sign bit or ``y`` are accepted - so a strict library decoder can't be used.
+    """
+    # Edwards25519 curve parameters (RFC 8032)
+    p: typing.Final = 2**255 - 19  # the field prime, 2^255 - 19
+    d: typing.Final = (
+        -121665 * pow(121666, -1, p)
+    ) % p  # the curve constant d = -121665 / 121666 (mod p)
+
+    if len(encoded) != 32:
+        return False
+    # y is the low 255 bits, little-endian; the top bit (the x sign) is masked off and, per the
+    # reference decoder, plays no part in whether a point exists. Reducing mod p matches the
+    # field arithmetic (so e.g. the non-canonical y == p behaves as y == 0).
+    y = (int.from_bytes(encoded, "little") & ((1 << 255) - 1)) % p
+    y2 = y * y % p
+    u = (y2 - 1) % p
+    v = (d * y2 + 1) % p
+    # a point exists iff u/v is a square (mod p). Mirrors `field.Element.SqrtRatio`'s `wasSquare`
+    # (constant-time, not a Legendre symbol) so edge cases like v == 0 match go-algorand: with
+    # r = (u*v^3) * (u*v^7)^((p-5)/8), a root exists iff v*r^2 is u or -u.
+    v3 = v * v % p * v % p
+    v7 = v3 * v3 % p * v % p
+    r = u * v3 % p * pow(u * v7 % p, (p - 5) // 8, p) % p
+    check = v * r % p * r % p
+    return check == u % p or check == (-u) % p
+
+
 def attrs_extend[T: attrs.AttrsInstance](
     new_type: type[T], base_instance: attrs.AttrsInstance, **changes: object
 ) -> T:
