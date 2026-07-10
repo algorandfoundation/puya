@@ -37,3 +37,5 @@ class AssembledProgram:
     """Indicates template variable values used in compilation"""
     stats: Mapping[str, int]
     instruction_boundaries: Sequence[int]
+    salt: bytes = b""
+    """Trailing off-curve salt appended to `bytecode` (empty if none)"""

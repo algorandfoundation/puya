@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
+from puya.algo_constants import HASH_PREFIX_PROGRAM
 from puya.compilation_artifacts import DebugEvent
 from puya.errors import InternalError
 from puya.parse import SourceLocation
@@ -17,12 +18,16 @@ from puya.ussemble.debug import build_debug_info
 from puya.ussemble.models import AVMOp
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
+from puya.utils import is_edwards25519_point, sha512_256_hash
 
 logger = log.get_logger(__name__)
 
 _AVM_VARINT_BRANCH_VERSION = 13
 # `varintBranchInitialSize` in go-algorand assemble
 _VARINT_BRANCH_INITIAL_SIZE = 3
+# `assemblerSaltSearchLimit` in go-algorand assemble. 0..127 candidates are tried.
+# Probability of all being on-curve is ~2^-128.
+_ASSEMBLER_SALT_SEARCH_LIMIT = 128
 
 _BRANCHING_OPS = {
     op.name
@@ -140,8 +145,16 @@ def assemble_bytecode_and_debug_info(
         op_kind = _get_op_kind(avm_op)
         op_stats[op_kind].append(len(op_bytes))
 
+    program_bytecode = b"".join(bytecode)
+    final_bytecode = (
+        program_bytecode if not program.autosalt else _apply_autosalt(program_bytecode)
+    )
+    salt = final_bytecode[len(program_bytecode) :]
+    if salt:
+        op_stats[_OpKind.constant].append(len(salt))
+
     return models.AssembledProgram(
-        bytecode=b"".join(bytecode),
+        bytecode=final_bytecode,
         debug_info=build_debug_info(ctx, pc_ops, pc_events),
         template_variables={
             var: ctx.provided_template_variables.get(var, (None, None))[0]
@@ -149,6 +162,28 @@ def assemble_bytecode_and_debug_info(
         },
         stats=_get_op_stats(op_stats),
         instruction_boundaries=pcs,
+        salt=salt,
+    )
+
+
+def _program_hash_on_curve(program: bytes) -> bool:
+    return is_edwards25519_point(sha512_256_hash(HASH_PREFIX_PROGRAM + program))
+
+
+def _apply_autosalt(program: bytes) -> bytes:
+    """Append a trailing intcblock salt so the program hash is off-curve (as needed)."""
+    # program is already off-curve, return as is
+    if not _program_hash_on_curve(program):
+        return program
+
+    intcblock_code = OP_SPECS["intcblock"].code
+    for salt in range(_ASSEMBLER_SALT_SEARCH_LIMIT):
+        # trailing `intcblock 1 <salt>` constant block to alter the hash
+        candidate = program + bytes((intcblock_code, 1, salt))
+        if not _program_hash_on_curve(candidate):
+            return candidate
+    raise InternalError(
+        "could not find a trailing intcblock salt that yields an off-curve program"
     )
 
 
