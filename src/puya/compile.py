@@ -290,7 +290,7 @@ def _compile_program(
     assembled = assemble_program(context, ref, program)
     if context.options.output_assembly_report:
         assembly_report = emit_assembly_report(
-            context, program, assembled.bytecode, assembled.instruction_boundaries
+            context, program, assembled.bytecode, assembled.instruction_boundaries, assembled.salt
         )
     else:
         assembly_report = None
