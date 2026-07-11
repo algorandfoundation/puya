@@ -35,6 +35,9 @@ def test_assemble_matches_algod(
         )
         if int(program.teal_src.splitlines()[0].split()[2]) >= 13:
             continue
+        # TODO: delete this once localnet supports `#pragma autosalt`
+        if "#pragma autosalt" in program.teal_src:
+            continue
 
         match artifact:
             case CompiledContract(approval_program=approval, clear_program=clear):
