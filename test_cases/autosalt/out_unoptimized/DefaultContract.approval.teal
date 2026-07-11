@@ -1,0 +1,92 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // autosalt/contract.py:35-36
+    // # the contracts all share the same body, so their programs differ only by salting behavior
+    // class DefaultContract(ARC4Contract, avm_version=13):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // autosalt/contract.py:35-36
+    // # the contracts all share the same body, so their programs differ only by salting behavior
+    // class DefaultContract(ARC4Contract, avm_version=13):
+    txna ApplicationArgs 0
+    pushbytes 0xe83a87ab // method "noop()void"
+    uncover 1
+    match main_noop_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // autosalt/contract.py:35-36
+    // # the contracts all share the same body, so their programs differ only by salting behavior
+    // class DefaultContract(ARC4Contract, avm_version=13):
+    err
+
+main_noop_route@3:
+    // autosalt/contract.py:37
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub noop
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.autosalt.contract.DefaultContract.__algopy_default_create@9
+
+main_after_inlined_test_cases.autosalt.contract.DefaultContract.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.autosalt.contract.DefaultContract.noop[routing]() -> void:
+noop:
+    b noop_block@0
+
+noop_block@0:
+    // autosalt/contract.py:37
+    // @arc4.abimethod
+    callsub test_cases.autosalt.contract.DefaultContract.noop
+    intc_1 // 1
+    return
+
+
+// test_cases.autosalt.contract.DefaultContract.noop() -> void:
+test_cases.autosalt.contract.DefaultContract.noop:
+    b test_cases.autosalt.contract.DefaultContract.noop_block@0
+
+test_cases.autosalt.contract.DefaultContract.noop_block@0:
+    retsub

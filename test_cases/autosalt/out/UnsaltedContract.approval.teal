@@ -1,0 +1,31 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // autosalt/contract.py:42
+    // class UnsaltedContract(ARC4Contract, avm_version=13, autosalt=False):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xe83a87ab // method "noop()void"
+    txna ApplicationArgs 0
+    match main_noop_route@3
+    err
+
+main_noop_route@3:
+    // autosalt/contract.py:43
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
