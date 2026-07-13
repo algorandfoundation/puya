@@ -18,8 +18,8 @@ from puya.parse import SourceLocation
 from puya.utils import coalesce, set_add
 
 __all__ = [
-    "create_abi_router",
     "AWSTContractMethodSignature",
+    "create_abi_router",
 ]
 
 logger = log.get_logger(__name__)
@@ -269,17 +269,6 @@ def _bit_and(
     )
 
 
-def _uint64_sub(
-    lhs: awst_nodes.Expression, rhs: awst_nodes.Expression, location: SourceLocation
-) -> awst_nodes.Expression:
-    return awst_nodes.UInt64BinaryOperation(
-        source_location=location,
-        left=lhs,
-        op=awst_nodes.UInt64BinaryOperator.sub,
-        right=rhs,
-    )
-
-
 def _bit_packed_oca(
     allowed_oca: Iterable[OnCompletionAction], location: SourceLocation
 ) -> awst_nodes.Expression:
@@ -385,6 +374,24 @@ def _assert_statement(
     )
 
 
+def group_transaction_reference(
+    wtype: wtypes.WGroupTransaction,
+    transaction_arg_offset: int,
+    location: SourceLocation,
+) -> awst_nodes.GroupTransactionReference:
+    """Reference the transaction `transaction_arg_offset` positions before the current one,
+    asserting the transaction type by AWST node construction if `wtype` specifies one."""
+    transaction_index = awst_nodes.UInt64BinaryOperation(
+        source_location=location,
+        left=_txn("GroupIndex", wtypes.uint64_wtype, location),
+        op=awst_nodes.UInt64BinaryOperator.sub,
+        right=_constant(transaction_arg_offset, location),
+    )
+    return awst_nodes.GroupTransactionReference(
+        index=transaction_index, wtype=wtype, source_location=location
+    )
+
+
 def _map_abi_args(
     arg_types: Sequence[wtypes.WType],
     location: SourceLocation,
@@ -432,14 +439,7 @@ def _map_abi_args(
 
     for arg in arg_types:
         if isinstance(arg, wtypes.WGroupTransaction):
-            transaction_index = _uint64_sub(
-                _txn("GroupIndex", wtypes.uint64_wtype, location),
-                _constant(transaction_arg_offset, location),
-                location,
-            )
-            yield awst_nodes.GroupTransactionReference(
-                index=transaction_index, wtype=arg, source_location=location
-            )
+            yield group_transaction_reference(arg, transaction_arg_offset, location)
             transaction_arg_offset -= 1
         else:
             abi_arg = abi_args.pop()
