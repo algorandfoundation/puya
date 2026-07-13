@@ -21,7 +21,7 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._utils import deep_copy, make_subroutine
-from puya.ir.arc4_router import AWSTContractMethodSignature
+from puya.ir.arc4_router import AWSTContractMethodSignature, group_transaction_reference
 from puya.ir.builder.aggregates.main import lower_aggregate_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
@@ -233,14 +233,28 @@ def _lower_logic_sig_args(
     # Prepends assignment statements that read each arg via the `arg` opcode,
     # with appropriate type conversion (and optionally validation), then
     # clears the arg list.
+    # Group transaction typed args consume no positions in the args array,
+    # instead they bind to the transactions immediately preceding the signed
+    # transaction, in declaration order (matching the ARC-4 routing convention).
 
     if not program.args:
         return program
 
+    transaction_arg_offset = sum(
+        isinstance(arg.wtype, wtypes.WGroupTransaction) for arg in program.args
+    )
     arg_assignments = list[awst_nodes.Statement]()
-    for arg_idx, arg in enumerate(program.args):
+    arg_idx = 0
+    for arg in program.args:
         loc = arg.source_location
-        converted = _lower_single_arg(arg.wtype, arg_idx, validate=validate, loc=loc)
+        if isinstance(arg.wtype, wtypes.WGroupTransaction):
+            converted: awst_nodes.Expression = group_transaction_reference(
+                arg.wtype, transaction_arg_offset, loc
+            )
+            transaction_arg_offset -= 1
+        else:
+            converted = _lower_single_arg(arg.wtype, arg_idx, validate=validate, loc=loc)
+            arg_idx += 1
         target = awst_nodes.VarExpression(
             name=arg.name,
             wtype=arg.wtype,
