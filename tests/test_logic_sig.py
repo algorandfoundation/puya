@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import pytest
@@ -7,6 +7,7 @@ from algokit_utils import (
     AddressWithSigners,
     AlgoAmount,
     AlgorandClient,
+    AppCreateParams,
     AssetTransferParams,
     LogicSigAccount,
     PaymentParams,
@@ -151,11 +152,16 @@ def test_pre_approved_sale(
     assert result.confirmations[1].confirmed_round is not None
 
 
+_ALWAYS_APPROVE_TEAL = "#pragma version 10\nint 1"
+_TxnParams = PaymentParams | AppCreateParams
+
+
 def _execute_logic_sig(
     localnet: AlgorandClient,
     funder: AddressWithSigners,
     bytecode: bytes,
     args: list[bytes],
+    preceding_txns: Sequence[_TxnParams] | None = None,
 ) -> None:
     logic_sig = LogicSigAccount(logic=bytecode, args=args)
     localnet.account.set_signer(logic_sig.addr, logic_sig.signer)
@@ -166,24 +172,22 @@ def _execute_logic_sig(
             amount=AlgoAmount.from_algo(2),
         )
     )
-    result = (
-        localnet.new_group()
-        .add_payment(
-            PaymentParams(
-                sender=funder.addr,
-                receiver=funder.addr,
-                amount=AlgoAmount.from_micro_algo(0),
-            )
+    composer = localnet.new_group()
+    # gtxn typed lsig args bind to the transactions immediately preceding
+    # the lsig transaction
+    for txn_params in preceding_txns or ():
+        match txn_params:
+            case PaymentParams():
+                composer = composer.add_payment(txn_params)
+            case AppCreateParams():
+                composer = composer.add_app_create(txn_params)
+    result = composer.add_payment(
+        PaymentParams(
+            sender=logic_sig.addr,
+            receiver=funder.addr,
+            amount=AlgoAmount.from_algo(1),
         )
-        .add_payment(
-            PaymentParams(
-                sender=logic_sig.addr,
-                receiver=funder.addr,
-                amount=AlgoAmount.from_algo(1),
-            )
-        )
-        .send()
-    )
+    ).send()
     assert result.confirmations[-1].confirmed_round is not None
 
 
@@ -226,16 +230,69 @@ def _build_complex_args(*, overwrite_struct: bytes = _VALID_OVERWRITE_STRUCT) ->
     ]
 
 
-def test_logic_sig_args_simple(localnet: AlgorandClient, account: AddressWithSigners) -> None:
-    bytecode = compile_logic_sig(
-        TEST_CASES_DIR / "logic_signature" / "lsig_args_simple.py",
-    )
-    simple_args = [
+def _build_simple_args() -> list[bytes]:
+    # gtxn params consume no positions: args array only holds arg0, arg1 and arg2
+    return [
         arc4_encode("uint64", 42),  # arg0: UInt64
         arc4_encode("byte[]", b"hello"),  # arg1: Bytes
         arc4_encode("bool", value=True),  # arg2: bool
     ]
-    _execute_logic_sig(localnet, account, bytecode, simple_args)
+
+
+def test_logic_sig_args_simple(localnet: AlgorandClient, account: AddressWithSigners) -> None:
+    bytecode = compile_logic_sig(
+        TEST_CASES_DIR / "logic_signature" / "lsig_args_simple.py",
+        name="args_simple",
+    )
+    _execute_logic_sig(
+        localnet,
+        account,
+        bytecode,
+        _build_simple_args(),
+        preceding_txns=[
+            PaymentParams(
+                sender=account.addr,
+                receiver=account.addr,
+                amount=AlgoAmount.from_micro_algo(0),
+            ),
+            AppCreateParams(
+                sender=account.addr,
+                approval_program=_ALWAYS_APPROVE_TEAL,
+                clear_state_program=_ALWAYS_APPROVE_TEAL,
+            ),
+        ],
+    )
+
+
+def test_logic_sig_args_simple_gtxn_wrong_group(
+    localnet: AlgorandClient, account: AddressWithSigners
+) -> None:
+    bytecode = compile_logic_sig(
+        TEST_CASES_DIR / "logic_signature" / "lsig_args_simple.py",
+        name="args_simple",
+    )
+    # same transactions as the default group, but in the wrong order,
+    # so the gtxn typed args bind to the wrong transactions and the
+    # type assertion rejects the lsig
+    with pytest.raises(TransactionComposerError, match="rejected by logic err=assert failed"):
+        _execute_logic_sig(
+            localnet,
+            account,
+            bytecode,
+            _build_simple_args(),
+            preceding_txns=[
+                AppCreateParams(
+                    sender=account.addr,
+                    approval_program=_ALWAYS_APPROVE_TEAL,
+                    clear_state_program=_ALWAYS_APPROVE_TEAL,
+                ),
+                PaymentParams(
+                    sender=account.addr,
+                    receiver=account.addr,
+                    amount=AlgoAmount.from_micro_algo(0),
+                ),
+            ],
+        )
 
 
 def test_logic_sig_args_complex(localnet: AlgorandClient, account: AddressWithSigners) -> None:
@@ -243,7 +300,22 @@ def test_logic_sig_args_complex(localnet: AlgorandClient, account: AddressWithSi
         TEST_CASES_DIR / "logic_signature" / "lsig_args_complex.py",
         name="args_complex",
     )
-    _execute_logic_sig(localnet, account, bytecode, _build_complex_args())
+    _execute_logic_sig(
+        localnet,
+        account,
+        bytecode,
+        _build_complex_args(),
+        preceding_txns=[
+            # extra txn for budget pooling
+            # (this repeats in all lsig_args_complex tests)
+            PaymentParams(
+                sender=account.addr,
+                receiver=account.addr,
+                amount=AlgoAmount.from_micro_algo(0),
+                note=b"complex",
+            )
+        ],
+    )
 
 
 def test_logic_sig_args_complex_unsafe_disabled(
@@ -253,7 +325,20 @@ def test_logic_sig_args_complex_unsafe_disabled(
         TEST_CASES_DIR / "logic_signature" / "lsig_args_complex.py",
         name="args_complex_no_validation",
     )
-    _execute_logic_sig(localnet, account, bytecode, _build_complex_args())
+    _execute_logic_sig(
+        localnet,
+        account,
+        bytecode,
+        _build_complex_args(),
+        preceding_txns=[
+            PaymentParams(
+                sender=account.addr,
+                receiver=account.addr,
+                amount=AlgoAmount.from_micro_algo(0),
+                note=b"complex_no_validation",
+            )
+        ],
+    )
 
 
 def test_logic_sig_args_complex_invalid_encoding(
@@ -273,6 +358,14 @@ def test_logic_sig_args_complex_invalid_encoding(
             account,
             bytecode,
             _build_complex_args(overwrite_struct=_INVALID_OVERWRITE_STRUCT),
+            preceding_txns=[
+                PaymentParams(
+                    sender=account.addr,
+                    receiver=account.addr,
+                    amount=AlgoAmount.from_micro_algo(0),
+                    note=b"complex_invalid",
+                )
+            ],
         )
 
 
@@ -289,4 +382,12 @@ def test_logic_sig_args_complex_invalid_encoding_unsafe_disabled(
         account,
         bytecode,
         _build_complex_args(overwrite_struct=_INVALID_OVERWRITE_STRUCT),
+        preceding_txns=[
+            PaymentParams(
+                sender=account.addr,
+                receiver=account.addr,
+                amount=AlgoAmount.from_micro_algo(0),
+                note=b"complex_invalid_no_validation",
+            )
+        ],
     )
