@@ -1,159 +1,231 @@
-// Op                                                                        Stack (out)
+// Op                                                                    Stack (out)
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 subroutine main:
     main_block@0:
-        // logic_signature/lsig_args_simple.py:5
-        // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
-        arg 0                                                                tmp%0#0
+        // logic_signature/lsig_args_simple.py:6
+        // arg0: UInt64,
+        arg 0                                                            tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                                                       tmp%0#0
-        len                                                                  len%0#0
+        v-load tmp%0#0                                                   tmp%0#0
+        len                                                              len%0#0
         v-store len%0#0
-        v-load len%0#0                                                       len%0#0
-        int 8                                                                len%0#0,8
-        ==                                                                   eq%0#0
+        v-load len%0#0                                                   len%0#0
+        int 8                                                            len%0#0,8
+        ==                                                               eq%0#0
         v-store eq%0#0
-        v-load eq%0#0                                                        eq%0#0
+        v-load eq%0#0                                                    eq%0#0
         assert // invalid number of bytes for uint64
-        v-load tmp%0#0                                                       tmp%0#0
-        btoi                                                                 arg0#0
+        v-load tmp%0#0                                                   tmp%0#0
+        btoi                                                             arg0#0
         v-store arg0#0
-        arg 1                                                                tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                       tmp%2#0
-        int 0                                                                tmp%2#0,0
-        extract_uint16 // on error: invalid array length header              aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                    aggregate%array_length%0#0
-        int 2                                                                aggregate%array_length%0#0,2
-        +                                                                    add%0#0
-        v-store add%0#0
-        v-load tmp%2#0                                                       tmp%2#0
-        len                                                                  len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                       len%1#0
-        v-load add%0#0                                                       len%1#0,add%0#0
-        ==                                                                   eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                        eq%1#0
-        assert // invalid number of bytes for bytes
-        v-load tmp%2#0                                                       tmp%2#0
-        extract 2 0                                                          arg1#0
-        v-store arg1#0
-        arg 2                                                                tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                       tmp%4#0
-        len                                                                  len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                       len%2#0
-        int 1                                                                len%2#0,1
-        ==                                                                   eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                        eq%2#0
-        assert // invalid number of bytes for bool
-        v-load tmp%4#0                                                       tmp%4#0
-        int 0                                                                tmp%4#0,0
-        getbit                                                               arg2#0
-        v-store arg2#0
         // logic_signature/lsig_args_simple.py:7
-        // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
-        arg 0                                                                tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                       tmp%6#0
-        btoi                                                                 tmp%7#0
-        v-store tmp%7#0
-        v-load arg0#0                                                        arg0#0
-        v-load tmp%7#0                                                       arg0#0,tmp%7#0
-        ==                                                                   tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                       tmp%8#0
-        assert
+        // pay: gtxn.PaymentTransaction,
+        txn GroupIndex                                                   tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                   tmp%2#0
+        int 2                                                            tmp%2#0,2
+        -                                                                pay#0
+        v-store pay#0
+        v-load pay#0                                                     pay#0
+        gtxns TypeEnum                                                   gtxn_type%0#0
+        v-store gtxn_type%0#0
+        v-load gtxn_type%0#0                                             gtxn_type%0#0
+        int pay                                                          gtxn_type%0#0,pay
+        ==                                                               gtxn_type_matches%0#0
+        v-store gtxn_type_matches%0#0
+        v-load gtxn_type_matches%0#0                                     gtxn_type_matches%0#0
+        assert // transaction type is pay
         // logic_signature/lsig_args_simple.py:8
-        // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
-        arg 1                                                                tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                       tmp%9#0
-        extract 2 0                                                          tmp%10#0
-        v-store tmp%10#0
-        v-load arg1#0                                                        arg1#0
-        v-load tmp%10#0                                                      arg1#0,tmp%10#0
-        ==                                                                   tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                      tmp%11#0
-        assert
+        // arg1: Bytes,
+        arg 1                                                            tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                   tmp%3#0
+        int 0                                                            tmp%3#0,0
+        extract_uint16 // on error: invalid array length header          aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                aggregate%array_length%0#0
+        int 2                                                            aggregate%array_length%0#0,2
+        +                                                                add%0#0
+        v-store add%0#0
+        v-load tmp%3#0                                                   tmp%3#0
+        len                                                              len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                   len%1#0
+        v-load add%0#0                                                   len%1#0,add%0#0
+        ==                                                               eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                    eq%1#0
+        assert // invalid number of bytes for bytes
+        v-load tmp%3#0                                                   tmp%3#0
+        extract 2 0                                                      arg1#0
+        v-store arg1#0
         // logic_signature/lsig_args_simple.py:9
-        // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
-        arg 2                                                                tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                      tmp%12#0
-        btoi                                                                 tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                      tmp%13#0
-        int 0                                                                tmp%13#0,0
-        !=                                                                   tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                      tmp%14#0
-        v-load arg2#0                                                        tmp%14#0,arg2#0
-        ==                                                                   tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                      tmp%17#0
+        // arg2: bool,
+        arg 2                                                            tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                   tmp%5#0
+        len                                                              len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                   len%2#0
+        int 1                                                            len%2#0,1
+        ==                                                               eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                    eq%2#0
+        assert // invalid number of bytes for bool
+        v-load tmp%5#0                                                   tmp%5#0
+        int 0                                                            tmp%5#0,0
+        getbit                                                           arg2#0
+        v-store arg2#0
+        // logic_signature/lsig_args_simple.py:10
+        // app_call: gtxn.ApplicationCallTransaction,
+        txn GroupIndex                                                   tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                   tmp%7#0
+        int 1                                                            tmp%7#0,1
+        -                                                                app_call#0
+        v-store app_call#0
+        v-load app_call#0                                                app_call#0
+        gtxns TypeEnum                                                   gtxn_type%1#0
+        v-store gtxn_type%1#0
+        v-load gtxn_type%1#0                                             gtxn_type%1#0
+        int appl                                                         gtxn_type%1#0,appl
+        ==                                                               gtxn_type_matches%1#0
+        v-store gtxn_type_matches%1#0
+        v-load gtxn_type_matches%1#0                                     gtxn_type_matches%1#0
+        assert // transaction type is appl
+        // logic_signature/lsig_args_simple.py:13
+        // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
+        arg 0                                                            tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                   tmp%8#0
+        btoi                                                             tmp%9#0
+        v-store tmp%9#0
+        v-load arg0#0                                                    arg0#0
+        v-load tmp%9#0                                                   arg0#0,tmp%9#0
+        ==                                                               tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                  tmp%10#0
         assert
-        // logic_signature/lsig_args_simple.py:12
+        // logic_signature/lsig_args_simple.py:14
+        // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
+        arg 1                                                            tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                  tmp%11#0
+        extract 2 0                                                      tmp%12#0
+        v-store tmp%12#0
+        v-load arg1#0                                                    arg1#0
+        v-load tmp%12#0                                                  arg1#0,tmp%12#0
+        ==                                                               tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                  tmp%13#0
+        assert
+        // logic_signature/lsig_args_simple.py:15
+        // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
+        arg 2                                                            tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                  tmp%14#0
+        btoi                                                             tmp%15#0
+        v-store tmp%15#0
+        v-load tmp%15#0                                                  tmp%15#0
+        int 0                                                            tmp%15#0,0
+        !=                                                               tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                  tmp%16#0
+        v-load arg2#0                                                    tmp%16#0,arg2#0
+        ==                                                               tmp%19#0
+        v-store tmp%19#0
+        v-load tmp%19#0                                                  tmp%19#0
+        assert
+        // logic_signature/lsig_args_simple.py:19
+        // assert pay.group_index == Txn.group_index - 2
+        v-load pay#0                                                     pay#0
+        gtxns GroupIndex                                                 tmp%20#0
+        v-store tmp%20#0
+        txn GroupIndex                                                   tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                  tmp%21#0
+        int 2                                                            tmp%21#0,2
+        -                                                                tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%20#0                                                  tmp%20#0
+        v-load tmp%22#0                                                  tmp%20#0,tmp%22#0
+        ==                                                               tmp%23#0
+        v-store tmp%23#0
+        v-load tmp%23#0                                                  tmp%23#0
+        assert
+        // logic_signature/lsig_args_simple.py:20
+        // assert app_call.group_index == Txn.group_index - 1
+        v-load app_call#0                                                app_call#0
+        gtxns GroupIndex                                                 tmp%24#0
+        v-store tmp%24#0
+        txn GroupIndex                                                   tmp%25#0
+        v-store tmp%25#0
+        v-load tmp%25#0                                                  tmp%25#0
+        int 1                                                            tmp%25#0,1
+        -                                                                tmp%26#0
+        v-store tmp%26#0
+        v-load tmp%24#0                                                  tmp%24#0
+        v-load tmp%26#0                                                  tmp%24#0,tmp%26#0
+        ==                                                               tmp%27#0
+        v-store tmp%27#0
+        v-load tmp%27#0                                                  tmp%27#0
+        assert
+        // logic_signature/lsig_args_simple.py:23
         // if arg0 < 10:
-        v-load arg0#0                                                        arg0#0
-        int 10                                                               arg0#0,10
-        <                                                                    tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                                      tmp%18#0
+        v-load arg0#0                                                    arg0#0
+        int 10                                                           arg0#0,10
+        <                                                                tmp%28#0
+        v-store tmp%28#0
+        v-load tmp%28#0                                                  tmp%28#0
         bz main_after_if_else@2 ; b main_if_body@1
 
     main_if_body@1:
-        // logic_signature/lsig_args_simple.py:13
+        // logic_signature/lsig_args_simple.py:24
         // arg0 = UInt64(10)
-        int 10                                                               10
+        int 10                                                           10
         v-store arg0#0
         b main_after_if_else@2
 
     main_after_if_else@2:
-        // logic_signature/lsig_args_simple.py:14
+        // logic_signature/lsig_args_simple.py:25
         // arg1 = arg1 + b"suffix"
-        v-load arg1#0                                                        arg1#0
-        byte 0x737566666978                                                  arg1#0,0x737566666978
-        concat                                                               arg1#0
+        v-load arg1#0                                                    arg1#0
+        byte 0x737566666978                                              arg1#0,0x737566666978
+        concat                                                           arg1#0
         v-store arg1#0
-        // logic_signature/lsig_args_simple.py:18
+        // logic_signature/lsig_args_simple.py:29
         // assert arg0 >= 10
-        v-load arg0#0                                                        arg0#0
-        int 10                                                               arg0#0,10
-        >=                                                                   tmp%21#0
-        v-store tmp%21#0
-        v-load tmp%21#0                                                      tmp%21#0
+        v-load arg0#0                                                    arg0#0
+        int 10                                                           arg0#0,10
+        >=                                                               tmp%31#0
+        v-store tmp%31#0
+        v-load tmp%31#0                                                  tmp%31#0
         assert
-        // logic_signature/lsig_args_simple.py:19
+        // logic_signature/lsig_args_simple.py:30
         // assert arg1.length > 0
-        v-load arg1#0                                                        arg1#0
-        len                                                                  tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%22#0                                                      tmp%22#0
+        v-load arg1#0                                                    arg1#0
+        len                                                              tmp%32#0
+        v-store tmp%32#0
+        v-load tmp%32#0                                                  tmp%32#0
         assert
-        // logic_signature/lsig_args_simple.py:22
+        // logic_signature/lsig_args_simple.py:33
         // if arg2:
-        v-load arg2#0                                                        arg2#0
+        v-load arg2#0                                                    arg2#0
         bz main_if_body@3 ; b main_after_if_else@4
 
     main_if_body@3:
-        // logic_signature/lsig_args_simple.py:23
+        // logic_signature/lsig_args_simple.py:34
         // arg0 += arg1.length
-        v-load arg0#0                                                        arg0#0
-        v-load tmp%22#0                                                      arg0#0,tmp%22#0
-        +                                                                    arg0#0
+        v-load arg0#0                                                    arg0#0
+        v-load tmp%32#0                                                  arg0#0,tmp%32#0
+        +                                                                arg0#0
         v-store arg0#0
         b main_after_if_else@4
 
     main_after_if_else@4:
-        // logic_signature/lsig_args_simple.py:24
+        // logic_signature/lsig_args_simple.py:35
         // return arg0
-        v-load arg0#0                                                        arg0#0
+        v-load arg0#0                                                    arg0#0
         return
 
 

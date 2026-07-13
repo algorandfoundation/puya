@@ -3,13 +3,13 @@
 
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
-    intcblock 0 1 10 2
+    intcblock 0 1 2 10
     pushbytes ""
     b main_block@0
 
 main_block@0:
-    // logic_signature/lsig_args_simple.py:5
-    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    // logic_signature/lsig_args_simple.py:6
+    // arg0: UInt64,
     arg_0
     dup
     len
@@ -18,13 +18,26 @@ main_block@0:
     assert // invalid number of bytes for uint64
     btoi
     dup
+    // logic_signature/lsig_args_simple.py:7
+    // pay: gtxn.PaymentTransaction,
+    txn GroupIndex
+    intc_2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    cover 1
+    // logic_signature/lsig_args_simple.py:8
+    // arg1: Bytes,
     arg_1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
-    intc_3 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -32,7 +45,9 @@ main_block@0:
     assert // invalid number of bytes for bytes
     extract 2 0
     dup
-    cover 2
+    cover 3
+    // logic_signature/lsig_args_simple.py:9
+    // arg2: bool,
     arg_2
     dup
     len
@@ -43,26 +58,37 @@ main_block@0:
     getbit
     dup
     cover 2
-    cover 3
-    // logic_signature/lsig_args_simple.py:6-7
-    // # verify args match raw op.arg values
+    cover 4
+    // logic_signature/lsig_args_simple.py:10
+    // app_call: gtxn.ApplicationCallTransaction,
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    cover 2
+    // logic_signature/lsig_args_simple.py:12-13
+    // # verify args match raw op.arg values (gtxn args consume no positions in the args array)
     // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
     intc_0 // 0
     args
     btoi
-    dig 3
+    dig 4
     ==
     assert
-    // logic_signature/lsig_args_simple.py:8
+    // logic_signature/lsig_args_simple.py:14
     // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
     intc_1 // 1
     args
     extract 2 0
     ==
     assert
-    // logic_signature/lsig_args_simple.py:9
+    // logic_signature/lsig_args_simple.py:15
     // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
-    intc_3 // 2
+    intc_2 // 2
     args
     btoi
     intc_0 // 0
@@ -75,58 +101,77 @@ main_block@0:
     getbit
     ==
     assert
-    // logic_signature/lsig_args_simple.py:11-12
+    // logic_signature/lsig_args_simple.py:17-19
+    // # gtxn args bind to the transactions immediately preceding the signed one,
+    // # in declaration order
+    // assert pay.group_index == Txn.group_index - 2
+    uncover 2
+    gtxns GroupIndex
+    txn GroupIndex
+    intc_2 // 2
+    -
+    ==
+    assert
+    // logic_signature/lsig_args_simple.py:20
+    // assert app_call.group_index == Txn.group_index - 1
+    gtxns GroupIndex
+    txn GroupIndex
+    intc_1 // 1
+    -
+    ==
+    assert
+    // logic_signature/lsig_args_simple.py:22-23
     // # mutate all
     // if arg0 < 10:
-    intc_2 // 10
+    intc_3 // 10
     <
     bz main_after_if_else@2
     b main_if_body@1
 
 main_if_body@1:
-    // logic_signature/lsig_args_simple.py:13
+    // logic_signature/lsig_args_simple.py:24
     // arg0 = UInt64(10)
-    intc_2 // 10
+    intc_3 // 10
     bury 3
     b main_after_if_else@2
 
 main_after_if_else@2:
-    // logic_signature/lsig_args_simple.py:14
+    // logic_signature/lsig_args_simple.py:25
     // arg1 = arg1 + b"suffix"
     dig 1
     pushbytes 0x737566666978
     concat
     dup
     bury 3
-    // logic_signature/lsig_args_simple.py:15
+    // logic_signature/lsig_args_simple.py:26
     // arg2 = not arg2
     dig 1
     !
     cover 1
-    // logic_signature/lsig_args_simple.py:17-18
+    // logic_signature/lsig_args_simple.py:28-29
     // # assert all
     // assert arg0 >= 10
     dig 4
     dup
     cover 2
-    intc_2 // 10
+    intc_3 // 10
     >=
     assert
-    // logic_signature/lsig_args_simple.py:19
+    // logic_signature/lsig_args_simple.py:30
     // assert arg1.length > 0
     len
     intc_0 // 0
     >
     assert
     bury 5
-    // logic_signature/lsig_args_simple.py:21-22
+    // logic_signature/lsig_args_simple.py:32-33
     // # some random cross-arg operations
     // if arg2:
     bz main_after_if_else@4
     b main_if_body@3
 
 main_if_body@3:
-    // logic_signature/lsig_args_simple.py:23
+    // logic_signature/lsig_args_simple.py:34
     // arg0 += arg1.length
     dig 1
     len
@@ -136,7 +181,7 @@ main_if_body@3:
     b main_after_if_else@4
 
 main_after_if_else@4:
-    // logic_signature/lsig_args_simple.py:24
+    // logic_signature/lsig_args_simple.py:35
     // return arg0
     dig 3
     return

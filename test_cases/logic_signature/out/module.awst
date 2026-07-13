@@ -19,11 +19,13 @@ subroutine assert_correct_asset(txn: group_transaction_axfer): void
   assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }
 
-logicsig test_cases.logic_signature.lsig_args_simple.args_simple(arg0: uint64, arg1: bytes, arg2: bool):
+logicsig test_cases.logic_signature.lsig_args_simple.args_simple(arg0: uint64, pay: group_transaction_pay, arg1: bytes, arg2: bool, app_call: group_transaction_appl):
 {
   assert(arg0 == arc4_decode(reinterpret_cast<arc4.uint64>(args(0u)), uint64))
   assert(arg1 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(args(1u)), bytes))
   assert(arc4_decode(arc4_encode(btoi(args(2u)) != 0u, arc4.bool), bool) == arg2)
+  assert(gtxns<GroupIndex>(pay) == txn<GroupIndex>() - 2u)
+  assert(gtxns<GroupIndex>(app_call) == txn<GroupIndex>() - 1u)
   if (arg0 < 10u) {
     arg0: uint64 = 10u
   }
