@@ -277,8 +277,34 @@ def my_log_sig() -> bool:
     ...
 ```
 
-Similar to `approval_program` or `clear_state_program` methods, the function must take no
-arguments, and return either `bool` or `algopy.UInt64`. The meaning is the same: a `True`
-value or non-zero `UInt64` value indicates success, `False` or `UInt64(0)` indicates failure.
+The function must return either `bool` or `algopy.UInt64`. The meaning is the same as for
+`approval_program` or `clear_state_program` methods: a `True` value or non-zero `UInt64`
+value indicates success, `False` or `UInt64(0)` indicates failure.
+
+The function may optionally take typed arguments. Each parameter is read from the
+corresponding position of the logic signature's arguments array and decoded from its
+[ABI encoding](/puya/language-guide/arc4/#types):
+
+```python
+@algopy.logicsig
+def my_log_sig(count: algopy.UInt64, blob: algopy.arc4.DynamicBytes) -> bool:
+    ...
+```
+
+Here `count` is decoded from the first element of the args array, and `blob` from the second.
+By default the ABI encoding of each argument is validated. This can be disabled by passing
+`validate_encoding="unsafe_disabled"` to the decorator.
+
+Unlike `ApplicationArgs`, the logic signature args array is not limited to 16 elements, so
+no tuple packing is performed when there are more than 15 arguments the way
+[ARC-4 methods](/puya/language-guide/arc4/#methods) do. Keep in mind however that the
+arguments still count towards the total size limit of the logic signature (program plus
+arguments).
+
+Parameters may also be group transaction types (e.g. `algopy.gtxn.PaymentTransaction`, or
+`algopy.gtxn.Transaction`). These behave exactly like
+[ARC-4 method transaction parameters](/puya/language-guide/arc4/#reference-types): they
+consume no positions in the args array, and instead bind to the transactions immediately
+preceding the signed transaction in the group, in declaration order.
 
 Logic signatures can make use of subroutines that are not nested in contract classes.
