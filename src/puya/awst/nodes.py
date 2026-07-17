@@ -338,6 +338,8 @@ class AssertExpression(Expression):
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
     explicit: bool = True
     log_error: bool = False
+    desc: str | None = None
+    """When present, this overrides the arc56 assertion failure"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_assert_expression(self)

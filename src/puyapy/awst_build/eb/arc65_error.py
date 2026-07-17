@@ -29,6 +29,7 @@ class LoggedAssertFunctionBuilder(FunctionBuilder):
         arg_mapping, _ = get_arg_mapping(
             required_positional_names=["condition", "error_code"],
             optional_positional_names=["error_message", "prefix"],
+            optional_kw_only=["desc"],
             args=args,
             arg_names=arg_names,
             call_location=location,
@@ -50,6 +51,7 @@ class LoggedAssertFunctionBuilder(FunctionBuilder):
                 error_message=error_message,
                 source_location=location,
                 log_error=True,
+                desc=_resolve_desc(arg_mapping),
             ),
         )
 
@@ -66,6 +68,7 @@ class LoggedErrFunctionBuilder(FunctionBuilder):
         arg_mapping, _ = get_arg_mapping(
             required_positional_names=["error_code"],
             optional_positional_names=["error_message", "prefix"],
+            optional_kw_only=["desc"],
             args=args,
             arg_names=arg_names,
             call_location=location,
@@ -80,6 +83,7 @@ class LoggedErrFunctionBuilder(FunctionBuilder):
                 error_message=error_message,
                 source_location=location,
                 log_error=True,
+                desc=_resolve_desc(arg_mapping),
             ),
         )
 
@@ -127,3 +131,9 @@ def _resolve_error_message(
 
     arc65_msg = f"{prefix}:{code}:{message}" if message else f"{prefix}:{code}"
     return arc65_msg
+
+
+def _resolve_desc(arg_mapping: dict[str, NodeBuilder]) -> str | None:
+    if "desc" not in arg_mapping:
+        return None
+    return expect.simple_string_literal(arg_mapping["desc"], default=expect.default_none)

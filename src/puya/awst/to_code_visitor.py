@@ -651,12 +651,18 @@ class ToCodeVisitor(
             result = "err(" if not statement.log_error else "logged_err("
             if error_message:
                 result += error_message
+            if statement.desc is not None:
+                if error_message:
+                    result += ", "
+                result += f'desc="{statement.desc}"'
             result += ")"
         else:
             result = "assert(" if not statement.log_error else "logged_assert("
             result += f"{statement.condition.accept(self)}"
             if error_message:
                 result += f", comment={error_message}"
+            if statement.desc is not None:
+                result += f', desc="{statement.desc}"'
             result += ")"
         return result
 

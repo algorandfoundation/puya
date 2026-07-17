@@ -26,3 +26,20 @@ class LoggedErrorsContract(ARC4Contract):
         # "AER:arg08:arg is seven (08)"
         if arg == 8:
             logged_err("arg08", error_message="arg is eight (08)", prefix="AER")
+
+        # logs "ERR:arg09:arg is nine", with verbose sourceInfo comment
+        logged_assert(
+            arg != 9,
+            "arg09",
+            error_message="arg is nine",
+            desc="arg should not be nine because...[insert long-winded explanation about the "
+            "rather tragic implications of the number 9]",
+        )
+        # logs "ERR:arg10", with verbose sourceInfo comment
+        if arg == 10:
+            logged_err(
+                "arg10",
+                desc="arg should not be ten because...[insert a long-winded explanation about "
+                "the somewhat less tragic but still not quite OK implications of using the "
+                "number 10]",
+            )
