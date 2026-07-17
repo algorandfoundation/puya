@@ -1,29 +1,29 @@
-// Op                                                                                   Stack (out)
+// Op                                                                                             Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // logged_errors/contract.py:5
         // class LoggedErrorsContract(ARC4Contract):
-        txn NumAppArgs                                                                  tmp%0#1
+        txn NumAppArgs                                                                            tmp%0#1
         bz main___algopy_default_create@5 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // logged_errors/contract.py:5
         // class LoggedErrorsContract(ARC4Contract):
-        txna ApplicationArgs 0                                                          tmp%2#0
-        method test_logged_errs(uint64)void                                             tmp%2#0,Method(test_logged_errs(uint64)void)
-        l-load tmp%2#0 1                                                                Method(test_logged_errs(uint64)void),tmp%2#0
+        txna ApplicationArgs 0                                                                    tmp%2#0
+        method test_logged_errs(uint64)void                                                       tmp%2#0,Method(test_logged_errs(uint64)void)
+        l-load tmp%2#0 1                                                                          Method(test_logged_errs(uint64)void),tmp%2#0
         match main_test_logged_errs_route@3 ; b main_switch_case_next@4
 
     main_test_logged_errs_route@3:
         // logged_errors/contract.py:6
         // @abimethod
-        txn OnCompletion                                                                tmp%3#0
-        !                                                                               tmp%4#0
-        txn ApplicationID                                                               tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                                tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                                tmp%4#0,tmp%5#0
-        &&                                                                              tmp%7#0
+        txn OnCompletion                                                                          tmp%3#0
+        !                                                                                         tmp%4#0
+        txn ApplicationID                                                                         tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                                          tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                                          tmp%4#0,tmp%5#0
+        &&                                                                                        tmp%7#0
         assert
         callsub test_logged_errs
         b main_switch_case_next@4
@@ -34,15 +34,15 @@ subroutine main:
         err
 
     main___algopy_default_create@5:
-        txn OnCompletion                                                                tmp%8#0
-        !                                                                               tmp%9#0
-        txn ApplicationID                                                               tmp%9#0,tmp%10#0
-        !                                                                               tmp%9#0,tmp%11#0
-        l-load tmp%9#0 1                                                                tmp%11#0,tmp%9#0
-        l-load tmp%11#0 1                                                               tmp%9#0,tmp%11#0
-        &&                                                                              tmp%12#0
+        txn OnCompletion                                                                          tmp%8#0
+        !                                                                                         tmp%9#0
+        txn ApplicationID                                                                         tmp%9#0,tmp%10#0
+        !                                                                                         tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                                          tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                                         tmp%9#0,tmp%11#0
+        &&                                                                                        tmp%12#0
         assert
-        int 1                                                                           1
+        int 1                                                                                     1
         return
 
 
@@ -51,139 +51,188 @@ subroutine test_logged_errs:
     test_logged_errs_block@0:
         // logged_errors/contract.py:6
         // @abimethod
-        txna ApplicationArgs 1                                                          tmp%0#0
-        l-load-copy tmp%0#0 0                                                           tmp%0#0,tmp%0#0 (copy)
-        len                                                                             tmp%0#0,len%0#0
-        int 8                                                                           tmp%0#0,len%0#0,8
-        ==                                                                              tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                               tmp%0#0
-        l-load tmp%0#0 0                                                                tmp%0#0
-        btoi                                                                            arg#0
-        l-store-copy arg#0 0                                                            arg#0,arg#0 (copy)
-        v-store arg#0                                                                   arg#0
+        txna ApplicationArgs 1                                                                    tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        len                                                                                       tmp%0#0,len%0#0
+        int 8                                                                                     tmp%0#0,len%0#0,8
+        ==                                                                                        tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                                         tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
+        btoi                                                                                      arg#0
+        l-store-copy arg#0 0                                                                      arg#0,arg#0 (copy)
+        v-store arg#0                                                                             arg#0
         // logged_errors/contract.py:9
         // logged_assert(arg != 1, "01")
-        l-load arg#0 0                                                                  arg#0
-        int 1                                                                           arg#0,1
-        !=                                                                              tmp%0#1
+        l-load arg#0 0                                                                            arg#0
+        int 1                                                                                     arg#0,1
+        !=                                                                                        tmp%0#1
         bz test_logged_errs_logged_error_handling@2 ; b test_logged_errs_after_assert@3
 
     test_logged_errs_logged_error_handling@2:
         // logged_errors/contract.py:9
         // logged_assert(arg != 1, "01")
-        byte "ERR:01"                                                                   "ERR:01"
+        byte "ERR:01"                                                                             "ERR:01"
         log
         err // ERR:01
 
     test_logged_errs_after_assert@3:
         // logged_errors/contract.py:11
         // logged_assert(arg != 2, "arg02", error_message="arg is two")
-        v-load arg#0                                                                    arg#0
-        int 2                                                                           arg#0,2
-        !=                                                                              tmp%1#1
+        v-load arg#0                                                                              arg#0
+        int 2                                                                                     arg#0,2
+        !=                                                                                        tmp%1#1
         bz test_logged_errs_logged_error_handling@4 ; b test_logged_errs_after_assert@5
 
     test_logged_errs_logged_error_handling@4:
         // logged_errors/contract.py:11
         // logged_assert(arg != 2, "arg02", error_message="arg is two")
-        byte "ERR:arg02:arg is two"                                                     "ERR:arg02:arg is two"
+        byte "ERR:arg02:arg is two"                                                               "ERR:arg02:arg is two"
         log
         err // ERR:arg02:arg is two
 
     test_logged_errs_after_assert@5:
         // logged_errors/contract.py:13
         // logged_assert(arg != 3, "arg03", prefix="AER")
-        v-load arg#0                                                                    arg#0
-        int 3                                                                           arg#0,3
-        !=                                                                              tmp%2#0
+        v-load arg#0                                                                              arg#0
+        int 3                                                                                     arg#0,3
+        !=                                                                                        tmp%2#0
         bz test_logged_errs_logged_error_handling@6 ; b test_logged_errs_after_assert@7
 
     test_logged_errs_logged_error_handling@6:
         // logged_errors/contract.py:13
         // logged_assert(arg != 3, "arg03", prefix="AER")
-        byte "AER:arg03"                                                                "AER:arg03"
+        byte "AER:arg03"                                                                          "AER:arg03"
         log
         err // AER:arg03
 
     test_logged_errs_after_assert@7:
         // logged_errors/contract.py:15
         // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
-        v-load arg#0                                                                    arg#0
-        int 4                                                                           arg#0,4
-        !=                                                                              tmp%3#0
+        v-load arg#0                                                                              arg#0
+        int 4                                                                                     arg#0,4
+        !=                                                                                        tmp%3#0
         bz test_logged_errs_logged_error_handling@8 ; b test_logged_errs_after_assert@9
 
     test_logged_errs_logged_error_handling@8:
         // logged_errors/contract.py:15
         // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
-        byte "AER:arg04:arg is 4"                                                       "AER:arg04:arg is 4"
+        byte "AER:arg04:arg is 4"                                                                 "AER:arg04:arg is 4"
         log
         err // AER:arg04:arg is 4
 
     test_logged_errs_after_assert@9:
         // logged_errors/contract.py:18
         // if arg == 5:
-        v-load arg#0                                                                    arg#0
-        int 5                                                                           arg#0,5
-        ==                                                                              tmp%4#0
+        v-load arg#0                                                                              arg#0
+        int 5                                                                                     arg#0,5
+        ==                                                                                        tmp%4#0
         bz test_logged_errs_after_if_else@11 ; b test_logged_errs_if_body@10
 
     test_logged_errs_if_body@10:
         // logged_errors/contract.py:19
         // logged_err("arg05")
-        byte "ERR:arg05"                                                                "ERR:arg05"
+        byte "ERR:arg05"                                                                          "ERR:arg05"
         log
         err // ERR:arg05
 
     test_logged_errs_after_if_else@11:
         // logged_errors/contract.py:21
         // if arg == 6:
-        v-load arg#0                                                                    arg#0
-        int 6                                                                           arg#0,6
-        ==                                                                              tmp%5#0
+        v-load arg#0                                                                              arg#0
+        int 6                                                                                     arg#0,6
+        ==                                                                                        tmp%5#0
         bz test_logged_errs_after_if_else@13 ; b test_logged_errs_if_body@12
 
     test_logged_errs_if_body@12:
         // logged_errors/contract.py:22
         // logged_err("06", error_message="arg was 6")
-        byte "ERR:06:arg was 6"                                                         "ERR:06:arg was 6"
+        byte "ERR:06:arg was 6"                                                                   "ERR:06:arg was 6"
         log
         err // ERR:06:arg was 6
 
     test_logged_errs_after_if_else@13:
         // logged_errors/contract.py:24
         // if arg == 7:
-        v-load arg#0                                                                    arg#0
-        int 7                                                                           arg#0,7
-        ==                                                                              tmp%6#0
+        v-load arg#0                                                                              arg#0
+        int 7                                                                                     arg#0,7
+        ==                                                                                        tmp%6#0
         bz test_logged_errs_after_if_else@15 ; b test_logged_errs_if_body@14
 
     test_logged_errs_if_body@14:
         // logged_errors/contract.py:25
         // logged_err("arg07", prefix="AER")
-        byte "AER:arg07"                                                                "AER:arg07"
+        byte "AER:arg07"                                                                          "AER:arg07"
         log
         err // AER:arg07
 
     test_logged_errs_after_if_else@15:
         // logged_errors/contract.py:27
         // if arg == 8:
-        v-load arg#0                                                                    arg#0
-        int 8                                                                           arg#0,8
-        ==                                                                              tmp%7#0
+        v-load arg#0                                                                              arg#0
+        int 8                                                                                     arg#0,8
+        ==                                                                                        tmp%7#0
         bz test_logged_errs_after_if_else@17 ; b test_logged_errs_if_body@16
 
     test_logged_errs_if_body@16:
         // logged_errors/contract.py:28
         // logged_err("arg08", error_message="arg is eight (08)", prefix="AER")
-        byte "AER:arg08:arg is eight (08)"                                              "AER:arg08:arg is eight (08)"
+        byte "AER:arg08:arg is eight (08)"                                                        "AER:arg08:arg is eight (08)"
         log
         err // AER:arg08:arg is eight (08)
 
     test_logged_errs_after_if_else@17:
+        // logged_errors/contract.py:32
+        // arg != 9,
+        v-load arg#0                                                                              arg#0
+        int 9                                                                                     arg#0,9
+        !=                                                                                        tmp%8#0
+        // logged_errors/contract.py:31-37
+        // logged_assert(
+        //     arg != 9,
+        //     "arg09",
+        //     error_message="arg is nine",
+        //     desc="arg should not be nine because...[insert long-winded explanation about the "
+        //     "rather tragic implications of the number 9]",
+        // )
+        bz test_logged_errs_logged_error_handling@18 ; b test_logged_errs_after_assert@19 
+
+    test_logged_errs_logged_error_handling@18:
+        // logged_errors/contract.py:31-37
+        // logged_assert(
+        //     arg != 9,
+        //     "arg09",
+        //     error_message="arg is nine",
+        //     desc="arg should not be nine because...[insert long-winded explanation about the "
+        //     "rather tragic implications of the number 9]",
+        // )
+        byte "ERR:arg09:arg is nine"                                                              "ERR:arg09:arg is nine"
+        log
+        err // arg should not be nine because...[insert long-winded explanation about the rather tragic implications of the number 9] 
+
+    test_logged_errs_after_assert@19:
+        // logged_errors/contract.py:39
+        // if arg == 10:
+        v-load arg#0                                                                              arg#0
+        int 10                                                                                    arg#0,10
+        ==                                                                                        tmp%9#0
+        bz test_logged_errs_after_if_else@21 ; b test_logged_errs_if_body@20
+
+    test_logged_errs_if_body@20:
+        // logged_errors/contract.py:40-45
+        // logged_err(
+        //     "arg10",
+        //     desc="arg should not be ten because...[insert a long-winded explanation about "
+        //     "the somewhat less tragic but still not quite OK implications of using the "
+        //     "number 10]",
+        // )
+        byte "ERR:arg10"                                                                          "ERR:arg10"
+        log
+        err // arg should not be ten because...[insert a long-winded explanation about the somewhat less tragic but still not quite OK implications of using the number 10] 
+
+    test_logged_errs_after_if_else@21:
         // logged_errors/contract.py:6
         // @abimethod
-        int 1                                                                           1
+        int 1                                                                                     1
         return
 
 

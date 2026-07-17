@@ -236,4 +236,58 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@
     err // AER:arg08:arg is eight (08)
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@16:
+    // logged_errors/contract.py:32
+    // arg != 9,
+    frame_dig -1
+    pushint 9
+    !=
+    // logged_errors/contract.py:30-37
+    // # logs "ERR:arg09:arg is nine", with verbose sourceInfo comment
+    // logged_assert(
+    //     arg != 9,
+    //     "arg09",
+    //     error_message="arg is nine",
+    //     desc="arg should not be nine because...[insert long-winded explanation about the "
+    //     "rather tragic implications of the number 9]",
+    // )
+    bnz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@18
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@17
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@17:
+    // logged_errors/contract.py:30-37
+    // # logs "ERR:arg09:arg is nine", with verbose sourceInfo comment
+    // logged_assert(
+    //     arg != 9,
+    //     "arg09",
+    //     error_message="arg is nine",
+    //     desc="arg should not be nine because...[insert long-winded explanation about the "
+    //     "rather tragic implications of the number 9]",
+    // )
+    pushbytes "ERR:arg09:arg is nine"
+    log
+    err // arg should not be nine because...[insert long-winded explanation about the rather tragic implications of the number 9]
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@18:
+    // logged_errors/contract.py:38-39
+    // # logs "ERR:arg10", with verbose sourceInfo comment
+    // if arg == 10:
+    frame_dig -1
+    pushint 10
+    ==
+    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@20
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@19
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@19:
+    // logged_errors/contract.py:40-45
+    // logged_err(
+    //     "arg10",
+    //     desc="arg should not be ten because...[insert a long-winded explanation about "
+    //     "the somewhat less tragic but still not quite OK implications of using the "
+    //     "number 10]",
+    // )
+    pushbytes "ERR:arg10"
+    log
+    err // arg should not be ten because...[insert a long-winded explanation about the somewhat less tragic but still not quite OK implications of using the number 10]
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@20:
     retsub
