@@ -6,6 +6,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.9.0'></a>
+## v5.9.0 (2026-07-17)
+
+### Added
+
+- ARC56 events now properly carry field descriptions if present at the source level
+
+- Support for bool to integer literal comparisons by upcasting the boolean operand
+
+- Support for group transaction typed arguments on logicsigs, following the same convention as application ARC-4 methods.
+
+- A new description `desc` field in `logged_error` and `logged_assert` functions. It overrides the arc56 emitted comment. Useful for verbose descriptions in logged errors while keeping code and eror message succint.
+
+### Changed
+
+- When a state or box key size is out bounds, the compiler will now error (previously it only errored on empty box keys).
+- Other operations involving constants that will provably fail at runtime if reachable now produce warnings.
+
+- mypy dependency has been updated to latest (v2.1.0)
+
+- Improved variable stack ordering across control flow branches resulting in fewer stack
+  manipulations
+
+- Encoding of ARC-4 UInt constants will now not always result in a large byte constant
+
+### Fixed
+
+- Fixed a miscompilation where `getbit` accessing an out of bounds index in a constant `uint64` would be folded into a constant 0 integer. The AVM should panic in this scenario.
+
+- Fixed a compiler crash when attempting to constant-fold a `getbit` out of bounds index access into a bytes constant.
+
+- Recursive type aliases (e.g. `Arr = arc4.DynamicArray["Arr"]`) now produce a clear error instead of crashing with maximum recursion depth.
+
+- Fixed an issue where `setbit` with an out-of-bounds index (>= 64) on a uint64 constant was
+  folded instead of preserving the AVM runtime panic.
+
+- Fixed an issue where `shl`/`shr` with a shift amount >= 64 on `uint64` constants was folded to 0
+  instead of preserving the AVM runtime panic.
+
+- Fixed an issue where `replace2`/`replace3` with a replacement extending past the source was constant folded instead of preserving the AVM runtime panic.
+
+- Fixed an issue where `uint64` arithmetic (add, mul, exp) that overflows was constant folded instead of preserving the AVM runtime panic.
+
+- Fixed an issue where `extract`/`substring` with out-of-bounds constant indexes on a bytes constant was folded instead of preserving the AVM runtime panic.
+
+- Fixed intrinsic op selection picking an immediate-argument variant when the literal argument value didn't fit its range, causing compilation errors for `op.replace`, `op.extract`, `op.substring`, `op.arg`, `op.gaid`, `op.gload_*`, `op.Txn.*`, `op.GTxn.*`, `op.ITxn.*`, and `op.GITxn.*`. Note: at O0 (unoptimised), affected ops now emit the stack-arg variant, which is slightly larger than the immediate-arg form.
+
+- Emit an error if `op.substring` is called with start position after end position
+
+- Fixed a critical error when optimising `concat` of bytes constants resulted in a value exceeding
+  the maximum bytes length
+
+- Allowed integer literals as `size` arguments in `Box.create`
+
+- A bug where reading the length of a box value directly (e.g. `self.box.value.length`) would silently return 0 when the box did not exist, instead of rejecting the txn. The optimizer combined the read and length intrinsic into a single `box_len` but dropped the box existence assertion.
+
+- Fixed an optimiser bug where a box read following `Box.create` could be replaced with a stale cached value from before the create, producing incorrect results at runtime.
+
+- Op statistic category for `bury` is now stack instead of other.
+- Fixed description for `--output-op-statistics` CLI option.
+
+- A bug where a `match` statement could silently compile to the wrong branch when two case values were optimised to the same constant. Such collisions are now reported as an error.
+
+- A bug where, in a contract with an overridden `approval_program`, an ABI method with a non-NoOp OCA (e.g. an "UpdateApplication") would always fail when NoOp ABI methods were also present.
+
+- A bug when OCA is one of (UpdateApplication, CloseOut) and creation is required or allowed in an abi or bare method, silently leaving those options out of arc56 clients. We now emit warning/s and/or error when this happens, according to the severity of the OCA+create combination (e.g. 'CloseOut' only on a creation required method will always fail potentially compiling an undeployable contract)
+
 <a id='changelog-v5.8.1'></a>
 ## v5.8.1 (2026-04-14)
 
