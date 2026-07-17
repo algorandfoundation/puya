@@ -37,6 +37,8 @@ def logged_assert(
     error_code: typing.LiteralString,
     error_message: typing.LiteralString | None = None,
     prefix: typing.Literal["AER", "ERR"] = "ERR",
+    *,
+    desc: typing.LiteralString | None = None,
 ) -> None:
     """
     Asserts that a condition is true, logging a formatted error message before failing
@@ -52,12 +54,16 @@ def logged_assert(
     :arg error_code: An alphanumeric error code. Must not contain ``:``.
     :arg error_message: Optional message appended after the code. Must not contain ``:``.
     :arg prefix: Error prefix, either ``"AER"`` or ``"ERR"``.
+    :arg desc: Optional plain description of the failure, used as the error message in the
+        ARC-56 source info instead of the logged output. Does not affect the logged output.
     """
 
 def logged_err(
     error_code: typing.LiteralString,
     error_message: typing.LiteralString | None = None,
     prefix: typing.Literal["AER", "ERR"] = "ERR",
+    *,
+    desc: typing.LiteralString | None = None,
 ) -> None:
     """
     Logs a formatted error message and immediately fails the transaction.
@@ -72,4 +78,6 @@ def logged_err(
     :arg error_code: An alphanumeric error code. Must not contain ``:``.
     :arg error_message: Optional message appended after the code. Must not contain ``:``.
     :arg prefix: Error prefix, either ``"AER"`` or ``"ERR"``.
+    :arg desc: Optional plain description of the failure, used as the error message in the
+        ARC-56 source info instead of the logged output. Does not affect the logged output.
     """

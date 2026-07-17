@@ -1107,15 +1107,19 @@ class FunctionIRBuilder(
 
         if expr.log_error:
             if expr.error_message:
-                _build_logged_error(self.context, condition_value, expr.error_message, loc)
+                _build_logged_error(
+                    self.context, condition_value, expr.error_message, expr.desc, loc
+                )
             else:
                 raise InternalError("a logged error should have some kind of string to log")
             return None
 
+        # desc, if provided, takes precedence over error_message for the source info comment
+        comment = expr.desc if expr.desc is not None else expr.error_message
         if condition_value is None:
             self.context.block_builder.terminate(
                 ir.Fail(
-                    error_message=expr.error_message,
+                    error_message=comment,
                     explicit=expr.explicit,
                     source_location=loc,
                 )
@@ -1124,7 +1128,7 @@ class FunctionIRBuilder(
             self.context.block_builder.add(
                 ir.Assert(
                     condition=condition_value,
-                    message=expr.error_message,
+                    message=comment,
                     explicit=expr.explicit,
                     source_location=loc,
                 )
@@ -1685,6 +1689,7 @@ def _build_logged_error(
     context: IRFunctionBuildContext,
     condition: ir.Value | None,
     msg: str,
+    desc: str | None,
     loc: SourceLocation,
 ) -> None:
     # model assert/err behavior as a conditional jump into a pushbytes X; log; err; pattern
@@ -1716,7 +1721,7 @@ def _build_logged_error(
     )
     context.block_builder.terminate(
         ir.Fail(
-            error_message=msg,
+            error_message=desc if desc is not None else msg,
             explicit=True,  # logged errors are always explicit
             source_location=loc,
         )

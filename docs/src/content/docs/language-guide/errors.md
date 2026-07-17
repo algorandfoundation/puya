@@ -62,6 +62,10 @@ failure is unconditional. Both functions accept the same arguments:
 - **`error_message`** *(optional)* — human-readable context appended after the code.
   Must not contain `:`.
 - **`prefix`** *(optional)*, defaults to `"ERR"` (`"AER"` is reserved for future ARC specific error codes).
+- **`desc`** *(optional, keyword-only)*, a plain description of the failure. When provided, it is
+  used as the error message in the contract's ARC-56 source info instead of the ARC-65 string.
+  It does not change the logged output, and since it is not embedded in the compiled program it
+  does not increase bytecode size.
 
 Because the prefix, code and message are embedded in the compiled program, keep
 them short, as they increase bytecode size compared to a plain `assert` or `op.err`.
