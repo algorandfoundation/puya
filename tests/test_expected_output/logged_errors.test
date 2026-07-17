@@ -196,6 +196,19 @@ class MyContract(Contract):
     def clear_state_program(self) -> bool:
         return True
 
+## case: test_logged_assert_non_literal_desc
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", desc="nine" if Txn.num_app_args > 0 else "ten") ## E: argument must be a simple str literal
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
 ## case: test_logged_assert_missing_code
 
 from algopy import Contract, Txn, logged_assert

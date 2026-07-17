@@ -51,3 +51,13 @@ def test_logged_errs(deployer_o: Deployer) -> None:
     # arg=8 fails logged_err -> "AER:arg08:arg is eight (08)"
     with pytest.raises(au.LogicError, match=r"AER:arg08:arg is eight \(08\)"):
         call(8)
+
+    # arg=9 fails logged_assert with desc -> logs "ERR:arg09:arg is nine",
+    # but the error surfaced via ARC-56 source info is the desc
+    with pytest.raises(au.LogicError, match="arg should not be nine because"):
+        call(9)
+
+    # arg=10 fails logged_err with desc -> logs "ERR:arg10",
+    # but the error surfaced via ARC-56 source info is the desc
+    with pytest.raises(au.LogicError, match="arg should not be ten because"):
+        call(10)
