@@ -120,6 +120,7 @@ class PuyaTestCase:
 
 
 def get_test_cases() -> list[PuyaTestCase]:
+    # non-recursive: grouped subtrees like examples/devportal/* are excluded
     return [
         PuyaTestCase(item)
         for root in (EXAMPLES_DIR, TEST_CASES_DIR, AWST_DIR)
