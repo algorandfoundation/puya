@@ -143,6 +143,7 @@ Namely you can pass in:
     when creating a contract and will appear in ARC-32/ARC-56 app spec.
 -   `avm_version` - Which determines the AVM version to target, affecting which operations are supported.
     Defaults to the value supplied on the command line (which defaults to the current mainnet version).
+-   `autosalt` - Which controls off-curve program salting, disabled by default for contracts. See [off-curve address hardening](#off-curve-address-hardening).
 
 Full example:
 
@@ -308,3 +309,35 @@ consume no positions in the args array, and instead bind to the transactions imm
 preceding the signed transaction in the group, in declaration order.
 
 Logic signatures can make use of subroutines that are not nested in contract classes.
+
+### Off-curve address hardening
+
+The address of a logic signature is derived from the SHA-512/256 hash of its compiled program.
+For roughly half of all programs this hash also happens to decode as a valid Ed25519 public key
+("on-curve"), meaning the address could in principle also be spent from as an ordinary key-based
+account by anyone able to derive the corresponding private key (e.g. a future quantum-capable
+adversary).
+
+To protect against this, Algorand Python appends a small piece of never-executed padding (a
+trailing `intcblock`, selected with the same algorithm as
+[go-algorand's assembler](https://github.com/algorand/go-algorand/pull/6592)) to any logic
+signature whose program hash would otherwise be on-curve, guaranteeing the derived address does
+not correspond to any public key. Programs that already hash off-curve are left unchanged.
+
+This behavior can be controlled with the `autosalt` option on the decorator:
+
+```python
+@algopy.logicsig(autosalt=False)
+def legacy_sig() -> bool:
+    ...
+```
+- `autosalt=True` is the default behavior for logic signatures, no matter the AVM version.
+- `autosalt=False` disables the salt. Useful for keeping backwards compatibility (though the compiler will warn, since it leaves the address potentially on-curve). The resolved setting is recorded in the emitted TEAL as `#pragma autosalt`, so assembling that TEAL with our bundled assembler keeps parity with algod.
+
+> [!NOTE]
+> Since the salt changes the program bytes, recompiling a logic signature originally compiled
+> without autosalt may produce a different address. Use `autosalt=False` if an existing address
+> must be preserved.
+
+Contracts are not salted by default, since a contract's program hash is never used as a
+spendable address, but the same `autosalt` option is available on contract classes.
