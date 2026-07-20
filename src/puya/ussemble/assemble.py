@@ -334,8 +334,10 @@ def _compute_pcs(
             assert op_size, "expected non empty bytecode"
             op_sizes.append(op_size)
 
-    branch_offsets = dict[int, int]()
+    if not varint_branches:  # early exit for v<=12
+        return list(itertools.accumulate(op_sizes, initial=start_pc)), {}
 
+    branch_offsets = dict[int, int]()
     # iteratively shrink varint branch placeholders to the minimum size needed,
     # recomputing pcs until no changes are observed
     changed = True
