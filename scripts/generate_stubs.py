@@ -119,6 +119,21 @@ GROUPED_OP_CODES = [
         },
     ),
     GroupedOpCodes(
+        name="AppBox",
+        doc="Get or modify the box state of an app, subject to its box access settings",
+        ops={
+            "app_box_create": "create",
+            "app_box_del": "delete",
+            "app_box_extract": "extract",
+            "app_box_get": "get",
+            "app_box_len": "length",
+            "app_box_put": "put",
+            "app_box_replace": "replace",
+            "app_box_resize": "resize",
+            "app_box_splice": "splice",
+        },
+    ),
+    GroupedOpCodes(
         name="EllipticCurve",
         doc="Elliptic Curve functions",
         ops={
@@ -175,6 +190,7 @@ MERGED_OP_CODES = [
     MergedOpCodes(doc="Get Global values", name="Global", ops=["global"]),
     MergedOpCodes(name="AcctParamsGet", ops=["acct_params_get"]),
     MergedOpCodes(name="AppParamsGet", ops=["app_params_get"]),
+    MergedOpCodes(name="AppParamsSet", ops=["app_params_set"]),
     MergedOpCodes(name="AssetHoldingGet", ops=["asset_holding_get"]),
     MergedOpCodes(name="AssetParamsGet", ops=["asset_params_get"]),
     MergedOpCodes(name="Block", ops=["block"]),

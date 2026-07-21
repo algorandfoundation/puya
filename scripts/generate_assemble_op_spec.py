@@ -21,7 +21,7 @@ def main() -> None:
 
 def build_op_spec(lang_spec: LanguageSpec) -> dict[str, OpSpec]:
     ops = {}
-    for op in sorted(lang_spec.ops.values(), key=lambda x: x.code):
+    for op in sorted(lang_spec.ops.values(), key=lambda x: (x.code, x.sub_code or 0)):
         immediates = list[ImmediateKind | ImmediateEnum]()
         for imm in op.immediate_args:
             if imm.arg_enum is None:
@@ -32,7 +32,9 @@ def build_op_spec(lang_spec: LanguageSpec) -> dict[str, OpSpec]:
                         codes={e.name: e.value for e in lang_spec.arg_enums[imm.arg_enum]}
                     )
                 )
-        op_spec = OpSpec(name=op.name, code=op.code, immediates=immediates)
+        op_spec = OpSpec(
+            name=op.name, code=op.code, immediates=immediates, sub_code=op.sub_code
+        )
         ops[op_spec.name] = op_spec
 
     return ops

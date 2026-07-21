@@ -26,6 +26,11 @@ VARIABLE_SIZE_OPCODES = {
     "pushints",
     "switch",
     "match",
+    # branch offsets are varint encoded from v13
+    "b",
+    "bz",
+    "bnz",
+    "callsub",
 }
 
 
@@ -45,6 +50,28 @@ class NamedType(typing.TypedDict):
     Name: str
     Abbreviation: str
     AVMType: str
+
+
+class ArgDetail(typing.TypedDict, total=False):
+    """
+    {
+      "Name": "AppForeignBoxReads",
+      "Type": "bool",
+      "Doc": "This app's boxes may be read by any app",
+      "ByteEncoding": 11,
+      "Version": 13
+    }
+    """
+
+    Name: str
+    Type: str
+    """only present when the enum value determines a stack type"""
+    Doc: str
+    ByteEncoding: int
+    Modes: int
+    """only present when it restricts the parent op's mode"""
+    Version: int
+    """only present when it differs from the parent op's IntroducedVersion"""
 
 
 class ImmediateNote(typing.TypedDict, total=False):
@@ -94,7 +121,7 @@ class Operation(typing.TypedDict, total=False):
     """
 
     Doc: str
-    Opcode: int
+    Opcode: int | list[int]
     Size: int
     Name: str
     IntroducedVersion: int
@@ -102,21 +129,17 @@ class Operation(typing.TypedDict, total=False):
     Args: list[str]
     Returns: list[str]
     DocExtra: str
+    DocCost: str
     ArgEnum: list[str]
     ArgEnumTypes: list[str]
-    ArgEnumBytes: list[int]
-    ArgModes: list[int]
-    ArgEnumVersion: list[int]
     ImmediateNote: list[ImmediateNote]
+    ArgDetails: list[ArgDetail]
+    Modes: int
 
     # the following values are not in the original langspec.json
     # these values are manually patched in during transform
     ArgEnumIsInput: bool
     Halts: bool
-    # these values are output by a modified opdoc.go from go-algorand repo
-    Cost: str
-    ArgEnumDoc: list[str]
-    Modes: int
 
 
 class AlgorandLanguageSpec(typing.TypedDict):
@@ -213,7 +236,7 @@ class Op:
     name: str
     """Name of op in TEAL"""
     code: int
-    """Bytecode value"""
+    """Bytecode value (the prefix byte for multi-byte opcodes)"""
     size: int
     """Size in bytes of compiled op, 0 indicate size is variable"""
     doc: list[str]
@@ -221,8 +244,10 @@ class Op:
     min_avm_version: int
     """AVM version op was introduced"""
     halts: bool
-    mode: RunMode
     """True if this op halts the program"""
+    mode: RunMode
+    sub_code: int | None = None
+    """Second opcode byte for multi-byte opcodes, None for single-byte opcodes"""
     groups: list[str] = attrs.field(factory=list)
     """Groups op belongs to"""
     stack_inputs: list[StackValue] = attrs.field(factory=list)
@@ -246,8 +271,34 @@ class LanguageSpec:
         return attrs.asdict(self)
 
 
+# the langspec references field groups by their doc headings (e.g. "app_params Fields"),
+# normalise these to the short names used as enum keys throughout the puya codebase
+_ENUM_REFERENCE_OVERRIDES = {
+    "MimcConfigurations Parameters": "Mimc Configurations",
+    "Poseidon2 Configurations Parameters": "Poseidon2 Configurations",
+}
+_ENUM_REFERENCE_SUFFIXES = (" Fields", " Curves", " Groups", " Encodings", " Types", " Standards")
+
+
+def _normalise_enum_reference(reference: str) -> str:
+    try:
+        return _ENUM_REFERENCE_OVERRIDES[reference]
+    except KeyError:
+        pass
+    if reference.endswith(_ENUM_REFERENCE_SUFFIXES):
+        return reference.rpartition(" ")[0]
+    return reference
+
+
 def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     ops = {op["Name"]: op for op in lang_spec["Ops"]}
+
+    for op in ops.values():
+        for immediate_note in op.get("ImmediateNote", []):
+            with contextlib.suppress(KeyError):
+                immediate_note["Reference"] = _normalise_enum_reference(
+                    immediate_note["Reference"]
+                )
 
     # patch ops that use a stack type of any
     # for arguments that should be an Address or Address index
@@ -272,6 +323,16 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
         "app_global_get_ex": 0,
         "app_local_get_ex": 1,
         "app_params_get": 0,
+        # foreign app box access: the leading arg is the target app id
+        "app_box_create": 0,
+        "app_box_extract": 0,
+        "app_box_replace": 0,
+        "app_box_del": 0,
+        "app_box_len": 0,
+        "app_box_get": 0,
+        "app_box_put": 0,
+        "app_box_splice": 0,
+        "app_box_resize": 0,
     }.items():
         _patch_arg_type(ops, op_name, arg_index, "uint64", "application")
 
@@ -351,32 +412,49 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     itxn_field = ops["itxn_field"]
     itxn_field["ImmediateNote"][0]["Reference"] = "itxn_field"
     itxn_field["ArgEnumIsInput"] = True
+    # app_params_set sets a field from a stack value, so its arg enum describes the input
+    ops["app_params_set"]["ArgEnumIsInput"] = True
     # ops that never return encode this with a single return type of none
     # however currently this information is stripped when generating langspec.json
     ops["err"]["Halts"] = True
     ops["return"]["Halts"] = True
 
+    # sumhash512 is gated to AVM 14 on go-algorand master and so is absent from
+    # langspec_v13.json, patch it in with its v14 min version so it remains known to the compiler
+    # and we avoid introducing a breaking change for this
+    lang_spec["Ops"].append(
+        {
+            "Opcode": 134,
+            "Name": "sumhash512",
+            "Args": ["[]byte"],
+            "Returns": ["[64]byte"],
+            "Size": 1,
+            "DocCost": "150 + 7 per 4 bytes of A",
+            "Doc": "sumhash512 of value A, yields [64]byte",
+            "IntroducedVersion": 14,
+            "Groups": ["Cryptography"],
+            "Modes": 3,
+        }
+    )
+
 
 def _patch_arg_enum_type(
     op: dict[str, typing.Any], immediate: str, current_type: str, new_type: str
 ) -> None:
-    arg_enum = op["ArgEnum"]
-    assert immediate in arg_enum, f"Expected {immediate} arg enum for {op['Name']}"
-    immediate_index = arg_enum.index(immediate)
-    arg_enum_types = op["ArgEnumTypes"]
-    assert (
-        arg_enum_types[immediate_index] == current_type
-    ), f"Expected {immediate} to be {current_type}"
-    arg_enum_types[immediate_index] = new_type
+    matches = [d for d in op["ArgDetails"] if d["Name"] == immediate]
+    assert matches, f"Expected {immediate} arg enum for {op['Name']}"
+    (detail,) = matches
+    assert detail["Type"] == current_type, f"Expected {immediate} to be {current_type}"
+    detail["Type"] = new_type
 
 
 def _patch_arg_type(
     ops: dict[str, typing.Any], op_name: str, arg_index: int, current_type: str, new_type: str
 ) -> None:
     op_args = ops[op_name]["Args"]
-    assert (
-        op_args[arg_index] == current_type
-    ), f"Expected {op_name} arg {arg_index} to be {current_type}"
+    assert op_args[arg_index] == current_type, (
+        f"Expected {op_name} arg {arg_index} to be {current_type}"
+    )
     op_args[arg_index] = new_type
 
 
@@ -384,35 +462,29 @@ def _patch_return_type(
     ops: dict[str, typing.Any], op_name: str, return_index: int, current_type: str, new_type: str
 ) -> None:
     returns = ops[op_name]["Returns"]
-    assert (
-        returns[return_index] == current_type
-    ), f"Expected {op_name} return {return_index} to be {current_type}"
+    assert returns[return_index] == current_type, (
+        f"Expected {op_name} return {return_index} to be {current_type}"
+    )
     returns[return_index] = new_type
 
 
 def create_indexed_enum(op: Operation) -> list[ArgEnum]:
-    enum_names = op["ArgEnum"]
-    enum_types: list[str] | list[None] = op.get("ArgEnumTypes", [])
-    enum_docs = op["ArgEnumDoc"]
-    enum_bytes = op["ArgEnumBytes"]
-    enum_modes = op["ArgModes"]
-    enum_versions = op["ArgEnumVersion"]
-
-    if not enum_types:
-        enum_types = [None] * len(enum_names)
+    enum_details = op["ArgDetails"]
+    assert len(enum_details) == len(op["ArgEnum"]), f"ArgDetails mismatch for {op['Name']}"
+    # ArgEnumTypes and ArgDetails.Type are only present when the enum value
+    # determines a stack type
+    typed = "ArgEnumTypes" in op
 
     result = list[ArgEnum]()
-    for enum_name, enum_type, enum_doc, enum_mode, enum_byte, enum_version in zip(
-        enum_names, enum_types, enum_docs, enum_modes, enum_bytes, enum_versions, strict=True
-    ):
-        stack_type = None if enum_type is None else StackType(enum_type)
+    for detail in enum_details:
+        stack_type = StackType(detail["Type"]) if typed else None
         enum_value = ArgEnum(
-            name=enum_name,
-            doc=enum_doc if enum_doc else None,
+            name=detail["Name"],
+            doc=detail["Doc"] or None,
             stack_type=stack_type,
-            mode=_map_enum_mode(op["Modes"], enum_mode),
-            value=enum_byte,
-            min_avm_version=enum_version,
+            mode=_map_enum_mode(op["Modes"], detail.get("Modes", 0)),
+            value=detail["ByteEncoding"],
+            min_avm_version=detail.get("Version", op["IntroducedVersion"]),
         )
         result.append(enum_value)
     return result
@@ -485,9 +557,9 @@ def transform_immediates(
                 arg_enums[arg_enum_reference] = create_indexed_enum(enum_op)
 
             if arg_enum is not None:
-                assert len(arg_enum) == len(
-                    arg_enums[arg_enum_reference]
-                ), f"Arg Enum lengths don't match for {op_name}"
+                assert len(arg_enum) == len(arg_enums[arg_enum_reference]), (
+                    f"Arg Enum lengths don't match for {op_name}"
+                )
 
         modifies_stack_input: int | None = None
         modifies_stack_output: int | None = None
@@ -559,7 +631,7 @@ def get_immediate_encoded_size(immediate: Immediate) -> int:
 
 
 def transform_cost(op: Operation) -> Cost:
-    algorand_cost = op["Cost"]
+    algorand_cost = op["DocCost"]
     cost = Cost(value=None, doc=algorand_cost)
     with contextlib.suppress(ValueError):
         cost.value = int(algorand_cost)
@@ -572,9 +644,15 @@ def transform_spec(lang_spec: AlgorandLanguageSpec) -> LanguageSpec:
     arg_enums = result.arg_enums
     algorand_ops = {o["Name"]: o for o in sorted(lang_spec["Ops"], key=lambda x: x["Name"])}
     for op_name, algorand_op in algorand_ops.items():
+        opcode = algorand_op["Opcode"]
+        if isinstance(opcode, list):
+            code, sub_code = opcode[0], opcode[1]
+        else:
+            code, sub_code = opcode, None
         op = Op(
             name=op_name,
-            code=algorand_op["Opcode"],
+            code=code,
+            sub_code=sub_code,
             size=algorand_op["Size"],
             doc=transform_doc(algorand_op),
             cost=transform_cost(algorand_op),
@@ -593,11 +671,16 @@ def transform_spec(lang_spec: AlgorandLanguageSpec) -> LanguageSpec:
 
 def validate_op(lang_spec: LanguageSpec, op: Op) -> None:
     # validate op size
-    instruction_size = 0 if op.name in VARIABLE_SIZE_OPCODES else 1
-    expected_size = (
-        sum([get_immediate_encoded_size(a) for a in op.immediate_args]) + instruction_size
-    )
-    assert op.size == expected_size, f"Unexpected size for specified immediate args for {op.name}"
+    if op.name in VARIABLE_SIZE_OPCODES:
+        assert op.size == 0, f"Expected variable size op {op.name} to have size 0"
+    else:
+        instruction_size = 1 if op.sub_code is None else 2  # prefix byte + sub-opcode byte
+        expected_size = (
+            sum([get_immediate_encoded_size(a) for a in op.immediate_args]) + instruction_size
+        )
+        assert op.size == expected_size, (
+            f"Unexpected size for specified immediate args for {op.name}"
+        )
 
     # validate immediate modifiers
     for immediate in op.immediate_args:
@@ -628,7 +711,7 @@ def main() -> None:
 
     lang_spec_json = json.loads(spec_path.read_text(encoding="utf-8"))
     _patch_lang_spec(lang_spec_json)
-    lang_spec = typing.cast(AlgorandLanguageSpec, lang_spec_json)
+    lang_spec = typing.cast("AlgorandLanguageSpec", lang_spec_json)
 
     puya_spec = transform_spec(lang_spec)
     puya_json = json.dumps(puya_spec.to_json(), indent=4)
