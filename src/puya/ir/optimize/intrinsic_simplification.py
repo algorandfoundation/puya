@@ -123,11 +123,13 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "ed25519verify_bare",
         "json_ref",
         "keccak256",
+        "poseidon2",
         "sha256",
         "sha3_256",
+        "sha512",
         "sha512_256",
+        "sumhash512",  # v14
         "vrf_verify",
-        "sumhash512",  # AVM 11
     ]
 )
 
