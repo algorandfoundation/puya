@@ -7,8 +7,31 @@ main:
 
 main_block@0:
     // avm_13/contract.py:6
-    // return op.sumhash512(b"").length
+    // assert op.sha512(b"") != op.sha512(b"a")
     pushbytes 0x
-    sumhash512
+    sha512
+    pushbytes 0x61
+    sha512
+    !=
+    assert
+    // avm_13/contract.py:7
+    // scalar = op.bzero(32)
+    pushint 32
+    bzero
+    // avm_13/contract.py:8
+    // bn = op.poseidon2(op.Poseidon2Configurations.BN254t2, scalar)
+    dup
+    poseidon2 BN254t2
+    cover 1
+    // avm_13/contract.py:9
+    // bls = op.poseidon2(op.Poseidon2Configurations.BLS12_381t2, scalar)
+    poseidon2 BLS12_381t2
+    // avm_13/contract.py:10
+    // assert bn != bls
+    dig 1
+    !=
+    assert
+    // avm_13/contract.py:11
+    // return bn.length
     len
     return

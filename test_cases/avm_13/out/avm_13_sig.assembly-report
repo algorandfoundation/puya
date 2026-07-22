@@ -1,7 +1,26 @@
-| PC | TEAL Bytes | TEAL               | Source                           | Location                                           |
-|--: | :----------| :------------------| :--------------------------------| :--------------------------------------------------|
-|  0 | 0d         | #pragma version 13 |                                  |                                                    |
-|    | # main     | main:              |                                  | test_cases.avm_13.contract.avm_13_sig() -> uint64: |
-|    |            |                    | return op.sumhash512(b"").length | avm_13/contract.py:6                               |
-|  1 | 81 40      |     pushint 64     |        ------------------------- | avm_13/contract.py:6:11-36                         |
-|  3 | 43         |     return         | -------------------------------- | avm_13/contract.py:6:4-36                          |
+| PC | TEAL Bytes | TEAL                      | Source                                                             | Location                                           |
+|--: | :----------| :-------------------------| :------------------------------------------------------------------| :--------------------------------------------------|
+|  0 | 0d         | #pragma version 13        |                                                                    |                                                    |
+|    | # main     | main:                     |                                                                    | test_cases.avm_13.contract.avm_13_sig() -> uint64: |
+|    |            |                           | assert op.sha512(b"") != op.sha512(b"a")                           | avm_13/contract.py:6                               |
+|  1 | 80 00      |     pushbytes 0x          |                  ---                                               | avm_13/contract.py:6:21-24                         |
+|  3 | 87         |     sha512                |        --------------                                              | avm_13/contract.py:6:11-25                         |
+|  4 | 80 01 61   |     pushbytes 0x61        |                                    ----                            | avm_13/contract.py:6:39-43                         |
+|  7 | 87         |     sha512                |                          ---------------                           | avm_13/contract.py:6:29-44                         |
+|  8 | 13         |     !=                    |        ---------------------------------                           | avm_13/contract.py:6:11-44                         |
+|  9 | 44         |     assert                | ----------------------------------------                           | avm_13/contract.py:6:4-44                          |
+|    |            |                           | scalar = op.bzero(32)                                              | avm_13/contract.py:7                               |
+| 10 | 81 20      |     pushint 32            |                   --                                               | avm_13/contract.py:7:22-24                         |
+| 12 | af         |     bzero                 |          ------------                                              | avm_13/contract.py:7:13-25                         |
+|    |            |                           | bn = op.poseidon2(op.Poseidon2Configurations.BN254t2, scalar)      | avm_13/contract.py:8                               |
+| 13 | 49         |     dup                   |      --------------------------------------------------------      | avm_13/contract.py:8:9-65                          |
+| 14 | e7 00      |     poseidon2 BN254t2     |      --------------------------------------------------------      | avm_13/contract.py:8:9-65                          |
+|    |            |                           | bls = op.poseidon2(op.Poseidon2Configurations.BLS12_381t2, scalar) | avm_13/contract.py:9                               |
+| 16 | 4c         |     swap                  |       ------------------------------------------------------------ | avm_13/contract.py:9:10-70                         |
+| 17 | e7 01      |     poseidon2 BLS12_381t2 |       ------------------------------------------------------------ | avm_13/contract.py:9:10-70                         |
+|    |            |                           | assert bn != bls                                                   | avm_13/contract.py:10                              |
+| 19 | 13         |     !=                    |        ---------                                                   | avm_13/contract.py:10:11-20                        |
+| 20 | 44         |     assert                | ----------------                                                   | avm_13/contract.py:10:4-20                         |
+|    |            |                           | return bn.length                                                   | avm_13/contract.py:11                              |
+| 21 | 81 20      |     pushint 32            |        ---------                                                   | avm_13/contract.py:11:11-20                        |
+| 23 | 43         |     return                | ----------------                                                   | avm_13/contract.py:11:4-20                         |

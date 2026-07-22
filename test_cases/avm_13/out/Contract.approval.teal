@@ -3,28 +3,292 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // avm_13/contract.py:9
+    intcblock 1 0 8 4
+    bytecblock 0x6278 0xff
+    // avm_13/contract.py:14
     // class Contract(ARC4Contract, avm_version=13):
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
+    bz main___algopy_default_create@12
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xc2b8dd8a 0x0b349ead 0xecdc05c6 0xec92bded 0x8cf21d8f // method "test_new_ops()void", method "test_poseidon2()void", method "test_app_params()void", method "test_app_box_ops()void", method "test_block()void"
     txna ApplicationArgs 0
-    match main_test_new_ops_route@3
+    match test_new_ops test_poseidon2 test_app_params test_app_box_ops test_block
     err
 
-main_test_new_ops_route@3:
-    // avm_13/contract.py:10
-    // @arc4.abimethod
+main___algopy_default_create@12:
     txn OnCompletion
     !
     txn ApplicationID
+    !
     &&
     return
 
-main___algopy_default_create@5:
-    txn OnCompletion
+
+// test_cases.avm_13.contract.Contract.test_new_ops[routing]() -> void:
+test_new_ops:
+    // avm_13/contract.py:17
+    // assert op.sha512(b"") != op.sha512(b"a")
+    pushbytes 0x
+    sha512
+    pushbytes 0x61
+    sha512
+    !=
+    assert
+    // avm_13/contract.py:15
+    // @arc4.abimethod
+    intc_0 // 1
+    return
+
+
+// test_cases.avm_13.contract.Contract.test_poseidon2[routing]() -> void:
+test_poseidon2:
+    // avm_13/contract.py:21
+    // scalar = op.bzero(32)
+    pushint 32
+    bzero
+    // avm_13/contract.py:22
+    // bn = op.poseidon2(op.Poseidon2Configurations.BN254t2, scalar)
+    dup
+    poseidon2 BN254t2
+    // avm_13/contract.py:23
+    // bls = op.poseidon2(op.Poseidon2Configurations.BLS12_381t2, scalar)
+    swap
+    poseidon2 BLS12_381t2
+    // avm_13/contract.py:26
+    // assert bn != bls
+    !=
+    assert
+    // avm_13/contract.py:19
+    // @arc4.abimethod
+    intc_0 // 1
+    return
+
+
+// test_cases.avm_13.contract.Contract.test_app_params[routing]() -> void:
+test_app_params:
+    // avm_13/contract.py:30
+    // app = Global.current_application_id
+    global CurrentApplicationID
+    // avm_13/contract.py:31
+    // sponsor, exists = op.AppParamsGet.app_size_sponsor(app)
+    dup
+    app_params_get AppSizeSponsor
+    // avm_13/contract.py:32
+    // assert exists
+    assert
+    // avm_13/contract.py:33
+    // assert sponsor == Global.zero_address
+    global ZeroAddress
+    ==
+    assert
+    // avm_13/contract.py:34
+    // fbr, exists = op.AppParamsGet.app_foreign_box_reads(app)
+    dup
+    app_params_get AppForeignBoxReads
+    // avm_13/contract.py:35
+    // assert exists
+    assert
+    // avm_13/contract.py:36
+    // assert not fbr
     !
-    txn ApplicationID
+    assert
+    // avm_13/contract.py:37
+    // fba, exists = op.AppParamsGet.app_family_box_access(app)
+    dup
+    app_params_get AppFamilyBoxAccess
+    // avm_13/contract.py:38
+    // assert exists
+    assert
+    // avm_13/contract.py:39
+    // assert not fba
     !
-    &&
+    assert
+    // avm_13/contract.py:40
+    // op.AppParamsSet.app_foreign_box_reads(True)
+    intc_0 // 1
+    app_params_set AppForeignBoxReads
+    // avm_13/contract.py:41
+    // op.AppParamsSet.app_family_box_access(True)
+    intc_0 // 1
+    app_params_set AppFamilyBoxAccess
+    // avm_13/contract.py:42
+    // fbr, exists = op.AppParamsGet.app_foreign_box_reads(app)
+    dup
+    app_params_get AppForeignBoxReads
+    // avm_13/contract.py:43
+    // assert exists
+    assert
+    // avm_13/contract.py:44
+    // assert fbr
+    assert
+    // avm_13/contract.py:45
+    // fba, exists = op.AppParamsGet.app_family_box_access(app)
+    app_params_get AppFamilyBoxAccess
+    // avm_13/contract.py:46
+    // assert exists
+    assert
+    // avm_13/contract.py:47
+    // assert fba
+    assert
+    // avm_13/contract.py:28
+    // @arc4.abimethod
+    intc_0 // 1
+    return
+
+
+// test_cases.avm_13.contract.Contract.test_app_box_ops[routing]() -> void:
+test_app_box_ops:
+    // avm_13/contract.py:51
+    // app = Global.current_application_id
+    global CurrentApplicationID
+    // avm_13/contract.py:53
+    // assert op.AppBox.create(app, name, 8)
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:53
+    // assert op.AppBox.create(app, name, 8)
+    intc_2 // 8
+    app_box_create
+    assert
+    // avm_13/contract.py:54
+    // op.AppBox.put(app, name, op.bzero(8))
+    intc_2 // 8
+    bzero
+    dig 1
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:54
+    // op.AppBox.put(app, name, op.bzero(8))
+    dig 2
+    app_box_put
+    // avm_13/contract.py:55
+    // value, exists = op.AppBox.get(app, name)
+    dig 1
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:55
+    // value, exists = op.AppBox.get(app, name)
+    app_box_get
+    // avm_13/contract.py:56
+    // assert exists
+    assert
+    // avm_13/contract.py:57
+    // assert value == op.bzero(8)
+    ==
+    assert
+    // avm_13/contract.py:58
+    // op.AppBox.replace(app, name, 0, b"\xff")
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:58
+    // op.AppBox.replace(app, name, 0, b"\xff")
+    intc_1 // 0
+    bytec_1 // 0xff
+    app_box_replace
+    // avm_13/contract.py:59
+    // assert op.AppBox.extract(app, name, 0, 1) == b"\xff"
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:59
+    // assert op.AppBox.extract(app, name, 0, 1) == b"\xff"
+    intc_1 // 0
+    intc_0 // 1
+    app_box_extract
+    bytec_1 // 0xff
+    ==
+    assert
+    // avm_13/contract.py:60
+    // op.AppBox.splice(app, name, 1, 3, b"abc")
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:60
+    // op.AppBox.splice(app, name, 1, 3, b"abc")
+    intc_0 // 1
+    pushint 3
+    pushbytes 0x616263
+    app_box_splice
+    // avm_13/contract.py:61
+    // op.AppBox.resize(app, name, 4)
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:61
+    // op.AppBox.resize(app, name, 4)
+    intc_3 // 4
+    app_box_resize
+    // avm_13/contract.py:62
+    // length, exists = op.AppBox.length(app, name)
+    dup
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:62
+    // length, exists = op.AppBox.length(app, name)
+    app_box_len
+    // avm_13/contract.py:63
+    // assert exists
+    assert
+    // avm_13/contract.py:64
+    // assert length == 4
+    intc_3 // 4
+    ==
+    assert
+    // avm_13/contract.py:52
+    // name = Bytes(b"bx")
+    bytec_0 // 0x6278
+    // avm_13/contract.py:65
+    // assert op.AppBox.delete(app, name)
+    app_box_del
+    assert
+    // avm_13/contract.py:49
+    // @arc4.abimethod
+    intc_0 // 1
+    return
+
+
+// test_cases.avm_13.contract.Contract.test_block[routing]() -> void:
+test_block:
+    // avm_13/contract.py:69
+    // branch512 = op.Block.blk_branch512(0)
+    intc_1 // 0
+    block BlkBranch512
+    // avm_13/contract.py:70
+    // sha512_256_commitment = op.Block.blk_sha512_256_txn_commitment(0)
+    intc_1 // 0
+    block BlkSha512_256TxnCommitment
+    // avm_13/contract.py:71
+    // sha256_commitment = op.Block.blk_sha256_txn_commitment(0)
+    intc_1 // 0
+    block BlkSha256TxnCommitment
+    // avm_13/contract.py:72
+    // sha512_commitment = op.Block.blk_sha512_txn_commitment(0)
+    intc_1 // 0
+    block BlkSha512TxnCommitment
+    // avm_13/contract.py:73
+    // assert branch512 != sha512_commitment
+    uncover 3
+    !=
+    assert
+    // avm_13/contract.py:74
+    // assert sha512_256_commitment != sha256_commitment
+    !=
+    assert
+    // avm_13/contract.py:67
+    // @arc4.abimethod
+    intc_0 // 1
     return

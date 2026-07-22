@@ -1,5 +1,13 @@
 main test_cases.avm_13.contract.avm_13_sig:
     block@0: // L4
-        let tmp%0#0: bytes = (sumhash512 0x)
-        let tmp%1#0: uint64 = 64u
-        return 64u
+        let tmp%0#0: bytes = (sha512 0x)
+        let tmp%1#0: bytes = (sha512 0x61)
+        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
+        (assert tmp%2#0)
+        let scalar#0: bytes = (bzero 32u)
+        let bn#0: bytes = ((poseidon2 BN254t2) scalar#0)
+        let bls#0: bytes = ((poseidon2 BLS12_381t2) scalar#0)
+        let tmp%6#0: bool = (!= bn#0 bls#0)
+        (assert tmp%6#0)
+        let tmp%7#0: uint64 = 32u
+        return 32u

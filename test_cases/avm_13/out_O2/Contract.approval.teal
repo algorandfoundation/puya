@@ -3,21 +3,147 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1 0 8 4
+    bytecblock 0x6278 0xff
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
-    txna ApplicationArgs 0
-    match main_test_new_ops_route@3
-    err
-
-main_test_new_ops_route@3:
+    bz main___algopy_default_create@12
     txn OnCompletion
     !
+    assert
     txn ApplicationID
-    &&
+    assert
+    pushbytess 0xc2b8dd8a 0x0b349ead 0xecdc05c6 0xec92bded 0x8cf21d8f // method "test_new_ops()void", method "test_poseidon2()void", method "test_app_params()void", method "test_app_box_ops()void", method "test_block()void"
+    txna ApplicationArgs 0
+    match main_test_new_ops_route@4 main_test_poseidon2_route@5 main_test_app_params_route@6 main_test_app_box_ops_route@7 main_test_block_route@8
+    err
+
+main_test_block_route@8:
+    intc_1 // 0
+    block BlkBranch512
+    intc_1 // 0
+    block BlkSha512_256TxnCommitment
+    intc_1 // 0
+    block BlkSha256TxnCommitment
+    intc_1 // 0
+    block BlkSha512TxnCommitment
+    uncover 3
+    !=
+    assert
+    !=
+    assert
+    intc_0 // 1
     return
 
-main___algopy_default_create@5:
+main_test_app_box_ops_route@7:
+    global CurrentApplicationID
+    dup
+    bytec_0 // 0x6278
+    intc_2 // 8
+    app_box_create
+    assert
+    intc_2 // 8
+    bzero
+    dig 1
+    bytec_0 // 0x6278
+    dig 2
+    app_box_put
+    dig 1
+    bytec_0 // 0x6278
+    app_box_get
+    assert
+    ==
+    assert
+    dup
+    bytec_0 // 0x6278
+    intc_1 // 0
+    bytec_1 // 0xff
+    app_box_replace
+    dup
+    bytec_0 // 0x6278
+    intc_1 // 0
+    intc_0 // 1
+    app_box_extract
+    bytec_1 // 0xff
+    ==
+    assert
+    dup
+    bytec_0 // 0x6278
+    intc_0 // 1
+    pushint 3
+    pushbytes 0x616263
+    app_box_splice
+    dup
+    bytec_0 // 0x6278
+    intc_3 // 4
+    app_box_resize
+    dup
+    bytec_0 // 0x6278
+    app_box_len
+    assert
+    intc_3 // 4
+    ==
+    assert
+    bytec_0 // 0x6278
+    app_box_del
+    assert
+    intc_0 // 1
+    return
+
+main_test_app_params_route@6:
+    global CurrentApplicationID
+    dup
+    app_params_get AppSizeSponsor
+    assert
+    global ZeroAddress
+    ==
+    assert
+    dup
+    app_params_get AppForeignBoxReads
+    assert
+    !
+    assert
+    dup
+    app_params_get AppFamilyBoxAccess
+    assert
+    !
+    assert
+    intc_0 // 1
+    app_params_set AppForeignBoxReads
+    intc_0 // 1
+    app_params_set AppFamilyBoxAccess
+    dup
+    app_params_get AppForeignBoxReads
+    assert
+    assert
+    app_params_get AppFamilyBoxAccess
+    assert
+    assert
+    intc_0 // 1
+    return
+
+main_test_poseidon2_route@5:
+    pushint 32
+    bzero
+    dup
+    poseidon2 BN254t2
+    swap
+    poseidon2 BLS12_381t2
+    !=
+    assert
+    intc_0 // 1
+    return
+
+main_test_new_ops_route@4:
+    pushbytes 0x
+    sha512
+    pushbytes 0x61
+    sha512
+    !=
+    assert
+    intc_0 // 1
+    return
+
+main___algopy_default_create@12:
     txn OnCompletion
     !
     txn ApplicationID

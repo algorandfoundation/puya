@@ -1,24 +1,92 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@5
-    block@2: // abi_routing_L9
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_new_ops()void" => block@3, * => block@4}
-    block@3: // test_new_ops_route_L10
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
-        (assert tmp%7#0)
+        goto tmp%0#1 ? block@2 : block@12
+    block@2: // abi_routing_L14
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_new_ops()void" => block@4, method "test_poseidon2()void" => block@5, method "test_app_params()void" => block@6, method "test_app_box_ops()void" => block@7, method "test_block()void" => block@8, * => block@11}
+    block@4: // test_new_ops_route_L15
+        let tmp%0#2: bytes = (sha512 0x)
+        let tmp%1#2: bytes = (sha512 0x61)
+        let tmp%2#2: bool = (!= tmp%0#2 tmp%1#2)
+        (assert tmp%2#2)
         exit 1u
-    block@4: // switch_case_next_L9
-        fail
-    block@5: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (! tmp%8#0)
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (! tmp%10#0)
-        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+    block@5: // test_poseidon2_route_L19
+        let scalar#0: bytes = (bzero 32u)
+        let bn#0: bytes = ((poseidon2 BN254t2) scalar#0)
+        let bls#0: bytes = ((poseidon2 BLS12_381t2) scalar#0)
+        let tmp%7#2: bool = (!= bn#0 bls#0)
+        (assert tmp%7#2)
+        exit 1u
+    block@6: // test_app_params_route_L28
+        let app#0: uint64 = (global CurrentApplicationID)
+        let (sponsor#0: account, exists#0: bool) = ((app_params_get AppSizeSponsor) app#0)
+        (assert exists#0)
+        let tmp%3#1: account = (global ZeroAddress)
+        let tmp%4#1: bool = (== sponsor#0 tmp%3#1)
+        (assert tmp%4#1)
+        let (fbr#0: bool, exists#0: bool) = ((app_params_get AppForeignBoxReads) app#0)
+        (assert exists#0)
+        let tmp%7#2: bool = (! fbr#0)
+        (assert tmp%7#2)
+        let (fba#0: bool, exists#0: bool) = ((app_params_get AppFamilyBoxAccess) app#0)
+        (assert exists#0)
+        let tmp%10#0: bool = (! fba#0)
+        (assert tmp%10#0)
+        ((app_params_set AppForeignBoxReads) 1u)
+        ((app_params_set AppFamilyBoxAccess) 1u)
+        let (fbr#0: bool, exists#0: bool) = ((app_params_get AppForeignBoxReads) app#0)
+        (assert exists#0)
+        (assert fbr#0)
+        let (fba#0: bool, exists#0: bool) = ((app_params_get AppFamilyBoxAccess) app#0)
+        (assert exists#0)
+        (assert fba#0)
+        exit 1u
+    block@7: // test_app_box_ops_route_L49
+        let app#0: uint64 = (global CurrentApplicationID)
+        let tmp%1#1: bool = (app_box_create app#0 0x6278 8u)
+        (assert tmp%1#1)
+        let tmp%2#1: bytes = (bzero 8u)
+        (app_box_put app#0 0x6278 tmp%2#1)
+        let (value#0: bytes, exists#0: bool) = (app_box_get app#0 0x6278)
+        (assert exists#0)
+        let tmp%6#1: bool = (== value#0 tmp%2#1)
+        (assert tmp%6#1)
+        (app_box_replace app#0 0x6278 0u 0xff)
+        let tmp%7#1: bytes = (app_box_extract app#0 0x6278 0u 1u)
+        let tmp%8#0: bool = (== tmp%7#1 0xff)
+        (assert tmp%8#0)
+        (app_box_splice app#0 0x6278 1u 3u 0x616263)
+        (app_box_resize app#0 0x6278 4u)
+        let (length#0: uint64, exists#0: bool) = (app_box_len app#0 0x6278)
+        (assert exists#0)
+        let tmp%11#0: bool = (== length#0 4u)
+        (assert tmp%11#0)
+        let tmp%12#0: bool = (app_box_del app#0 0x6278)
         (assert tmp%12#0)
+        exit 1u
+    block@8: // test_block_route_L67
+        let branch512#0: bytes = ((block BlkBranch512) 0u)
+        let sha512_256_commitment#0: bytes = ((block BlkSha512_256TxnCommitment) 0u)
+        let sha256_commitment#0: bytes = ((block BlkSha256TxnCommitment) 0u)
+        let sha512_commitment#0: bytes = ((block BlkSha512TxnCommitment) 0u)
+        let tmp%4#1: bool = (!= branch512#0 sha512_commitment#0)
+        (assert tmp%4#1)
+        let tmp%5#1: bool = (!= sha512_256_commitment#0 sha256_commitment#0)
+        (assert tmp%5#1)
+        exit 1u
+    block@11: // after_if_else_L14
+        fail
+    block@12: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
         exit 1u

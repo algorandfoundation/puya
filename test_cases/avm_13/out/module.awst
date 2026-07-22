@@ -1,6 +1,11 @@
 logicsig test_cases.avm_13.contract.avm_13_sig():
 {
-  return len(sumhash512(hex<"">))
+  assert(sha512(hex<"">) != sha512(hex<"61">))
+  scalar: bytes = bzero(32u)
+  bn: bytes = poseidon2<BN254t2>(scalar)
+  bls: bytes = poseidon2<BLS12_381t2>(scalar)
+  assert(bn != bls)
+  return len(bn)
 }
 
 contract Contract
@@ -22,7 +27,68 @@ contract Contract
   
   abimethod test_cases.avm_13.contract.Contract.test_new_ops(): void
   {
-    assert(len(sumhash512(hex<"">)) != 0u)
+    assert(sha512(hex<"">) != sha512(hex<"61">))
+  }
+  
+  abimethod test_cases.avm_13.contract.Contract.test_poseidon2(): void
+  {
+    scalar: bytes = bzero(32u)
+    bn: bytes = poseidon2<BN254t2>(scalar)
+    bls: bytes = poseidon2<BLS12_381t2>(scalar)
+    assert(len(bn) == 32u)
+    assert(len(bls) == 32u)
+    assert(bn != bls)
+  }
+  
+  abimethod test_cases.avm_13.contract.Contract.test_app_params(): void
+  {
+    app: application = global<CurrentApplicationID>()
+    (sponsor, exists): tuple<account,bool> = app_params_get<AppSizeSponsor>(app)
+    assert(exists)
+    assert(sponsor == global<ZeroAddress>())
+    (fbr, exists): tuple<bool,bool> = app_params_get<AppForeignBoxReads>(app)
+    assert(exists)
+    assert(!(fbr))
+    (fba, exists): tuple<bool,bool> = app_params_get<AppFamilyBoxAccess>(app)
+    assert(exists)
+    assert(!(fba))
+    app_params_set<AppForeignBoxReads>(true)
+    app_params_set<AppFamilyBoxAccess>(true)
+    (fbr, exists): tuple<bool,bool> = app_params_get<AppForeignBoxReads>(app)
+    assert(exists)
+    assert(fbr)
+    (fba, exists): tuple<bool,bool> = app_params_get<AppFamilyBoxAccess>(app)
+    assert(exists)
+    assert(fba)
+  }
+  
+  abimethod test_cases.avm_13.contract.Contract.test_app_box_ops(): void
+  {
+    app: application = global<CurrentApplicationID>()
+    name: bytes = hex<"6278">
+    assert(app_box_create(app, name, 8u))
+    app_box_put(app, name, bzero(8u))
+    (value, exists): tuple<bytes,bool> = app_box_get(app, name)
+    assert(exists)
+    assert(value == bzero(8u))
+    app_box_replace(app, name, 0u, hex<"FF">)
+    assert(app_box_extract(app, name, 0u, 1u) == hex<"FF">)
+    app_box_splice(app, name, 1u, 3u, hex<"616263">)
+    app_box_resize(app, name, 4u)
+    (length, exists): tuple<uint64,bool> = app_box_len(app, name)
+    assert(exists)
+    assert(length == 4u)
+    assert(app_box_del(app, name))
+  }
+  
+  abimethod test_cases.avm_13.contract.Contract.test_block(): void
+  {
+    branch512: bytes = block<BlkBranch512>(0u)
+    sha512_256_commitment: bytes = block<BlkSha512_256TxnCommitment>(0u)
+    sha256_commitment: bytes = block<BlkSha256TxnCommitment>(0u)
+    sha512_commitment: bytes = block<BlkSha512TxnCommitment>(0u)
+    assert(branch512 != sha512_commitment)
+    assert(sha512_256_commitment != sha256_commitment)
   }
   
   baremethod test_cases.avm_13.contract.Contract.__algopy_default_create(): void
