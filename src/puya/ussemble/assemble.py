@@ -16,7 +16,7 @@ from puya.ussemble.context import AssembleContext
 from puya.ussemble.debug import build_debug_info
 from puya.ussemble.models import AVMOp
 from puya.ussemble.op_spec import OP_SPECS
-from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
+from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
 
 logger = log.get_logger(__name__)
 
@@ -322,9 +322,8 @@ def _compute_pcs(
         # so just use placeholder values initially
         if varint_branches and op.op_code in _VARINT_BRANCHING_OPS:
             varint_branch_indexes.append(index)
-            op_sizes.append(
-                _VARINT_BRANCH_INITIAL_SIZE + 1
-            )  # add 1 b.c. of opcode size (see TODO below)
+            # placeholder: opcode byte(s) + maximum branch offset size
+            op_sizes.append(_op_code_size(op.op_spec) + _VARINT_BRANCH_INITIAL_SIZE)
         else:
             op_size = len(
                 _encode_op(
@@ -365,14 +364,16 @@ def _compute_pcs(
                     f"branch target for {op.op_code} is too far away",
                     op.source_location,
                 )
-            # TODO: for now we don't have any ops that are more than 1 byte,
-            # much less a branching op. But a soon to be merged PR will carry
-            # multi-byte opcodes. So probably a good idea to make these magic
-            # +/-1s to be the opcode size when that's done
-            if needed < op_sizes[index] - 1:
-                op_sizes[index] = needed + 1
+            op_code_size = _op_code_size(op.op_spec)
+            if needed < op_sizes[index] - op_code_size:
+                op_sizes[index] = needed + op_code_size
                 changed = True
     return pcs, branch_offsets
+
+
+def _op_code_size(op_spec: OpSpec) -> int:
+    """Number of opcode bytes: the prefix byte, plus a sub-opcode byte if present."""
+    return 1 if op_spec.sub_code is None else 2
 
 
 def _encode_op(
@@ -383,6 +384,8 @@ def _encode_op(
 ) -> bytes:
     op_spec = op.op_spec
     bytecode = _encode_uint8(op_spec.code)
+    if op_spec.sub_code is not None:
+        bytecode += _encode_uint8(op_spec.sub_code)
     for immediate_kind, immediate in zip(op_spec.immediates, op.immediates, strict=True):
         match immediate_kind:
             case ImmediateKind.uint8 if isinstance(immediate, int):
