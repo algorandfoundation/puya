@@ -1,10 +1,40 @@
-// Op                                       Stack (out)
+// Op                                                                         Stack (out)
 // test_cases.avm_13.contract.avm_13_sig() -> uint64:
 subroutine main:
     main_block@0:
         // avm_13/contract.py:6
-        // return op.sumhash512(b"").length
-        int 64                              64
+        // assert op.sha512(b"") != op.sha512(b"a")
+        byte 0x                                                               0x
+        sha512                                                                tmp%0#0
+        byte 0x61                                                             tmp%0#0,0x61
+        sha512                                                                tmp%0#0,tmp%1#0
+        l-load tmp%0#0 1                                                      tmp%1#0,tmp%0#0
+        l-load tmp%1#0 1                                                      tmp%0#0,tmp%1#0
+        !=                                                                    tmp%2#0
+        l-load tmp%2#0 0                                                      tmp%2#0
+        assert
+        // avm_13/contract.py:7
+        // scalar = op.bzero(32)
+        int 32                                                                32
+        bzero                                                                 scalar#0
+        // avm_13/contract.py:8
+        // bn = op.poseidon2(op.Poseidon2Configurations.BN254t2, scalar)
+        l-load-copy scalar#0 0                                                scalar#0,scalar#0 (copy)
+        poseidon2 BN254t2                                                     scalar#0,bn#0
+        // avm_13/contract.py:9
+        // bls = op.poseidon2(op.Poseidon2Configurations.BLS12_381t2, scalar)
+        l-load scalar#0 1                                                     bn#0,scalar#0
+        poseidon2 BLS12_381t2                                                 bn#0,bls#0
+        // avm_13/contract.py:10
+        // assert bn != bls
+        l-load bn#0 1                                                         bls#0,bn#0
+        l-load bls#0 1                                                        bn#0,bls#0
+        !=                                                                    tmp%6#0
+        l-load tmp%6#0 0                                                      tmp%6#0
+        assert
+        // avm_13/contract.py:11
+        // return bn.length
+        int 32                                                                32
         return
 
 

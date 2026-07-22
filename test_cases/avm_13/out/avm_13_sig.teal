@@ -4,6 +4,30 @@
 // test_cases.avm_13.contract.avm_13_sig() -> uint64:
 main:
     // avm_13/contract.py:6
-    // return op.sumhash512(b"").length
-    pushint 64
+    // assert op.sha512(b"") != op.sha512(b"a")
+    pushbytes 0x
+    sha512
+    pushbytes 0x61
+    sha512
+    !=
+    assert
+    // avm_13/contract.py:7
+    // scalar = op.bzero(32)
+    pushint 32
+    bzero
+    // avm_13/contract.py:8
+    // bn = op.poseidon2(op.Poseidon2Configurations.BN254t2, scalar)
+    dup
+    poseidon2 BN254t2
+    // avm_13/contract.py:9
+    // bls = op.poseidon2(op.Poseidon2Configurations.BLS12_381t2, scalar)
+    swap
+    poseidon2 BLS12_381t2
+    // avm_13/contract.py:10
+    // assert bn != bls
+    !=
+    assert
+    // avm_13/contract.py:11
+    // return bn.length
+    pushint 32
     return
