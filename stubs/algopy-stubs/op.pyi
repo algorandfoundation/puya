@@ -65,6 +65,20 @@ class MiMCConfigurations(str):
     Min AVM version: 11
     """
 
+class Poseidon2Configurations(str):
+    """Available values for the `Poseidon2 Configurations` enum"""
+
+    BN254t2: Poseidon2Configurations = ...
+    """
+    Poseidon2 Merkle-Damgard configuration for BN254 with width = 2, full rounds = 6, partial rounds = 50
+    Min AVM version: 13
+    """
+    BLS12_381t2: Poseidon2Configurations = ...
+    """
+    Poseidon2 Merkle-Damgard configuration for BLS12-381 with width = 2, full rounds = 6, partial rounds = 50
+    Min AVM version: 13
+    """
+
 class VrfVerify(str):
     """Available values for the `vrf_verify` enum"""
 
@@ -103,7 +117,7 @@ def balance(a: Account | UInt64 | int, /) -> UInt64:
 def base64_decode(e: Base64, a: BytesBacked | bytes, /) -> Bytes:
     """
     decode A which was base64-encoded using _encoding_ E. Fail if A is not base64 encoded with encoding E
-    *Warning*: Usage should be restricted to very rare use cases. In almost all cases, smart contracts should directly handle non-encoded byte-strings.	This opcode should only be used in cases where base64 is the only available option, e.g. interoperability with a third-party that only signs base64 strings.
+    _Warning_: Usage should be restricted to very rare use cases. In almost all cases, smart contracts should directly handle non-encoded byte-strings. This opcode should only be used in cases where base64 is the only available option, e.g. interoperability with a third-party that only signs base64 strings.
 
      Decodes A using the base64 encoding E. Specify the encoding with an immediate arg either as URL and Filename Safe (`URLEncoding`) or Standard (`StdEncoding`). See [RFC 4648 sections 4 and 5](https://rfc-editor.org/rfc/rfc4648.html#section-4). It is assumed that the encoding ends with the exact number of `=` padding characters as required by the RFC. When padding occurs, any unused pad bits in the encoding must be set to zero or the decoding will fail. The special cases of `\\n` and `\\r` are allowed but completely ignored. An error will result when attempting to decode a string with a character that is not in the encoding alphabet or not one of `=`, `\\r`, or `\\n`.
 
@@ -267,7 +281,6 @@ def expw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
 def extract(a: BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     A range of bytes from A starting at B up to but not including B+C. If B+C is larger than the array length, the program fails
-    `extract3` can be called using `extract` with no immediates.
 
     Native TEAL opcode: [`extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract), [`extract3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract3)
     """
@@ -297,7 +310,8 @@ def falcon_verify(
     a: BytesBacked | bytes, b: BytesBacked | bytes, c: BytesBacked | bytes, /
 ) -> bool:
     """
-    for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey => {0 or 1}
+    for (data A, deterministic FALCON-1024 compressed-format signature B, pubkey C) verify the signature of data against the pubkey => {0 or 1}
+    Signature B is variable-length, with maximum size 1423 bytes.
     Min AVM version: 12
 
     Native TEAL opcode: [`falcon_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#falcon_verify)
@@ -357,9 +371,9 @@ def keccak256(a: BytesBacked | bytes, /) -> Bytes:
 def mimc(c: MiMCConfigurations, a: BytesBacked | bytes, /) -> Bytes:
     """
     MiMC hash of scalars A, using curve and parameters specified by configuration C
-    A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element exceeds the curve modulus.
+    A is a non-empty list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element is greater than or equal to the scalar field modulus.
 
-    The MiMC hash function has known collisions since any input which is a multiple of the elliptic curve modulus will hash to the same value. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.
+    MiMC hashes field elements, not arbitrary byte strings; reducing external inputs modulo the scalar field modulus makes congruent inputs hash identically. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.
     Min AVM version: 11
 
     :param MiMCConfigurations c: configuration index
@@ -390,10 +404,22 @@ def online_stake() -> UInt64:
     Native TEAL opcode: [`online_stake`](https://dev.algorand.co/reference/algorand-teal/opcodes/#online_stake)
     """
 
+def poseidon2(c: Poseidon2Configurations, a: BytesBacked | bytes, /) -> Bytes:
+    """
+    Poseidon2 hash of scalars A, using curve and parameters specified by configuration C
+    A is a non-empty list of concatenated 32 byte big-endian unsigned integer scalars. Fail if A's length is not a multiple of 32 or any element is greater than or equal to the scalar field modulus.
+
+    Poseidon2 hashes field elements, not arbitrary byte strings; reducing external inputs modulo the scalar field modulus makes congruent inputs hash identically. Poseidon2 is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.
+    Min AVM version: 13
+
+    :param Poseidon2Configurations c: configuration index
+
+    Native TEAL opcode: [`poseidon2`](https://dev.algorand.co/reference/algorand-teal/opcodes/#poseidon2)
+    """
+
 def replace(a: BytesBacked | bytes, b: UInt64 | int, c: BytesBacked | bytes, /) -> Bytes:
     """
     Copy of A with the bytes starting at B replaced by the bytes of C. Fails if B+len(C) exceeds len(A)
-    `replace3` can be called using `replace` with no immediates.
 
     Native TEAL opcode: [`replace2`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace2), [`replace3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace3)
     """
@@ -451,6 +477,14 @@ def sha3_256(a: BytesBacked | bytes, /) -> Bytes:
     Native TEAL opcode: [`sha3_256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha3_256)
     """
 
+def sha512(a: BytesBacked | bytes, /) -> Bytes:
+    """
+    SHA512 of value A, yields [64]byte
+    Min AVM version: 13
+
+    Native TEAL opcode: [`sha512`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha512)
+    """
+
 def sha512_256(a: BytesBacked | bytes, /) -> Bytes:
     """
     SHA512_256 hash of value A, yields [32]byte
@@ -489,7 +523,7 @@ def substring(a: BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> By
 def sumhash512(a: BytesBacked | bytes, /) -> Bytes:
     """
     sumhash512 of value A, yields [64]byte
-    Min AVM version: 13
+    Min AVM version: 14
 
     Native TEAL opcode: [`sumhash512`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sumhash512)
     """
@@ -635,6 +669,113 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The round number of the last block this account sent a heartbeat.
 
         Native TEAL opcode: [`acct_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#acct_params_get)
+        """
+
+class AppBox:
+    """
+    Get or modify the box state of an app, subject to its box access settings
+    Native TEAL ops: [`app_box_create`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_create), [`app_box_del`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_del), [`app_box_extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_extract), [`app_box_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_get), [`app_box_len`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_len), [`app_box_put`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_put), [`app_box_replace`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_replace), [`app_box_resize`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_resize), [`app_box_splice`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_splice)
+    """
+    @staticmethod
+    def create(a: Application | UInt64 | int, b: BytesBacked | bytes, c: UInt64 | int, /) -> bool:
+        """
+        create a box named B, of length C, for app A. Fail if the name B is empty or C exceeds 32,768. Returns 0 if B already existed, else 1
+        Newly created boxes are filled with 0 bytes. `app_box_create` will fail if the referenced box already exists with a different size. Otherwise, existing boxes are unchanged by `app_box_create`.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_create`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_create)
+        """
+
+    @staticmethod
+    def delete(a: Application | UInt64 | int, b: BytesBacked | bytes, /) -> bool:
+        """
+        delete box named B of app A if it exists. Return 1 if B existed, 0 otherwise
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_del`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_del)
+        """
+
+    @staticmethod
+    def extract(
+        a: Application | UInt64 | int, b: BytesBacked | bytes, c: UInt64 | int, d: UInt64 | int, /
+    ) -> Bytes:
+        """
+        read D bytes from box B of app A, starting at offset C. Fail if box B does not exist, or the byte range is outside B's size.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_extract)
+        """
+
+    @staticmethod
+    def get(a: Application | UInt64 | int, b: BytesBacked | bytes, /) -> tuple[Bytes, bool]:
+        """
+        X is the contents of box B of app A if B exists, else ''. Y is 1 if B exists, else 0.
+        For boxes that exceed 4,096 bytes, consider `app_box_create`, `app_box_extract`, and `app_box_replace`
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_get)
+        """
+
+    @staticmethod
+    def length(a: Application | UInt64 | int, b: BytesBacked | bytes, /) -> tuple[UInt64, bool]:
+        """
+        X is the length of box B of app A if B exists, else 0. Y is 1 if B exists, else 0.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_len`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_len)
+        """
+
+    @staticmethod
+    def put(
+        a: Application | UInt64 | int, b: BytesBacked | bytes, c: BytesBacked | bytes, /
+    ) -> None:
+        """
+        replaces the contents of box B of app A with byte-array C. Fails if B exists and len(C) != len(box B). Creates B if it does not exist
+        For boxes that exceed 4,096 bytes, consider `app_box_create`, `app_box_extract`, and `app_box_replace`
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_put`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_put)
+        """
+
+    @staticmethod
+    def replace(
+        a: Application | UInt64 | int,
+        b: BytesBacked | bytes,
+        c: UInt64 | int,
+        d: BytesBacked | bytes,
+        /,
+    ) -> None:
+        """
+        write byte-array D into box B of app A, starting at offset C. Fail if box B does not exist, or the byte range is outside B's size.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_replace`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_replace)
+        """
+
+    @staticmethod
+    def resize(a: Application | UInt64 | int, b: BytesBacked | bytes, c: UInt64 | int, /) -> None:
+        """
+        change the size of box named B of app A to be of length C, adding zero bytes to end or removing bytes from the end, as needed. Fail if the name B is empty, B is not an existing box, or C exceeds 32,768.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_resize`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_resize)
+        """
+
+    @staticmethod
+    def splice(
+        a: Application | UInt64 | int,
+        b: BytesBacked | bytes,
+        c: UInt64 | int,
+        d: UInt64 | int,
+        e: BytesBacked | bytes,
+        /,
+    ) -> None:
+        """
+        set box B of app A to contain its previous bytes up to index C, followed by E, followed by the original bytes of B that began at index C+D.
+        Boxes are of constant length. If D < len(E), then len(E)-D bytes will be removed from the end. If D > len(E), zero bytes will be appended to the end to reach the box length.
+        Min AVM version: 13
+
+        Native TEAL opcode: [`app_box_splice`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_box_splice)
         """
 
 class AppGlobal:
@@ -855,6 +996,61 @@ class AppParamsGet:
         Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
         """
 
+    @staticmethod
+    def app_size_sponsor(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
+        """
+        Min AVM version: 13
+
+        :returns tuple[Account, bool]: If non-zero, this account is responsible for the app's extra pages and global state balance requirement
+
+        Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
+        """
+
+    @staticmethod
+    def app_foreign_box_reads(a: Application | UInt64 | int, /) -> tuple[bool, bool]:
+        """
+        Min AVM version: 13
+
+        :returns tuple[bool, bool]: This app's boxes may be read by any app
+
+        Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
+        """
+
+    @staticmethod
+    def app_family_box_access(a: Application | UInt64 | int, /) -> tuple[bool, bool]:
+        """
+        Min AVM version: 13
+
+        :returns tuple[bool, bool]: This app's boxes may be read and written by any app (existing or future) with the same creator
+
+        Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
+        """
+
+class AppParamsSet:
+    """
+    set field F of the current app to A
+    Native TEAL op: [`app_params_set`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_set)
+    """
+    @staticmethod
+    def app_foreign_box_reads(a: bool | UInt64 | int, /) -> None:
+        """
+        Min AVM version: 13
+
+        :param bool | UInt64 | int a: This app's boxes may be read by any app
+
+        Native TEAL opcode: [`app_params_set`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_set)
+        """
+
+    @staticmethod
+    def app_family_box_access(a: bool | UInt64 | int, /) -> None:
+        """
+        Min AVM version: 13
+
+        :param bool | UInt64 | int a: This app's boxes may be read and written by any app (existing or future) with the same creator
+
+        Native TEAL opcode: [`app_params_set`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_set)
+        """
+
 class AssetHoldingGet:
     """
     X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0 params: Txn.Accounts offset (or, since v4, an _available_ address), asset id (or, since v4, a Txn.ForeignAssets offset). Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1058,6 +1254,38 @@ class Block:
     def blk_proposer_payout(a: UInt64 | int, /) -> UInt64:
         """
         Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://dev.algorand.co/reference/algorand-teal/opcodes/#block)
+        """
+
+    @staticmethod
+    def blk_branch512(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 13
+
+        Native TEAL opcode: [`block`](https://dev.algorand.co/reference/algorand-teal/opcodes/#block)
+        """
+
+    @staticmethod
+    def blk_sha512_256_txn_commitment(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 13
+
+        Native TEAL opcode: [`block`](https://dev.algorand.co/reference/algorand-teal/opcodes/#block)
+        """
+
+    @staticmethod
+    def blk_sha256_txn_commitment(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 13
+
+        Native TEAL opcode: [`block`](https://dev.algorand.co/reference/algorand-teal/opcodes/#block)
+        """
+
+    @staticmethod
+    def blk_sha512_txn_commitment(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 13
 
         Native TEAL opcode: [`block`](https://dev.algorand.co/reference/algorand-teal/opcodes/#block)
         """
@@ -3553,7 +3781,7 @@ class ITxnCreate:
 
 class JsonRef:
     """
-    key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.  Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
+    key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A _Warning_: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.  Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
     Native TEAL op: [`json_ref`](https://dev.algorand.co/reference/algorand-teal/opcodes/#json_ref)
     """
     @staticmethod
