@@ -24,6 +24,10 @@ ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
         BN254Mp110="BN254Mp110",
         BLS12_381Mp111="BLS12_381Mp111",
     ),
+    Poseidon2Configurations=dict(
+        BN254t2="BN254t2",
+        BLS12_381t2="BLS12_381t2",
+    ),
     VrfVerify=dict(
         VrfAlgorand="VrfAlgorand",
     ),
@@ -257,6 +261,12 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, FunctionOpMapping]] = dict(
         op_code="online_stake",
         result=[pytypes.UInt64Type],
     ),
+    poseidon2=FunctionOpMapping(
+        op_code="poseidon2",
+        result=[pytypes.BytesType],
+        immediates=[str],
+        args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
     replace=FunctionOpMapping(
         op_code="replace3",
         result=[pytypes.BytesType],
@@ -314,6 +324,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, FunctionOpMapping]] = dict(
     ),
     sha3_256=FunctionOpMapping(
         op_code="sha3_256",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    sha512=FunctionOpMapping(
+        op_code="sha512",
         result=[pytypes.BytesType],
         args=[(pytypes.BytesType, pytypes.BytesBackedType)],
     ),
@@ -456,6 +471,86 @@ NAMESPACE_CLASSES: typing.Final[
             result=[pytypes.UInt64Type, pytypes.BoolType],
             immediates=["AcctLastHeartbeat"],
             args=[(pytypes.AccountType, pytypes.UInt64Type)],
+        ),
+    ),
+    AppBox=dict(
+        create=FunctionOpMapping(
+            op_code="app_box_create",
+            result=[pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+            ],
+        ),
+        delete=FunctionOpMapping(
+            op_code="app_box_del",
+            result=[pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
+        ),
+        extract=FunctionOpMapping(
+            op_code="app_box_extract",
+            result=[pytypes.BytesType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.UInt64Type,),
+            ],
+        ),
+        get=FunctionOpMapping(
+            op_code="app_box_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
+        ),
+        length=FunctionOpMapping(
+            op_code="app_box_len",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
+        ),
+        put=FunctionOpMapping(
+            op_code="app_box_put",
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
+        ),
+        replace=FunctionOpMapping(
+            op_code="app_box_replace",
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
+        ),
+        resize=FunctionOpMapping(
+            op_code="app_box_resize",
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+            ],
+        ),
+        splice=FunctionOpMapping(
+            op_code="app_box_splice",
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.UInt64Type,),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+            ],
         ),
     ),
     AppGlobal=dict(
@@ -608,6 +703,36 @@ NAMESPACE_CLASSES: typing.Final[
             result=[pytypes.UInt64Type, pytypes.BoolType],
             immediates=["AppVersion"],
             args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
+        ),
+        app_size_sponsor=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AppSizeSponsor"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
+        ),
+        app_foreign_box_reads=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["AppForeignBoxReads"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
+        ),
+        app_family_box_access=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["AppFamilyBoxAccess"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
+        ),
+    ),
+    AppParamsSet=dict(
+        app_foreign_box_reads=FunctionOpMapping(
+            op_code="app_params_set",
+            immediates=["AppForeignBoxReads"],
+            args=[(pytypes.BoolType, pytypes.UInt64Type)],
+        ),
+        app_family_box_access=FunctionOpMapping(
+            op_code="app_params_set",
+            immediates=["AppFamilyBoxAccess"],
+            args=[(pytypes.BoolType, pytypes.UInt64Type)],
         ),
     ),
     AssetHoldingGet=dict(
@@ -763,6 +888,30 @@ NAMESPACE_CLASSES: typing.Final[
             op_code="block",
             result=[pytypes.UInt64Type],
             immediates=["BlkProposerPayout"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        blk_branch512=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkBranch512"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        blk_sha512_256_txn_commitment=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkSha512_256TxnCommitment"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        blk_sha256_txn_commitment=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkSha256TxnCommitment"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        blk_sha512_txn_commitment=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkSha512TxnCommitment"],
             args=[(pytypes.UInt64Type,)],
         ),
     ),

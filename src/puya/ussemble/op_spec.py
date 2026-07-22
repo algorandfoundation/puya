@@ -2,67 +2,74 @@
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
 
 OP_SPECS = {
-    "err": OpSpec(name="err", code=0, immediates=[]),
-    "sha256": OpSpec(name="sha256", code=1, immediates=[]),
-    "keccak256": OpSpec(name="keccak256", code=2, immediates=[]),
-    "sha512_256": OpSpec(name="sha512_256", code=3, immediates=[]),
-    "ed25519verify": OpSpec(name="ed25519verify", code=4, immediates=[]),
+    "err": OpSpec(name="err", code=0, immediates=[], sub_code=None),
+    "sha256": OpSpec(name="sha256", code=1, immediates=[], sub_code=None),
+    "keccak256": OpSpec(name="keccak256", code=2, immediates=[], sub_code=None),
+    "sha512_256": OpSpec(name="sha512_256", code=3, immediates=[], sub_code=None),
+    "ed25519verify": OpSpec(name="ed25519verify", code=4, immediates=[], sub_code=None),
     "ecdsa_verify": OpSpec(
         name="ecdsa_verify",
         code=5,
         immediates=[ImmediateEnum(codes={"Secp256k1": 0, "Secp256r1": 1})],
+        sub_code=None,
     ),
     "ecdsa_pk_decompress": OpSpec(
         name="ecdsa_pk_decompress",
         code=6,
         immediates=[ImmediateEnum(codes={"Secp256k1": 0, "Secp256r1": 1})],
+        sub_code=None,
     ),
     "ecdsa_pk_recover": OpSpec(
         name="ecdsa_pk_recover",
         code=7,
         immediates=[ImmediateEnum(codes={"Secp256k1": 0, "Secp256r1": 1})],
+        sub_code=None,
     ),
-    "+": OpSpec(name="+", code=8, immediates=[]),
-    "-": OpSpec(name="-", code=9, immediates=[]),
-    "/": OpSpec(name="/", code=10, immediates=[]),
-    "*": OpSpec(name="*", code=11, immediates=[]),
-    "<": OpSpec(name="<", code=12, immediates=[]),
-    ">": OpSpec(name=">", code=13, immediates=[]),
-    "<=": OpSpec(name="<=", code=14, immediates=[]),
-    ">=": OpSpec(name=">=", code=15, immediates=[]),
-    "&&": OpSpec(name="&&", code=16, immediates=[]),
-    "||": OpSpec(name="||", code=17, immediates=[]),
-    "==": OpSpec(name="==", code=18, immediates=[]),
-    "!=": OpSpec(name="!=", code=19, immediates=[]),
-    "!": OpSpec(name="!", code=20, immediates=[]),
-    "len": OpSpec(name="len", code=21, immediates=[]),
-    "itob": OpSpec(name="itob", code=22, immediates=[]),
-    "btoi": OpSpec(name="btoi", code=23, immediates=[]),
-    "%": OpSpec(name="%", code=24, immediates=[]),
-    "|": OpSpec(name="|", code=25, immediates=[]),
-    "&": OpSpec(name="&", code=26, immediates=[]),
-    "^": OpSpec(name="^", code=27, immediates=[]),
-    "~": OpSpec(name="~", code=28, immediates=[]),
-    "mulw": OpSpec(name="mulw", code=29, immediates=[]),
-    "addw": OpSpec(name="addw", code=30, immediates=[]),
-    "divmodw": OpSpec(name="divmodw", code=31, immediates=[]),
-    "intcblock": OpSpec(name="intcblock", code=32, immediates=[ImmediateKind.varuint_array]),
-    "intc": OpSpec(name="intc", code=33, immediates=[ImmediateKind.uint8]),
-    "intc_0": OpSpec(name="intc_0", code=34, immediates=[]),
-    "intc_1": OpSpec(name="intc_1", code=35, immediates=[]),
-    "intc_2": OpSpec(name="intc_2", code=36, immediates=[]),
-    "intc_3": OpSpec(name="intc_3", code=37, immediates=[]),
-    "bytecblock": OpSpec(name="bytecblock", code=38, immediates=[ImmediateKind.bytes_array]),
-    "bytec": OpSpec(name="bytec", code=39, immediates=[ImmediateKind.uint8]),
-    "bytec_0": OpSpec(name="bytec_0", code=40, immediates=[]),
-    "bytec_1": OpSpec(name="bytec_1", code=41, immediates=[]),
-    "bytec_2": OpSpec(name="bytec_2", code=42, immediates=[]),
-    "bytec_3": OpSpec(name="bytec_3", code=43, immediates=[]),
-    "arg": OpSpec(name="arg", code=44, immediates=[ImmediateKind.uint8]),
-    "arg_0": OpSpec(name="arg_0", code=45, immediates=[]),
-    "arg_1": OpSpec(name="arg_1", code=46, immediates=[]),
-    "arg_2": OpSpec(name="arg_2", code=47, immediates=[]),
-    "arg_3": OpSpec(name="arg_3", code=48, immediates=[]),
+    "+": OpSpec(name="+", code=8, immediates=[], sub_code=None),
+    "-": OpSpec(name="-", code=9, immediates=[], sub_code=None),
+    "/": OpSpec(name="/", code=10, immediates=[], sub_code=None),
+    "*": OpSpec(name="*", code=11, immediates=[], sub_code=None),
+    "<": OpSpec(name="<", code=12, immediates=[], sub_code=None),
+    ">": OpSpec(name=">", code=13, immediates=[], sub_code=None),
+    "<=": OpSpec(name="<=", code=14, immediates=[], sub_code=None),
+    ">=": OpSpec(name=">=", code=15, immediates=[], sub_code=None),
+    "&&": OpSpec(name="&&", code=16, immediates=[], sub_code=None),
+    "||": OpSpec(name="||", code=17, immediates=[], sub_code=None),
+    "==": OpSpec(name="==", code=18, immediates=[], sub_code=None),
+    "!=": OpSpec(name="!=", code=19, immediates=[], sub_code=None),
+    "!": OpSpec(name="!", code=20, immediates=[], sub_code=None),
+    "len": OpSpec(name="len", code=21, immediates=[], sub_code=None),
+    "itob": OpSpec(name="itob", code=22, immediates=[], sub_code=None),
+    "btoi": OpSpec(name="btoi", code=23, immediates=[], sub_code=None),
+    "%": OpSpec(name="%", code=24, immediates=[], sub_code=None),
+    "|": OpSpec(name="|", code=25, immediates=[], sub_code=None),
+    "&": OpSpec(name="&", code=26, immediates=[], sub_code=None),
+    "^": OpSpec(name="^", code=27, immediates=[], sub_code=None),
+    "~": OpSpec(name="~", code=28, immediates=[], sub_code=None),
+    "mulw": OpSpec(name="mulw", code=29, immediates=[], sub_code=None),
+    "addw": OpSpec(name="addw", code=30, immediates=[], sub_code=None),
+    "divmodw": OpSpec(name="divmodw", code=31, immediates=[], sub_code=None),
+    "intcblock": OpSpec(
+        name="intcblock", code=32, immediates=[ImmediateKind.varuint_array], sub_code=None
+    ),
+    "intc": OpSpec(name="intc", code=33, immediates=[ImmediateKind.uint8], sub_code=None),
+    "intc_0": OpSpec(name="intc_0", code=34, immediates=[], sub_code=None),
+    "intc_1": OpSpec(name="intc_1", code=35, immediates=[], sub_code=None),
+    "intc_2": OpSpec(name="intc_2", code=36, immediates=[], sub_code=None),
+    "intc_3": OpSpec(name="intc_3", code=37, immediates=[], sub_code=None),
+    "bytecblock": OpSpec(
+        name="bytecblock", code=38, immediates=[ImmediateKind.bytes_array], sub_code=None
+    ),
+    "bytec": OpSpec(name="bytec", code=39, immediates=[ImmediateKind.uint8], sub_code=None),
+    "bytec_0": OpSpec(name="bytec_0", code=40, immediates=[], sub_code=None),
+    "bytec_1": OpSpec(name="bytec_1", code=41, immediates=[], sub_code=None),
+    "bytec_2": OpSpec(name="bytec_2", code=42, immediates=[], sub_code=None),
+    "bytec_3": OpSpec(name="bytec_3", code=43, immediates=[], sub_code=None),
+    "arg": OpSpec(name="arg", code=44, immediates=[ImmediateKind.uint8], sub_code=None),
+    "arg_0": OpSpec(name="arg_0", code=45, immediates=[], sub_code=None),
+    "arg_1": OpSpec(name="arg_1", code=46, immediates=[], sub_code=None),
+    "arg_2": OpSpec(name="arg_2", code=47, immediates=[], sub_code=None),
+    "arg_3": OpSpec(name="arg_3", code=48, immediates=[], sub_code=None),
     "txn": OpSpec(
         name="txn",
         code=49,
@@ -141,6 +148,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "global": OpSpec(
         name="global",
@@ -174,6 +182,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "gtxn": OpSpec(
         name="gtxn",
@@ -254,9 +263,10 @@ OP_SPECS = {
                 }
             ),
         ],
+        sub_code=None,
     ),
-    "load": OpSpec(name="load", code=52, immediates=[ImmediateKind.uint8]),
-    "store": OpSpec(name="store", code=53, immediates=[ImmediateKind.uint8]),
+    "load": OpSpec(name="load", code=52, immediates=[ImmediateKind.uint8], sub_code=None),
+    "store": OpSpec(name="store", code=53, immediates=[ImmediateKind.uint8], sub_code=None),
     "txna": OpSpec(
         name="txna",
         code=54,
@@ -274,6 +284,7 @@ OP_SPECS = {
             ),
             ImmediateKind.uint8,
         ],
+        sub_code=None,
     ),
     "gtxna": OpSpec(
         name="gtxna",
@@ -293,6 +304,7 @@ OP_SPECS = {
             ),
             ImmediateKind.uint8,
         ],
+        sub_code=None,
     ),
     "gtxns": OpSpec(
         name="gtxns",
@@ -372,6 +384,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "gtxnsa": OpSpec(
         name="gtxnsa",
@@ -390,71 +403,83 @@ OP_SPECS = {
             ),
             ImmediateKind.uint8,
         ],
+        sub_code=None,
     ),
-    "gload": OpSpec(name="gload", code=58, immediates=[ImmediateKind.uint8, ImmediateKind.uint8]),
-    "gloads": OpSpec(name="gloads", code=59, immediates=[ImmediateKind.uint8]),
-    "gaid": OpSpec(name="gaid", code=60, immediates=[ImmediateKind.uint8]),
-    "gaids": OpSpec(name="gaids", code=61, immediates=[]),
-    "loads": OpSpec(name="loads", code=62, immediates=[]),
-    "stores": OpSpec(name="stores", code=63, immediates=[]),
-    "bnz": OpSpec(name="bnz", code=64, immediates=[ImmediateKind.label]),
-    "bz": OpSpec(name="bz", code=65, immediates=[ImmediateKind.label]),
-    "b": OpSpec(name="b", code=66, immediates=[ImmediateKind.label]),
-    "return": OpSpec(name="return", code=67, immediates=[]),
-    "assert": OpSpec(name="assert", code=68, immediates=[]),
-    "bury": OpSpec(name="bury", code=69, immediates=[ImmediateKind.uint8]),
-    "popn": OpSpec(name="popn", code=70, immediates=[ImmediateKind.uint8]),
-    "dupn": OpSpec(name="dupn", code=71, immediates=[ImmediateKind.uint8]),
-    "pop": OpSpec(name="pop", code=72, immediates=[]),
-    "dup": OpSpec(name="dup", code=73, immediates=[]),
-    "dup2": OpSpec(name="dup2", code=74, immediates=[]),
-    "dig": OpSpec(name="dig", code=75, immediates=[ImmediateKind.uint8]),
-    "swap": OpSpec(name="swap", code=76, immediates=[]),
-    "select": OpSpec(name="select", code=77, immediates=[]),
-    "cover": OpSpec(name="cover", code=78, immediates=[ImmediateKind.uint8]),
-    "uncover": OpSpec(name="uncover", code=79, immediates=[ImmediateKind.uint8]),
-    "concat": OpSpec(name="concat", code=80, immediates=[]),
+    "gload": OpSpec(
+        name="gload", code=58, immediates=[ImmediateKind.uint8, ImmediateKind.uint8], sub_code=None
+    ),
+    "gloads": OpSpec(name="gloads", code=59, immediates=[ImmediateKind.uint8], sub_code=None),
+    "gaid": OpSpec(name="gaid", code=60, immediates=[ImmediateKind.uint8], sub_code=None),
+    "gaids": OpSpec(name="gaids", code=61, immediates=[], sub_code=None),
+    "loads": OpSpec(name="loads", code=62, immediates=[], sub_code=None),
+    "stores": OpSpec(name="stores", code=63, immediates=[], sub_code=None),
+    "bnz": OpSpec(name="bnz", code=64, immediates=[ImmediateKind.label], sub_code=None),
+    "bz": OpSpec(name="bz", code=65, immediates=[ImmediateKind.label], sub_code=None),
+    "b": OpSpec(name="b", code=66, immediates=[ImmediateKind.label], sub_code=None),
+    "return": OpSpec(name="return", code=67, immediates=[], sub_code=None),
+    "assert": OpSpec(name="assert", code=68, immediates=[], sub_code=None),
+    "bury": OpSpec(name="bury", code=69, immediates=[ImmediateKind.uint8], sub_code=None),
+    "popn": OpSpec(name="popn", code=70, immediates=[ImmediateKind.uint8], sub_code=None),
+    "dupn": OpSpec(name="dupn", code=71, immediates=[ImmediateKind.uint8], sub_code=None),
+    "pop": OpSpec(name="pop", code=72, immediates=[], sub_code=None),
+    "dup": OpSpec(name="dup", code=73, immediates=[], sub_code=None),
+    "dup2": OpSpec(name="dup2", code=74, immediates=[], sub_code=None),
+    "dig": OpSpec(name="dig", code=75, immediates=[ImmediateKind.uint8], sub_code=None),
+    "swap": OpSpec(name="swap", code=76, immediates=[], sub_code=None),
+    "select": OpSpec(name="select", code=77, immediates=[], sub_code=None),
+    "cover": OpSpec(name="cover", code=78, immediates=[ImmediateKind.uint8], sub_code=None),
+    "uncover": OpSpec(name="uncover", code=79, immediates=[ImmediateKind.uint8], sub_code=None),
+    "concat": OpSpec(name="concat", code=80, immediates=[], sub_code=None),
     "substring": OpSpec(
-        name="substring", code=81, immediates=[ImmediateKind.uint8, ImmediateKind.uint8]
+        name="substring",
+        code=81,
+        immediates=[ImmediateKind.uint8, ImmediateKind.uint8],
+        sub_code=None,
     ),
-    "substring3": OpSpec(name="substring3", code=82, immediates=[]),
-    "getbit": OpSpec(name="getbit", code=83, immediates=[]),
-    "setbit": OpSpec(name="setbit", code=84, immediates=[]),
-    "getbyte": OpSpec(name="getbyte", code=85, immediates=[]),
-    "setbyte": OpSpec(name="setbyte", code=86, immediates=[]),
+    "substring3": OpSpec(name="substring3", code=82, immediates=[], sub_code=None),
+    "getbit": OpSpec(name="getbit", code=83, immediates=[], sub_code=None),
+    "setbit": OpSpec(name="setbit", code=84, immediates=[], sub_code=None),
+    "getbyte": OpSpec(name="getbyte", code=85, immediates=[], sub_code=None),
+    "setbyte": OpSpec(name="setbyte", code=86, immediates=[], sub_code=None),
     "extract": OpSpec(
-        name="extract", code=87, immediates=[ImmediateKind.uint8, ImmediateKind.uint8]
+        name="extract",
+        code=87,
+        immediates=[ImmediateKind.uint8, ImmediateKind.uint8],
+        sub_code=None,
     ),
-    "extract3": OpSpec(name="extract3", code=88, immediates=[]),
-    "extract_uint16": OpSpec(name="extract_uint16", code=89, immediates=[]),
-    "extract_uint32": OpSpec(name="extract_uint32", code=90, immediates=[]),
-    "extract_uint64": OpSpec(name="extract_uint64", code=91, immediates=[]),
-    "replace2": OpSpec(name="replace2", code=92, immediates=[ImmediateKind.uint8]),
-    "replace3": OpSpec(name="replace3", code=93, immediates=[]),
+    "extract3": OpSpec(name="extract3", code=88, immediates=[], sub_code=None),
+    "extract_uint16": OpSpec(name="extract_uint16", code=89, immediates=[], sub_code=None),
+    "extract_uint32": OpSpec(name="extract_uint32", code=90, immediates=[], sub_code=None),
+    "extract_uint64": OpSpec(name="extract_uint64", code=91, immediates=[], sub_code=None),
+    "replace2": OpSpec(name="replace2", code=92, immediates=[ImmediateKind.uint8], sub_code=None),
+    "replace3": OpSpec(name="replace3", code=93, immediates=[], sub_code=None),
     "base64_decode": OpSpec(
         name="base64_decode",
         code=94,
         immediates=[ImmediateEnum(codes={"URLEncoding": 0, "StdEncoding": 1})],
+        sub_code=None,
     ),
     "json_ref": OpSpec(
         name="json_ref",
         code=95,
         immediates=[ImmediateEnum(codes={"JSONString": 0, "JSONUint64": 1, "JSONObject": 2})],
+        sub_code=None,
     ),
-    "balance": OpSpec(name="balance", code=96, immediates=[]),
-    "app_opted_in": OpSpec(name="app_opted_in", code=97, immediates=[]),
-    "app_local_get": OpSpec(name="app_local_get", code=98, immediates=[]),
-    "app_local_get_ex": OpSpec(name="app_local_get_ex", code=99, immediates=[]),
-    "app_global_get": OpSpec(name="app_global_get", code=100, immediates=[]),
-    "app_global_get_ex": OpSpec(name="app_global_get_ex", code=101, immediates=[]),
-    "app_local_put": OpSpec(name="app_local_put", code=102, immediates=[]),
-    "app_global_put": OpSpec(name="app_global_put", code=103, immediates=[]),
-    "app_local_del": OpSpec(name="app_local_del", code=104, immediates=[]),
-    "app_global_del": OpSpec(name="app_global_del", code=105, immediates=[]),
+    "balance": OpSpec(name="balance", code=96, immediates=[], sub_code=None),
+    "app_opted_in": OpSpec(name="app_opted_in", code=97, immediates=[], sub_code=None),
+    "app_local_get": OpSpec(name="app_local_get", code=98, immediates=[], sub_code=None),
+    "app_local_get_ex": OpSpec(name="app_local_get_ex", code=99, immediates=[], sub_code=None),
+    "app_global_get": OpSpec(name="app_global_get", code=100, immediates=[], sub_code=None),
+    "app_global_get_ex": OpSpec(name="app_global_get_ex", code=101, immediates=[], sub_code=None),
+    "app_local_put": OpSpec(name="app_local_put", code=102, immediates=[], sub_code=None),
+    "app_global_put": OpSpec(name="app_global_put", code=103, immediates=[], sub_code=None),
+    "app_local_del": OpSpec(name="app_local_del", code=104, immediates=[], sub_code=None),
+    "app_global_del": OpSpec(name="app_global_del", code=105, immediates=[], sub_code=None),
     "asset_holding_get": OpSpec(
         name="asset_holding_get",
         code=112,
         immediates=[ImmediateEnum(codes={"AssetBalance": 0, "AssetFrozen": 1})],
+        sub_code=None,
     ),
     "asset_params_get": OpSpec(
         name="asset_params_get",
@@ -477,6 +502,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "app_params_get": OpSpec(
         name="app_params_get",
@@ -494,9 +520,13 @@ OP_SPECS = {
                     "AppCreator": 7,
                     "AppAddress": 8,
                     "AppVersion": 9,
+                    "AppSizeSponsor": 10,
+                    "AppForeignBoxReads": 11,
+                    "AppFamilyBoxAccess": 12,
                 }
             )
         ],
+        sub_code=None,
     ),
     "acct_params_get": OpSpec(
         name="acct_params_get",
@@ -522,55 +552,83 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "voter_params_get": OpSpec(
         name="voter_params_get",
         code=116,
         immediates=[ImmediateEnum(codes={"VoterBalance": 0, "VoterIncentiveEligible": 1})],
+        sub_code=None,
     ),
-    "online_stake": OpSpec(name="online_stake", code=117, immediates=[]),
-    "min_balance": OpSpec(name="min_balance", code=120, immediates=[]),
-    "pushbytes": OpSpec(name="pushbytes", code=128, immediates=[ImmediateKind.bytes]),
-    "pushint": OpSpec(name="pushint", code=129, immediates=[ImmediateKind.varuint]),
-    "pushbytess": OpSpec(name="pushbytess", code=130, immediates=[ImmediateKind.bytes_array]),
-    "pushints": OpSpec(name="pushints", code=131, immediates=[ImmediateKind.varuint_array]),
-    "ed25519verify_bare": OpSpec(name="ed25519verify_bare", code=132, immediates=[]),
-    "falcon_verify": OpSpec(name="falcon_verify", code=133, immediates=[]),
-    "sumhash512": OpSpec(name="sumhash512", code=134, immediates=[]),
-    "callsub": OpSpec(name="callsub", code=136, immediates=[ImmediateKind.label]),
-    "retsub": OpSpec(name="retsub", code=137, immediates=[]),
-    "proto": OpSpec(name="proto", code=138, immediates=[ImmediateKind.uint8, ImmediateKind.uint8]),
-    "frame_dig": OpSpec(name="frame_dig", code=139, immediates=[ImmediateKind.int8]),
-    "frame_bury": OpSpec(name="frame_bury", code=140, immediates=[ImmediateKind.int8]),
-    "switch": OpSpec(name="switch", code=141, immediates=[ImmediateKind.label_array]),
-    "match": OpSpec(name="match", code=142, immediates=[ImmediateKind.label_array]),
-    "shl": OpSpec(name="shl", code=144, immediates=[]),
-    "shr": OpSpec(name="shr", code=145, immediates=[]),
-    "sqrt": OpSpec(name="sqrt", code=146, immediates=[]),
-    "bitlen": OpSpec(name="bitlen", code=147, immediates=[]),
-    "exp": OpSpec(name="exp", code=148, immediates=[]),
-    "expw": OpSpec(name="expw", code=149, immediates=[]),
-    "bsqrt": OpSpec(name="bsqrt", code=150, immediates=[]),
-    "divw": OpSpec(name="divw", code=151, immediates=[]),
-    "sha3_256": OpSpec(name="sha3_256", code=152, immediates=[]),
-    "b+": OpSpec(name="b+", code=160, immediates=[]),
-    "b-": OpSpec(name="b-", code=161, immediates=[]),
-    "b/": OpSpec(name="b/", code=162, immediates=[]),
-    "b*": OpSpec(name="b*", code=163, immediates=[]),
-    "b<": OpSpec(name="b<", code=164, immediates=[]),
-    "b>": OpSpec(name="b>", code=165, immediates=[]),
-    "b<=": OpSpec(name="b<=", code=166, immediates=[]),
-    "b>=": OpSpec(name="b>=", code=167, immediates=[]),
-    "b==": OpSpec(name="b==", code=168, immediates=[]),
-    "b!=": OpSpec(name="b!=", code=169, immediates=[]),
-    "b%": OpSpec(name="b%", code=170, immediates=[]),
-    "b|": OpSpec(name="b|", code=171, immediates=[]),
-    "b&": OpSpec(name="b&", code=172, immediates=[]),
-    "b^": OpSpec(name="b^", code=173, immediates=[]),
-    "b~": OpSpec(name="b~", code=174, immediates=[]),
-    "bzero": OpSpec(name="bzero", code=175, immediates=[]),
-    "log": OpSpec(name="log", code=176, immediates=[]),
-    "itxn_begin": OpSpec(name="itxn_begin", code=177, immediates=[]),
+    "online_stake": OpSpec(name="online_stake", code=117, immediates=[], sub_code=None),
+    "app_params_set": OpSpec(
+        name="app_params_set",
+        code=118,
+        immediates=[ImmediateEnum(codes={"AppForeignBoxReads": 11, "AppFamilyBoxAccess": 12})],
+        sub_code=None,
+    ),
+    "min_balance": OpSpec(name="min_balance", code=120, immediates=[], sub_code=None),
+    "pushbytes": OpSpec(
+        name="pushbytes", code=128, immediates=[ImmediateKind.bytes], sub_code=None
+    ),
+    "pushint": OpSpec(name="pushint", code=129, immediates=[ImmediateKind.varuint], sub_code=None),
+    "pushbytess": OpSpec(
+        name="pushbytess", code=130, immediates=[ImmediateKind.bytes_array], sub_code=None
+    ),
+    "pushints": OpSpec(
+        name="pushints", code=131, immediates=[ImmediateKind.varuint_array], sub_code=None
+    ),
+    "ed25519verify_bare": OpSpec(
+        name="ed25519verify_bare", code=132, immediates=[], sub_code=None
+    ),
+    "falcon_verify": OpSpec(name="falcon_verify", code=133, immediates=[], sub_code=None),
+    "sumhash512": OpSpec(name="sumhash512", code=134, immediates=[], sub_code=None),
+    "sha512": OpSpec(name="sha512", code=135, immediates=[], sub_code=None),
+    "callsub": OpSpec(name="callsub", code=136, immediates=[ImmediateKind.label], sub_code=None),
+    "retsub": OpSpec(name="retsub", code=137, immediates=[], sub_code=None),
+    "proto": OpSpec(
+        name="proto",
+        code=138,
+        immediates=[ImmediateKind.uint8, ImmediateKind.uint8],
+        sub_code=None,
+    ),
+    "frame_dig": OpSpec(
+        name="frame_dig", code=139, immediates=[ImmediateKind.int8], sub_code=None
+    ),
+    "frame_bury": OpSpec(
+        name="frame_bury", code=140, immediates=[ImmediateKind.int8], sub_code=None
+    ),
+    "switch": OpSpec(
+        name="switch", code=141, immediates=[ImmediateKind.label_array], sub_code=None
+    ),
+    "match": OpSpec(name="match", code=142, immediates=[ImmediateKind.label_array], sub_code=None),
+    "shl": OpSpec(name="shl", code=144, immediates=[], sub_code=None),
+    "shr": OpSpec(name="shr", code=145, immediates=[], sub_code=None),
+    "sqrt": OpSpec(name="sqrt", code=146, immediates=[], sub_code=None),
+    "bitlen": OpSpec(name="bitlen", code=147, immediates=[], sub_code=None),
+    "exp": OpSpec(name="exp", code=148, immediates=[], sub_code=None),
+    "expw": OpSpec(name="expw", code=149, immediates=[], sub_code=None),
+    "bsqrt": OpSpec(name="bsqrt", code=150, immediates=[], sub_code=None),
+    "divw": OpSpec(name="divw", code=151, immediates=[], sub_code=None),
+    "sha3_256": OpSpec(name="sha3_256", code=152, immediates=[], sub_code=None),
+    "b+": OpSpec(name="b+", code=160, immediates=[], sub_code=None),
+    "b-": OpSpec(name="b-", code=161, immediates=[], sub_code=None),
+    "b/": OpSpec(name="b/", code=162, immediates=[], sub_code=None),
+    "b*": OpSpec(name="b*", code=163, immediates=[], sub_code=None),
+    "b<": OpSpec(name="b<", code=164, immediates=[], sub_code=None),
+    "b>": OpSpec(name="b>", code=165, immediates=[], sub_code=None),
+    "b<=": OpSpec(name="b<=", code=166, immediates=[], sub_code=None),
+    "b>=": OpSpec(name="b>=", code=167, immediates=[], sub_code=None),
+    "b==": OpSpec(name="b==", code=168, immediates=[], sub_code=None),
+    "b!=": OpSpec(name="b!=", code=169, immediates=[], sub_code=None),
+    "b%": OpSpec(name="b%", code=170, immediates=[], sub_code=None),
+    "b|": OpSpec(name="b|", code=171, immediates=[], sub_code=None),
+    "b&": OpSpec(name="b&", code=172, immediates=[], sub_code=None),
+    "b^": OpSpec(name="b^", code=173, immediates=[], sub_code=None),
+    "b~": OpSpec(name="b~", code=174, immediates=[], sub_code=None),
+    "bzero": OpSpec(name="bzero", code=175, immediates=[], sub_code=None),
+    "log": OpSpec(name="log", code=176, immediates=[], sub_code=None),
+    "itxn_begin": OpSpec(name="itxn_begin", code=177, immediates=[], sub_code=None),
     "itxn_field": OpSpec(
         name="itxn_field",
         code=178,
@@ -632,8 +690,9 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
-    "itxn_submit": OpSpec(name="itxn_submit", code=179, immediates=[]),
+    "itxn_submit": OpSpec(name="itxn_submit", code=179, immediates=[], sub_code=None),
     "itxn": OpSpec(
         name="itxn",
         code=180,
@@ -712,6 +771,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "itxna": OpSpec(
         name="itxna",
@@ -730,8 +790,9 @@ OP_SPECS = {
             ),
             ImmediateKind.uint8,
         ],
+        sub_code=None,
     ),
-    "itxn_next": OpSpec(name="itxn_next", code=182, immediates=[]),
+    "itxn_next": OpSpec(name="itxn_next", code=182, immediates=[], sub_code=None),
     "gitxn": OpSpec(
         name="gitxn",
         code=183,
@@ -811,6 +872,7 @@ OP_SPECS = {
                 }
             ),
         ],
+        sub_code=None,
     ),
     "gitxna": OpSpec(
         name="gitxna",
@@ -830,14 +892,15 @@ OP_SPECS = {
             ),
             ImmediateKind.uint8,
         ],
+        sub_code=None,
     ),
-    "box_create": OpSpec(name="box_create", code=185, immediates=[]),
-    "box_extract": OpSpec(name="box_extract", code=186, immediates=[]),
-    "box_replace": OpSpec(name="box_replace", code=187, immediates=[]),
-    "box_del": OpSpec(name="box_del", code=188, immediates=[]),
-    "box_len": OpSpec(name="box_len", code=189, immediates=[]),
-    "box_get": OpSpec(name="box_get", code=190, immediates=[]),
-    "box_put": OpSpec(name="box_put", code=191, immediates=[]),
+    "box_create": OpSpec(name="box_create", code=185, immediates=[], sub_code=None),
+    "box_extract": OpSpec(name="box_extract", code=186, immediates=[], sub_code=None),
+    "box_replace": OpSpec(name="box_replace", code=187, immediates=[], sub_code=None),
+    "box_del": OpSpec(name="box_del", code=188, immediates=[], sub_code=None),
+    "box_len": OpSpec(name="box_len", code=189, immediates=[], sub_code=None),
+    "box_get": OpSpec(name="box_get", code=190, immediates=[], sub_code=None),
+    "box_put": OpSpec(name="box_put", code=191, immediates=[], sub_code=None),
     "txnas": OpSpec(
         name="txnas",
         code=192,
@@ -854,6 +917,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "gtxnas": OpSpec(
         name="gtxnas",
@@ -872,6 +936,7 @@ OP_SPECS = {
                 }
             ),
         ],
+        sub_code=None,
     ),
     "gtxnsas": OpSpec(
         name="gtxnsas",
@@ -889,9 +954,10 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
-    "args": OpSpec(name="args", code=195, immediates=[]),
-    "gloadss": OpSpec(name="gloadss", code=196, immediates=[]),
+    "args": OpSpec(name="args", code=195, immediates=[], sub_code=None),
+    "gloadss": OpSpec(name="gloadss", code=196, immediates=[], sub_code=None),
     "itxnas": OpSpec(
         name="itxnas",
         code=197,
@@ -908,6 +974,7 @@ OP_SPECS = {
                 }
             )
         ],
+        sub_code=None,
     ),
     "gitxnas": OpSpec(
         name="gitxnas",
@@ -926,9 +993,13 @@ OP_SPECS = {
                 }
             ),
         ],
+        sub_code=None,
     ),
     "vrf_verify": OpSpec(
-        name="vrf_verify", code=208, immediates=[ImmediateEnum(codes={"VrfAlgorand": 0})]
+        name="vrf_verify",
+        code=208,
+        immediates=[ImmediateEnum(codes={"VrfAlgorand": 0})],
+        sub_code=None,
     ),
     "block": OpSpec(
         name="block",
@@ -946,18 +1017,33 @@ OP_SPECS = {
                     "BlkProtocol": 7,
                     "BlkTxnCounter": 8,
                     "BlkProposerPayout": 9,
+                    "BlkBranch512": 10,
+                    "BlkSha512_256TxnCommitment": 11,
+                    "BlkSha256TxnCommitment": 12,
+                    "BlkSha512TxnCommitment": 13,
                 }
             )
         ],
+        sub_code=None,
     ),
-    "box_splice": OpSpec(name="box_splice", code=210, immediates=[]),
-    "box_resize": OpSpec(name="box_resize", code=211, immediates=[]),
+    "box_splice": OpSpec(name="box_splice", code=210, immediates=[], sub_code=None),
+    "box_resize": OpSpec(name="box_resize", code=211, immediates=[], sub_code=None),
+    "app_box_create": OpSpec(name="app_box_create", code=212, immediates=[], sub_code=1),
+    "app_box_extract": OpSpec(name="app_box_extract", code=212, immediates=[], sub_code=2),
+    "app_box_replace": OpSpec(name="app_box_replace", code=212, immediates=[], sub_code=3),
+    "app_box_del": OpSpec(name="app_box_del", code=212, immediates=[], sub_code=4),
+    "app_box_len": OpSpec(name="app_box_len", code=212, immediates=[], sub_code=5),
+    "app_box_get": OpSpec(name="app_box_get", code=212, immediates=[], sub_code=6),
+    "app_box_put": OpSpec(name="app_box_put", code=212, immediates=[], sub_code=7),
+    "app_box_splice": OpSpec(name="app_box_splice", code=212, immediates=[], sub_code=8),
+    "app_box_resize": OpSpec(name="app_box_resize", code=212, immediates=[], sub_code=9),
     "ec_add": OpSpec(
         name="ec_add",
         code=224,
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "ec_scalar_mul": OpSpec(
         name="ec_scalar_mul",
@@ -965,6 +1051,7 @@ OP_SPECS = {
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "ec_pairing_check": OpSpec(
         name="ec_pairing_check",
@@ -972,6 +1059,7 @@ OP_SPECS = {
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "ec_multi_scalar_mul": OpSpec(
         name="ec_multi_scalar_mul",
@@ -979,6 +1067,7 @@ OP_SPECS = {
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "ec_subgroup_check": OpSpec(
         name="ec_subgroup_check",
@@ -986,6 +1075,7 @@ OP_SPECS = {
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "ec_map_to": OpSpec(
         name="ec_map_to",
@@ -993,10 +1083,18 @@ OP_SPECS = {
         immediates=[
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
+        sub_code=None,
     ),
     "mimc": OpSpec(
         name="mimc",
         code=230,
         immediates=[ImmediateEnum(codes={"BN254Mp110": 0, "BLS12_381Mp111": 1})],
+        sub_code=None,
+    ),
+    "poseidon2": OpSpec(
+        name="poseidon2",
+        code=231,
+        immediates=[ImmediateEnum(codes={"BN254t2": 0, "BLS12_381t2": 1})],
+        sub_code=None,
     ),
 }

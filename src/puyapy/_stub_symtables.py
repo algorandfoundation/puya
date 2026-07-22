@@ -379,6 +379,9 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "MiMCConfigurations": SymbolData(
             fullname="algopy.op.MiMCConfigurations", module_public=True
         ),
+        "Poseidon2Configurations": SymbolData(
+            fullname="algopy.op.Poseidon2Configurations", module_public=True
+        ),
         "VrfVerify": SymbolData(fullname="algopy.op.VrfVerify", module_public=True),
         "addw": SymbolData(fullname="algopy.op.addw", module_public=True),
         "app_opted_in": SymbolData(fullname="algopy.op.app_opted_in", module_public=True),
@@ -421,6 +424,7 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "min_balance": SymbolData(fullname="algopy.op.min_balance", module_public=True),
         "mulw": SymbolData(fullname="algopy.op.mulw", module_public=True),
         "online_stake": SymbolData(fullname="algopy.op.online_stake", module_public=True),
+        "poseidon2": SymbolData(fullname="algopy.op.poseidon2", module_public=True),
         "replace": SymbolData(fullname="algopy.op.replace", module_public=True),
         "select_bytes": SymbolData(fullname="algopy.op.select_bytes", module_public=True),
         "select_uint64": SymbolData(fullname="algopy.op.select_uint64", module_public=True),
@@ -429,6 +433,7 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "setbyte": SymbolData(fullname="algopy.op.setbyte", module_public=True),
         "sha256": SymbolData(fullname="algopy.op.sha256", module_public=True),
         "sha3_256": SymbolData(fullname="algopy.op.sha3_256", module_public=True),
+        "sha512": SymbolData(fullname="algopy.op.sha512", module_public=True),
         "sha512_256": SymbolData(fullname="algopy.op.sha512_256", module_public=True),
         "shl": SymbolData(fullname="algopy.op.shl", module_public=True),
         "shr": SymbolData(fullname="algopy.op.shr", module_public=True),
@@ -437,9 +442,11 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "sumhash512": SymbolData(fullname="algopy.op.sumhash512", module_public=True),
         "vrf_verify": SymbolData(fullname="algopy.op.vrf_verify", module_public=True),
         "AcctParamsGet": SymbolData(fullname="algopy.op.AcctParamsGet", module_public=True),
+        "AppBox": SymbolData(fullname="algopy.op.AppBox", module_public=True),
         "AppGlobal": SymbolData(fullname="algopy.op.AppGlobal", module_public=True),
         "AppLocal": SymbolData(fullname="algopy.op.AppLocal", module_public=True),
         "AppParamsGet": SymbolData(fullname="algopy.op.AppParamsGet", module_public=True),
+        "AppParamsSet": SymbolData(fullname="algopy.op.AppParamsSet", module_public=True),
         "AssetHoldingGet": SymbolData(fullname="algopy.op.AssetHoldingGet", module_public=True),
         "AssetParamsGet": SymbolData(fullname="algopy.op.AssetParamsGet", module_public=True),
         "Block": SymbolData(fullname="algopy.op.Block", module_public=True),
