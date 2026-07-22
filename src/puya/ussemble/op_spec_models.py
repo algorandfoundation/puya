@@ -30,3 +30,4 @@ class OpSpec:
     name: str
     code: int
     immediates: list[ImmediateKind | ImmediateEnum]
+    sub_code: int | None = None
