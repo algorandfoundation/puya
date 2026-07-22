@@ -32,9 +32,7 @@ def build_op_spec(lang_spec: LanguageSpec) -> dict[str, OpSpec]:
                         codes={e.name: e.value for e in lang_spec.arg_enums[imm.arg_enum]}
                     )
                 )
-        op_spec = OpSpec(
-            name=op.name, code=op.code, immediates=immediates, sub_code=op.sub_code
-        )
+        op_spec = OpSpec(name=op.name, code=op.code, immediates=immediates, sub_code=op.sub_code)
         ops[op_spec.name] = op_spec
 
     return ops
