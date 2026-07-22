@@ -452,9 +452,9 @@ def _patch_arg_type(
     ops: dict[str, typing.Any], op_name: str, arg_index: int, current_type: str, new_type: str
 ) -> None:
     op_args = ops[op_name]["Args"]
-    assert op_args[arg_index] == current_type, (
-        f"Expected {op_name} arg {arg_index} to be {current_type}"
-    )
+    assert (
+        op_args[arg_index] == current_type
+    ), f"Expected {op_name} arg {arg_index} to be {current_type}"
     op_args[arg_index] = new_type
 
 
@@ -462,9 +462,9 @@ def _patch_return_type(
     ops: dict[str, typing.Any], op_name: str, return_index: int, current_type: str, new_type: str
 ) -> None:
     returns = ops[op_name]["Returns"]
-    assert returns[return_index] == current_type, (
-        f"Expected {op_name} return {return_index} to be {current_type}"
-    )
+    assert (
+        returns[return_index] == current_type
+    ), f"Expected {op_name} return {return_index} to be {current_type}"
     returns[return_index] = new_type
 
 
@@ -557,9 +557,9 @@ def transform_immediates(
                 arg_enums[arg_enum_reference] = create_indexed_enum(enum_op)
 
             if arg_enum is not None:
-                assert len(arg_enum) == len(arg_enums[arg_enum_reference]), (
-                    f"Arg Enum lengths don't match for {op_name}"
-                )
+                assert len(arg_enum) == len(
+                    arg_enums[arg_enum_reference]
+                ), f"Arg Enum lengths don't match for {op_name}"
 
         modifies_stack_input: int | None = None
         modifies_stack_output: int | None = None
@@ -678,9 +678,9 @@ def validate_op(lang_spec: LanguageSpec, op: Op) -> None:
         expected_size = (
             sum([get_immediate_encoded_size(a) for a in op.immediate_args]) + instruction_size
         )
-        assert op.size == expected_size, (
-            f"Unexpected size for specified immediate args for {op.name}"
-        )
+        assert (
+            op.size == expected_size
+        ), f"Unexpected size for specified immediate args for {op.name}"
 
     # validate immediate modifiers
     for immediate in op.immediate_args:

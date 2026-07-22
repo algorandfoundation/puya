@@ -193,9 +193,9 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     for block in subroutine.body:
         for op in block.ops:
             match op:
-                case (
-                    models.Assignment(source=models.Intrinsic() as intrinsic) as ass
-                ) if intrinsic.args:
+                case models.Assignment(source=models.Intrinsic() as intrinsic) as ass if (
+                    intrinsic.args
+                ):
                     with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
                     if with_immediates is not None:
                         logger.debug(f"Simplified {op.source} to {with_immediates}")
@@ -338,9 +338,9 @@ def _simplify_conditional_branches(
     ]()
     for block in subroutine.body:
         match block.terminator:
-            case (
-                models.ConditionalBranch(condition=models.Register() as cond) as branch
-            ) if cond in register_intrinsics:
+            case models.ConditionalBranch(condition=models.Register() as cond) as branch if (
+                cond in register_intrinsics
+            ):
                 branch_registers.setdefault(cond, []).append((branch, block))
     for target, usages in branch_registers.items():
         intrinsic = register_intrinsics[target]
