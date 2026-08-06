@@ -1,5 +1,6 @@
-from collections.abc import Mapping
 import typing
+from collections.abc import Mapping
+
 from algopy import (
     Account,
     Bytes,
@@ -15,16 +16,20 @@ class CompiledContract(typing.NamedTuple):
     Create by calling [`compile_contract`](#algopy.compile_contract).
     """
 
-    approval_program: tuple[Bytes, Bytes]
+    approval_program: tuple[Bytes, Bytes, Bytes, Bytes]
     """
     Approval program pages for a contract, after template variables have been replaced
-    and compiled to AVM bytecode
+    and compiled to AVM bytecode.
+    Note that each element in the tuple holds up to two program pages.
+    Trailing pages not needed are left empty.
     """
 
-    clear_state_program: tuple[Bytes, Bytes]
+    clear_state_program: tuple[Bytes, Bytes, Bytes, Bytes]
     """
     Clear state program pages for a contract, after template variables have been replaced
-    and compiled to AVM bytecode
+    and compiled to AVM bytecode.
+    Note that each element in the tuple holds up to two program pages.
+    Trailing pages not needed are left empty.
     """
 
     extra_program_pages: UInt64
