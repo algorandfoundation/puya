@@ -11,6 +11,7 @@ import typing_extensions
 from immutabledict import immutabledict
 
 from puya import log
+from puya.algo_constants import MAX_PROGRAM_PAGE_VALUES
 from puya.avm import TransactionType
 from puya.awst import wtypes
 from puya.awst.wtypes import WTypeField
@@ -867,11 +868,11 @@ CompiledContractType: typing.Final = _register_builtin(
         fields=(
             PyTypeField(
                 name="approval_program",
-                type=GenericTupleType.parameterise([BytesType, BytesType], None),
+                type=GenericTupleType.parameterise([BytesType] * MAX_PROGRAM_PAGE_VALUES, None),
             ),
             PyTypeField(
                 name="clear_state_program",
-                type=GenericTupleType.parameterise([BytesType, BytesType], None),
+                type=GenericTupleType.parameterise([BytesType] * MAX_PROGRAM_PAGE_VALUES, None),
             ),
             PyTypeField(name="extra_program_pages", type=UInt64Type),
             PyTypeField(name="global_uints", type=UInt64Type),

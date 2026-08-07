@@ -17,6 +17,12 @@ MAX_BOX_KEY_LENGTH = 64
 MAX_BOX_BYTES_LENGTH = 32_768
 MAX_TRANSACTION_GROUP_SIZE = 16
 MAX_APP_PAGE_SIZE = 2048
+MAX_EXTRA_APP_PAGES = 7
+"""Maximum value of an application's ExtraProgramPages field"""
+MAX_APP_TOTAL_PROGRAM_SIZE = (1 + MAX_EXTRA_APP_PAGES) * MAX_APP_PAGE_SIZE
+"""Combined maximum size of an application's approval and clear state programs"""
+MAX_PROGRAM_PAGE_VALUES = (MAX_APP_TOTAL_PROGRAM_SIZE + MAX_BYTES_LENGTH - 1) // MAX_BYTES_LENGTH
+"""Number of AVM values (bytearray) required to hold a maximally sized program"""
 HASH_PREFIX_PROGRAM = b"Program"
 """Represents the prefix added to a program before hashing e.g. for a LogicSigs address"""
 # Which language versions does this version of puya support targeting
