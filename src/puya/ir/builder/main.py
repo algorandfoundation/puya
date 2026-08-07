@@ -232,7 +232,7 @@ class FunctionIRBuilder(
                 TxnField.ApprovalProgramPages,
                 TxnField.ClearStateProgramPages,
             )
-            for page in (0, 1)
+            for page in range(algo_constants.MAX_PROGRAM_PAGE_VALUES)
         ]
         return ir.ValueTuple(
             values=program_pages

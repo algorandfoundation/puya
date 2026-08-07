@@ -4,6 +4,7 @@ import typing
 
 import attrs
 
+from puya.algo_constants import MAX_PROGRAM_PAGE_VALUES
 from puya.avm import AVMType
 from puya.awst import wtypes
 
@@ -137,7 +138,7 @@ class TxnField(enum.Enum):
     # v5
     Logs = _TxnFieldData(wtypes.bytes_wtype, num_values=32, is_inner_param=False)
     # v7
-    ApprovalProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)
-    ClearStateProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)
+    ApprovalProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=MAX_PROGRAM_PAGE_VALUES)
+    ClearStateProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=MAX_PROGRAM_PAGE_VALUES)
     # v12
     RejectVersion = _TxnFieldData(wtypes.uint64_wtype)
