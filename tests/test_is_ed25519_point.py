@@ -1,6 +1,6 @@
 import pytest
 
-from puya.utils import is_edwards25519_point
+from puya.utils import is_ed25519_point
 
 # (name, input, expected) copied verbatim from go-algorand's TestIsEdwards25519Point
 _VECTORS = [
@@ -49,6 +49,6 @@ _VECTORS = [
 
 
 @pytest.mark.parametrize("case", _VECTORS, ids=[v[0] for v in _VECTORS])
-def test_is_edwards25519_point(case: tuple[str, bytes, bool]) -> None:
+def test_is_ed25519_point(case: tuple[str, bytes, bool]) -> None:
     _name, input_bytes, expected = case
-    assert is_edwards25519_point(input_bytes) is expected
+    assert is_ed25519_point(input_bytes) is expected

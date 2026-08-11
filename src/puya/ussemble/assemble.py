@@ -18,7 +18,7 @@ from puya.ussemble.debug import build_debug_info
 from puya.ussemble.models import AVMOp
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
-from puya.utils import is_edwards25519_point, sha512_256_hash
+from puya.utils import is_ed25519_point, sha512_256_hash
 
 logger = log.get_logger(__name__)
 
@@ -167,7 +167,7 @@ def assemble_bytecode_and_debug_info(
 
 
 def _program_hash_on_curve(program: bytes) -> bool:
-    return is_edwards25519_point(sha512_256_hash(HASH_PREFIX_PROGRAM + program))
+    return is_ed25519_point(sha512_256_hash(HASH_PREFIX_PROGRAM + program))
 
 
 def _apply_autosalt(program: bytes) -> bytes:
