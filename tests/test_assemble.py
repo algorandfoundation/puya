@@ -27,18 +27,6 @@ def test_assemble_matches_algod(
     )
     template_vars = compile_result.options.template_variables
     for artifact in compile_result.teal:
-        # TODO: delete this once avm13 hits localnet
-        program = (
-            artifact.program
-            if isinstance(artifact, CompiledLogicSig)
-            else artifact.approval_program
-        )
-        if int(program.teal_src.splitlines()[0].split()[2]) >= 13:
-            continue
-        # TODO: delete this once localnet supports `#pragma autosalt`
-        if "#pragma autosalt" in program.teal_src:
-            continue
-
         match artifact:
             case CompiledContract(approval_program=approval, clear_program=clear):
                 assemble_and_compare_program(
