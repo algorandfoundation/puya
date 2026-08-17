@@ -6,6 +6,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.10.0'></a>
+## v5.10.0 (2026-08-17)
+
+### Added
+
+- Support for AVM 13 style varint encoding for branches in assemble
+
+- Off-curve autosalt: a logicsig whose program hash (concatenated to the domain separator `Program`) decodes to an Edwards25519 point gets a trailing `intcblock` salt (regardless of AVM version) at assemble time, so its address cannot double as a valid public key. Contracts are never salted by default.
+- `autosalt` option on the `logicsig` decorator and `Contract` classes to override the default:
+  `True` forces salting, `False` disables it, and contradicting overrides emit a warning. The resolved setting is recorded as `#pragma autosalt` in the TEAL output.
+
+- Support for new AVM 13 opcodes and fields:
+    - New hashing primitives: SHA512 and poseidon2.
+    - `AppBox` family ops, a series of opcodes used to read and write boxes from other applications.
+    - `app_params_set` and two new boolean settable `AppParams` fields: `AppForeignBoxReads` (indicates that this app's boxes may be read by any app) and `AppFamilyBoxAccess` (indicates that this app's boxes may be read and written by any app -existing or future- with the same creator).
+    - New application parameter `AppSizeSponsor`: an address which, if non-zero, is responsible for the app's extra pages and global storage MBR.
+
+### Changed
+
+- Underlying representation for `CompiledContract` to accomodate new extra page limits.
+
 <a id='changelog-v5.9.0'></a>
 ## v5.9.0 (2026-07-17)
 
