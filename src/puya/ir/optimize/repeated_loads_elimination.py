@@ -55,7 +55,9 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
     @classmethod
     def optimise(cls, block: models.BasicBlock) -> bool:
         visitor = cls(block=block)
-        for op in block.ops:
+        # iterate over a copy b.c. visiting may
+        # remove ops. (see _handle_write() below)
+        for op in block.ops.copy():
             op.accept(visitor)
         return visitor.modified
 
@@ -247,7 +249,7 @@ def _key_str(key: tuple[models.Value | _ReadType, ...]) -> str:
     try:
         (single_key,) = key
     except ValueError:
-        return f'({",".join(map(str, key))})'
+        return f"({','.join(map(str, key))})"
     else:
         return str(single_key)
 
