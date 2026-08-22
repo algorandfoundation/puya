@@ -263,3 +263,7 @@ def test_branch_to_proto(deployer_o: Deployer) -> None:
     assert verified is False  # inputs are not valid, so verification failure is expected
     assert isinstance(output, bytes)
     assert len(output) == 64  # vrf_verify output is 64 bytes
+
+
+def test_unobserved_write_stale_read(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "unobserved_write_stale_read.py")
