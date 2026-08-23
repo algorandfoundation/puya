@@ -1,0 +1,21 @@
+main test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.approval_program:
+    block@0: // L15
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        (app_global_put "stored" 33u)
+        (app_global_put "stored" 22u)
+        (app_global_put "stored" 11u)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "stored")
+        (assert maybe_exists%0#0) // check self.stored exists
+        let tmp%1#0: bool = (== maybe_value%0#0 11u)
+        (assert tmp%1#0) // stored should be 11
+        return 1u
+
+subroutine test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.__init__() -> void:
+    block@0: // L12
+        (app_global_put "stored" 0u)
+        return 

@@ -1,0 +1,24 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.approval_program() -> uint64:
+main:
+    bytecblock "stored"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // regression_tests/unobserved_write_stale_read.py:13
+    // self.stored = GlobalState(UInt64(0))
+    bytec_0 // "stored"
+    pushint 0
+    app_global_put
+
+main_after_if_else@2:
+    // regression_tests/unobserved_write_stale_read.py:18
+    // self.stored.value = UInt64(11)  # live
+    bytec_0 // "stored"
+    pushint 11
+    app_global_put
+    // regression_tests/unobserved_write_stale_read.py:20
+    // return True
+    pushint 1
+    return
