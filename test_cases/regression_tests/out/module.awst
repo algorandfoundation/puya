@@ -33,6 +33,42 @@ subroutine get_return_value(): uint64
   return 0u
 }
 
+contract UnobservedWriteStaleRead
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  globals {
+    ['stored']: uint64
+  }
+  
+  subroutine test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    GlobalState['stored']: uint64 = 33u
+    GlobalState['stored']: uint64 = 22u
+    GlobalState['stored']: uint64 = 11u
+    assert(GlobalState['stored'] == 11u, comment="stored should be 11")
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.__init__(): void
+  {
+    GlobalState['stored']: uint64 = 0u
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract UInt64TripleAddOverflow
 {
   method_resolution_order: (

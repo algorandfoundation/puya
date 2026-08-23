@@ -1,0 +1,28 @@
+// Op                                                         Stack (out)
+// test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                     tmp%0#0
+        l-load tmp%0#0 0                                      tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
+
+    main_call___init__@1:
+        // regression_tests/unobserved_write_stale_read.py:13
+        // self.stored = GlobalState(UInt64(0))
+        byte "stored"                                         "stored"
+        int 0                                                 "stored",0
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        // regression_tests/unobserved_write_stale_read.py:18
+        // self.stored.value = UInt64(11)  # live
+        byte "stored"                                         "stored"
+        int 11                                                "stored",11
+        app_global_put
+        // regression_tests/unobserved_write_stale_read.py:20
+        // return True
+        int 1                                                 1
+        return
+
+

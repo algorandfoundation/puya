@@ -1,0 +1,60 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.approval_program() -> uint64:
+main:
+    intcblock 11 0
+    bytecblock "stored"
+    b main_block@0
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    b main_call___init__@1
+
+main_call___init__@1:
+    callsub __init__
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    // regression_tests/unobserved_write_stale_read.py:16
+    // self.stored.value = UInt64(33)  # dead
+    bytec_0 // "stored"
+    pushint 33
+    app_global_put
+    // regression_tests/unobserved_write_stale_read.py:17
+    // self.stored.value = UInt64(22)  # dead
+    bytec_0 // "stored"
+    pushint 22
+    app_global_put
+    // regression_tests/unobserved_write_stale_read.py:18
+    // self.stored.value = UInt64(11)  # live
+    bytec_0 // "stored"
+    intc_0 // 11
+    app_global_put
+    // regression_tests/unobserved_write_stale_read.py:19
+    // assert self.stored.value == 11, "stored should be 11"
+    intc_1 // 0
+    bytec_0 // "stored"
+    app_global_get_ex
+    assert // check self.stored exists
+    intc_0 // 11
+    ==
+    assert // stored should be 11
+    // regression_tests/unobserved_write_stale_read.py:20
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.regression_tests.unobserved_write_stale_read.UnobservedWriteStaleRead.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    // regression_tests/unobserved_write_stale_read.py:13
+    // self.stored = GlobalState(UInt64(0))
+    bytec_0 // "stored"
+    intc_1 // 0
+    app_global_put
+    retsub
