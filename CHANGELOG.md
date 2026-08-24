@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.10.1'></a>
+## v5.10.1 (2026-08-24)
+
+### Fixed
+
+- A bug in repeated loads elimination. When there were 3 (or more) writes in a row followed by a read in the same basic block all for the same key, the last write in the row would be ignored, and the value of the second write would make it into subsequent reads instead.
+
 <a id='changelog-v5.10.0'></a>
 ## v5.10.0 (2026-08-17)
 
