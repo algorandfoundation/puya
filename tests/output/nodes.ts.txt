@@ -636,6 +636,7 @@ export enum AppStorageKind {
   appGlobal = 1,
   accountLocal = 2,
   box = 3,
+  remoteBox = 4,
 }
 export class AppStateExpression extends Expression {
   constructor(props: Props<AppStateExpression>) {
@@ -682,9 +683,11 @@ export class BoxValueExpression extends Expression {
     super(props)
     this.key = props.key
     this.existsAssertionMessage = props.existsAssertionMessage
+    this.app = props.app
   }
   readonly key: Expression
   readonly existsAssertionMessage: string | null
+  readonly app: Expression | null
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitBoxValueExpression(this)
    }
