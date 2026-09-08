@@ -267,3 +267,26 @@ def test_branch_to_proto(deployer_o: Deployer) -> None:
 
 def test_unobserved_write_stale_read(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "unobserved_write_stale_read.py")
+
+
+def test_box_bool_array_append_read(deployer_o: Deployer) -> None:
+    # appending to a bool array in a box would always add a byte per element,
+    # while reads correctly used a bit per element
+    client = deployer_o.create(
+        TEST_CASES_DIR / "regression_tests" / "box_bool_array_append_read.py"
+    ).client
+    deployer_o.localnet.account.ensure_funded(
+        account_to_fund=client.app_address,
+        dispenser_account=deployer_o.account,
+        min_spending_balance=au.AlgoAmount.from_algo(1),
+    )
+
+    client.send.call(
+        au.AppClientMethodCallParams(
+            method="box_round_trip",
+            max_fee=au.AlgoAmount.from_micro_algo(100_000),
+        ),
+        au.SendParams(cover_app_call_inner_transaction_fees=True),
+    )
+    with pytest.raises(au.LogicError, match="index out of bounds"):
+        client.send.call(au.AppClientMethodCallParams(method="box_out_of_bounds"))
