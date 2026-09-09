@@ -231,6 +231,7 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.dynamic_array_pop_byte_length_head,
             PuyaLibIR.dynamic_array_pop_dynamic_element,
             PuyaLibIR.box_dynamic_array_pop_fixed_size,
+            PuyaLibIR.box_dynamic_array_pop_bit,
             PuyaLibIR.box_update_offset_dec,
         )
 
@@ -241,6 +242,7 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.dynamic_array_concat_bits,
             PuyaLibIR.dynamic_array_concat_byte_length_head,
             PuyaLibIR.box_dynamic_array_concat_fixed,
+            PuyaLibIR.box_dynamic_array_concat_bits,
             PuyaLibIR.box_update_offset_inc,
         )
 
