@@ -13,6 +13,8 @@ class PuyaLibIR(enum.StrEnum):
     box_dynamic_array_concat_fixed = "_puya_lib.box_arc4.box_dynamic_array_concat_fixed"
     box_update_offset_dec = "_puya_lib.box_arc4.box_update_offset_dec"
     box_update_offset_inc = "_puya_lib.box_arc4.box_update_offset_inc"
+    box_dynamic_array_pop_bit = "_puya_lib.box_arc4.box_dynamic_array_pop_bit"
+    box_dynamic_array_concat_bits = "_puya_lib.box_arc4.box_dynamic_array_concat_bits"
     dynamic_array_pop_bit = "_puya_lib.arc4.dynamic_array_pop_bit"
     r_trim = "_puya_lib.arc4.r_trim"
     dynamic_array_pop_fixed_size = "_puya_lib.arc4.dynamic_array_pop_fixed_size"

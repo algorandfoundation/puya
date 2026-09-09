@@ -103,3 +103,100 @@ def _box_extract_u16(box_key: Bytes, offset: UInt64) -> UInt64:
 def _as_uint16(value: UInt64) -> Bytes:
     value_bytes = op.itob(value)
     return op.extract(value_bytes, 6, 2)
+
+
+@subroutine(inline=True)
+def _bits_to_bytes(num_bits: UInt64) -> UInt64:
+    return (num_bits + 7) // 8
+
+
+@subroutine
+def box_dynamic_array_pop_bit(box_key: Bytes, array_offset: UInt64) -> UInt64:
+    """
+    Modifies a box's content by popping the last element of an
+    ARC-4 dynamic array of bit packed booleans
+
+    box_key: The box_key to manipulate
+    array_offset: The offset in bytes to the start of the array
+
+    returns: The number of bytes the array shrunk by (0 or 1)
+    """
+    # update length header of array
+    arr_len = _box_extract_u16(box_key, array_offset)
+    new_arr_len = arr_len - 1  # on error: empty array
+    new_arr_len_u16 = _as_uint16(new_arr_len)
+    op.Box.replace(box_key, array_offset, new_arr_len_u16)
+
+    # the popped bit is the last bit of the array data
+    byte_offset = array_offset + 2 + new_arr_len // 8
+    bit_offset = new_arr_len % 8
+    if bit_offset == 0:
+        # popped bit was the only bit in the last byte, so remove that byte entirely
+        op.Box.splice(box_key, byte_offset, 1, b"")
+        box_size, _exists = op.Box.length(box_key)
+        op.Box.resize(box_key, box_size - 1)
+        return UInt64(1)
+    # otherwise clear the popped bit so padding bits remain zero
+    byte = op.Box.extract(box_key, byte_offset, 1)
+    byte = op.setbit_bytes(byte, bit_offset, False)  # noqa: FBT003
+    op.Box.replace(box_key, byte_offset, byte)
+    return UInt64(0)
+
+
+@subroutine
+def box_dynamic_array_concat_bits(
+    box_key: Bytes,
+    array_offset: UInt64,
+    new_items_bytes: Bytes,
+    new_items_count: UInt64,
+    read_step: UInt64,
+) -> UInt64:
+    """
+    Modifies a box's content by concatenating data to an arc4 dynamic array of
+    bit packed booleans
+
+    box_key: The box_key to manipulate
+    array_offset: The offset in bytes to the start of the array
+    new_items_bytes: Either the data portion of an arc4 packed array of booleans
+                        or
+                     a sparse array of concatenated arc4 booleans
+    new_items_count: The count of new items being added
+    read_step: How many bits to advance when reading new items,
+               1 for packed bools or 8 for concatenated bools
+
+    returns: The number of bytes the array grew by
+    """
+    arr_len = _box_extract_u16(box_key, array_offset)
+    new_arr_len = arr_len + new_items_count
+    # Bit packed arrays can exceed 65535 elements within a box, so prevent the
+    # uint16 length header from wrapping.
+    assert new_arr_len <= 65535, "max array length exceeded"
+    data_offset = array_offset + 2
+    current_bytes = _bits_to_bytes(arr_len)
+    required_bytes = _bits_to_bytes(new_arr_len)
+    extra_bytes = required_bytes - current_bytes
+
+    # increase box size and insert zeroed bytes at the end of the current array data
+    if extra_bytes:
+        box_size, _exists = op.Box.length(box_key)
+        op.Box.resize(box_key, box_size + extra_bytes)
+        op.Box.splice(box_key, data_offset + current_bytes, 0, op.bzero(extra_bytes))
+
+    # update array length header with new count
+    new_arr_len_u16 = _as_uint16(new_arr_len)
+    op.Box.replace(box_key, array_offset, new_arr_len_u16)
+
+    # copy the new bits into the array, one byte of the box at a time
+    read_offset = UInt64(0)
+    write_offset = arr_len
+    while write_offset < new_arr_len:
+        byte_offset = data_offset + write_offset // 8
+        bit_offset = write_offset % 8
+        byte = op.Box.extract(box_key, byte_offset, 1)
+        while bit_offset < 8 and write_offset < new_arr_len:
+            byte = op.setbit_bytes(byte, bit_offset, op.getbit(new_items_bytes, read_offset))
+            bit_offset += 1
+            write_offset += 1
+            read_offset += read_step
+        op.Box.replace(box_key, byte_offset, byte)
+    return extra_bytes
