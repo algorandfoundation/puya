@@ -83,6 +83,7 @@ def parent_from_idx(index: int) -> object:
 _TEST_CASES = [
     _TestCase("array_uint64", int),
     _TestCase("struct_array_uint64", int),
+    _TestCase("struct_array_bool", lambda i: i % 3 != 0),
     _TestCase("struct_multiple_array_uint64", int),
     _TestCase("dynamic_offset_first", int),
     _TestCase("dynamic_offset_middle", int),
@@ -198,6 +199,15 @@ def test_concat_and_pop(client: LargeBoxClient, item_factory: ItemFactory) -> No
     for _ in range(3):
         popped = arr.pop()
         assert client.pop() == popped
+        client.verify(arr)
+
+
+@pytest.mark.parametrize("contract", ["struct_array_bool"])
+def test_pop_bit_boundaries(client: LargeBoxClient) -> None:
+    arr: list[object] = [True] * 9
+    client.concat(arr)
+    while arr:
+        assert client.pop() == arr.pop()
         client.verify(arr)
 
 
