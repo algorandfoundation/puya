@@ -62,7 +62,7 @@ class TealOp:
     )
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return ()
 
     @property
@@ -112,7 +112,7 @@ class TealOpN(TealOp):
     n: int = attrs.field(validator=[attrs.validators.ge(0), attrs.validators.le(255)])
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.n,)
 
 
@@ -222,7 +222,7 @@ class IntBlock(TealOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return tuple(self.constants)
 
 
@@ -251,7 +251,7 @@ class IntC(_LoadConst):
             return "intc"
 
     @property
-    def immediates(self) -> Sequence[int]:
+    def immediates(self) -> tuple[int, ...]:
         if self.index < 4:
             return ()
         else:
@@ -264,14 +264,16 @@ class PushInt(_LoadConst):
     value: int = attrs.field(validator=_valid_uint64)
 
     @property
-    def immediates(self) -> Sequence[int]:
+    def immediates(self) -> tuple[int, ...]:
         return (self.value,)
 
 
 @attrs.frozen
 class PushInts(TealOp):
     op_code: str = attrs.field(default="pushints", init=False)
-    values: list[int] = attrs.field(validator=attrs.validators.deep_iterable(_valid_uint64))
+    values: tuple[int, ...] = attrs.field(
+        validator=attrs.validators.deep_iterable(_valid_uint64), converter=tuple[int, ...]
+    )
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(init=False)
     comments: Sequence[str | None]
@@ -281,7 +283,7 @@ class PushInts(TealOp):
         return len(self.values)
 
     @property
-    def immediates(self) -> Sequence[int]:
+    def immediates(self) -> tuple[int, ...]:
         return self.values
 
     @typing.override
@@ -300,7 +302,7 @@ class BytesBlock(TealOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[str]:
+    def immediates(self) -> tuple[str, ...]:
         return tuple(
             _encoded_bytes(c, es[0]) if isinstance(c, bytes) else c
             for c, es in self.constants.items()
@@ -320,7 +322,7 @@ class BytesC(_LoadConst):
             return "bytec"
 
     @property
-    def immediates(self) -> Sequence[int]:
+    def immediates(self) -> tuple[int, ...]:
         if self.index < 4:
             return ()
         else:
@@ -335,7 +337,7 @@ class PushBytes(_LoadConst):
     encoding: AVMBytesEncoding = attrs.field(eq=False)
 
     @property
-    def immediates(self) -> Sequence[str]:
+    def immediates(self) -> tuple[str, ...]:
         return (_encoded_bytes(self.value, self.encoding),)
 
 
@@ -359,7 +361,7 @@ class PushBytess(TealOp):
             raise InternalError("invalid bytes value", self.source_location)
 
     @property
-    def immediates(self) -> Sequence[str]:
+    def immediates(self) -> tuple[str, ...]:
         return tuple(_encoded_bytes(c, e) for c, e in self.values)
 
     @typing.override
@@ -395,7 +397,7 @@ class Int(TealOp):
     comment: str | None = attrs.field(default=None, kw_only=True)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.value,)
 
 
@@ -430,8 +432,8 @@ class Proto(TealOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
-        return self.parameters, self.returns
+    def immediates(self) -> tuple[int | str, ...]:
+        return (self.parameters, self.returns)
 
 
 @attrs.frozen
@@ -445,7 +447,7 @@ class Byte(TealOp):
     comment: str | None = attrs.field(default=None, kw_only=True)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (_encoded_bytes(self.value, self.encoding),)
 
 
@@ -457,17 +459,17 @@ class TemplateVar(TealOp):
     produces: int = attrs.field(default=1, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.name,)
 
 
 @attrs.frozen
 class Intrinsic(TealOp):
-    immediates: Sequence[int | str] = attrs.field()
+    immediates: tuple[int | str, ...] = attrs.field(converter=tuple[int | str, ...])
     error_message: str | None
 
     @immediates.validator
-    def _validate_immediates(self, _: object, value: Sequence[int | str]) -> None:
+    def _validate_immediates(self, _: object, value: tuple[int | str, ...]) -> None:
         if self.op_code == "substring":
             match value:
                 case [int(start), int(end)] if start > end:
@@ -549,7 +551,7 @@ class Branch(ControlOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.target,)
 
     @property
@@ -565,7 +567,7 @@ class BranchNonZero(ControlOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.target,)
 
     @property
@@ -581,7 +583,7 @@ class BranchZero(ControlOp):
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.target,)
 
     @property
@@ -591,19 +593,19 @@ class BranchZero(ControlOp):
 
 @attrs.frozen
 class Switch(ControlOp):
-    targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
+    targets: tuple[str, ...] = attrs.field(converter=tuple[str, ...])
     op_code: str = attrs.field(default="switch", init=False)
     consumes: int = attrs.field(default=1, init=False)
     produces: int = attrs.field(default=0, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return self.targets
 
 
 @attrs.frozen
 class Match(ControlOp):
-    targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
+    targets: tuple[str, ...] = attrs.field(converter=tuple[str, ...])
     op_code: str = attrs.field(default="match", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(default=0, init=False)
@@ -613,7 +615,7 @@ class Match(ControlOp):
         return len(self.targets) + 1
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return self.targets
 
 
@@ -623,7 +625,7 @@ class CallSub(TealOp):
     op_code: str = attrs.field(default="callsub", init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> tuple[int | str, ...]:
         return (self.target,)
 
 

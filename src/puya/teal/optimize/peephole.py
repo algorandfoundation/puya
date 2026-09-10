@@ -1,7 +1,7 @@
 import attrs
 
 from puya.teal import models
-from puya.teal._util import preserve_stack_manipulations
+from puya.teal._util import is_stack_swap, preserve_stack_manipulations
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
     LOAD_OP_CODES,
@@ -55,16 +55,12 @@ def is_redundant_rotate(a: models.TealOp, b: models.TealOp) -> bool:
     return is_stack_swap(a) and is_stack_swap(b)
 
 
-def is_stack_swap(op: models.TealOp) -> bool:
-    return op.op_code == "swap" or (op.op_code in ("cover", "uncover") and op.immediates[0] == 1)
-
-
 def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
     if a.op_code == "arg" and isinstance((idx := a.immediates[0]), int) and idx <= 3:
         return [
             models.Intrinsic(
                 op_code=f"arg_{idx}",
-                immediates=[],
+                immediates=(),
                 consumes=0,
                 produces=1,
                 stack_manipulations=a.stack_manipulations,

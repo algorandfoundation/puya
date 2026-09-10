@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 2 1 4
-    bytecblock "greeting" " " 0x151f7c75
+    bytecblock "greeting" 0x151f7c75 " "
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "greeting"
@@ -26,6 +26,7 @@ main_after_if_else@2:
     err
 
 main_sendGreetings_route@9:
+    bytec_1 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -69,7 +70,7 @@ main_sendGreetings_route@9:
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check GlobalState exists
-    bytec_1 // " "
+    bytec_2 // " "
     concat
     cover 4
     cover 4
@@ -85,14 +86,13 @@ main_sendGreetings_route@9:
     extract 6 2
     swap
     concat
-    bytec_2 // 0x151f7c75
-    swap
     concat
     log
     intc_2 // 1
     return
 
 main_greet_route@8:
+    bytec_1 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -108,7 +108,7 @@ main_greet_route@8:
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check GlobalState exists
-    bytec_1 // " "
+    bytec_2 // " "
     concat
     swap
     concat
@@ -118,8 +118,6 @@ main_greet_route@8:
     extract 6 2
     swap
     concat
-    bytec_2 // 0x151f7c75
-    swap
     concat
     log
     intc_2 // 1
@@ -132,6 +130,7 @@ main_create_NoOp@11:
     err
 
 main_helloCreate_route@12:
+    bytec_0 // "greeting"
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -143,8 +142,6 @@ main_helloCreate_route@12:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    bytec_0 // "greeting"
-    swap
     app_global_put
     intc_2 // 1
     return

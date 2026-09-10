@@ -126,3 +126,11 @@ def test_subroutine_param_swap_concat(deployer_o: Deployer, args: tuple[bytes, .
     else:
         a, b = args[0], args[1]
     assert response.logs == [a + b + a]
+
+
+def test_callsub_scratch_barrier_concat(deployer_o: Deployer) -> None:
+    args = (b"hello", b"world")
+    response = deployer_o.create_bare((_TEST_CASE, "CallsubScratchBarrierConcat"), args=args)
+
+    n_bytes = len(args).to_bytes(8, "big")
+    assert response.logs == [args[1] + n_bytes]
