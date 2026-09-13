@@ -1,0 +1,579 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 8
+    bytecblock "boxed" 0x00 0x068101
+    pushbytes ""
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xa0bc4eac 0x831154cd // method "box_round_trip()void", method "box_out_of_bounds()bool"
+    txna ApplicationArgs 0
+    match main_while_top@39 main_box_out_of_bounds_route@7
+    err
+
+main_box_out_of_bounds_route@7:
+    bytec_0 // "boxed"
+    box_del
+    pop
+    bytec_0 // "boxed"
+    pushbytes 0x0002c0
+    box_put
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_1 // 2
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    intc_1 // 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 2
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+main_while_top@39:
+    pushint 40010
+    global OpcodeBudget
+    >
+    bz main_after_while@44
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_2 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b main_while_top@39
+
+main_after_while@44:
+    bytec_0 // "boxed"
+    box_del
+    pop
+    bytec_0 // "boxed"
+    pushbytes 0x0000
+    box_put
+    intc_0 // 0
+    bury 1
+
+main_for_header@17:
+    dup
+    pushint 17
+    <
+    bz main_after_for@19
+    dupn 2
+    pushint 3
+    %
+    intc_1 // 2
+    !=
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // "boxed"
+    intc_0 // 0
+    uncover 2
+    intc_2 // 1
+    dup
+    callsub box_dynamic_array_concat_bits
+    pop
+    intc_2 // 1
+    +
+    bury 1
+    b main_for_header@17
+
+main_after_for@19:
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 17
+    ==
+    assert // unexpected length after appends
+    bytec_0 // "boxed"
+    box_len
+    pop
+    pushint 5
+    ==
+    assert // unexpected box size after appends
+    intc_0 // 0
+    bury 1
+
+main_for_header@20:
+    dup
+    pushint 17
+    <
+    bz main_after_for@22
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dup
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 1
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    uncover 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    dig 1
+    pushint 3
+    %
+    intc_1 // 2
+    !=
+    ==
+    assert // unexpected value after appends
+    intc_2 // 1
+    +
+    bury 1
+    b main_for_header@20
+
+main_after_for@22:
+    intc_0 // 0
+    bury 1
+
+main_for_header@23:
+    dup
+    pushint 17
+    <
+    bz main_after_for@25
+    dupn 2
+    intc_1 // 2
+    %
+    !
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    intc_0 // 0
+    getbit
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 2
+    >
+    assert // index out of bounds
+    dig 1
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 2
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    dig 2
+    intc_2 // 1
+    box_extract
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    uncover 3
+    setbit
+    bytec_0 // "boxed"
+    cover 2
+    box_replace // on error: index out of bounds
+    intc_2 // 1
+    +
+    bury 1
+    b main_for_header@23
+
+main_after_for@25:
+    intc_0 // 0
+    bury 1
+
+main_for_header@26:
+    dup
+    pushint 17
+    <
+    bz main_after_for@28
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dup
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 1
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    uncover 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    dig 1
+    intc_1 // 2
+    %
+    !
+    ==
+    assert // unexpected value after writes
+    intc_2 // 1
+    +
+    bury 1
+    b main_for_header@26
+
+main_after_for@28:
+    bytec_0 // "boxed"
+    intc_0 // 0
+    pushbytes 0xa0
+    pushint 3
+    intc_2 // 1
+    callsub box_dynamic_array_concat_bits
+    pop
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dup
+    pushint 20
+    ==
+    assert // unexpected length after extend
+    pushint 17
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_2 // 1
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    bz main_bool_false@32
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 2
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    ==
+    bz main_bool_false@32
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 19
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 3
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    bz main_bool_false@32
+    intc_2 // 1
+
+main_bool_merge@33:
+    assert // unexpected value after extend
+    bytec_0 // "boxed"
+    intc_0 // 0
+    pushbytes 0x0080
+    intc_1 // 2
+    intc_3 // 8
+    callsub box_dynamic_array_concat_bits
+    pop
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dup
+    pushint 22
+    ==
+    assert // unexpected length after reference array extend
+    pushint 20
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 4
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    ==
+    bz main_bool_false@36
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 21
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 5
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    bz main_bool_false@36
+    intc_2 // 1
+
+main_bool_merge@37:
+    assert // unexpected value after reference array extend
+    intc_2 // 1
+    return
+
+main_bool_false@36:
+    intc_0 // 0
+    b main_bool_merge@37
+
+main_bool_false@32:
+    intc_0 // 0
+    b main_bool_merge@33
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_bits(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> uint64:
+box_dynamic_array_concat_bits:
+    proto 5 1
+    frame_dig -5
+    frame_dig -4
+    intc_1 // 2
+    box_extract
+    btoi
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    cover 2
+    dup
+    pushint 65535
+    <=
+    assert // max array length exceeded
+    frame_dig -4
+    intc_1 // 2
+    +
+    cover 3
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 5
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    swap
+    -
+    dup
+    bz box_dynamic_array_concat_bits_after_if_else@2
+    frame_dig -5
+    box_len
+    pop
+    dig 1
+    dup
+    cover 2
+    +
+    frame_dig -5
+    swap
+    box_resize
+    dig 3
+    frame_dig 0
+    +
+    swap
+    bzero
+    frame_dig -5
+    uncover 2
+    intc_0 // 0
+    uncover 3
+    box_splice
+
+box_dynamic_array_concat_bits_after_if_else@2:
+    dig 1
+    itob
+    extract 6 2
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    intc_0 // 0
+    swap
+    uncover 4
+    cover 2
+
+box_dynamic_array_concat_bits_while_top@3:
+    dig 2
+    dig 4
+    <
+    bz box_dynamic_array_concat_bits_after_while@9
+    dig 2
+    dup
+    intc_3 // 8
+    /
+    dig 6
+    +
+    dup
+    cover 5
+    swap
+    intc_3 // 8
+    %
+    cover 5
+    frame_dig -5
+    swap
+    intc_2 // 1
+    box_extract
+    cover 5
+
+box_dynamic_array_concat_bits_while_top@5:
+    dig 4
+    intc_3 // 8
+    <
+    bz box_dynamic_array_concat_bits_after_while@8
+    dig 2
+    dig 7
+    <
+    bz box_dynamic_array_concat_bits_after_while@8
+    frame_dig -3
+    uncover 2
+    dup
+    cover 2
+    getbit
+    uncover 6
+    uncover 6
+    dup
+    cover 3
+    uncover 2
+    setbit
+    cover 5
+    intc_2 // 1
+    +
+    cover 4
+    uncover 2
+    intc_2 // 1
+    +
+    cover 2
+    frame_dig -1
+    +
+    swap
+    b box_dynamic_array_concat_bits_while_top@5
+
+box_dynamic_array_concat_bits_after_while@8:
+    uncover 4
+    pop
+    frame_dig -5
+    uncover 4
+    uncover 5
+    box_replace
+    b box_dynamic_array_concat_bits_while_top@3
+
+box_dynamic_array_concat_bits_after_while@9:
+    frame_bury 0
+    retsub

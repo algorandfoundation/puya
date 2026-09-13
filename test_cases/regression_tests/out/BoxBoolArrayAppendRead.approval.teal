@@ -1,0 +1,712 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 8
+    bytecblock "boxed" 0x00 0x068101
+    // regression_tests/box_bool_array_append_read.py:15
+    // class BoxBoolArrayAppendRead(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xa0bc4eac 0x831154cd // method "box_round_trip()void", method "box_out_of_bounds()bool"
+    txna ApplicationArgs 0
+    match box_round_trip box_out_of_bounds
+    err
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_bits(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> uint64:
+box_dynamic_array_concat_bits:
+    proto 5 1
+    frame_dig -5
+    frame_dig -4
+    intc_1 // 2
+    box_extract
+    btoi
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    cover 2
+    dup
+    pushint 65535
+    <=
+    assert // max array length exceeded
+    frame_dig -4
+    intc_1 // 2
+    +
+    cover 3
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 5
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    swap
+    -
+    dup
+    bz box_dynamic_array_concat_bits_after_if_else@2
+    frame_dig -5
+    box_len
+    pop
+    dig 1
+    dup
+    cover 2
+    +
+    frame_dig -5
+    swap
+    box_resize
+    dig 3
+    frame_dig 0
+    +
+    swap
+    bzero
+    frame_dig -5
+    uncover 2
+    intc_0 // 0
+    uncover 3
+    box_splice
+
+box_dynamic_array_concat_bits_after_if_else@2:
+    dig 1
+    itob
+    extract 6 2
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    intc_0 // 0
+    swap
+    uncover 4
+    cover 2
+
+box_dynamic_array_concat_bits_while_top@3:
+    dig 2
+    dig 4
+    <
+    bz box_dynamic_array_concat_bits_after_while@9
+    dig 2
+    dup
+    intc_3 // 8
+    /
+    dig 6
+    +
+    dup
+    cover 5
+    swap
+    intc_3 // 8
+    %
+    cover 5
+    frame_dig -5
+    swap
+    intc_2 // 1
+    box_extract
+    cover 5
+
+box_dynamic_array_concat_bits_while_top@5:
+    dig 4
+    intc_3 // 8
+    <
+    bz box_dynamic_array_concat_bits_after_while@8
+    dig 2
+    dig 7
+    <
+    bz box_dynamic_array_concat_bits_after_while@8
+    frame_dig -3
+    uncover 2
+    dup
+    cover 2
+    getbit
+    uncover 6
+    uncover 6
+    dup
+    cover 3
+    uncover 2
+    setbit
+    cover 5
+    intc_2 // 1
+    +
+    cover 4
+    uncover 2
+    intc_2 // 1
+    +
+    cover 2
+    frame_dig -1
+    +
+    swap
+    b box_dynamic_array_concat_bits_while_top@5
+
+box_dynamic_array_concat_bits_after_while@8:
+    uncover 4
+    pop
+    frame_dig -5
+    uncover 4
+    uncover 5
+    box_replace
+    b box_dynamic_array_concat_bits_while_top@3
+
+box_dynamic_array_concat_bits_after_while@9:
+    frame_bury 0
+    retsub
+
+
+// test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.box_round_trip[routing]() -> void:
+box_round_trip:
+    pushbytes ""
+
+box_round_trip_while_top@28:
+    pushint 40010
+    global OpcodeBudget
+    >
+    bz box_round_trip_after_while@33
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_2 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b box_round_trip_while_top@28
+
+box_round_trip_after_while@33:
+    // regression_tests/box_bool_array_append_read.py:29
+    // self.boxed.value = BoolArray()
+    bytec_0 // "boxed"
+    box_del
+    pop
+    bytec_0 // "boxed"
+    pushbytes 0x0000
+    box_put
+    // regression_tests/box_bool_array_append_read.py:30-31
+    // # repeat true, true, false to cover the original bug and byte boundaries
+    // for i in urange(n):
+    intc_0 // 0
+    bury 1
+
+box_round_trip_for_header@2:
+    // regression_tests/box_bool_array_append_read.py:30-31
+    // # repeat true, true, false to cover the original bug and byte boundaries
+    // for i in urange(n):
+    dup
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:30-31
+    // # repeat true, true, false to cover the original bug and byte boundaries
+    // for i in urange(n):
+    <
+    bz box_round_trip_after_for@5
+    // regression_tests/box_bool_array_append_read.py:32
+    // self.boxed.value.append(arc4.Bool(i % 3 != 2))
+    dupn 2
+    pushint 3
+    %
+    intc_1 // 2
+    !=
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // "boxed"
+    intc_0 // 0
+    uncover 2
+    intc_2 // 1
+    dup
+    callsub box_dynamic_array_concat_bits
+    pop
+    // regression_tests/box_bool_array_append_read.py:30-31
+    // # repeat true, true, false to cover the original bug and byte boundaries
+    // for i in urange(n):
+    intc_2 // 1
+    +
+    bury 1
+    b box_round_trip_for_header@2
+
+box_round_trip_after_for@5:
+    // regression_tests/box_bool_array_append_read.py:33
+    // assert self.boxed.value.length == n, "unexpected length after appends"
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:33
+    // assert self.boxed.value.length == n, "unexpected length after appends"
+    ==
+    assert // unexpected length after appends
+    // regression_tests/box_bool_array_append_read.py:34
+    // assert self.boxed.length == 2 + (n + 7) // 8, "unexpected box size after appends"
+    bytec_0 // "boxed"
+    box_len
+    pop
+    pushint 5
+    ==
+    assert // unexpected box size after appends
+    // regression_tests/box_bool_array_append_read.py:35
+    // for i in urange(n):
+    intc_0 // 0
+    bury 1
+
+box_round_trip_for_header@6:
+    // regression_tests/box_bool_array_append_read.py:35
+    // for i in urange(n):
+    dup
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:35
+    // for i in urange(n):
+    <
+    bz box_round_trip_after_for@9
+    // regression_tests/box_bool_array_append_read.py:36
+    // assert bool(self.boxed.value[i]) == (i % 3 != 2), "unexpected value after appends"
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dup
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 1
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    uncover 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    dig 1
+    pushint 3
+    %
+    intc_1 // 2
+    !=
+    ==
+    assert // unexpected value after appends
+    // regression_tests/box_bool_array_append_read.py:35
+    // for i in urange(n):
+    intc_2 // 1
+    +
+    bury 1
+    b box_round_trip_for_header@6
+
+box_round_trip_after_for@9:
+    // regression_tests/box_bool_array_append_read.py:38-39
+    // # write every index, then read each back
+    // for i in urange(n):
+    intc_0 // 0
+    bury 1
+
+box_round_trip_for_header@10:
+    // regression_tests/box_bool_array_append_read.py:38-39
+    // # write every index, then read each back
+    // for i in urange(n):
+    dup
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:38-39
+    // # write every index, then read each back
+    // for i in urange(n):
+    <
+    bz box_round_trip_after_for@13
+    // regression_tests/box_bool_array_append_read.py:40
+    // self.boxed.value[i] = arc4.Bool(i % 2 == 0)
+    dupn 2
+    intc_1 // 2
+    %
+    !
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    intc_0 // 0
+    getbit
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 2
+    >
+    assert // index out of bounds
+    dig 1
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 2
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    dig 2
+    intc_2 // 1
+    box_extract
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    uncover 3
+    setbit
+    bytec_0 // "boxed"
+    cover 2
+    box_replace // on error: index out of bounds
+    // regression_tests/box_bool_array_append_read.py:38-39
+    // # write every index, then read each back
+    // for i in urange(n):
+    intc_2 // 1
+    +
+    bury 1
+    b box_round_trip_for_header@10
+
+box_round_trip_after_for@13:
+    // regression_tests/box_bool_array_append_read.py:41
+    // for i in urange(n):
+    intc_0 // 0
+    bury 1
+
+box_round_trip_for_header@14:
+    // regression_tests/box_bool_array_append_read.py:41
+    // for i in urange(n):
+    dup
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:41
+    // for i in urange(n):
+    <
+    bz box_round_trip_after_for@17
+    // regression_tests/box_bool_array_append_read.py:42
+    // assert bool(self.boxed.value[i]) == (i % 2 == 0), "unexpected value after writes"
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dup
+    intc_3 // 8
+    /
+    intc_1 // 2
+    +
+    dig 1
+    intc_3 // 8
+    %
+    bytec_0 // "boxed"
+    uncover 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    dig 1
+    intc_3 // 8
+    <
+    assert // index access is out of bounds
+    swap
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x00
+    !=
+    dig 1
+    intc_1 // 2
+    %
+    !
+    ==
+    assert // unexpected value after writes
+    // regression_tests/box_bool_array_append_read.py:41
+    // for i in urange(n):
+    intc_2 // 1
+    +
+    bury 1
+    b box_round_trip_for_header@14
+
+box_round_trip_after_for@17:
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_0 // "boxed"
+    intc_0 // 0
+    pushbytes 0xa0
+    pushint 3
+    intc_2 // 1
+    callsub box_dynamic_array_concat_bits
+    pop
+    // regression_tests/box_bool_array_append_read.py:46
+    // assert self.boxed.value.length == n + 3, "unexpected length after extend"
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dup
+    pushint 20
+    ==
+    assert // unexpected length after extend
+    // regression_tests/box_bool_array_append_read.py:28
+    // n = UInt64(17)
+    pushint 17
+    // regression_tests/box_bool_array_append_read.py:48
+    // self.boxed.value[n] and not self.boxed.value[n + 1] and self.boxed.value[n + 2]
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_2 // 1
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_1 // 0x00
+    // regression_tests/box_bool_array_append_read.py:48
+    // self.boxed.value[n] and not self.boxed.value[n + 1] and self.boxed.value[n + 2]
+    !=
+    bz box_round_trip_bool_false@21
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 2
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_1 // 0x00
+    // regression_tests/box_bool_array_append_read.py:48
+    // self.boxed.value[n] and not self.boxed.value[n + 1] and self.boxed.value[n + 2]
+    ==
+    bz box_round_trip_bool_false@21
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 19
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 3
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_1 // 0x00
+    // regression_tests/box_bool_array_append_read.py:48
+    // self.boxed.value[n] and not self.boxed.value[n + 1] and self.boxed.value[n + 2]
+    !=
+    bz box_round_trip_bool_false@21
+    intc_2 // 1
+
+box_round_trip_bool_merge@22:
+    // regression_tests/box_bool_array_append_read.py:47-49
+    // assert (
+    //     self.boxed.value[n] and not self.boxed.value[n + 1] and self.boxed.value[n + 2]
+    // ), "unexpected value after extend"
+    assert // unexpected value after extend
+    // regression_tests/box_bool_array_append_read.py:51-53
+    // # extend with a reference array, whose items are each encoded as a whole byte
+    // # rather than bit packed
+    // self.boxed.value.extend(ReferenceArray[arc4.Bool]((arc4.Bool(False), arc4.Bool(True))))
+    bytec_0 // "boxed"
+    intc_0 // 0
+    pushbytes 0x0080
+    intc_1 // 2
+    intc_3 // 8
+    callsub box_dynamic_array_concat_bits
+    pop
+    // regression_tests/box_bool_array_append_read.py:54
+    // assert self.boxed.value.length == n + 5, "unexpected length after reference array extend"
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    dup
+    pushint 22
+    ==
+    assert // unexpected length after reference array extend
+    // regression_tests/box_bool_array_append_read.py:56
+    // not self.boxed.value[n + 3] and self.boxed.value[n + 4]
+    pushint 20
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 4
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_1 // 0x00
+    // regression_tests/box_bool_array_append_read.py:56
+    // not self.boxed.value[n + 3] and self.boxed.value[n + 4]
+    ==
+    bz box_round_trip_bool_false@25
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 21
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    pushint 4
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    pushint 5
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:44-45
+    // # extend with an already bit packed array
+    // self.boxed.value.extend(BoolArray(arc4.Bool(True), arc4.Bool(False), arc4.Bool(True)))
+    bytec_1 // 0x00
+    // regression_tests/box_bool_array_append_read.py:56
+    // not self.boxed.value[n + 3] and self.boxed.value[n + 4]
+    !=
+    bz box_round_trip_bool_false@25
+    intc_2 // 1
+
+box_round_trip_bool_merge@26:
+    // regression_tests/box_bool_array_append_read.py:55-57
+    // assert (
+    //     not self.boxed.value[n + 3] and self.boxed.value[n + 4]
+    // ), "unexpected value after reference array extend"
+    assert // unexpected value after reference array extend
+    // regression_tests/box_bool_array_append_read.py:25
+    // @arc4.abimethod
+    intc_2 // 1
+    return
+
+box_round_trip_bool_false@25:
+    intc_0 // 0
+    b box_round_trip_bool_merge@26
+
+box_round_trip_bool_false@21:
+    intc_0 // 0
+    b box_round_trip_bool_merge@22
+
+
+// test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.box_out_of_bounds[routing]() -> void:
+box_out_of_bounds:
+    // regression_tests/box_bool_array_append_read.py:61-62
+    // # two bools leave six padding bits in the final byte
+    // self.boxed.value = BoolArray(arc4.Bool(True), arc4.Bool(True))
+    bytec_0 // "boxed"
+    box_del
+    pop
+    bytec_0 // "boxed"
+    pushbytes 0x0002c0
+    box_put
+    // regression_tests/box_bool_array_append_read.py:63
+    // return self.boxed.value[2].native
+    bytec_0 // "boxed"
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_1 // 2
+    >
+    assert // index out of bounds
+    bytec_0 // "boxed"
+    intc_1 // 2
+    intc_2 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 2
+    getbit
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_bool_array_append_read.py:59
+    // @arc4.abimethod
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return

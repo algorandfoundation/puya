@@ -1545,6 +1545,75 @@ contract BoxReadBoxLenExistenceCheck
   }
 }
 
+contract BoxBoolArrayAppendRead
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['boxed']: arc4.dynamic_array<arc4.bool>
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.box_round_trip(): void
+  {
+    _puya_lib.util.ensure_budget(required_budget=40000u, fee_source=0u)
+    n: uint64 = 17u
+    Box['boxed']: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>()
+    for i in range(0u, n, 1u) {
+      Box['boxed'].extend((arc4_encode(i % 3u != 2u, arc4.bool)))
+    }
+    assert(Box['boxed'].length == n, comment="unexpected length after appends")
+    assert(checked_maybe(box_len('boxed')) == 2u + n + 7u // 8u, comment="unexpected box size after appends")
+    for i in range(0u, n, 1u) {
+      assert(Box['boxed'][i] != false == i % 3u != 2u, comment="unexpected value after appends")
+    }
+    for i in range(0u, n, 1u) {
+      Box['boxed'][i]: arc4.bool = arc4_encode(i % 2u == 0u, arc4.bool)
+    }
+    for i in range(0u, n, 1u) {
+      assert(Box['boxed'][i] != false == i % 2u == 0u, comment="unexpected value after writes")
+    }
+    Box['boxed'].extend(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+    assert(Box['boxed'].length == n + 3u, comment="unexpected length after extend")
+    assert(Box['boxed'][n] != false and Box['boxed'][n + 1u] == false and Box['boxed'][n + 2u] != false, comment="unexpected value after extend")
+    Box['boxed'].extend(new ref_array<arc4.bool>(arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+    assert(Box['boxed'].length == n + 5u, comment="unexpected length after reference array extend")
+    assert(Box['boxed'][n + 3u] == false and Box['boxed'][n + 4u] != false, comment="unexpected value after reference array extend")
+  }
+  
+  abimethod test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.box_out_of_bounds(): bool
+  {
+    Box['boxed']: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    return arc4_decode(Box['boxed'][2u], bool)
+  }
+  
+  baremethod test_cases.regression_tests.box_bool_array_append_read.BoxBoolArrayAppendRead.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract BoolOnly
 {
   method_resolution_order: (

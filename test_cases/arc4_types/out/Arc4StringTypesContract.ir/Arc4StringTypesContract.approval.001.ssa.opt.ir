@@ -115,6 +115,69 @@ subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint
         (box_replace box_key#0 offset#0 new_offset_value_u16#0)
         return 
 
+subroutine _puya_lib.box_arc4.box_dynamic_array_concat_bits(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> uint64:
+    block@0: // L146
+        let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
+        let arr_len#0: uint64 = (btoi arr_len_bytes#0)
+        let new_arr_len#0: uint64 = (+ arr_len#0 new_items_count#0)
+        let tmp%2#0: bool = (<= new_arr_len#0 65535u)
+        (assert tmp%2#0) // max array length exceeded
+        let data_offset#0: uint64 = (+ array_offset#0 2u)
+        let tmp%0#1: uint64 = (+ arr_len#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%0#1 8u)
+        let tmp%0#2: uint64 = (+ new_arr_len#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%0#2 8u)
+        let extra_bytes#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%7#0: bool = (!= extra_bytes#0 0u)
+        goto extra_bytes#0 ? block@1 : block@2
+    block@1: // if_body_L181
+        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let tmp%10#0: uint64 = (+ box_size#0 extra_bytes#0)
+        (box_resize box_key#0 tmp%10#0)
+        let tmp%11#0: uint64 = (+ data_offset#0 current_bytes#0)
+        let tmp%12#0: bytes = (bzero extra_bytes#0)
+        (box_splice box_key#0 tmp%11#0 0u tmp%12#0)
+        goto block@2
+    block@2: // after_if_else_L180
+        let value_bytes#0: bytes = (itob new_arr_len#0)
+        let new_arr_len_u16#0: bytes = ((extract 6 2) value_bytes#0)
+        (box_replace box_key#0 array_offset#0 new_arr_len_u16#0)
+        let read_offset#0: uint64 = 0u
+        goto block@3
+    block@3: // while_top_L192
+        let write_offset#1: uint64 = φ(arr_len#0 <- block@2, write_offset#2 <- block@8)
+        let read_offset#3: uint64 = φ(read_offset#0 <- block@2, read_offset#1 <- block@8)
+        let tmp%14#0: bool = (< write_offset#1 new_arr_len#0)
+        goto tmp%14#0 ? block@4 : block@9
+    block@4: // while_body_L193
+        let tmp%15#0: uint64 = (/ write_offset#1 8u)
+        let byte_offset#0: uint64 = (+ data_offset#0 tmp%15#0)
+        let bit_offset#0: uint64 = (% write_offset#1 8u)
+        let byte#0: bytes = (box_extract box_key#0 byte_offset#0 1u)
+        goto block@5
+    block@5: // while_top_L196
+        let bit_offset#1: uint64 = φ(bit_offset#0 <- block@4, bit_offset#2 <- block@7)
+        let write_offset#2: uint64 = φ(write_offset#1 <- block@4, write_offset#3 <- block@7)
+        let byte#1: bytes = φ(byte#0 <- block@4, byte#2 <- block@7)
+        let read_offset#1: uint64 = φ(read_offset#3 <- block@4, read_offset#2 <- block@7)
+        let tmp%19#0: bool = (< bit_offset#1 8u)
+        goto tmp%19#0 ? block@6 : block@8
+    block@6: // and_contd_L196
+        let tmp%20#0: bool = (< write_offset#2 new_arr_len#0)
+        goto tmp%20#0 ? block@7 : block@8
+    block@7: // while_body_L197
+        let tmp%21#0: bool = (getbit new_items_bytes#0 read_offset#1)
+        let byte#2: bytes = (setbit byte#1 bit_offset#1 tmp%21#0)
+        let bit_offset#2: uint64 = (+ bit_offset#1 1u)
+        let write_offset#3: uint64 = (+ write_offset#2 1u)
+        let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
+        goto block@5
+    block@8: // after_while_L196
+        (box_replace box_key#0 byte_offset#0 byte#1)
+        goto block@3
+    block@9: // after_while_L192
+        return extra_bytes#0
+
 subroutine _puya_lib.arc4._itob16(i: uint64) -> bytes:
     block@0: // L26
         let tmp%0#0: bytes = (itob i#0)
