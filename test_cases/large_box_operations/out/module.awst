@@ -176,6 +176,84 @@ contract StructArrayUInt64
   }
 }
 
+contract StructArrayBoolContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.struct_array_bool.StructWithArrayBool
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.struct_array_bool.StructWithArrayBool = new test_cases.large_box_operations.struct_array_bool.StructWithArrayBool(padding=new arc4.dynamic_array<bytes[4096]>(), a=false, arr=new arc4.dynamic_array<bool>(), b=true, trailing=new arc4.dynamic_array<uint64>(42u))
+    Box['box'].padding.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<bool>())
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.append(value: bool): void
+  {
+    Box['box'].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.concat(array: arc4.dynamic_array<bool>): void
+  {
+    Box['box'].arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.pop(): bool
+  {
+    return Box['box'].arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.get(idx: uint64): bool
+  {
+    return Box['box'].arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.set(idx: uint64, value: bool): void
+  {
+    Box['box'].arr[idx]: bool = value
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.verify(expected: arc4.dynamic_array<bool>): void
+  {
+    assert(Box['box'].arr == expected)
+    assert(!(Box['box'].a))
+    assert(Box['box'].b)
+    assert(Box['box'].padding.length == 1u)
+    assert(Box['box'].trailing == new arc4.dynamic_array<uint64>(42u))
+    assert(checked_maybe(box_len('box')) == 4118u + expected.length + 7u // 8u, comment="unexpected box size")
+  }
+  
+  baremethod test_cases.large_box_operations.struct_array_bool.StructArrayBoolContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract NestedItemArrayUInt64
 {
   method_resolution_order: (
