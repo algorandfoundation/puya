@@ -104,13 +104,15 @@ class SSAReadTracker:
             return 0
         return len(reads)
 
+    def get_sole_usage(self, reg: models.Register) -> _AnyOp | None:
+        reads = self._data.get(reg)
+        if reads is None or len(reads) != 1:
+            return None
+        (sole_usage,) = reads
+        return sole_usage
+
     def is_sole_usage(self, reg: models.Register, op: _AnyOp) -> bool:
-        try:
-            (sole_usage,) = self._data[reg]
-        except (KeyError, ValueError):
-            return False
-        else:
-            return sole_usage is op
+        return self.get_sole_usage(reg) is op
 
     @contextlib.contextmanager
     def update(self, op: _AnyOp) -> Generator[None, None, None]:
