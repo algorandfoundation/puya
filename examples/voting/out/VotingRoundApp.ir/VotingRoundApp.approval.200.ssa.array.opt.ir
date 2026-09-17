@@ -292,7 +292,6 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
     block@15: // after_for_L132
         let note#11: string = (concat note#1 "]}}")
         itxn_begin
-        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
         let (maybe_value%6#0: bytes, maybe_exists%7#0: bool) = (app_global_get_ex 0u "vote_id")
         (assert maybe_exists%7#0) // check self.vote_id exists
         let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " maybe_value%6#0)
@@ -306,6 +305,7 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         ((itxn_field ConfigAssetDecimals) 0u)
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field TypeEnum) acfg)
+        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
         let tmp%28#0: uint64 = (itxn CreatedAssetID)

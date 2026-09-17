@@ -15,8 +15,7 @@ logger = log.get_logger(__name__)
 _MOVABLE_TXN_FIELDS: typing.Final = frozenset(
     {
         # excluded:
-        # - FirstValidTime: fails if negative
-        # - array fields: read via txna, not txn
+        # - FirstValidTime: fails if negative (technically can't fail in mainnet)
         # - NumLogs, LastLog, CreatedAssetID, CreatedApplicationID:
         #   reading effects from the current transaction always fails
         "Sender",
