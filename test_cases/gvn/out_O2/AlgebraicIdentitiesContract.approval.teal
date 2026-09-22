@@ -1,0 +1,142 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.algebraic_identities.AlgebraicIdentitiesContract.approval_program() -> uint64:
+main:
+    intcblock 1 42
+    bytecblock 0x2a
+    bytec_0 // 0x2a
+    intc_1 // 42
+    callsub test_self_sub
+    intc_1 // 42
+    callsub test_self_bitwise
+    bytec_0 // 0x2a
+    intc_0 // 1
+    callsub test_one_const
+    bytec_0 // 0x2a
+    pushint 0
+    callsub test_one_const
+    txn NumAppArgs
+    dup
+    intc_0 // 1
+    +
+    dup2
+    callsub test_uint64_swaps
+    pushbytess 0x01 0x02
+    callsub test_biguint_swaps
+    dup2
+    callsub test_uint64_negated
+    dig 1
+    itob
+    dig 1
+    itob
+    dup2
+    callsub test_biguint_negated
+    uncover 3
+    uncover 3
+    callsub test_uint64_double_negated
+    callsub test_biguint_double_negated
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.algebraic_identities.test_self_sub(x: bytes, y: uint64) -> void:
+test_self_sub:
+    proto 2 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_self_bitwise(y: uint64) -> void:
+test_self_bitwise:
+    proto 1 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_one_const(x: bytes, selector: uint64) -> void:
+test_one_const:
+    proto 2 0
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_swaps(a: uint64, b: uint64) -> void:
+test_uint64_swaps:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_swaps(a: bytes, b: bytes) -> void:
+test_biguint_swaps:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_negated(a: uint64, b: uint64) -> void:
+test_uint64_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    frame_dig -2
+    frame_dig -1
+    !=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_negated(a: bytes, b: bytes) -> void:
+test_biguint_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    frame_dig -2
+    frame_dig -1
+    b!=
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+test_uint64_double_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    retsub
+
+
+// test_cases.gvn.algebraic_identities.test_biguint_double_negated(a: bytes, b: bytes) -> void:
+test_biguint_double_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    retsub

@@ -1,0 +1,86 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.approval_program() -> uint64:
+main:
+    intcblock 1 0 42
+    b main_block@0
+
+main_block@0:
+    // undefined_phi_args/runtime_dominance.py:6
+    // assert runtime_dominance(True) == 2
+    intc_0 // 1
+    callsub runtime_dominance
+    pushint 2
+    ==
+    assert
+    // undefined_phi_args/runtime_dominance.py:7
+    // assert runtime_dominance(False) == 42
+    intc_1 // 0
+    callsub runtime_dominance
+    intc_2 // 42
+    ==
+    assert
+    // undefined_phi_args/runtime_dominance.py:8
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(cond: uint64) -> uint64:
+runtime_dominance:
+    // undefined_phi_args/runtime_dominance.py:14-15
+    // @subroutine(inline=False)
+    // def runtime_dominance(cond: bool) -> UInt64:
+    proto 1 1
+    pushbytes ""
+    b runtime_dominance_block@0
+
+runtime_dominance_block@0:
+    pushbytes ""
+    // undefined_phi_args/runtime_dominance.py:16
+    // if cond:
+    frame_dig -1
+    bz runtime_dominance_after_if_else@2
+    b runtime_dominance_if_body@1
+
+runtime_dominance_if_body@1:
+    // undefined_phi_args/runtime_dominance.py:17
+    // x = UInt64(1)
+    intc_0 // 1
+    frame_bury 1
+    b runtime_dominance_after_if_else@2
+
+runtime_dominance_after_if_else@2:
+    // undefined_phi_args/runtime_dominance.py:18
+    // assert Txn.num_app_args == 0
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    assert
+    // undefined_phi_args/runtime_dominance.py:19
+    // if cond:
+    frame_dig -1
+    bz runtime_dominance_else_body@4
+    b runtime_dominance_if_body@3
+
+runtime_dominance_if_body@3:
+    // undefined_phi_args/runtime_dominance.py:20
+    // y = x + 1
+    frame_dig 1
+    intc_0 // 1
+    +
+    frame_bury 0
+    b runtime_dominance_after_if_else@5
+
+runtime_dominance_after_if_else@5:
+    // undefined_phi_args/runtime_dominance.py:23
+    // return y
+    retsub
+
+runtime_dominance_else_body@4:
+    // undefined_phi_args/runtime_dominance.py:22
+    // y = UInt64(42)
+    intc_2 // 42
+    frame_bury 0
+    b runtime_dominance_after_if_else@5

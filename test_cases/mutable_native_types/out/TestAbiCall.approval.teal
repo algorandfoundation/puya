@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 2 5
-    bytecblock 0x151f7c75 base64(C4EBQw==) base64(CyAEAAEQAiYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnIxG0EAcoAEJDeNPDYaAI4BAFwxGRREMRhEggsEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgsAEgAfACkANwBBAI0AlwCmALEAxgDRADEZgQUSMRgQQzEZFDEYFBBDNhoBSRUkEkQpTGcjQyIpZUQoTFCwI0M2GgFJFYEYEkQqTGcjQyIqZUQoTFCwI0M2GgFJFUsBJFlJgRYSREsCTEsCUiJZgRgISwKBEllJSwISREsDTEsDUiJZJQgISwKBFFlJSwISREsDTEsDUiJZJAslCAgSRCtMZyNDIitlRChMULAjQzYaAUkVgTASRCcETGcjQyInBGVEKExQsCNDNhoBSSJZJAslCEsBFRJEJwVMZyNDIicFZUQoTFCwI0MiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLAjQw==) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0x59664ab6 0x0003 0x818e4a62
+    intcblock 0 6 5 1
+    bytecblock 0x151f7c75 base64(C4EBQw==) base64(CyAEAAEQAiYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnIxG0EAcoAEJDeNPDYaAI4BAFwxGRREMRhEggsEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgsAEgAfACkANwBBAI0AlwCmALEAxgDRADEZgQUSMRgQQzEZFDEYFBBDNhoBSRUkEkQpTGcjQyIpZUQoTFCwI0M2GgFJFYEYEkQqTGcjQyIqZUQoTFCwI0M2GgFJFUsBJFlJgRYSREsCTEsCUiJZgRgISwKBEllJSwISREsDTEsDUiJZJQgISwKBFFlJSwISREsDTEsDUiJZJAslCAgSRCtMZyNDIitlRChMULAjQzYaAUkVgTASRCcETGcjQyInBGVEKExQsCNDNhoBSSJZJAslCEsBFRJEJwVMZyNDIicFZUQoTFCwI0MiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLAjQw==) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0x59664ab6 0x0003 0x818e4a62 0x0000
     // mutable_native_types/abi_call.py:102
     // class TestAbiCall(arc4.ARC4Contract):
     txn NumAppArgs
@@ -33,7 +33,7 @@ test_fixed_struct:
     // mutable_native_types/abi_call.py:105
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -49,20 +49,22 @@ test_fixed_struct:
     // # fixed struct - typed
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    pushint 1
+    intc_3 // 1
     +
     txn NumAppArgs
-    intc_2 // 2
+    pushint 2
     +
     swap
     itob
     swap
     itob
+    swap
+    dig 1
     concat
     // mutable_native_types/abi_call.py:110
     // arc4.abi_call(CallMe.fixed_struct_arg, fixed_struct, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 4 // method "fixed_struct_arg((uint64,uint64))void"
     itxn_field ApplicationArgs
@@ -76,7 +78,7 @@ test_fixed_struct:
     // mutable_native_types/abi_call.py:111
     // res, _txn = arc4.abi_call(CallMe.fixed_struct_ret, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 9 // method "fixed_struct_ret()(uint64,uint64)"
     itxn_field ApplicationArgs
@@ -105,14 +107,8 @@ test_fixed_struct:
     // # fixed struct - arc4 signature
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 2, b=Txn.num_app_args + 3)
     txn NumAppArgs
-    intc_2 // 2
-    +
-    txn NumAppArgs
     pushint 3
     +
-    swap
-    itob
-    swap
     itob
     concat
     // mutable_native_types/abi_call.py:116
@@ -160,7 +156,7 @@ test_fixed_struct:
     // mutable_native_types/abi_call.py:120
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -172,7 +168,7 @@ test_fixed_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:103
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return
 
 
@@ -181,7 +177,7 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:124
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -196,15 +192,17 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:129
     // fixed=FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2),
     txn NumAppArgs
-    pushint 1
+    intc_3 // 1
     +
     txn NumAppArgs
-    intc_2 // 2
+    pushint 2
     +
     swap
     itob
     swap
     itob
+    swap
+    dig 1
     concat
     // mutable_native_types/abi_call.py:130
     // c=Txn.num_app_args + 3,
@@ -218,11 +216,13 @@ test_nested_struct:
     //     c=Txn.num_app_args + 3,
     // )
     itob
+    swap
+    dig 1
     concat
     // mutable_native_types/abi_call.py:132
     // arc4.abi_call(CallMe.nested_struct_arg, nested_struct, app_id=app)
     itxn_begin
-    dig 1
+    dig 3
     itxn_field ApplicationID
     bytec 5 // method "nested_struct_arg(((uint64,uint64),uint64))void"
     itxn_field ApplicationArgs
@@ -236,7 +236,7 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:133
     // res, _txn = arc4.abi_call(CallMe.nested_struct_ret, app_id=app)
     itxn_begin
-    dig 1
+    dig 3
     itxn_field ApplicationID
     bytec 10 // method "nested_struct_ret()((uint64,uint64),uint64)"
     itxn_field ApplicationArgs
@@ -263,16 +263,6 @@ test_nested_struct:
     assert // should be the same
     // mutable_native_types/abi_call.py:138
     // fixed=FixedStruct(a=Txn.num_app_args + 2, b=Txn.num_app_args + 3),
-    txn NumAppArgs
-    intc_2 // 2
-    +
-    txn NumAppArgs
-    pushint 3
-    +
-    swap
-    itob
-    swap
-    itob
     concat
     // mutable_native_types/abi_call.py:139
     // c=Txn.num_app_args + 4,
@@ -334,7 +324,7 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:147
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -346,7 +336,7 @@ test_nested_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:122
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return
 
 
@@ -355,7 +345,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:151
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -370,26 +360,18 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:154
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    pushint 1
+    intc_3 // 1
     +
     txn NumAppArgs
-    intc_2 // 2
+    pushint 2
     +
     swap
     itob
     swap
     itob
+    swap
+    dig 1
     concat
-    // mutable_native_types/abi_call.py:158
-    // a=Txn.num_app_args + 1,
-    txn NumAppArgs
-    pushint 1
-    +
-    // mutable_native_types/abi_call.py:159
-    // b=Txn.num_app_args + 2,
-    txn NumAppArgs
-    intc_2 // 2
-    +
     // mutable_native_types/abi_call.py:160
     // c=op.itob(Txn.num_app_args + 3),
     txn NumAppArgs
@@ -399,7 +381,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:162
     // e=NativeArray((fixed_struct,)),
     pushbytes 0x0001
-    uncover 4
+    dig 2
     concat
     // mutable_native_types/abi_call.py:156-163
     // # dynamic struct - typed
@@ -410,15 +392,10 @@ test_dynamic_struct:
     //     d=String("Hello"),
     //     e=NativeArray((fixed_struct,)),
     // )
-    uncover 3
-    itob
-    uncover 3
-    itob
-    concat
     bytec 11 // 0x0008
-    uncover 3
+    dig 2
     concat
-    swap
+    uncover 3
     bytec 12 // 0x0016
     concat
     dig 1
@@ -446,7 +423,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:164
     // arc4.abi_call(CallMe.dynamic_struct_arg, dynamic_struct, app_id=app)
     itxn_begin
-    dig 2
+    dig 4
     itxn_field ApplicationID
     bytec 6 // method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"
     itxn_field ApplicationArgs
@@ -460,7 +437,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:165
     // res, _txn = arc4.abi_call(CallMe.dynamic_struct_ret, app_id=app)
     itxn_begin
-    dig 2
+    dig 4
     itxn_field ApplicationID
     bytec 14 // method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])"
     itxn_field ApplicationArgs
@@ -506,7 +483,7 @@ test_dynamic_struct:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    pushint 2
     +
     +
     dig 2
@@ -524,7 +501,7 @@ test_dynamic_struct:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_2 // 2
+    pushint 2
     +
     +
     ==
@@ -533,16 +510,6 @@ test_dynamic_struct:
     // assert res == dynamic_struct, "should be the same"
     ==
     assert // should be the same
-    // mutable_native_types/abi_call.py:170
-    // a=Txn.num_app_args + 2,
-    txn NumAppArgs
-    intc_2 // 2
-    +
-    // mutable_native_types/abi_call.py:171
-    // b=Txn.num_app_args + 3,
-    txn NumAppArgs
-    pushint 3
-    +
     // mutable_native_types/abi_call.py:172
     // c=op.itob(Txn.num_app_args + 4),
     txn NumAppArgs
@@ -558,10 +525,8 @@ test_dynamic_struct:
     //     d=String("Hello"),
     //     e=NativeArray((fixed_struct,)),
     // )
-    uncover 2
-    itob
-    uncover 2
-    itob
+    uncover 3
+    uncover 3
     concat
     bytec 11 // 0x0008
     uncover 2
@@ -587,7 +552,25 @@ test_dynamic_struct:
     concat
     swap
     concat
+    // mutable_native_types/abi_call.py:156-163
+    // # dynamic struct - typed
+    // dynamic_struct = DynamicStruct(
+    //     a=Txn.num_app_args + 1,
+    //     b=Txn.num_app_args + 2,
+    //     c=op.itob(Txn.num_app_args + 3),
+    //     d=String("Hello"),
+    //     e=NativeArray((fixed_struct,)),
+    // )
     bytec 13 // 0x000548656c6c6f
+    // mutable_native_types/abi_call.py:168-175
+    // # dynamic struct - arc4 signature
+    // dynamic_struct = DynamicStruct(
+    //     a=Txn.num_app_args + 2,
+    //     b=Txn.num_app_args + 3,
+    //     c=op.itob(Txn.num_app_args + 4),
+    //     d=String("Hello"),
+    //     e=NativeArray((fixed_struct,)),
+    // )
     concat
     swap
     concat
@@ -660,7 +643,7 @@ test_dynamic_struct:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    pushint 2
     +
     +
     dig 2
@@ -678,7 +661,7 @@ test_dynamic_struct:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_2 // 2
+    pushint 2
     +
     +
     ==
@@ -690,7 +673,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:186
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -702,7 +685,7 @@ test_dynamic_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:149
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return
 
 
@@ -711,7 +694,7 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:190
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -726,15 +709,17 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:193
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    pushint 1
+    intc_3 // 1
     +
     txn NumAppArgs
-    intc_2 // 2
+    pushint 2
     +
     swap
     itob
     swap
     itob
+    swap
+    dig 1
     concat
     // mutable_native_types/abi_call.py:194
     // fixed_arr = FixedStruct3((fixed_struct, fixed_struct, fixed_struct))
@@ -747,7 +732,7 @@ test_fixed_array:
     // # fixed array - typed
     // arc4.abi_call(CallMe.fixed_arr_arg, fixed_arr, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 7 // method "fixed_arr_arg((uint64,uint64)[3])void"
     itxn_field ApplicationArgs
@@ -761,7 +746,7 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:198
     // res, _txn = arc4.abi_call(CallMe.fixed_arr_ret, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 15 // method "fixed_arr_ret()(uint64,uint64)[3]"
     itxn_field ApplicationArgs
@@ -790,14 +775,8 @@ test_fixed_array:
     // # fixed array - arc4 signature
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 2, b=Txn.num_app_args + 3)
     txn NumAppArgs
-    intc_2 // 2
-    +
-    txn NumAppArgs
     pushint 3
     +
-    swap
-    itob
-    swap
     itob
     concat
     // mutable_native_types/abi_call.py:203
@@ -856,7 +835,7 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:212
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -868,7 +847,7 @@ test_fixed_array:
     itxn_submit
     // mutable_native_types/abi_call.py:188
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return
 
 
@@ -877,7 +856,7 @@ test_native_array:
     // mutable_native_types/abi_call.py:216
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -892,15 +871,17 @@ test_native_array:
     // mutable_native_types/abi_call.py:219
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    pushint 1
+    intc_3 // 1
     +
     txn NumAppArgs
-    intc_2 // 2
+    pushint 2
     +
     swap
     itob
     swap
     itob
+    swap
+    dig 1
     concat
     // mutable_native_types/abi_call.py:220
     // native_arr = NativeArray((fixed_struct, fixed_struct, fixed_struct))
@@ -915,7 +896,7 @@ test_native_array:
     // # native array - typed
     // arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 8 // method "native_arr_arg((uint64,uint64)[])void"
     itxn_field ApplicationArgs
@@ -929,7 +910,7 @@ test_native_array:
     // mutable_native_types/abi_call.py:224
     // res, _txn = arc4.abi_call(CallMe.native_arr_ret, app_id=app)
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 17 // method "native_arr_ret()(uint64,uint64)[]"
     itxn_field ApplicationArgs
@@ -950,7 +931,7 @@ test_native_array:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_2 // 2
+    pushint 2
     +
     dig 1
     len
@@ -964,14 +945,8 @@ test_native_array:
     // # native array - arc4 signature
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 2, b=Txn.num_app_args + 3)
     txn NumAppArgs
-    intc_2 // 2
-    +
-    txn NumAppArgs
     pushint 3
     +
-    swap
-    itob
-    swap
     itob
     concat
     // mutable_native_types/abi_call.py:229
@@ -1027,7 +1002,7 @@ test_native_array:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_2 // 2
+    pushint 2
     +
     dig 1
     len
@@ -1040,7 +1015,7 @@ test_native_array:
     // mutable_native_types/abi_call.py:240
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -1052,7 +1027,7 @@ test_native_array:
     itxn_submit
     // mutable_native_types/abi_call.py:214
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return
 
 
@@ -1061,7 +1036,7 @@ test_log:
     // mutable_native_types/abi_call.py:244
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_3 // 5
+    intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -1160,7 +1135,7 @@ test_log:
     itxn_field ApplicationArgs
     // mutable_native_types/abi_call.py:257
     // a=UInt64(), b=UInt64(), c=Bytes(), d=String(), e=NativeArray[FixedStruct]()
-    pushbytes 0x0000
+    bytec 18 // 0x0000
     itxn_field ApplicationArgs
     // mutable_native_types/abi_call.py:267
     // arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
@@ -1184,7 +1159,7 @@ test_log:
     itxn NumLogs
     // mutable_native_types/abi_call.py:270
     // assert txn.num_logs == 5, "expected 5 logs"
-    intc_3 // 5
+    intc_2 // 5
     ==
     assert // expected 5 logs
     // mutable_native_types/abi_call.py:271
@@ -1218,14 +1193,17 @@ test_log:
     // mutable_native_types/abi_call.py:278
     // assert txn.logs(4) == op.bzero(2), "expected fixed array"
     itxna Logs 4
-    intc_2 // 2
-    bzero
+    // mutable_native_types/abi_call.py:257
+    // a=UInt64(), b=UInt64(), c=Bytes(), d=String(), e=NativeArray[FixedStruct]()
+    bytec 18 // 0x0000
+    // mutable_native_types/abi_call.py:278
+    // assert txn.logs(4) == op.bzero(2), "expected fixed array"
     ==
     assert // expected fixed array
     // mutable_native_types/abi_call.py:280
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -1237,5 +1215,5 @@ test_log:
     itxn_submit
     // mutable_native_types/abi_call.py:242
     // @arc4.abimethod()
-    pushint 1
+    intc_3 // 1
     return

@@ -149,25 +149,29 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
 
 subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> void:
     block@0: // L36
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%1#0: bytes = 0x0000000000000001000a
+        let struct#0: Encoded(uint64,(len+utf8[])) = 0x0000000000000001000a000362617a
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let tmp%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(maybe_value%0#0, 0x00020000000000000001000a000362617a, 1u)
+        let aggregate%concat%1#0: bytes = 0x00020000000000000001000a000362617a
+        let tmp%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(maybe_value%0#0, aggregate%concat%1#0, 1u)
         (app_global_put "glob" tmp%2#0)
         let tmp%3#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%3#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let tmp%5#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(maybe_value%1#0, 0x00020000000000000001000a000362617a, 1u)
+        let tmp%5#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(maybe_value%1#0, aggregate%concat%1#0, 1u)
         (app_local_put tmp%3#0 "loc" tmp%5#0)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
         (assert aggregate%box_get%1#0) // check self.box exists
-        let tmp%7#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%box_get%0#0, 0x00020000000000000001000a000362617a, 1u)
+        let tmp%7#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%box_get%0#0, aggregate%concat%1#0, 1u)
         (box_del "box")
         (box_put "box" tmp%7#0)
         let materialized_values%0#0: account = (txn Sender)
         let map_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (box_get map_prefixed_key%0#0)
         (assert aggregate%box_get%3#0) // check self.map entry exists
-        let tmp%9#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%box_get%2#0, 0x00020000000000000001000a000362617a, 1u)
+        let tmp%9#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%box_get%2#0, aggregate%concat%1#0, 1u)
         (box_del map_prefixed_key%0#0)
         (box_put map_prefixed_key%0#0 tmp%9#0)
         exit 1u

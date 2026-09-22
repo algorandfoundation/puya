@@ -8,27 +8,30 @@ from puya.errors import InternalError
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
-from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import merge_blocks, remove_linear_jumps
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
+from puya.ir.optimize.convert_stack_args_to_immediates import convert_stack_args_to_immediates
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
+    remove_unused_intrinsics,
     remove_unused_subroutines,
     remove_unused_variables,
 )
 from puya.ir.optimize.eliminate_box_asserts import minimize_box_exist_asserts
+from puya.ir.optimize.encode_decode_pair_elimination import encode_decode_pair_elimination
+from puya.ir.optimize.global_value_numbering import global_value_numbering
 from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.itxn_field_elision import elide_itxn_field_calls
 from puya.ir.optimize.repeated_aggregate_reads_merge import merge_chained_aggregate_reads
-from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.optimize.repeated_loads_elimination import (
     constant_reads_and_unobserved_writes_elimination,
 )
+from puya.ir.optimize.sink_single_use_intrinsics import sink_single_use_intrinsics
 from puya.ir.to_text_visitor import render_program
 from puya.options import PuyaOptions
 from puya.utils import attrs_extend
@@ -79,18 +82,20 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(perform_subroutine_inlining, min_level=0),
         SubroutineOptimization.from_function(_split_parallel_copies, min_level=0),
         SubroutineOptimization.from_function(constant_replacer, min_level=0),
-        SubroutineOptimization.from_function(copy_propagation),
         SubroutineOptimization.from_function(elide_itxn_field_calls),
         # TODO: improve this algorithm instead of looping
         SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),
+        SubroutineOptimization.from_function(remove_unused_intrinsics),
+        SubroutineOptimization.from_function(convert_stack_args_to_immediates),
         SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),
         SubroutineOptimization.from_function(replace_compiled_references, min_level=0),
         SubroutineOptimization.from_function(simplify_control_ops, loop=True),
+        SubroutineOptimization.from_function(sink_single_use_intrinsics, min_level=1),
         SubroutineOptimization.from_function(merge_blocks),
         SubroutineOptimization.from_function(remove_linear_jumps),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
-        SubroutineOptimization.from_function(repeated_expression_elimination),
+        SubroutineOptimization.from_function(global_value_numbering),
         SubroutineOptimization.from_function(encode_decode_pair_elimination),
         SubroutineOptimization.from_function(merge_chained_aggregate_reads, min_level=0),
         SubroutineOptimization.from_function(replace_aggregate_box_ops, min_level=0),

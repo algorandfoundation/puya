@@ -100,9 +100,9 @@ subroutine reference_types_index:
         v-store tmp%0#0
         v-load tmp%0#0                                                          tmp%0#0
         int 2                                                                   tmp%0#0,2
-        -                                                                       pay#0
-        v-store pay#0
-        v-load pay#0                                                            pay#0
+        -                                                                       gtxn_idx%0#0
+        v-store gtxn_idx%0#0
+        v-load gtxn_idx%0#0                                                     gtxn_idx%0#0
         gtxns TypeEnum                                                          gtxn_type%0#0
         v-store gtxn_type%0#0
         v-load gtxn_type%0#0                                                    gtxn_type%0#0
@@ -148,9 +148,9 @@ subroutine reference_types_index:
         v-store tmp%10#0
         v-load tmp%10#0                                                         tmp%10#0
         int 1                                                                   tmp%10#0,1
-        -                                                                       app_txn#0
-        v-store app_txn#0
-        v-load app_txn#0                                                        app_txn#0
+        -                                                                       gtxn_idx%1#0
+        v-store gtxn_idx%1#0
+        v-load gtxn_idx%1#0                                                     gtxn_idx%1#0
         gtxns TypeEnum                                                          gtxn_type%1#0
         v-store gtxn_type%1#0
         v-load gtxn_type%1#0                                                    gtxn_type%1#0
@@ -172,9 +172,9 @@ subroutine reference_types_value:
         v-store tmp%0#0
         v-load tmp%0#0                                                          tmp%0#0
         int 2                                                                   tmp%0#0,2
-        -                                                                       pay#0
-        v-store pay#0
-        v-load pay#0                                                            pay#0
+        -                                                                       gtxn_idx%0#0
+        v-store gtxn_idx%0#0
+        v-load gtxn_idx%0#0                                                     gtxn_idx%0#0
         gtxns TypeEnum                                                          gtxn_type%0#0
         v-store gtxn_type%0#0
         v-load gtxn_type%0#0                                                    gtxn_type%0#0
@@ -220,9 +220,9 @@ subroutine reference_types_value:
         v-store tmp%7#0
         v-load tmp%7#0                                                          tmp%7#0
         int 1                                                                   tmp%7#0,1
-        -                                                                       app_txn#0
-        v-store app_txn#0
-        v-load app_txn#0                                                        app_txn#0
+        -                                                                       gtxn_idx%1#0
+        v-store gtxn_idx%1#0
+        v-load gtxn_idx%1#0                                                     gtxn_idx%1#0
         gtxns TypeEnum                                                          gtxn_type%1#0
         v-store gtxn_type%1#0
         v-load gtxn_type%1#0                                                    gtxn_type%1#0
@@ -279,9 +279,6 @@ subroutine test_tuple:
         v-load eq%1#0                                                           eq%1#0
         assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.ufixed64x10,arc4.static_array<arc4.uint64, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,arc4.static_array<arc4.uint8, 16>> 
         v-load tmp%0#0                                                          tmp%0#0
-        extract 0 8                                                             aggregate%extract%0#0
-        v-store aggregate%extract%0#0
-        v-load tmp%0#0                                                          tmp%0#0
         extract 8 8                                                             val.1#0
         v-store val.1#0
         v-load tmp%0#0                                                          tmp%0#0
@@ -302,8 +299,11 @@ subroutine test_tuple:
         v-load tmp%0#0                                                          tmp%0#0
         extract 75 16                                                           val.6#0
         v-store val.6#0
-        v-load aggregate%extract%0#0                                            aggregate%extract%0#0
-        v-load val.1#0                                                          aggregate%extract%0#0,val.1#0
+        v-load tmp%0#0                                                          tmp%0#0
+        extract 0 8                                                             aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
+        v-load aggregate%val_as_bytes%0#0                                       aggregate%val_as_bytes%0#0
+        v-load val.1#0                                                          aggregate%val_as_bytes%0#0,val.1#0
         concat                                                                  aggregate%head%1#0
         v-store aggregate%head%1#0
         v-load aggregate%head%1#0                                               aggregate%head%1#0

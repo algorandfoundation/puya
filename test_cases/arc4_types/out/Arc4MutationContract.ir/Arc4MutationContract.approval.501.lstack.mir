@@ -5,9 +5,9 @@ subroutine main:
         // arc4_types/mutation.py:168
         // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
         byte 0x000280                                                                                      0x000280
+        byte 0x80                                                                                          0x000280,0x80
         // arc4_types/mutation.py:170
         // dynamic_bool_array.extend((Bool(True), Bool(False)))
-        byte 0x80                                                                                          0x000280,0x80
         int 2                                                                                              0x000280,0x80,2
         int 1                                                                                              0x000280,0x80,2,1
         callsub dynamic_array_concat_bits                                                                  dynamic_bool_array#1
@@ -361,7 +361,11 @@ subroutine main:
         int 0                                                                                              array_of_array#1,array_of_array#1 (copy),0
         callsub dynamic_array_read_byte_length_element                                                     array_of_array#1,aggregate%item%3#0
         l-load aggregate%item%3#0 0                                                                        array_of_array#1,aggregate%item%3#0
+        // arc4_types/mutation.py:168
+        // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
         byte 0x00                                                                                          array_of_array#1,aggregate%item%3#0,0x00
+        // arc4_types/mutation.py:82
+        // array_of_array[0][1] = UInt8(0)
         replace2 3 // on error: index access is out of bounds                                              array_of_array#1,aggregate%updated_array%3#0
         l-load array_of_array#1 1                                                                          aggregate%updated_array%3#0,array_of_array#1
         l-load aggregate%updated_array%3#0 1                                                               array_of_array#1,aggregate%updated_array%3#0
@@ -377,7 +381,11 @@ subroutine main:
         // arc4_types/mutation.py:67
         // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
         byte 0x00010002000548656c6c6f                                                                      0x00010002000548656c6c6f
+        // arc4_types/mutation.py:216
+        // world = String("World")
         byte 0x0005576f726c64                                                                              0x00010002000548656c6c6f,0x0005576f726c64
+        // arc4_types/mutation.py:67
+        // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
         int 1                                                                                              0x00010002000548656c6c6f,0x0005576f726c64,1
         callsub dynamic_array_concat_byte_length_head                                                      hello_world_concat#0
         // arc4_types/mutation.py:219

@@ -126,7 +126,11 @@ subroutine main:
         // arc4_types/array.py:39
         // for index, string_item in uenumerate(dynamic_string_array):
         v-load index#0                                                                               index#0
+        // arc4_types/array.py:27
+        // for uint8_item in dynamic_uint8_array:
         int 2                                                                                        index#0,2
+        // arc4_types/array.py:39
+        // for index, string_item in uenumerate(dynamic_string_array):
         <                                                                                            continue_looping%2#0
         v-store continue_looping%2#0
         v-load continue_looping%2#0                                                                  continue_looping%2#0
@@ -240,19 +244,17 @@ subroutine main:
         // uint8_total = UInt64(0)
         int 0                                                                                        0
         v-store uint8_total#0
-        // arc4_types/array.py:57
-        // count = UInt64(0)
-        int 0                                                                                        0
-        v-store count#0
         int 0                                                                                        0
         v-store item_index_internal%4#0
+        v-load item_index_internal%4#0                                                               item_index_internal%4#0
+        v-store count#1
         b main_for_header@20
 
     main_for_header@20:
         // arc4_types/array.py:58
         // for uint8_item in static_uint8_array:
-        v-load item_index_internal%4#0                                                               item_index_internal%4#0
-        int 4                                                                                        item_index_internal%4#0,4
+        v-load count#1                                                                               count#1
+        int 4                                                                                        count#1,4
         <                                                                                            continue_looping%4#0
         v-store continue_looping%4#0
         v-load continue_looping%4#0                                                                  continue_looping%4#0
@@ -266,7 +268,7 @@ subroutine main:
         byte 0x010203040506                                                                          0x010203040506
         // arc4_types/array.py:59
         // uint8_total += uint8_item.as_uint64()
-        v-load item_index_internal%4#0                                                               0x010203040506,item_index_internal%4#0
+        v-load count#1                                                                               0x010203040506,count#1
         getbyte                                                                                      tmp%28#0
         v-store tmp%28#0
         v-load uint8_total#0                                                                         uint8_total#0
@@ -275,14 +277,10 @@ subroutine main:
         v-store uint8_total#0
         // arc4_types/array.py:60
         // count += UInt64(1)
-        v-load count#0                                                                               count#0
-        int 1                                                                                        count#0,1
-        +                                                                                            count#0
-        v-store count#0
-        v-load item_index_internal%4#0                                                               item_index_internal%4#0
-        int 1                                                                                        item_index_internal%4#0,1
-        +                                                                                            item_index_internal%4#0
-        v-store item_index_internal%4#0
+        v-load count#1                                                                               count#1
+        int 1                                                                                        count#1,1
+        +                                                                                            count#1
+        v-store count#1
         b main_for_header@20
 
     main_after_for@23:
@@ -296,8 +294,8 @@ subroutine main:
         assert
         // arc4_types/array.py:62
         // assert count == 4
-        v-load count#0                                                                               count#0
-        int 4                                                                                        count#0,4
+        v-load count#1                                                                               count#1
+        int 4                                                                                        count#1,4
         ==                                                                                           tmp%32#0
         v-store tmp%32#0
         v-load tmp%32#0                                                                              tmp%32#0

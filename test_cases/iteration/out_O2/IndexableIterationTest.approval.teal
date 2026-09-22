@@ -4,8 +4,8 @@
 // test_cases.iteration.base.IterationTestBase.approval_program() -> uint64:
 main:
     intcblock 1 0 3
-    bytecblock 0x 0x616263
-    bytec_0 // ""
+    bytecblock 0x616263 0x
+    bytec_1 // ""
     pushbytes "test_forwards"
     log
     intc_1 // 0
@@ -15,7 +15,7 @@ main_for_header@2:
     intc_2 // 3
     <
     bz main_after_for@5
-    bytec_1 // 0x616263
+    bytec_0 // 0x616263
     dig 1
     intc_0 // 1
     extract3
@@ -29,17 +29,18 @@ main_after_for@5:
     pushbytes "test_reversed"
     log
     intc_2 // 3
-    bury 1
+    dup
+    bury 2
 
 main_for_header@8:
-    dup
+    dig 1
     bz main_after_for@11
-    dup
+    dig 1
     intc_0 // 1
     -
     dup
-    bury 2
-    bytec_1 // 0x616263
+    bury 3
+    bytec_0 // 0x616263
     swap
     intc_0 // 1
     extract3
@@ -50,14 +51,17 @@ main_after_for@11:
     pushbytes "test_forwards_with_forwards_index"
     log
     intc_1 // 0
+    swap
 
 main_for_header@14:
-    dup
+    dig 1
     intc_2 // 3
     <
     bz main_after_for@17
-    bytec_1 // 0x616263
-    dig 1
+    bytec_0 // 0x616263
+    uncover 2
+    dup
+    cover 2
     intc_0 // 1
     extract3
     dig 1
@@ -65,24 +69,28 @@ main_for_header@14:
     callsub _log_with_index
     intc_0 // 1
     +
+    swap
     b main_for_header@14
 
 main_after_for@17:
-    pop
+    bury 1
     pushbytes "test_forwards_with_reverse_index"
     log
     intc_1 // 0
-    intc_2 // 3
-    bury 2
+    swap
+    dup
+    bury 3
 
 main_for_header@20:
-    dig 1
+    dig 2
     bz main_after_for@23
-    dig 1
+    dig 2
     intc_0 // 1
     -
-    bytec_1 // 0x616263
-    dig 2
+    bytec_0 // 0x616263
+    uncover 3
+    dup
+    cover 3
     intc_0 // 1
     extract3
     dig 1
@@ -91,82 +99,65 @@ main_for_header@20:
     swap
     intc_0 // 1
     +
-    swap
-    bury 2
+    cover 2
+    bury 3
     b main_for_header@20
 
 main_after_for@23:
-    pop
+    bury 1
     pushbytes "test_reverse_with_forwards_index"
     log
     intc_1 // 0
-    intc_2 // 3
-    bury 2
+    dig 1
+    bury 3
+    swap
 
 main_for_header@26:
-    dig 1
+    dig 2
     bz main_after_for@29
-    dig 1
+    dig 2
     intc_0 // 1
     -
     dup
-    bury 3
-    bytec_1 // 0x616263
+    bury 4
+    bytec_0 // 0x616263
     swap
     intc_0 // 1
     extract3
-    dig 1
-    swap
+    uncover 2
+    dup
+    uncover 2
     callsub _log_with_index
     intc_0 // 1
     +
+    swap
     b main_for_header@26
 
 main_after_for@29:
-    pop
+    bury 1
     pushbytes "test_reverse_with_reverse_index"
     log
-    intc_2 // 3
-    bury 1
 
 main_for_header@32:
     dup
     bz main_after_for@35
-    dup
     intc_0 // 1
     -
-    bytec_1 // 0x616263
+    bytec_0 // 0x616263
     dig 1
     intc_0 // 1
     extract3
     dig 1
     swap
     callsub _log_with_index
-    bury 1
     b main_for_header@32
 
 main_after_for@35:
+    pop
     pushbytes "test_empty"
     log
     intc_1 // 0
-
-main_for_header@38:
     dup
-    intc_1 // 0
-    <
-    bz main_after_for@41
-    bytec_0 // 0x
-    dig 1
-    intc_0 // 1
-    extract3
-    log
-    intc_0 // 1
-    +
-    b main_for_header@38
-
-main_after_for@41:
-    pop
-    intc_1 // 0
 
 main_for_header@42:
     dup
@@ -174,7 +165,7 @@ main_for_header@42:
     intc_0 // 1
     -
     dup
-    bytec_0 // 0x
+    bytec_1 // 0x
     swap
     intc_0 // 1
     extract3
@@ -184,26 +175,7 @@ main_for_header@42:
 main_after_for@45:
     pop
     intc_1 // 0
-
-main_for_header@46:
-    dup
-    intc_1 // 0
-    <
-    bz main_after_for@49
-    bytec_0 // 0x
-    dig 1
-    intc_0 // 1
-    extract3
-    dig 1
     swap
-    callsub _log_with_index
-    intc_0 // 1
-    +
-    b main_for_header@46
-
-main_after_for@49:
-    pop
-    intc_1 // 0
     dup
 
 main_for_header@50:
@@ -211,8 +183,10 @@ main_for_header@50:
     bz main_after_for@53
     intc_0 // 1
     -
-    bytec_0 // 0x
-    dig 2
+    bytec_1 // 0x
+    uncover 3
+    dup
+    cover 3
     intc_0 // 1
     extract3
     dig 1
@@ -221,23 +195,25 @@ main_for_header@50:
     swap
     intc_0 // 1
     +
-    swap
+    cover 2
     b main_for_header@50
 
 main_after_for@53:
-    popn 2
+    pop
+    bury 1
     intc_1 // 0
-    dup
+    dig 1
+    cover 2
 
 main_for_header@54:
-    dig 1
+    dig 2
     bz main_after_for@57
-    swap
+    uncover 2
     intc_0 // 1
     -
     dup
-    cover 2
-    bytec_0 // 0x
+    cover 3
+    bytec_1 // 0x
     swap
     intc_0 // 1
     extract3
@@ -249,15 +225,15 @@ main_for_header@54:
     b main_for_header@54
 
 main_after_for@57:
-    popn 2
-    intc_1 // 0
+    pop
+    bury 1
 
 main_for_header@58:
     dup
     bz main_after_for@61
     intc_0 // 1
     -
-    bytec_0 // 0x
+    bytec_1 // 0x
     dig 1
     intc_0 // 1
     extract3

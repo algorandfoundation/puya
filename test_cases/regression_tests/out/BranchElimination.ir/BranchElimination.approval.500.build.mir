@@ -109,15 +109,13 @@ subroutine umm:
         v-store tmp%0#1
         int 0                                                     0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                 value_internal%0#0
-        v-store _i#0
         b umm_for_header@4
 
     umm_for_header@4:
         // regression_tests/leftover_branch.py:9
         // for _i in urange(hmm_uint64()):
-        v-load _i#0                                               _i#0
-        v-load tmp%0#1                                            _i#0,tmp%0#1
+        v-load value_internal%0#0                                 value_internal%0#0
+        v-load tmp%0#1                                            value_internal%0#0,tmp%0#1
         <                                                         continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                               continue_looping%0#0
@@ -161,12 +159,10 @@ subroutine umm:
     umm_after_if_else@11:
         // regression_tests/leftover_branch.py:9
         // for _i in urange(hmm_uint64()):
-        v-load _i#0                                               _i#0
-        int 1                                                     _i#0,1
+        v-load value_internal%0#0                                 value_internal%0#0
+        int 1                                                     value_internal%0#0,1
         +                                                         value_internal%0#0
         v-store value_internal%0#0
-        v-load value_internal%0#0                                 value_internal%0#0
-        v-store _i#0
         b umm_for_header@4
 
     umm_after_for@13:
@@ -418,10 +414,10 @@ subroutine calculate:
         // last_inner_list_index = inner_list.length - 1
         v-load inner_list#0                                       inner_list#0
         int 0                                                     inner_list#0,0
-        extract_uint16 // on error: invalid array length header   aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                         aggregate%array_length%3#0
-        int 1                                                     aggregate%array_length%3#0,1
+        extract_uint16 // on error: invalid array length header   aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                         aggregate%array_length%2#0
+        int 1                                                     aggregate%array_length%2#0,1
         -                                                         last_inner_list_index#0
         v-store last_inner_list_index#0
         // regression_tests/leftover_branch.py:41
@@ -436,7 +432,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                j#0
-        v-load aggregate%array_length%3#0                         j#0,aggregate%array_length%3#0
+        v-load aggregate%array_length%2#0                         j#0,aggregate%array_length%2#0
         <                                                         continue_looping%1#0
         v-store continue_looping%1#0
         v-load continue_looping%1#0                               continue_looping%1#0

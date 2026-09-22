@@ -20,6 +20,7 @@ class AVMOp(enum.StrEnum):
     _variants: Variant | DynamicVariants
     cost: int | None
     min_avm_version: int
+    size: int
 
     def __new__(cls, data: AVMOpData | str) -> "AVMOp":
         # the weird union type on data && then assert,
@@ -34,6 +35,7 @@ class AVMOp(enum.StrEnum):
         obj._variants = data.variants  # noqa: SLF001
         obj.cost = data.cost
         obj.min_avm_version = data.min_avm_version
+        obj.size = data.size
         return obj
 
     def get_variant(self, immediates: Sequence[str | int]) -> Variant:
@@ -192,6 +194,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is field F from account A. Y is 1 if A owns positive algos, else 0
@@ -212,6 +215,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A plus B. Fail on overflow.
@@ -235,6 +239,7 @@ class AVMOp(enum.StrEnum):
         cost=10,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A plus B. A and B are interpreted as big-endian unsigned integers
@@ -255,6 +260,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A plus B as a 128-bit result. X is the carry-bit, Y is the low-order 64 bits.
@@ -275,6 +281,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A is not zero and B is not zero => {0 or 1}
@@ -295,6 +302,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     create a box named B, of length C, for app A. Fail if the name B is empty or C exceeds 32,768.
@@ -320,6 +328,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     delete box named B of app A if it exists. Return 1 if B existed, 0 otherwise
@@ -345,6 +354,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     read D bytes from box B of app A, starting at offset C. Fail if box B does not exist, or the
@@ -366,6 +376,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is the contents of box B of app A if B exists, else ''. Y is 1 if B exists, else 0.
@@ -389,6 +400,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is the length of box B of app A if B exists, else 0. Y is 1 if B exists, else 0.
@@ -409,6 +421,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     replaces the contents of box B of app A with byte-array C. Fails if B exists and len(C) !=
@@ -438,6 +451,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     write byte-array D into box B of app A, starting at offset C. Fail if box B does not exist, or
@@ -459,6 +473,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     change the size of box named B of app A to be of length C, adding zero bytes to end or removing
@@ -487,6 +502,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     set box B of app A to contain its previous bytes up to index C, followed by E, followed by the
@@ -508,6 +524,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     delete key A from the global state of the current application
@@ -531,6 +548,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     global state of the key A in the current application
@@ -553,6 +571,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     X is the global state of application A, key B. Y is 1 if key existed, else 0
@@ -576,6 +595,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     write B to key A in the global state of the current application
@@ -599,6 +619,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     delete key B from account A's local state of the current application
@@ -628,6 +649,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     local state of the key B in the current application in account A
@@ -655,6 +677,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -684,6 +707,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     write C to key B in account A's local state of the current application
@@ -709,6 +733,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     1 if account A is opted in to application B, else 0
@@ -845,6 +870,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is field F from app A. Y is 1 if A exists, else 0
@@ -876,6 +902,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=13,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     set field F of the current app to A
@@ -893,6 +920,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.lsig,
+        size=2,
     )
     """
     Nth LogicSig argument
@@ -910,6 +938,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.lsig,
+        size=1,
     )
     """
     LogicSig argument 0
@@ -927,6 +956,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.lsig,
+        size=1,
     )
     """
     LogicSig argument 1
@@ -944,6 +974,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.lsig,
+        size=1,
     )
     """
     LogicSig argument 2
@@ -961,6 +992,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.lsig,
+        size=1,
     )
     """
     LogicSig argument 3
@@ -978,6 +1010,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.lsig,
+        size=1,
     )
     """
     Ath LogicSig argument
@@ -1018,6 +1051,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0
@@ -1146,6 +1180,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is field F from asset A. Y is 1 if A exists, else 0
@@ -1169,6 +1204,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     balance for account A, in microalgos. The balance is observed after the effects of previous
@@ -1191,6 +1227,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     decode A which was base64-encoded using _encoding_ E. Fail if A is not base64 encoded with
@@ -1224,6 +1261,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     The highest set bit in A. If A is a byte-array, it is interpreted as a big-endian unsigned
@@ -1247,6 +1285,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-and B
@@ -1267,6 +1306,7 @@ class AVMOp(enum.StrEnum):
         cost=6,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-and B. A and B are zero-left extended to the greater of their lengths
@@ -1284,6 +1324,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     bitwise invert value A
@@ -1301,6 +1342,7 @@ class AVMOp(enum.StrEnum):
         cost=4,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A with all bits inverted
@@ -1321,6 +1363,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-or B
@@ -1341,6 +1384,7 @@ class AVMOp(enum.StrEnum):
         cost=6,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-or B. A and B are zero-left extended to the greater of their lengths
@@ -1361,6 +1405,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-xor B
@@ -1381,6 +1426,7 @@ class AVMOp(enum.StrEnum):
         cost=6,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A bitwise-xor B. A and B are zero-left extended to the greater of their lengths
@@ -1509,6 +1555,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     field F of block A. Fail unless A falls between txn.LastValid-1002 and txn.FirstValid
@@ -1530,6 +1577,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     create a box named A, of length B. Fail if the name A is empty or B exceeds 32,768. Returns 0
@@ -1551,6 +1599,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     delete box named A if it exists. Return 1 if A existed, 0 otherwise
@@ -1571,6 +1620,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     read C bytes from box A, starting at offset B. Fail if A does not exist, or the byte range is
@@ -1592,6 +1642,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     X is the contents of box A if A exists, else ''. Y is 1 if A exists, else 0.
@@ -1614,6 +1665,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     X is the length of box A if A exists, else 0. Y is 1 if A exists, else 0.
@@ -1633,6 +1685,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     replaces the contents of box A with byte-array B. Fails if A exists and len(B) != len(box A).
@@ -1656,6 +1709,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=8,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     write byte-array C into box A, starting at offset B. Fail if A does not exist, or the byte
@@ -1676,6 +1730,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=10,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     change the size of box named A to be of length B, adding zero bytes to end or removing bytes
@@ -1703,6 +1758,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=10,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     set box A to contain its previous bytes up to index B, followed by D, followed by the original
@@ -1726,6 +1782,7 @@ class AVMOp(enum.StrEnum):
         cost=40,
         min_avm_version=6,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     The largest integer I such that I^2 <= A. A and I are interpreted as big-endian unsigned
@@ -1744,6 +1801,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     converts big-endian byte array A to uint64. Fails if len(A) > 8. Padded by leading 0s if len(A)
@@ -1764,6 +1822,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     zero filled byte-array of length A
@@ -1784,6 +1843,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     join A and B
@@ -1806,6 +1866,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A divided by B (truncated division). Fail if B == 0.
@@ -1828,6 +1889,7 @@ class AVMOp(enum.StrEnum):
         cost=20,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A divided by B (truncated division). A and B are interpreted as big-endian unsigned integers.
@@ -1859,6 +1921,7 @@ class AVMOp(enum.StrEnum):
         cost=20,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     W,X = (A,B / C,D); Y,Z = (A,B modulo C,D)
@@ -1882,6 +1945,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A,B / C. Fail if C == 0 or if result overflows.
@@ -1905,6 +1969,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     for curve points A and B, return the curve point A + B
@@ -1945,6 +2010,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     maps field element A to group G
@@ -1973,6 +2039,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
@@ -1999,6 +2066,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     1 if the product of the pairing of each point in A with its respective point in B is equal to
@@ -2027,6 +2095,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar
@@ -2048,6 +2117,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=10,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0.
@@ -2069,6 +2139,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     decompress pubkey A into components X, Y
@@ -2097,6 +2168,7 @@ class AVMOp(enum.StrEnum):
         cost=2000,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     for (data A, recovery id B, signature C, D) recover a public key
@@ -2127,6 +2199,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     for (data A, signature B, C and pubkey D, E) verify the signature of the data against the
@@ -2157,6 +2230,7 @@ class AVMOp(enum.StrEnum):
         cost=1900,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     for (data A, signature B, pubkey C) verify the signature of ("ProgData" || program_hash ||
@@ -2186,6 +2260,7 @@ class AVMOp(enum.StrEnum):
         cost=1900,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0
@@ -2206,6 +2281,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A is equal to B => {0 or 1}
@@ -2226,6 +2302,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     1 if A is equal to B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -2246,6 +2323,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A raised to the Bth power. Fail if A == B == 0 and on overflow
@@ -2266,6 +2344,7 @@ class AVMOp(enum.StrEnum):
         cost=10,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A raised to the Bth power as a 128-bit result in two uint64s. X is the high 64 bits, Y is the
@@ -2284,6 +2363,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     A range of bytes from A starting at S up to but not including S+L. If L is 0, then extract to
@@ -2305,6 +2385,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A range of bytes from A starting at B up to but not including B+C. If B+C is larger than the
@@ -2326,6 +2407,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A uint16 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -2347,6 +2429,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A uint32 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -2368,6 +2451,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A uint64 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -2393,6 +2477,7 @@ class AVMOp(enum.StrEnum):
         cost=1700,
         min_avm_version=12,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     for (data A, deterministic FALCON-1024 compressed-format signature B, pubkey C) verify the
@@ -2413,6 +2498,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     ID of the asset or application created in the Tth transaction of the current group
@@ -2433,6 +2519,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     ID of the asset or application created in the Ath transaction of the current group
@@ -2455,6 +2542,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the
@@ -2478,6 +2566,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Bth byte of A, as an integer. If B is greater than or equal to the array length, the program
@@ -2909,6 +2998,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=3,
     )
     """
     field F of the Tth transaction in the last inner group submitted
@@ -2967,6 +3057,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=4,
     )
     """
     Ith value of the array field F from the Tth transaction in the last inner group submitted
@@ -3039,6 +3130,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=3,
     )
     """
     Ath value of the array field F from the Tth transaction in the last inner group submitted
@@ -3056,6 +3148,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.app,
+        size=3,
     )
     """
     Ith scratch space value of the Tth transaction in the current group
@@ -3075,6 +3168,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     Ith scratch space value of the Ath transaction in the current group
@@ -3097,6 +3191,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     Bth scratch space value of the Ath transaction in the current group
@@ -3251,6 +3346,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     global field F
@@ -3271,6 +3367,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A greater than B => {0 or 1}
@@ -3291,6 +3388,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     1 if A is greater than B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -3311,6 +3409,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A greater than or equal to B => {0 or 1}
@@ -3331,6 +3430,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     1 if A is greater than or equal to B, else 0. A and B are interpreted as big-endian unsigned
@@ -3762,6 +3862,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     field F of the Tth transaction in the current group
@@ -3823,6 +3924,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=4,
     )
     """
     Ith value of the array field F from the Tth transaction in the current group
@@ -3895,6 +3997,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     Ath value of the array field F from the Tth transaction in the current group
@@ -4463,6 +4566,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     field F of the Ath transaction in the current group
@@ -4539,6 +4643,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     Ith value of the array field F from the Ath transaction in the current group
@@ -4618,6 +4723,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Bth value of the array field F from the Ath transaction in the current group
@@ -4637,6 +4743,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     converts uint64 A to big-endian byte array, always of length 8
@@ -5067,6 +5174,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     field F of the last inner transaction
@@ -5084,6 +5192,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     begin preparation of a new inner transaction in a new transaction group
@@ -5417,6 +5526,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     set field F of the current inner transaction to A
@@ -5440,6 +5550,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     begin preparation of a new inner transaction in the same transaction group
@@ -5459,6 +5570,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     execute the current inner transaction group. Fail if executing this group would exceed the
@@ -5521,6 +5633,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=3,
     )
     """
     Ith value of the array field F of the last inner transaction
@@ -5593,6 +5706,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=6,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     Ath value of the array field F of the last inner transaction
@@ -5636,6 +5750,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
@@ -5663,6 +5778,7 @@ class AVMOp(enum.StrEnum):
         cost=130,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Keccak256 hash of value A, yields [32]byte
@@ -5680,6 +5796,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     yields length of byte value A
@@ -5697,6 +5814,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Ith scratch space value. All scratch spaces are 0 at program start.
@@ -5714,6 +5832,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Ath scratch space value.  All scratch spaces are 0 at program start.
@@ -5731,6 +5850,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     write A to log state of the current application
@@ -5754,6 +5874,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A less than B => {0 or 1}
@@ -5774,6 +5895,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     1 if A is less than B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -5794,6 +5916,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A less than or equal to B => {0 or 1}
@@ -5814,6 +5937,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     1 if A is less than or equal to B, else 0. A and B are interpreted as big-endian unsigned
@@ -5834,6 +5958,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=11,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     MiMC hash of scalars A, using curve and parameters specified by configuration C
@@ -5864,6 +5989,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     minimum required balance for account A, in microalgos. Required balance is affected by ASA,
@@ -5891,6 +6017,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A modulo B. Fail if B == 0.
@@ -5911,6 +6038,7 @@ class AVMOp(enum.StrEnum):
         cost=20,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A modulo B. A and B are interpreted as big-endian unsigned integers. Fail if B is zero.
@@ -5931,6 +6059,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A times B. Fail on overflow.
@@ -5954,6 +6083,7 @@ class AVMOp(enum.StrEnum):
         cost=20,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A times B. A and B are interpreted as big-endian unsigned integers.
@@ -5974,6 +6104,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A times B as a 128-bit result in two uint64s. X is the high 64 bits, Y is the low
@@ -5993,6 +6124,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A is not equal to B => {0 or 1}
@@ -6013,6 +6145,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     0 if A is equal to B, else 1. A and B are interpreted as big-endian unsigned integers
@@ -6030,6 +6163,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A == 0 yields 1; else 0
@@ -6047,6 +6181,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=11,
         supported_modes=RunMode.app,
+        size=1,
     )
     """
     the total online stake in the agreement round
@@ -6067,6 +6202,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A is not zero or B is not zero => {0 or 1}
@@ -6086,6 +6222,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=13,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Poseidon2 hash of scalars A, using curve and parameters specified by configuration C
@@ -6116,6 +6253,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Copy of A with the bytes starting at S replaced by the bytes of B. Fails if S+len(B) exceeds
@@ -6137,6 +6275,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Copy of A with the bytes starting at B replaced by the bytes of C. Fails if B+len(C) exceeds
@@ -6158,6 +6297,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     selects one of two values based on top-of-stack: B if C != 0, else A
@@ -6178,6 +6318,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or
@@ -6204,6 +6345,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=3,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     Copy of A with the Bth byte set to small integer (between 0..255) C. If B is greater than or
@@ -6224,6 +6366,7 @@ class AVMOp(enum.StrEnum):
         cost=35,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     SHA256 hash of value A, yields [32]byte
@@ -6243,6 +6386,7 @@ class AVMOp(enum.StrEnum):
         cost=130,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     SHA3_256 hash of value A, yields [32]byte
@@ -6262,6 +6406,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=13,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     SHA512 of value A, yields [64]byte
@@ -6281,6 +6426,7 @@ class AVMOp(enum.StrEnum):
         cost=45,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     SHA512_256 hash of value A, yields [32]byte
@@ -6301,6 +6447,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A times 2^B, modulo 2^64
@@ -6321,6 +6468,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A divided by 2^B
@@ -6338,6 +6486,7 @@ class AVMOp(enum.StrEnum):
         cost=4,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     The largest integer I such that I^2 <= A
@@ -6355,6 +6504,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     store A to the Ith scratch space
@@ -6372,6 +6522,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     store B to the Ath scratch space
@@ -6392,6 +6543,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A minus B. Fail if B > A.
@@ -6412,6 +6564,7 @@ class AVMOp(enum.StrEnum):
         cost=10,
         min_avm_version=4,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A minus B. A and B are interpreted as big-endian unsigned integers. Fail on underflow.
@@ -6429,6 +6582,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     A range of bytes from A starting at S up to but not including E. If E < S, or either is larger
@@ -6450,6 +6604,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     A range of bytes from A starting at B up to but not including C. If C < B, or either is larger
@@ -6470,6 +6625,7 @@ class AVMOp(enum.StrEnum):
         cost=None,
         min_avm_version=14,
         supported_modes=RunMode.any,
+        size=1,
     )
     """
     sumhash512 of value A, yields [64]byte
@@ -6900,6 +7056,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=1,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     field F of current transaction
@@ -6958,6 +7115,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=2,
         supported_modes=RunMode.any,
+        size=3,
     )
     """
     Ith value of the array field F of the current transaction
@@ -7030,6 +7188,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=5,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Ath value of the array field F of the current transaction
@@ -7064,6 +7223,7 @@ class AVMOp(enum.StrEnum):
         cost=1,
         min_avm_version=11,
         supported_modes=RunMode.app,
+        size=2,
     )
     """
     X is field F from online account A as of the balance round: 320 rounds before the current
@@ -7090,6 +7250,7 @@ class AVMOp(enum.StrEnum):
         cost=5700,
         min_avm_version=7,
         supported_modes=RunMode.any,
+        size=2,
     )
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.

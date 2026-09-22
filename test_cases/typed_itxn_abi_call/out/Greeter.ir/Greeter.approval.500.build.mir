@@ -771,10 +771,10 @@ subroutine test_method_overload:
         v-store tmp%26#0
         v-load tmp%26#0                                                                                tmp%26#0
         int 0                                                                                          tmp%26#0,0
-        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%4#0
-        v-store aggregate%array_length%4#0
-        v-load aggregate%array_length%4#0                                                              aggregate%array_length%4#0
-        int 2                                                                                          aggregate%array_length%4#0,2
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
+        v-load aggregate%array_length%3#0                                                              aggregate%array_length%3#0
+        int 2                                                                                          aggregate%array_length%3#0,2
         +                                                                                              add%4#0
         v-store add%4#0
         v-load tmp%26#0                                                                                tmp%26#0
@@ -871,11 +871,18 @@ subroutine test_arg_conversion:
         // typed_itxn_abi_call/typed_c2c.py:76
         // txn = itxn.abi_call(Logger.log_uint512, 3, app_id=app).submit()
         itxn_begin
+        int 64                                                                                         64
+        bzero                                                                                          aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x03                                                                                      0x03
+        v-load aggregate%bzero%0#0                                                                     0x03,aggregate%bzero%0#0
+        b|                                                                                             aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         method log(uint512)void                                                                        Method(log(uint512)void)
         itxn_field ApplicationArgs
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -994,108 +1001,108 @@ subroutine test_15plus_args:
         // )
         // .submit()
         itxn_begin
-        // typed_itxn_abi_call/typed_c2c.py:90
-        // 1,
-        int 1                                                                                          1
-        itob                                                                                           aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
-        // typed_itxn_abi_call/typed_c2c.py:91
-        // 2,
-        int 2                                                                                          2
-        itob                                                                                           aggregate%val_as_bytes%1#0
-        v-store aggregate%val_as_bytes%1#0
-        // typed_itxn_abi_call/typed_c2c.py:92
-        // 3,
-        int 3                                                                                          3
-        itob                                                                                           aggregate%val_as_bytes%2#0
-        v-store aggregate%val_as_bytes%2#0
-        // typed_itxn_abi_call/typed_c2c.py:93
-        // 4,
-        int 4                                                                                          4
-        itob                                                                                           aggregate%val_as_bytes%3#0
-        v-store aggregate%val_as_bytes%3#0
-        // typed_itxn_abi_call/typed_c2c.py:94
-        // 5,
-        int 5                                                                                          5
-        itob                                                                                           aggregate%val_as_bytes%4#0
-        v-store aggregate%val_as_bytes%4#0
-        // typed_itxn_abi_call/typed_c2c.py:95
-        // 6,
-        int 6                                                                                          6
-        itob                                                                                           aggregate%val_as_bytes%5#0
-        v-store aggregate%val_as_bytes%5#0
-        // typed_itxn_abi_call/typed_c2c.py:96
-        // 7,
-        int 7                                                                                          7
-        itob                                                                                           aggregate%val_as_bytes%6#0
-        v-store aggregate%val_as_bytes%6#0
-        // typed_itxn_abi_call/typed_c2c.py:97
-        // 8,
-        int 8                                                                                          8
-        itob                                                                                           aggregate%val_as_bytes%7#0
-        v-store aggregate%val_as_bytes%7#0
-        // typed_itxn_abi_call/typed_c2c.py:98
-        // 9,
-        int 9                                                                                          9
-        itob                                                                                           aggregate%val_as_bytes%8#0
-        v-store aggregate%val_as_bytes%8#0
-        // typed_itxn_abi_call/typed_c2c.py:99
-        // 10,
-        int 10                                                                                         10
-        itob                                                                                           aggregate%val_as_bytes%9#0
-        v-store aggregate%val_as_bytes%9#0
-        // typed_itxn_abi_call/typed_c2c.py:100
-        // 11,
-        int 11                                                                                         11
-        itob                                                                                           aggregate%val_as_bytes%10#0
-        v-store aggregate%val_as_bytes%10#0
-        // typed_itxn_abi_call/typed_c2c.py:101
-        // 12,
-        int 12                                                                                         12
-        itob                                                                                           aggregate%val_as_bytes%11#0
-        v-store aggregate%val_as_bytes%11#0
-        // typed_itxn_abi_call/typed_c2c.py:102
-        // 13,
-        int 13                                                                                         13
-        itob                                                                                           aggregate%val_as_bytes%12#0
-        v-store aggregate%val_as_bytes%12#0
-        // typed_itxn_abi_call/typed_c2c.py:103
-        // 14,
-        int 14                                                                                         14
-        itob                                                                                           aggregate%val_as_bytes%13#0
-        v-store aggregate%val_as_bytes%13#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:89
         // Logger.return_args_after_14th,
         method return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[] Method(return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[])
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:90
+        // 1,
+        int 1                                                                                          1
+        itob                                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:91
+        // 2,
+        int 2                                                                                          2
+        itob                                                                                           aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%1#0                                                              aggregate%val_as_bytes%1#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:92
+        // 3,
+        int 3                                                                                          3
+        itob                                                                                           aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0
         v-load aggregate%val_as_bytes%2#0                                                              aggregate%val_as_bytes%2#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:93
+        // 4,
+        int 4                                                                                          4
+        itob                                                                                           aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
         v-load aggregate%val_as_bytes%3#0                                                              aggregate%val_as_bytes%3#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:94
+        // 5,
+        int 5                                                                                          5
+        itob                                                                                           aggregate%val_as_bytes%4#0
+        v-store aggregate%val_as_bytes%4#0
         v-load aggregate%val_as_bytes%4#0                                                              aggregate%val_as_bytes%4#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:95
+        // 6,
+        int 6                                                                                          6
+        itob                                                                                           aggregate%val_as_bytes%5#0
+        v-store aggregate%val_as_bytes%5#0
         v-load aggregate%val_as_bytes%5#0                                                              aggregate%val_as_bytes%5#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:96
+        // 7,
+        int 7                                                                                          7
+        itob                                                                                           aggregate%val_as_bytes%6#0
+        v-store aggregate%val_as_bytes%6#0
         v-load aggregate%val_as_bytes%6#0                                                              aggregate%val_as_bytes%6#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:97
+        // 8,
+        int 8                                                                                          8
+        itob                                                                                           aggregate%val_as_bytes%7#0
+        v-store aggregate%val_as_bytes%7#0
         v-load aggregate%val_as_bytes%7#0                                                              aggregate%val_as_bytes%7#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:98
+        // 9,
+        int 9                                                                                          9
+        itob                                                                                           aggregate%val_as_bytes%8#0
+        v-store aggregate%val_as_bytes%8#0
         v-load aggregate%val_as_bytes%8#0                                                              aggregate%val_as_bytes%8#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:99
+        // 10,
+        int 10                                                                                         10
+        itob                                                                                           aggregate%val_as_bytes%9#0
+        v-store aggregate%val_as_bytes%9#0
         v-load aggregate%val_as_bytes%9#0                                                              aggregate%val_as_bytes%9#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:100
+        // 11,
+        int 11                                                                                         11
+        itob                                                                                           aggregate%val_as_bytes%10#0
+        v-store aggregate%val_as_bytes%10#0
         v-load aggregate%val_as_bytes%10#0                                                             aggregate%val_as_bytes%10#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:101
+        // 12,
+        int 12                                                                                         12
+        itob                                                                                           aggregate%val_as_bytes%11#0
+        v-store aggregate%val_as_bytes%11#0
         v-load aggregate%val_as_bytes%11#0                                                             aggregate%val_as_bytes%11#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:102
+        // 13,
+        int 13                                                                                         13
+        itob                                                                                           aggregate%val_as_bytes%12#0
+        v-store aggregate%val_as_bytes%12#0
         v-load aggregate%val_as_bytes%12#0                                                             aggregate%val_as_bytes%12#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:103
+        // 14,
+        int 14                                                                                         14
+        itob                                                                                           aggregate%val_as_bytes%13#0
+        v-store aggregate%val_as_bytes%13#0
         v-load aggregate%val_as_bytes%13#0                                                             aggregate%val_as_bytes%13#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:104-111
@@ -1409,10 +1416,6 @@ subroutine test_ref_types:
         //     app_id=app,
         // ).submit()
         itxn_begin
-        // typed_itxn_abi_call/typed_c2c.py:138
-        // Global.current_application_address,
-        global CurrentApplicationAddress                                                               tmp%1#1
-        v-store tmp%1#1
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:136
@@ -1421,6 +1424,10 @@ subroutine test_ref_types:
         itxn_field ApplicationArgs
         v-load tmp%2#0                                                                                 tmp%2#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:138
+        // Global.current_application_address,
+        global CurrentApplicationAddress                                                               tmp%1#1
+        v-store tmp%1#1
         v-load tmp%1#1                                                                                 tmp%1#1
         itxn_field ApplicationArgs
         v-load tmp%0#0                                                                                 tmp%0#0
@@ -1510,16 +1517,16 @@ subroutine test_account_to_address:
         //     app_id=app,
         // ).submit()
         itxn_begin
-        // typed_itxn_abi_call/typed_c2c.py:151
-        // Global.current_application_address,
-        global CurrentApplicationAddress                                                               tmp%0#1
-        v-store tmp%0#1
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:150
         // Logger.log_address,
         method log(address)void                                                                        Method(log(address)void)
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:151
+        // Global.current_application_address,
+        global CurrentApplicationAddress                                                               tmp%0#1
+        v-store tmp%0#1
         v-load tmp%0#1                                                                                 tmp%0#1
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:149-153
@@ -2215,11 +2222,18 @@ subroutine test_native_biguint:
         // typed_itxn_abi_call/typed_c2c.py:206
         // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
         itxn_begin
+        int 64                                                                                         64
+        bzero                                                                                          aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x02                                                                                      0x02
+        v-load aggregate%bzero%0#0                                                                     0x02,aggregate%bzero%0#0
+        b|                                                                                             aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                     Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -2264,12 +2278,8 @@ subroutine test_native_biguint:
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                     Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:206
-        // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:209
-        // result2 = itxn.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app).submit().result
         int appl                                                                                       appl
         itxn_field TypeEnum
         int 0                                                                                          0
@@ -2313,12 +2323,8 @@ subroutine test_native_biguint:
         itxn_field ApplicationID
         method echo_native_biguint(uint512)uint512                                                     Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:206
-        // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:213
-        // itxn.abi_call(Logger.echo_native_biguint, arc4.UInt512(2), app_id=app).submit().result
         int appl                                                                                       appl
         itxn_field TypeEnum
         int 0                                                                                          0
@@ -2365,7 +2371,7 @@ subroutine test_native_biguint:
         // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
         method echo_native_biguint(uint512)uint512                                                     Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -2501,11 +2507,25 @@ subroutine test_native_tuple:
         // )
         // .submit()
         itxn_begin
+        // typed_itxn_abi_call/typed_c2c.py:237
+        // "s1",
+        int 2                                                                                          2
+        itob                                                                                           aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
         // typed_itxn_abi_call/typed_c2c.py:239
         // 1,
         int 1                                                                                          1
         itob                                                                                           aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        // typed_itxn_abi_call/typed_c2c.py:240
+        // 2,
+        int 64                                                                                         64
+        bzero                                                                                          aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        v-load aggregate%as_bytes%0#0                                                                  aggregate%as_bytes%0#0
+        v-load aggregate%bzero%0#0                                                                     aggregate%as_bytes%0#0,aggregate%bzero%0#0
+        b|                                                                                             aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:235-242
@@ -2529,9 +2549,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:240
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:235-242
         // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
@@ -2727,9 +2745,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:259
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:254-261
         // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
@@ -2881,9 +2897,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:259
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:269-276
         // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
@@ -3035,9 +3049,7 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:259
-        // BigUInt(2),
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:284-291
         // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -3238,6 +3250,15 @@ subroutine test_native_tuple_method_ref:
         int 1                                                                                          1
         itob                                                                                           aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        // typed_itxn_abi_call/typed_c2c.py:309
+        // 2,
+        int 64                                                                                         64
+        bzero                                                                                          aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        byte 0x02                                                                                      0x02
+        v-load aggregate%bzero%0#0                                                                     0x02,aggregate%bzero%0#0
+        b|                                                                                             aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:305
@@ -3254,9 +3275,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:309
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:304-311
         // itxn.abi_call(
@@ -3443,9 +3462,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:309
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:323-330
         // itxn.abi_call(
@@ -3632,9 +3649,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:309
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:338-345
         // itxn.abi_call(
@@ -3828,9 +3843,7 @@ subroutine test_native_tuple_method_ref:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:309
-        // 2,
-        byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+        v-load aggregate%arc4_encoded%0#0                                                              aggregate%arc4_encoded%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:353-360
         // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -5043,8 +5056,6 @@ subroutine test_named_tuples:
         // (UInt64(1), String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                      0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:440
-        // LogMessage(level=UInt64(1), message=String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                      0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:437-442
@@ -5126,8 +5137,8 @@ subroutine test_named_tuples:
         // (UInt64(2), String("log 2")),
         byte 0x0000000000000002000a00056c6f672032                                                      0x0000000000000002000a00056c6f672032
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:440
-        // LogMessage(level=UInt64(1), message=String("log 1")),
+        // typed_itxn_abi_call/typed_c2c.py:439
+        // (UInt64(1), String("log 1")),
         byte 0x0000000000000001000a00056c6f672031                                                      0x0000000000000001000a00056c6f672031
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:448-453

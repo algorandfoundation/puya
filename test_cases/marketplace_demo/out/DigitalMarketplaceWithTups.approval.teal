@@ -92,9 +92,9 @@ allow_asset:
     itxn_begin
     // marketplace_demo/marketplace_with_tups.py:91
     // xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
-    global CurrentApplicationAddress
     intc_2 // 0
     itxn_field AssetAmount
+    global CurrentApplicationAddress
     itxn_field AssetReceiver
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:90
@@ -293,14 +293,15 @@ deposit:
     btoi
     // marketplace_demo/marketplace_with_tups.py:123
     // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
-    txn Sender
-    dig 2
+    dig 1
     gtxns XferAsset
     // marketplace_demo/marketplace_with_tups.py:125
     // assert xfer.sender == Txn.sender
-    dig 3
+    dig 2
     gtxns Sender
     txn Sender
+    swap
+    dig 1
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:126
@@ -318,7 +319,7 @@ deposit:
     assert
     // marketplace_demo/marketplace_with_tups.py:129
     // existing = self.listings[key]
-    swap
+    uncover 2
     itob
     uncover 2
     swap
@@ -336,28 +337,25 @@ deposit:
     intc_2 // 0
     extract_uint64
     dig 1
-    extract 8 8
-    dig 2
     extract 16 32
-    dig 3
-    extract 48 8
-    uncover 4
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:135
     // deposited=existing.deposited + xfer.asset_amount,
+    swap
     uncover 4
-    uncover 6
     +
     // marketplace_demo/marketplace_with_tups.py:130
     // self.listings[key] = ListingValue(
     itob
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
+    dig 2
+    extract 8 8
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:130-136
     // self.listings[key] = ListingValue(
@@ -417,25 +415,21 @@ set_price:
     box_get
     assert // check self.listings entry exists
     dup
-    extract 0 8
-    dig 1
     extract 16 32
-    dig 2
-    extract 48 8
-    uncover 3
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:143
     // self.listings[key] = ListingValue(
-    uncover 5
-    itob
+    dig 1
+    extract 0 8
     uncover 4
-    swap
-    concat
-    uncover 3
-    concat
-    uncover 2
+    itob
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:143-149
     // self.listings[key] = ListingValue(
@@ -515,19 +509,15 @@ buy:
     extract_uint64
     dig 2
     extract 16 32
-    dig 3
-    extract 48 8
-    uncover 4
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:164
     // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
-    dig 8
+    dig 7
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_tups.py:70
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-    dig 4
-    dig 8
+    dig 2
+    dig 7
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
@@ -547,40 +537,42 @@ buy:
     assert
     // marketplace_demo/marketplace_with_tups.py:166
     // assert buy_pay.sender == Txn.sender
-    dig 8
+    dig 7
     gtxns Sender
     txn Sender
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:167
     // assert buy_pay.receiver == owner
-    dig 8
+    dig 7
     gtxns Receiver
-    uncover 11
+    uncover 10
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:168
     // assert buy_pay.amount == amount_to_be_paid
-    uncover 8
+    uncover 7
     gtxns Amount
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:175
     // deposited=listing.deposited - quantity,
-    uncover 4
-    dig 6
+    uncover 2
+    dig 5
     -
     // marketplace_demo/marketplace_with_tups.py:170
     // self.listings[key] = ListingValue(
     itob
-    uncover 4
+    uncover 2
     itob
     concat
-    uncover 3
+    swap
     concat
-    uncover 2
+    dig 1
+    extract 48 8
     concat
     swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:170-176
     // self.listings[key] = ListingValue(
@@ -596,11 +588,11 @@ buy:
     //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
     // ).submit()
     itxn_begin
+    itxn_field AssetAmount
     // marketplace_demo/marketplace_with_tups.py:179
     // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
     txn Sender
     itxn_field AssetReceiver
-    itxn_field AssetAmount
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:178
     // itxn.AssetTransfer(
@@ -723,7 +715,6 @@ withdraw_after_if_else@4:
     // marketplace_demo/marketplace_with_tups.py:195
     // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
     itxn_begin
-    txn Sender
     // marketplace_demo/marketplace_with_tups.py:45-66
     // return UInt64(
     //     2_500
@@ -749,9 +740,10 @@ withdraw_after_if_else@4:
     // )
     intc 4 // 50500
     itxn_field Amount
-    itxn_field Receiver
     // marketplace_demo/marketplace_with_tups.py:195
     // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+    txn Sender
+    itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
     intc_2 // 0
@@ -762,11 +754,11 @@ withdraw_after_if_else@4:
     //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
     // ).submit()
     itxn_begin
+    itxn_field AssetAmount
     // marketplace_demo/marketplace_with_tups.py:198
     // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
     txn Sender
     itxn_field AssetReceiver
-    itxn_field AssetAmount
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:197
     // itxn.AssetTransfer(
@@ -852,25 +844,23 @@ bid:
     dup
     cover 4
     box_get
+    swap
+    dup
+    cover 2
+    cover 4
     assert // check self.listings entry exists
-    dup
-    extract 0 8
-    cover 3
-    dup
-    extract 8 8
-    cover 3
     dup
     extract 16 32
     dup
     cover 2
-    cover 9
+    cover 8
     dup
     pushint 48
     extract_uint64
-    cover 9
+    cover 8
     pushint 56
     extract_uint64
-    cover 8
+    cover 7
     // marketplace_demo/marketplace_with_tups.py:214
     // if listing.bidder != Account():
     global ZeroAddress
@@ -879,7 +869,7 @@ bid:
     // marketplace_demo/marketplace_with_tups.py:215
     // assert unitary_price > listing.bidUnitaryPrice
     dup
-    dig 8
+    dig 7
     dup
     cover 2
     >
@@ -892,7 +882,7 @@ bid:
     // marketplace_demo/marketplace_with_tups.py:70
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
     swap
-    dig 10
+    dig 9
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
@@ -914,7 +904,7 @@ bid:
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
     itxn_begin
     itxn_field Amount
-    dig 9
+    dig 8
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -931,7 +921,7 @@ bid_after_if_else@4:
     // marketplace_demo/marketplace_with_tups.py:70
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
     dig 1
-    uncover 5
+    uncover 4
     dup
     cover 3
     mulw
@@ -953,7 +943,7 @@ bid_after_if_else@4:
     assert
     // marketplace_demo/marketplace_with_tups.py:225
     // assert bid_pay.sender == Txn.sender
-    uncover 6
+    uncover 5
     dup
     gtxns Sender
     txn Sender
@@ -976,8 +966,11 @@ bid_after_if_else@4:
     txn Sender
     // marketplace_demo/marketplace_with_tups.py:229
     // self.listings[key] = ListingValue(
-    uncover 4
-    uncover 4
+    uncover 3
+    dup
+    extract 0 8
+    swap
+    extract 8 8
     concat
     swap
     concat
@@ -1038,6 +1031,10 @@ accept_bid:
     dup
     cover 2
     box_get
+    swap
+    dup
+    cover 2
+    cover 3
     assert // check self.listings entry exists
     dup
     intc_2 // 0
@@ -1045,13 +1042,10 @@ accept_bid:
     dup
     uncover 2
     dup
-    extract 8 8
-    cover 4
-    dup
     extract 16 32
     dup
     cover 2
-    cover 3
+    cover 4
     dup
     pushint 48
     extract_uint64
@@ -1070,7 +1064,7 @@ accept_bid:
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
     <
     bz accept_bid_ternary_false@3
-    dig 3
+    dig 2
 
 accept_bid_ternary_merge@4:
     // marketplace_demo/marketplace_with_tups.py:247
@@ -1107,9 +1101,9 @@ accept_bid_ternary_merge@4:
     // marketplace_demo/marketplace_with_tups.py:250
     // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
     itxn_begin
+    itxn_field Amount
     txn Sender
     itxn_field Receiver
-    itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
     intc_2 // 0
@@ -1122,7 +1116,7 @@ accept_bid_ternary_merge@4:
     itxn_begin
     dup
     itxn_field AssetAmount
-    uncover 4
+    uncover 5
     dup
     cover 2
     itxn_field AssetReceiver
@@ -1154,6 +1148,7 @@ accept_bid_ternary_merge@4:
     swap
     itob
     uncover 4
+    extract 8 8
     concat
     uncover 2
     concat

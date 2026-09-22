@@ -30,15 +30,18 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]() -> void:
     block@0: // L5
         let aggregate%length%0#0: uint64 = 1u
-        let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0001
         let aggregate%encoded_value%0#0: bytes = 0x000158
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let aggregate%length%1#0: uint64 = 1u
         let aggregate%length_uint16%1#0: bytes = 0x0001
         let aggregate%encoded_value%1#0: bytes = 0x000159
+        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = aggregate%encoded_value%1#0
         let aggregate%length%2#0: uint64 = 1u
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x00015a
+        let aggregate%as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = aggregate%encoded_value%2#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = 0x0003
         let aggregate%as_bytes%4#0: bytes[8] = (itob 6u)
@@ -46,19 +49,19 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let aggregate%head%0#0: bytes = 0x00030006
         let aggregate%data_length%0#0: uint64 = 3u
         let aggregate%current_tail_offset%0#0: uint64 = 9u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 9u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0009
         let aggregate%head%1#0: bytes = 0x000300060009
         let aggregate%data_length%1#0: uint64 = 3u
         let aggregate%current_tail_offset%1#0: uint64 = 12u
-        let aggregate%as_bytes%6#0: bytes[8] = (itob 12u)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x000c
         let aggregate%head%2#0: bytes = 0x000300060009000c
-        let aggregate%concat%0#0: bytes = 0x000300060009000c000158
-        let aggregate%concat%1#0: bytes = 0x000300060009000c000158000159
-        let aggregate%concat%2#0: bytes = 0x000300060009000c00015800015900015a
-        let tmp%1#0: bytes = 0x151f7c75000300060009000c00015800015900015a
-        (log 0x151f7c75000300060009000c00015800015900015a)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 aggregate%as_Encoded(len+utf8[])%0#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+utf8[])%1#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%as_Encoded(len+utf8[])%2#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 aggregate%concat%2#0)
+        (log tmp%1#0)
         exit 1u
 
 subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]() -> void:
@@ -67,21 +70,27 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let aggregate%bitlen%0#0: uint64 = 7u
         let aggregate%no_overflow%0#0: bool = 1u
         let aggregate%uint8%0#0: bytes = 0x58
+        let aggregate%as_Encoded(uint8)%0#0: Encoded(uint8) = aggregate%uint8%0#0
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
         let aggregate%head%0#0: bytes = 0x000158
+        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%head%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 89u)
         let aggregate%bitlen%1#0: uint64 = 7u
         let aggregate%no_overflow%1#0: bool = 1u
         let aggregate%uint8%1#0: bytes = 0x59
+        let aggregate%as_Encoded(uint8)%1#0: Encoded(uint8) = aggregate%uint8%1#0
         let aggregate%len_u16%1#0: bytes = 0x0001
         let aggregate%head%1#0: bytes = 0x000159
+        let aggregate%as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = aggregate%head%1#0
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 90u)
         let aggregate%bitlen%2#0: uint64 = 7u
         let aggregate%no_overflow%2#0: bool = 1u
         let aggregate%uint8%2#0: bytes = 0x5a
+        let aggregate%as_Encoded(uint8)%2#0: Encoded(uint8) = aggregate%uint8%2#0
         let aggregate%len_u16%2#0: bytes = 0x0001
         let aggregate%head%2#0: bytes = 0x00015a
+        let aggregate%as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = aggregate%head%2#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%3#0: bytes = 0x0003
         let aggregate%as_bytes%4#0: bytes[8] = (itob 6u)
@@ -89,17 +98,17 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let aggregate%head%3#0: bytes = 0x00030006
         let aggregate%data_length%0#0: uint64 = 3u
         let aggregate%current_tail_offset%0#0: uint64 = 9u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 9u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0009
         let aggregate%head%4#0: bytes = 0x000300060009
         let aggregate%data_length%1#0: uint64 = 3u
         let aggregate%current_tail_offset%1#0: uint64 = 12u
-        let aggregate%as_bytes%6#0: bytes[8] = (itob 12u)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x000c
         let aggregate%head%5#0: bytes = 0x000300060009000c
-        let aggregate%concat%0#0: bytes = 0x000300060009000c000158
-        let aggregate%concat%1#0: bytes = 0x000300060009000c000158000159
-        let raw#0: Encoded(len+(len+uint8[])[]) = 0x000300060009000c00015800015900015a
-        let tmp%1#0: bytes = 0x151f7c75000300060009000c00015800015900015a
-        (log 0x151f7c75000300060009000c00015800015900015a)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(len+uint8[])%0#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+uint8[])%1#0)
+        let raw#0: Encoded(len+(len+uint8[])[]) = (concat aggregate%concat%1#0 aggregate%as_Encoded(len+uint8[])%2#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 raw#0)
+        (log tmp%1#0)
         exit 1u

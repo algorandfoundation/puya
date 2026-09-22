@@ -4,7 +4,7 @@
 
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
-    intcblock 1 2 0 10
+    intcblock 1 0 10 2
     pushbytes ""
     // logic_signature/lsig_args_simple.py:6
     // arg0: UInt64,
@@ -19,7 +19,7 @@ main:
     // logic_signature/lsig_args_simple.py:7
     // pay: gtxn.PaymentTransaction,
     txn GroupIndex
-    intc_1 // 2
+    intc_3 // 2
     -
     dup
     gtxns TypeEnum
@@ -30,17 +30,16 @@ main:
     // arg1: Bytes,
     arg_1
     dup
-    intc_2 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
+    intc_3 // 2
     +
     dig 1
     len
     ==
     assert // invalid number of bytes for bytes
     extract 2 0
-    dup
-    cover 3
+    cover 2
     // logic_signature/lsig_args_simple.py:9
     // arg2: bool,
     arg_2
@@ -49,11 +48,10 @@ main:
     intc_0 // 1
     ==
     assert // invalid number of bytes for bool
-    intc_2 // 0
+    intc_1 // 0
     getbit
     dup
-    cover 2
-    cover 4
+    cover 3
     // logic_signature/lsig_args_simple.py:10
     // app_call: gtxn.ApplicationCallTransaction,
     txn GroupIndex
@@ -64,26 +62,11 @@ main:
     pushint 6 // appl
     ==
     assert // transaction type is appl
-    // logic_signature/lsig_args_simple.py:12-13
-    // # verify args match raw op.arg values (gtxn args consume no positions in the args array)
-    // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
-    arg_0
-    btoi
-    dig 5
-    ==
-    assert
-    // logic_signature/lsig_args_simple.py:14
-    // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
-    arg_1
-    extract 2 0
-    uncover 2
-    ==
-    assert
     // logic_signature/lsig_args_simple.py:15
     // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
     arg_2
     btoi
-    intc_2 // 0
+    intc_1 // 0
     !=
     uncover 2
     ==
@@ -92,30 +75,26 @@ main:
     // # gtxn args bind to the transactions immediately preceding the signed one,
     // # in declaration order
     // assert pay.group_index == Txn.group_index - 2
-    swap
+    dig 1
     gtxns GroupIndex
-    txn GroupIndex
-    intc_1 // 2
-    -
+    uncover 2
     ==
     assert
     // logic_signature/lsig_args_simple.py:20
     // assert app_call.group_index == Txn.group_index - 1
+    dup
     gtxns GroupIndex
-    txn GroupIndex
-    intc_0 // 1
-    -
     ==
     assert
     // logic_signature/lsig_args_simple.py:22-23
     // # mutate all
     // if arg0 < 10:
-    intc_3 // 10
+    intc_2 // 10
     <
     bz main_after_if_else@2
     // logic_signature/lsig_args_simple.py:24
     // arg0 = UInt64(10)
-    intc_3 // 10
+    intc_2 // 10
     bury 3
 
 main_after_if_else@2:
@@ -128,7 +107,7 @@ main_after_if_else@2:
     // # assert all
     // assert arg0 >= 10
     dig 2
-    intc_3 // 10
+    intc_2 // 10
     >=
     assert
     // logic_signature/lsig_args_simple.py:30

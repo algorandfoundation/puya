@@ -4,8 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 2 6 8
-    pushbytes ""
-    dup
     txn NumAppArgs
     bz main___algopy_default_create@5
     pushbytes 0x06598bc6 // method "test_implicit_conversion_abi_call(uint64[],uint64)void"
@@ -39,7 +37,7 @@ main_test_implicit_conversion_abi_call_route@3:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 4
+    cover 2
     itxn_begin
     itxn_field ApplicationID
     pushbytes 0x75b694f3 // method "dont_call(uint64[])uint64"
@@ -57,44 +55,13 @@ main_test_implicit_conversion_abi_call_route@3:
     pushbytes 0x0001
     swap
     intc_0 // 0
-    bury 3
-
-main_for_header@7:
-    dig 2
-    intc_0 // 0
-    <
-    bz main_after_for@9
-    pushbytes 0x
-    dig 3
-    dup
-    cover 2
-    extract_uint16
-    intc_1 // 2
-    +
-    itob
-    extract 6 0
-    uncover 3
-    swap
-    concat
-    cover 2
-    intc_1 // 2
-    +
-    bury 3
-    b main_for_header@7
-
-main_after_for@9:
-    intc_0 // 0
-    bury 3
 
 main_for_header@10:
-    dig 2
+    dup
     intc_1 // 2
     <
     bz main_after_for@12
-    dup
-    dig 3
-    dup
-    cover 2
+    dup2
     extract_uint16
     itob
     extract 6 0
@@ -104,16 +71,14 @@ main_for_header@10:
     cover 2
     intc_1 // 2
     +
-    bury 3
     b main_for_header@10
 
 main_after_for@12:
+    pop
     extract 2 0
     concat
     itxn_begin
-    dig 2
-    dup
-    cover 2
+    dig 1
     itxn_field ApplicationID
     pushbytes 0xe92b1d53 // method "dont_call(uint64[][])uint64"
     itxn_field ApplicationArgs

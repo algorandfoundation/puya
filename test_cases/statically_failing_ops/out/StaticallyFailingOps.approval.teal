@@ -92,18 +92,20 @@ main:
     dup
     bytec_0 // 0x
     b/
+    dup
     log
     // statically_failing_ops/contract.py:29
     // log(one_big % 0)
-    dup
+    swap
     bytec_0 // 0x
     b%
+    dup
     log
     // statically_failing_ops/contract.py:30-31
     // # biguint operand as oversized BytesConstant (reinterpreted via from_bytes)
     // log(BigUInt.from_bytes(b"\xff" * 65) + BigUInt.from_bytes(runtime_bytes))
     pushbytes 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    dig 3
+    dig 4
     b+
     log
     // statically_failing_ops/contract.py:32-33
@@ -115,14 +117,10 @@ main:
     log
     // statically_failing_ops/contract.py:34
     // log(one_big // BigUInt.from_bytes(b""))
-    dup
-    bytec_0 // 0x
-    b/
+    swap
     log
     // statically_failing_ops/contract.py:35
     // log(one_big % BigUInt.from_bytes(b""))
-    bytec_0 // 0x
-    b%
     log
     // statically_failing_ops/contract.py:37-38
     // # shl / shr

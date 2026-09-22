@@ -1,0 +1,310 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 64 1 0
+    bytecblock 0x151f7c75 0x08
+    // intrinsics/simplifications.py:4
+    // class Simplifications(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@15
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x3ae1ed00 0x8c3024f3 0x4a6642ae 0xfecc1a5c 0x95d95709 0xb5d32035 0x6d42eb37 0x3303f999 // method "select_neq(uint64)uint64", method "chained_extract(byte[])uint64", method "biguint_add_fold(uint512)uint512", method "biguint_mul_fold(uint512)uint512", method "biguint_add_no_fold(uint512,uint512,uint512)uint512", method "biguint_add_bytes_const(uint512)uint512", method "biguint_add_oversized(uint512)uint512", method "biguint_add_double_oversized(uint512,uint512)uint512"
+    txna ApplicationArgs 0
+    match select_neq chained_extract biguint_add_fold biguint_mul_fold biguint_add_no_fold biguint_add_bytes_const biguint_add_oversized biguint_add_double_oversized
+    err
+
+main___algopy_default_create@15:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.select_neq[routing]() -> void:
+select_neq:
+    // intrinsics/simplifications.py:5
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // intrinsics/simplifications.py:7-9
+    // # select(false=0, true=1, selector=x) with a non-bool selector
+    // # simplifies to (x != 0)
+    // return op.select_uint64(0, 1, x)
+    intc_2 // 0
+    !=
+    // intrinsics/simplifications.py:5
+    // @arc4.abimethod()
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.chained_extract[routing]() -> void:
+chained_extract:
+    // intrinsics/simplifications.py:11
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // intrinsics/simplifications.py:15
+    // return op.extract_uint16(middle, 1)
+    pushint 5
+    extract_uint16
+    // intrinsics/simplifications.py:11
+    // @arc4.abimethod()
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold[routing]() -> void:
+biguint_add_fold:
+    // intrinsics/simplifications.py:17
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:19-20
+    // # (x + 5) + 3 folds the two constants to x + 8
+    // return x + BigUInt(5) + 3
+    bytec_1 // 0x08
+    b+
+    // intrinsics/simplifications.py:17
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold[routing]() -> void:
+biguint_mul_fold:
+    // intrinsics/simplifications.py:22
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:24-25
+    // # (x * 5) * 3 folds the two constants to x * 15
+    // return x * BigUInt(5) * 3
+    pushbytes 0x0f
+    b*
+    // intrinsics/simplifications.py:22
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold[routing]() -> void:
+biguint_add_no_fold:
+    // intrinsics/simplifications.py:27
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:29-30
+    // # (x + y) + z has no constant operands, so nothing folds
+    // return x + y + z
+    cover 2
+    b+
+    b+
+    // intrinsics/simplifications.py:27
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const[routing]() -> void:
+biguint_add_bytes_const:
+    // intrinsics/simplifications.py:32
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:34-36
+    // # the byte-constant operand resolves to a biguint via the byte path,
+    // # then folds with the 3 to x + 8
+    // return x + BigUInt.from_bytes(Bytes(b"\x05")) + 3
+    bytec_1 // 0x08
+    b+
+    // intrinsics/simplifications.py:32
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized[routing]() -> void:
+biguint_add_oversized:
+    // intrinsics/simplifications.py:38
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:40-41
+    // # the byte-encoded sum exceeds 64 bytes, leaving a runtime b+ that fails
+    // too_big = BigUInt(2**512 - 1) + 1
+    pushbytes 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    // intrinsics/simplifications.py:42
+    // return x + too_big + 3
+    b+
+    pushbytes 0x03
+    b+
+    // intrinsics/simplifications.py:38
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized[routing]() -> void:
+biguint_add_double_oversized:
+    // intrinsics/simplifications.py:44
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    // intrinsics/simplifications.py:46-48
+    // # folding the two 512-bit constants yields a 513-bit biguint constant
+    // # that is too large to fold into the accumulator
+    // return x + BigUInt(2**512 - 1) + (2**512 - 1) + y
+    swap
+    pushbytes 0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
+    b+
+    b+
+    // intrinsics/simplifications.py:44
+    // @arc4.abimethod()
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

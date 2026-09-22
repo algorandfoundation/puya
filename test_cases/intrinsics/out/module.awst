@@ -1,3 +1,71 @@
+contract Simplifications
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.select_neq(x: uint64): uint64
+  {
+    return select(0u, 1u, x)
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.chained_extract(src: bytes): uint64
+  {
+    middle: bytes = extract<2, 0>(src)
+    return extract_uint16(middle, 1u)
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold(x: biguint): biguint
+  {
+    return x b+ 5n b+ 3n
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold(x: biguint): biguint
+  {
+    return x b* 5n b* 3n
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold(x: biguint, y: biguint, z: biguint): biguint
+  {
+    return x b+ y b+ z
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const(x: biguint): biguint
+  {
+    return x b+ hex<"05"> b+ 3n
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized(x: biguint): biguint
+  {
+    too_big: biguint = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n b+ 1n
+    return x b+ too_big b+ 3n
+  }
+  
+  abimethod test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized(x: biguint, y: biguint): biguint
+  {
+    return x b+ 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n b+ 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n b+ y
+  }
+  
+  baremethod test_cases.intrinsics.simplifications.Simplifications.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract Overloaded
 {
   method_resolution_order: (

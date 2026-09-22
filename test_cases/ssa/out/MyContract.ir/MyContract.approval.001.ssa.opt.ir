@@ -1,9 +1,13 @@
 main test_cases.ssa.contract.MyContract.approval_program:
     block@0: // L7
-        let a#0: uint64 = 3u
-        let b#0: uint64 = 20u
-        let a#1: uint64 = 60u
-        let b#1: uint64 = 80u
+        let tmp%0#0: uint64 = 3u
+        let a#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = 20u
+        let b#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = 60u
+        let a#1: uint64 = tmp%2#0
+        let tmp%3#0: uint64 = 80u
+        let b#1: uint64 = tmp%3#0
         goto block@1
     block@1: // while_top_L14
         let a#2: uint64 = φ(a#1 <- block@0, a#3 <- block@2)
@@ -35,12 +39,13 @@ main test_cases.ssa.contract.MyContract.approval_program:
         let tmp%10#0: bool = (< b#4 2u)
         goto tmp%10#0 ? block@9 : block@10
     block@9: // if_body_L24
-        let b#6: uint64 = 5u
-        let c#0: uint64 = (+ a#4 5u)
+        let tmp%11#0: uint64 = 5u
+        let b#6: uint64 = tmp%11#0
+        let c#0: uint64 = (+ a#4 b#6)
         goto block@14
     block@10: // else_body_L27
         let b#7: uint64 = (* 2u a#4)
-        let tmp%14#0: uint64 = (* a#4 28u)
+        let tmp%14#0: uint64 = (* 14u b#7)
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         goto tmp%14#0 ? block@11 : block@12
     block@11: // if_body_L29
@@ -91,6 +96,10 @@ main test_cases.ssa.contract.MyContract.approval_program:
 
 subroutine test_cases.ssa.contract.phi_in_equiv_class(y: uint64, b: bool) -> uint64:
     block@0: // L59
+        goto b#0 ? block@1 : block@2
+    block@1: // if_body_L62
+        goto block@3
+    block@2: // else_body_L65
         goto block@3
     block@3: // after_if_else_L61
         let x#3: uint64 = (+ y#0 1u)

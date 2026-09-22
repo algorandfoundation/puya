@@ -1,0 +1,553 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 64 1 0
+    bytecblock 0x151f7c75 0x03 0x05 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // intrinsics/simplifications.py:4
+    // class Simplifications(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_2 // 0
+    !=
+    bz main___algopy_default_create@15
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // intrinsics/simplifications.py:4
+    // class Simplifications(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_2 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_2 // 0
+    !=
+    bz main_create_NoOp@13
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
+    // intrinsics/simplifications.py:4
+    // class Simplifications(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x3ae1ed00 // method "select_neq(uint64)uint64"
+    pushbytes 0x8c3024f3 // method "chained_extract(byte[])uint64"
+    pushbytes 0x4a6642ae // method "biguint_add_fold(uint512)uint512"
+    pushbytes 0xfecc1a5c // method "biguint_mul_fold(uint512)uint512"
+    pushbytes 0x95d95709 // method "biguint_add_no_fold(uint512,uint512,uint512)uint512"
+    pushbytes 0xb5d32035 // method "biguint_add_bytes_const(uint512)uint512"
+    pushbytes 0x6d42eb37 // method "biguint_add_oversized(uint512)uint512"
+    pushbytes 0x3303f999 // method "biguint_add_double_oversized(uint512,uint512)uint512"
+    uncover 8
+    match main_select_neq_route@4 main_chained_extract_route@5 main_biguint_add_fold_route@6 main_biguint_mul_fold_route@7 main_biguint_add_no_fold_route@8 main_biguint_add_bytes_const_route@9 main_biguint_add_oversized_route@10 main_biguint_add_double_oversized_route@11
+    b main_switch_case_next@12
+
+main_switch_case_next@12:
+    b main_after_if_else@14
+
+main_after_if_else@14:
+    b main_after_if_else@16
+
+main_after_if_else@16:
+    // intrinsics/simplifications.py:4
+    // class Simplifications(arc4.ARC4Contract):
+    err
+
+main_biguint_add_double_oversized_route@11:
+    // intrinsics/simplifications.py:44
+    // @arc4.abimethod()
+    callsub biguint_add_double_oversized
+    b main_switch_case_next@12
+
+main_biguint_add_oversized_route@10:
+    // intrinsics/simplifications.py:38
+    // @arc4.abimethod()
+    callsub biguint_add_oversized
+    b main_switch_case_next@12
+
+main_biguint_add_bytes_const_route@9:
+    // intrinsics/simplifications.py:32
+    // @arc4.abimethod()
+    callsub biguint_add_bytes_const
+    b main_switch_case_next@12
+
+main_biguint_add_no_fold_route@8:
+    // intrinsics/simplifications.py:27
+    // @arc4.abimethod()
+    callsub biguint_add_no_fold
+    b main_switch_case_next@12
+
+main_biguint_mul_fold_route@7:
+    // intrinsics/simplifications.py:22
+    // @arc4.abimethod()
+    callsub biguint_mul_fold
+    b main_switch_case_next@12
+
+main_biguint_add_fold_route@6:
+    // intrinsics/simplifications.py:17
+    // @arc4.abimethod()
+    callsub biguint_add_fold
+    b main_switch_case_next@12
+
+main_chained_extract_route@5:
+    // intrinsics/simplifications.py:11
+    // @arc4.abimethod()
+    callsub chained_extract
+    b main_switch_case_next@12
+
+main_select_neq_route@4:
+    // intrinsics/simplifications.py:5
+    // @arc4.abimethod()
+    callsub select_neq
+    b main_switch_case_next@12
+
+main_create_NoOp@13:
+    b main_after_if_else@14
+
+main___algopy_default_create@15:
+    txn OnCompletion
+    intc_2 // NoOp
+    ==
+    txn ApplicationID
+    intc_2 // 0
+    ==
+    &&
+    assert
+    b main_block@18
+
+main_block@18:
+    b main_after_inlined_test_cases.intrinsics.simplifications.Simplifications.__algopy_default_create@19
+
+main_after_inlined_test_cases.intrinsics.simplifications.Simplifications.__algopy_default_create@19:
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.select_neq[routing]() -> void:
+select_neq:
+    b select_neq_block@0
+
+select_neq_block@0:
+    // intrinsics/simplifications.py:5
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.intrinsics.simplifications.Simplifications.select_neq
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.chained_extract[routing]() -> void:
+chained_extract:
+    b chained_extract_block@0
+
+chained_extract_block@0:
+    // intrinsics/simplifications.py:11
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    callsub test_cases.intrinsics.simplifications.Simplifications.chained_extract
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold[routing]() -> void:
+biguint_add_fold:
+    b biguint_add_fold_block@0
+
+biguint_add_fold_block@0:
+    // intrinsics/simplifications.py:17
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold[routing]() -> void:
+biguint_mul_fold:
+    b biguint_mul_fold_block@0
+
+biguint_mul_fold_block@0:
+    // intrinsics/simplifications.py:22
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold[routing]() -> void:
+biguint_add_no_fold:
+    b biguint_add_no_fold_block@0
+
+biguint_add_no_fold_block@0:
+    // intrinsics/simplifications.py:27
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const[routing]() -> void:
+biguint_add_bytes_const:
+    b biguint_add_bytes_const_block@0
+
+biguint_add_bytes_const_block@0:
+    // intrinsics/simplifications.py:32
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized[routing]() -> void:
+biguint_add_oversized:
+    b biguint_add_oversized_block@0
+
+biguint_add_oversized_block@0:
+    // intrinsics/simplifications.py:38
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized[routing]() -> void:
+biguint_add_double_oversized:
+    b biguint_add_double_oversized_block@0
+
+biguint_add_double_oversized_block@0:
+    // intrinsics/simplifications.py:44
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
+    callsub test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized
+    dup
+    len
+    intc_0 // 64
+    <=
+    assert // overflow
+    intc_0 // 64
+    bzero
+    b|
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.intrinsics.simplifications.Simplifications.select_neq(x: uint64) -> uint64:
+test_cases.intrinsics.simplifications.Simplifications.select_neq:
+    // intrinsics/simplifications.py:5-6
+    // @arc4.abimethod()
+    // def select_neq(self, x: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.select_neq_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.select_neq_block@0:
+    // intrinsics/simplifications.py:7-9
+    // # select(false=0, true=1, selector=x) with a non-bool selector
+    // # simplifies to (x != 0)
+    // return op.select_uint64(0, 1, x)
+    intc_2 // 0
+    intc_1 // 1
+    frame_dig -1
+    select
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.chained_extract(src: bytes) -> uint64:
+test_cases.intrinsics.simplifications.Simplifications.chained_extract:
+    // intrinsics/simplifications.py:11-12
+    // @arc4.abimethod()
+    // def chained_extract(self, src: Bytes) -> UInt64:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.chained_extract_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.chained_extract_block@0:
+    // intrinsics/simplifications.py:13-14
+    // # extract_uint16(extract(src, 2, 0), 1) folds to extract_uint16(src, 3)
+    // middle = op.extract(src, 2, 0)
+    frame_dig -1
+    extract 2 0
+    // intrinsics/simplifications.py:15
+    // return op.extract_uint16(middle, 1)
+    intc_1 // 1
+    extract_uint16
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold(x: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold:
+    // intrinsics/simplifications.py:17-18
+    // @arc4.abimethod()
+    // def biguint_add_fold(self, x: BigUInt) -> BigUInt:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_fold_block@0:
+    // intrinsics/simplifications.py:19-20
+    // # (x + 5) + 3 folds the two constants to x + 8
+    // return x + BigUInt(5) + 3
+    frame_dig -1
+    bytec_2 // 0x05
+    b+
+    bytec_1 // 0x03
+    b+
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold(x: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold:
+    // intrinsics/simplifications.py:22-23
+    // @arc4.abimethod()
+    // def biguint_mul_fold(self, x: BigUInt) -> BigUInt:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_mul_fold_block@0:
+    // intrinsics/simplifications.py:24-25
+    // # (x * 5) * 3 folds the two constants to x * 15
+    // return x * BigUInt(5) * 3
+    frame_dig -1
+    bytec_2 // 0x05
+    b*
+    bytec_1 // 0x03
+    b*
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold(x: bytes, y: bytes, z: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold:
+    // intrinsics/simplifications.py:27-28
+    // @arc4.abimethod()
+    // def biguint_add_no_fold(self, x: BigUInt, y: BigUInt, z: BigUInt) -> BigUInt:
+    proto 3 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_no_fold_block@0:
+    // intrinsics/simplifications.py:29-30
+    // # (x + y) + z has no constant operands, so nothing folds
+    // return x + y + z
+    frame_dig -3
+    frame_dig -2
+    b+
+    frame_dig -1
+    b+
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const(x: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const:
+    // intrinsics/simplifications.py:32-33
+    // @arc4.abimethod()
+    // def biguint_add_bytes_const(self, x: BigUInt) -> BigUInt:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_bytes_const_block@0:
+    // intrinsics/simplifications.py:34-36
+    // # the byte-constant operand resolves to a biguint via the byte path,
+    // # then folds with the 3 to x + 8
+    // return x + BigUInt.from_bytes(Bytes(b"\x05")) + 3
+    frame_dig -1
+    bytec_2 // 0x05
+    b+
+    bytec_1 // 0x03
+    b+
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized(x: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized:
+    // intrinsics/simplifications.py:38-39
+    // @arc4.abimethod()
+    // def biguint_add_oversized(self, x: BigUInt) -> BigUInt:
+    proto 1 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_oversized_block@0:
+    // intrinsics/simplifications.py:40-41
+    // # the byte-encoded sum exceeds 64 bytes, leaving a runtime b+ that fails
+    // too_big = BigUInt(2**512 - 1) + 1
+    bytec_3 // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    pushbytes 0x01
+    b+
+    // intrinsics/simplifications.py:42
+    // return x + too_big + 3
+    frame_dig -1
+    b+
+    bytec_1 // 0x03
+    b+
+    retsub
+
+
+// test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized(x: bytes, y: bytes) -> bytes:
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized:
+    // intrinsics/simplifications.py:44-45
+    // @arc4.abimethod()
+    // def biguint_add_double_oversized(self, x: BigUInt, y: BigUInt) -> BigUInt:
+    proto 2 1
+    b test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized_block@0
+
+test_cases.intrinsics.simplifications.Simplifications.biguint_add_double_oversized_block@0:
+    // intrinsics/simplifications.py:46-48
+    // # folding the two 512-bit constants yields a 513-bit biguint constant
+    // # that is too large to fold into the accumulator
+    // return x + BigUInt(2**512 - 1) + (2**512 - 1) + y
+    frame_dig -2
+    bytec_3 // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    b+
+    bytec_3 // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    b+
+    frame_dig -1
+    b+
+    retsub
