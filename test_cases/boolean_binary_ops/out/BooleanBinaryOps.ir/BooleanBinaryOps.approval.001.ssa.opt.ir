@@ -190,7 +190,8 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         goto continue_looping%0#0 ? block@69 : block@71
     block@69: // for_body_L88
         let b#1: bytes = (extract3 0x616263 idx#0 1u)
-        let tmp%42#0: bool = (== b#1 b#1)
+        let extract%0#0: bytes = (b#1)
+        let tmp%42#0: bool = (== b#1 extract%0#0)
         (assert tmp%42#0)
         let item_index_internal%0#2: uint64 = (+ idx#0 1u)
         goto block@68
@@ -297,6 +298,7 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let tmp%2#6: bool = (!= r#0 0u)
         let tmp%3#6: bool = (|| 0u r#0)
         (assert r#0)
+        let tmp%4#6: bool = (tmp%2#6)
         let tmp%5#5: bool = 0u
         let tmp%6#4: bool = (|| r#0 0u)
         let tmp%0#7: bool = 1u
@@ -322,7 +324,9 @@ subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:
         let tmp%3#0: bool = (<= tmp%1#0 tmp%2#0)
         goto tmp%3#0 ? block@2 : block@5
     block@2: // while_body_L14
-        let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%1#0)
+        let tmp%4#0: uint64 = (tmp%0#0)
+        let tmp%5#0: uint64 = (+ start#1 tmp%4#0)
+        let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%5#0)
         let tmp%7#0: bool = (== item#0 tmp%6#0)
         goto tmp%7#0 ? block@3 : block@4
     block@3: // if_body_L15

@@ -119,6 +119,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let (tmp%1#1: uint64, tmp%2#1: uint64, tmp%3#1: account, tmp%4#1: Encoded(uint64,uint64), tmp%5#1: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
         let (tmp%6#1: uint64, tmp%7#1: uint64, tmp%8#1: account, tmp%9#0: Encoded(uint64,uint64), tmp%10#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
         let (tmp%11#0: uint64, tmp%12#0: uint64, tmp%13#0: account, tmp%14#0: Encoded(uint64,uint64), tmp%15#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let aggregate%val_as_bytes%1#0: bytes[8] = (aggregate%val_as_bytes%0#0)
         let aggregate%head%1#0: bytes = 0x00000000000000000000000000000000
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%1#1)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%2#1)
@@ -142,7 +143,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let aggregate%value_len%1#0: uint64 = (len tmp%10#0)
         let aggregate%len_ok%1#0: bool = (<= aggregate%value_len%1#0 64u)
         (assert aggregate%len_ok%1#0) // overflow
-        let aggregate%arc4_encoded%1#0: bytes[64] = (b| tmp%10#0 aggregate%bzero%0#0)
+        let aggregate%bzero%1#0: bytes = (aggregate%bzero%0#0)
+        let aggregate%arc4_encoded%1#0: bytes[64] = (b| tmp%10#0 aggregate%bzero%1#0)
         let aggregate%head%15#0: bytes = (concat aggregate%head%14#0 aggregate%arc4_encoded%1#0)
         let aggregate%head%16#0: bytes = (concat aggregate%head%10#0 aggregate%head%15#0)
         let aggregate%head%17#0: bytes = (concat aggregate%head%7#0 aggregate%head%16#0)
@@ -156,7 +158,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let aggregate%value_len%2#0: uint64 = (len tmp%15#0)
         let aggregate%len_ok%2#0: bool = (<= aggregate%value_len%2#0 64u)
         (assert aggregate%len_ok%2#0) // overflow
-        let aggregate%arc4_encoded%2#0: bytes[64] = (b| tmp%15#0 aggregate%bzero%0#0)
+        let aggregate%bzero%2#0: bytes = (aggregate%bzero%0#0)
+        let aggregate%arc4_encoded%2#0: bytes[64] = (b| tmp%15#0 aggregate%bzero%2#0)
         let aggregate%head%24#0: bytes = (concat aggregate%head%23#0 aggregate%arc4_encoded%2#0)
         let aggregate%head%25#0: bytes = (concat aggregate%head%19#0 aggregate%head%24#0)
         let aggregate%head%26#0: bytes = (concat aggregate%head%17#0 aggregate%head%25#0)
@@ -179,7 +182,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let tmp%24#0: bool = (== aggregate%item1%1#0 tmp%23#0)
         (assert tmp%24#0)
         let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = slot_contents%0#0
-        let aggregate%encoded_element%1#0: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%0#0 144u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%1#0: uint64 = (aggregate%bytes_offset%0#0)
+        let aggregate%encoded_element%1#0: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%1#0 144u) // on error: index access is out of bounds
         let aggregate%extract%10#0: bytes = ((extract 16 128) aggregate%encoded_element%1#0)
         let aggregate%extract%14#0: bytes = ((extract 48 16) aggregate%extract%10#0)
         let aggregate%extract%16#0: bytes = ((extract 0 8) aggregate%extract%14#0)
@@ -188,7 +192,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let tmp%34#0: bool = (b== aggregate%extract%16#0 tmp%33#0)
         (assert tmp%34#0)
         let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = slot_contents%0#0
-        let aggregate%encoded_element%2#0: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%0#0 144u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%2#0: uint64 = (aggregate%bytes_offset%0#0)
+        let aggregate%encoded_element%2#0: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%2#0 144u) // on error: index access is out of bounds
         let aggregate%extract%19#0: bytes = ((extract 16 128) aggregate%encoded_element%2#0)
         let aggregate%extract%23#0: bytes = ((extract 48 16) aggregate%extract%19#0)
         let aggregate%extract%25#0: bytes = ((extract 8 8) aggregate%extract%23#0)
@@ -216,10 +221,10 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let aggregate%slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = slot_contents%3#0
         let aggregate%bytes_len%1#0: uint64 = (len aggregate%slot_contents%0#0)
         let aggregate%array_len%1#0: uint64 = (/ aggregate%bytes_len%1#0 144u)
-        let value_internal%0#1: uint64 = 1u
+        let value_internal%0#3: uint64 = 1u
         goto block@7
     block@7: // for_header_L171
-        let point_idx#0: uint64 = φ(value_internal%0#1 <- block@5, value_internal%0#3 <- block@14)
+        let point_idx#0: uint64 = φ(value_internal%0#3 <- block@5, value_internal%0#5 <- block@14)
         let length#3: uint64 = φ(length#0 <- block@5, length#4 <- block@14)
         let continue_looping%0#1: bool = (< point_idx#0 aggregate%array_len%1#0)
         goto continue_looping%0#1 ? block@8 : block@15
@@ -259,7 +264,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let tmp%27#1: uint64 = (+ tmp%25#1 tmp%26#1)
         let tmp%28#1: uint64 = (sqrt tmp%27#1)
         let length#4: uint64 = (+ length#3 tmp%28#1)
-        let value_internal%0#3: uint64 = (+ point_idx#0 1u)
+        let value_internal%0#5: uint64 = (+ point_idx#0 1u)
         goto block@7
     block@15: // after_for_L171
         let aggregate%val_as_bytes%10#0: bytes[8] = (itob length#3)
@@ -572,11 +577,12 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let arr2#0: Encoded(bool8[])* = new()
         let slot_contents%3#0: Encoded(bool8[]) = aggregate%concat%1#0
         store(arr2#0, slot_contents%3#0)
+        let aggregate%array_length%1#0: uint64 = (aggregate%array_length%0#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L156
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%1#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L157
         let aggregate%add%2#0: uint64 = (+ item_index_internal%0#1 16u)

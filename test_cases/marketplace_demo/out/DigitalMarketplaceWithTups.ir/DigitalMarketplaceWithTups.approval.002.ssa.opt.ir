@@ -146,8 +146,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%18#0: uint64 = ((gtxns AssetAmount) xfer#0)
         (assert tmp%18#0)
         let tmp%21#0: account = (global ZeroAddress)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%18#0, unitary_price#0, tmp%21#0, 0u, 0u)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit[routing]() -> void:
@@ -179,8 +180,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
         let (existing.deposited#0: uint64, existing.unitaryPrice#0: uint64, existing.bidder#0: account, existing.bid#0: uint64, existing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
         let tmp%16#0: uint64 = (+ existing.deposited#0 tmp%8#0)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%16#0, existing.unitaryPrice#0, existing.bidder#0, existing.bid#0, existing.bidUnitaryPrice#0)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price[routing]() -> void:
@@ -205,8 +207,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 encoded_for_storage%0#0)
         let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
         let (existing.deposited#0: uint64, existing.unitaryPrice#0: uint64, existing.bidder#0: account, existing.bid#0: uint64, existing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(existing.deposited#0, unitary_price#0, existing.bidder#0, existing.bid#0, existing.bidUnitaryPrice#0)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy[routing]() -> void:
@@ -254,8 +257,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%12#0: bool = (== tmp%11#0 amount_to_be_paid#0)
         (assert tmp%12#0)
         let tmp%13#0: uint64 = (- listing.deposited#0 quantity#0)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%13#0, listing.unitaryPrice#0, listing.bidder#0, listing.bid#0, listing.bidUnitaryPrice#0)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         itxn_begin
         ((itxn_field AssetAmount) quantity#0)
         let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (txn Sender)
@@ -298,7 +302,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         itxn_submit
         goto block@4
     block@4: // after_if_else_L187
-        (box_del map_prefixed_key%0#0)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
+        (box_del map_prefixed_key%1#0)
         itxn_begin
         ((itxn_field Amount) 50500u)
         let inner_txn_params%1%%param_Receiver_idx_0#0: account = (txn Sender)
@@ -384,8 +389,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%17#0: bool = (== tmp%16#0 amount_to_be_bid#0)
         (assert tmp%17#0)
         let tmp%18#0: account = (txn Sender)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(listing.deposited#0, listing.unitaryPrice#0, tmp%18#0, quantity#0, unitary_price#0)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid[routing]() -> void:
@@ -435,8 +441,9 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         itxn_submit
         let tmp%10#0: uint64 = (- listing.deposited#0 min_quantity#0)
         let tmp%11#0: uint64 = (- listing.bid#0 min_quantity#0)
+        let map_prefixed_key%1#0: bytes = (map_prefixed_key%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%10#0, listing.unitaryPrice#0, listing.bidder#0, tmp%11#0, listing.bidUnitaryPrice#0)
-        box_write(map_prefixed_key%0#0, encoded_for_storage%2#0)
+        box_write(map_prefixed_key%1#0, encoded_for_storage%2#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64) -> uint64:

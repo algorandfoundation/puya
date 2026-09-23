@@ -333,7 +333,8 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_dy
         let mul%2#0: uint64 = (* length%2#0 16u)
         let add%4#0: uint64 = (+ mul%2#0 2u)
         let add%5#0: uint64 = (+ add%3#0 add%4#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%5#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%5#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         let tmp%16#0: bool = (== res#0 dynamic_struct#0)
         (assert tmp%16#0) // should be the same
@@ -344,7 +345,8 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_dy
         let tmp%21#0: uint64 = (txn NumAppArgs)
         let tmp%22#0: uint64 = (+ tmp%21#0 4u)
         let tmp%23#0: bytes = (itob tmp%22#0)
-        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(tmp%18#0, tmp%20#0, tmp%23#0, "Hello", encoded_array%0#0)
+        let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = (encoded_array%0#0)
+        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(tmp%18#0, tmp%20#0, tmp%23#0, "Hello", encoded_array%1#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
@@ -386,7 +388,8 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_dy
         let mul%5#0: uint64 = (* length%5#0 16u)
         let add%10#0: uint64 = (+ mul%5#0 2u)
         let add%11#0: uint64 = (+ add%9#0 add%10#0)
-        let eq%7#0: bool = (== tuple_len%1#0 add%11#0)
+        let len%1#0: uint64 = (tuple_len%1#0)
+        let eq%7#0: bool = (== len%1#0 add%11#0)
         (assert eq%7#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         let tmp%28#0: bool = (== res#1 dynamic_struct#1)
         (assert tmp%28#0) // should be the same
@@ -654,8 +657,8 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_lo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let native_arr#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>()
-        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(0u, 0u, 0x, "", native_arr#0)
+        let encoded_array%0#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>()
+        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(0u, 0u, 0x, "", encoded_array%0#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
@@ -671,6 +674,7 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_lo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
+        let native_arr#0: Encoded(len+(uint64,uint64)[]) = (encoded_array%0#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "native_arr_arg((uint64,uint64)[])void")
@@ -688,10 +692,12 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_lo
         let tmp%4#0: bool = (== txn.NumLogs#0 5u)
         (assert tmp%4#0) // expected 5 logs
         let tmp%5#0: bytes = ((itxnas Logs) 0u)
-        let tmp%7#0: bool = (== tmp%5#0 fixed_struct#0)
+        let tmp%6#0: bytes = (fixed_struct#0)
+        let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
         (assert tmp%7#0) // expected fixed struct
         let tmp%8#0: bytes = ((itxnas Logs) 1u)
-        let tmp%10#0: bool = (== tmp%8#0 nested_struct#0)
+        let tmp%9#0: bytes = (nested_struct#0)
+        let tmp%10#0: bool = (== tmp%8#0 tmp%9#0)
         (assert tmp%10#0) // expected nested struct
         let dynamic_struct_len#0: uint64 = 16u
         let dynamic_struct_len#1: uint64 = 22u
@@ -701,7 +707,8 @@ subroutine test_cases.mutable_native_types.itxn_abi_call.TestItxnAbiCall.test_lo
         let tmp%16#0: bool = (== tmp%15#0 28u)
         (assert tmp%16#0) // expected dynamic struct
         let tmp%17#0: bytes = ((itxnas Logs) 3u)
-        let tmp%19#0: bool = (== tmp%17#0 fixed_arr#0)
+        let tmp%18#0: bytes = (fixed_arr#0)
+        let tmp%19#0: bool = (== tmp%17#0 tmp%18#0)
         (assert tmp%19#0) // expected fixed array
         let tmp%20#0: bytes = ((itxnas Logs) 4u)
         let tmp%21#0: bytes = (bzero 2u)

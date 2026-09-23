@@ -13,6 +13,7 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%bitlen%2#0: uint64 = 1u
         let aggregate%no_overflow%2#0: bool = 1u
         let aggregate%uint8%2#0: bytes = 0x01
+        let aggregate%as_bytes%0#0: bytes[8] = (aggregate%val_as_bytes%1#0)
         let aggregate%len_u16%0#0: bytes = 0x0003
         let aggregate%head%0#0: bytes = 0x000302
         let aggregate%head%1#0: bytes = 0x00030203
@@ -40,6 +41,7 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let tmp%8#0: bool = (== total#1 6u)
         (assert tmp%8#0) // Total should be of dynamic_bytes items
         let aggregate%length%0#0: uint64 = 2u
+        let aggregate%as_bytes%1#0: bytes[8] = (aggregate%val_as_bytes%0#0)
         let aggregate%length_uint16%0#0: bytes = 0x0002
         let dynamic_bytes2#0: Encoded(len+uint8[]) = 0x00020304
         let tmp%12#0: bool = 1u
@@ -80,6 +82,7 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let tmp%22#0: bool = (== total#5 20u)
         (assert tmp%22#0) // Total should now include sum of dynamic_bytes3 items
         let aggregate%length%1#0: uint64 = 3u
+        let aggregate%as_bytes%2#0: bytes[8] = (aggregate%val_as_bytes%1#0)
         let aggregate%length_uint16%1#0: bytes = 0x0003
         let aggregate%encoded_value%1#0: bytes = 0x0003616263
         let new_items_bytes#0: bytes = 0x616263
@@ -95,6 +98,7 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let tmp%28#0: bool = 1u
         let tmp%31#0: uint64 = (txn NumAppArgs)
         let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%31#0)
+        let aggregate%as_bytes%3#0: bytes[8] = (aggregate%val_as_bytes%1#0)
         let aggregate%len_u16%1#0: bytes = 0x0003
         let aggregate%head%3#0: bytes = (concat 0x0003 select%0#0)
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 0x03)
@@ -106,11 +110,13 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         goto tmp%37#0 ? block@13 : block@14
     block@13: // ternary_true_L44
         let aggregate%length%2#0: uint64 = 1u
+        let aggregate%as_bytes%4#0: bytes[8] = (aggregate%val_as_bytes%2#0)
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x000132
         goto block@15
     block@14: // ternary_false_L44
         let aggregate%length%3#0: uint64 = 1u
+        let aggregate%as_bytes%5#0: bytes[8] = (aggregate%val_as_bytes%2#0)
         let aggregate%length_uint16%3#0: bytes = 0x0001
         let aggregate%encoded_value%3#0: bytes = 0x000133
         goto block@15

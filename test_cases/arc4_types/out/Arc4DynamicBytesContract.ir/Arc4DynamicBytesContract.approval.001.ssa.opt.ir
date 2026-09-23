@@ -48,8 +48,9 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
     block@8: // after_for_L25
-        let dynamic_bytes3#0: Encoded(len+uint8[]) = dynamic_bytes2#0
-        let tmp%17#0: bytes = tmp%10#0
+        let tmp%15#0: bytes = (tmp%10#0)
+        let dynamic_bytes3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%15#0)
+        let tmp%17#0: bytes = tmp%15#0
         let tmp%18#0: bool = (== tmp%17#0 0x0304)
         (assert tmp%18#0)
         let tmp%19#0: bool = (== dynamic_bytes3#0 0x00020304)
@@ -81,10 +82,14 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let tmp%27#0: bytes = decode_bytes<bytes>(dynamic_bytes3#2)
         let tmp%28#0: bool = (== tmp%27#0 0x0304616263)
         (assert tmp%28#0)
+        let tmp%29#0: Encoded(uint8) = (tmp%1#0)
+        let tmp%30#0: Encoded(uint8) = (tmp%0#0)
         let tmp%31#0: uint64 = (txn NumAppArgs)
         let tmp%32#0: bool = (!= tmp%31#0 0u)
-        let select%0#0: Encoded(uint8) = (select tmp%1#0 tmp%0#0 tmp%31#0)
-        let dynamic_bytes#1: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(select%0#0, tmp%1#0, tmp%2#0)
+        let select%0#0: Encoded(uint8) = (select tmp%29#0 tmp%30#0 tmp%31#0)
+        let tmp%33#0: Encoded(uint8) = (tmp%1#0)
+        let tmp%34#0: Encoded(uint8) = (tmp%2#0)
+        let dynamic_bytes#1: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(select%0#0, tmp%33#0, tmp%34#0)
         let tmp%35#0: bytes = decode_bytes<bytes>(dynamic_bytes#1)
         let tmp%36#0: bool = (== tmp%35#0 0x030301)
         (assert tmp%36#0)
@@ -253,13 +258,14 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tail_offset#0: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
+        let tmp%4#1: uint64 = (tail_offset#0)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#1)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)

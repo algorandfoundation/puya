@@ -3,8 +3,12 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let true#0: Encoded(bool8) = bytes_encode<bool8>(1u)
         let false#0: Encoded(bool8) = bytes_encode<bool8>(0u)
         let tmp%2#1: bool = 1u
-        let tmp%5#1: bool = 1u
-        let tmp%8#1: bool = 1u
+        let tmp%4#1: Encoded(bool8) = (true#0)
+        let tmp%5#1: bool = (== true#0 tmp%4#1)
+        (assert tmp%5#1)
+        let tmp%7#1: Encoded(bool8) = (false#0)
+        let tmp%8#1: bool = (== false#0 tmp%7#1)
+        (assert tmp%8#1)
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let select%0#0: bool = (! tmp%2#0)
         (assert select%0#0) // conditional expr
@@ -27,8 +31,17 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let dynamic_boolean_array#2: Encoded(len+bool1[]) = array_concat(dynamic_boolean_array#1, tmp%36#0, 5u)
         let tmp%38#0: bool = (== dynamic_boolean_array#2 0x0005a8)
         (assert tmp%38#0)
-        let tmp%41#0: bool = 1u
-        let tmp%44#0: bool = 1u
+        let tmp%40#0: bool = 1u
+        let tmp%41#0: bool = (== tmp%40#0 1u)
+        (assert tmp%41#0)
+        let tmp%43#0: bool = 0u
+        let tmp%44#0: bool = (!= tmp%43#0 1u)
+        (assert tmp%44#0)
+        let tmp%46#0: bool = (tmp%43#0)
+        let tmp%47#0: bool = (! tmp%46#0)
+        (assert tmp%47#0)
+        let tmp%49#0: bool = (tmp%40#0)
+        (assert tmp%49#0)
         return 1u
 
 subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:

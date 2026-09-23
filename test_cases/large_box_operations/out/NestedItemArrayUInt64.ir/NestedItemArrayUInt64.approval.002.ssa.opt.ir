@@ -390,9 +390,10 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%17#0: uint64 = (tmp%3#1)
         goto block@2
     block@2: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#1 <- block@0, value_internal%0#2 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -427,9 +428,10 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%17#0: uint64 = (tmp%3#0)
         goto block@1
     block@1: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -715,7 +717,8 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let box%index_ok%1#0: bool = (< item_idx#0 box%btoi%5#0)
         (assert box%index_ok%1#0) // index out of bounds
         let box%add%4#0: uint64 = (+ box%btoi%4#0 2u)
-        let box%add%5#0: uint64 = (+ box%add%4#0 box%mul%0#0)
+        let box%mul%1#0: uint64 = (box%mul%0#0)
+        let box%add%5#0: uint64 = (+ box%add%4#0 box%mul%1#0)
         let box%box_extract%7#0: bytes = (box_extract "box" box%add%5#0 2u)
         let box%btoi%6#0: uint64 = (btoi box%box_extract%7#0)
         let box%offset%4#0: uint64 = (+ box%add%4#0 box%btoi%6#0)
@@ -731,7 +734,8 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let box%index_ok%2#0: bool = (< item_idx#0 box%btoi%9#0)
         (assert box%index_ok%2#0) // index out of bounds
         let box%add%7#0: uint64 = (+ box%btoi%8#0 2u)
-        let box%add%8#0: uint64 = (+ box%add%7#0 box%mul%0#0)
+        let box%mul%2#0: uint64 = (box%mul%0#0)
+        let box%add%8#0: uint64 = (+ box%add%7#0 box%mul%2#0)
         let box%box_extract%11#0: bytes = (box_extract "box" box%add%8#0 2u)
         let box%btoi%10#0: uint64 = (btoi box%box_extract%11#0)
         let box%offset%7#0: uint64 = (+ box%add%7#0 box%btoi%10#0)

@@ -7,15 +7,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#2)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, 0u)
         (app_global_put "tup" encoded_for_storage%0#0)
+        let encoded_array%1#0: Encoded(len+uint64[]) = (encoded_array%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
-        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%1#0)
         (app_global_put "glob" encoded_for_storage%1#0)
+        let encoded_array%2#0: Encoded(len+uint64[]) = (encoded_array%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
-        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%2#0, awst_tmp%3#0)
         (app_global_put "tup" encoded_for_storage%2#0)
         goto block@2
     block@2: // after_if_else_L1
@@ -236,11 +238,12 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
+        let encoded_array%1#0: Encoded(len+uint64[]) = (encoded_array%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
         let tmp%2#0: account = (txn Sender)
-        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%3#0)
         (app_local_put tmp%2#0 "loc" encoded_for_storage%1#0)
         exit 1u
 

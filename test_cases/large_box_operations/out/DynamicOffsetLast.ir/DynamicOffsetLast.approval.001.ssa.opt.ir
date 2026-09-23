@@ -394,9 +394,11 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#1)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@2
     block@2: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#1 <- block@0, value_internal%0#2 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -430,9 +432,11 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#0)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@1
     block@1: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -469,12 +473,14 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tmp%4#0: uint64 = (tmp%0#0)
+        let tmp%5#0: uint64 = (tmp%1#0)
         goto block@1
     block@1: // for_header_L412
-        let head_offset#0: uint64 = φ(tmp%1#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%5#0 <- block@0, value_internal%0#2 <- block@2)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@2)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L413
         let tmp%0#1: bytes = (itob tail_offset#1)
@@ -501,7 +507,8 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let tmp%0#0: Encoded(uint64,(len+uint64[]),uint64) = bytes_encode<(uint64,(len+uint64[]),uint64)>(2u, encoded_array%0#0, 3u)
         let tmp%1#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = bytes_encode<(uint64,(uint64,(len+uint64[]),uint64),uint64)>(1u, tmp%0#0, 4u)
         let encoded_array%1#0: Encoded(len+uint8[4096][]) = bytes_encode<(len+uint8[4096][])>()
-        let tmp%2#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = bytes_encode<((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64))>(encoded_array%1#0, encoded_array%1#0, tmp%1#0)
+        let encoded_array%2#0: Encoded(len+uint8[4096][]) = (encoded_array%1#0)
+        let tmp%2#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = bytes_encode<((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64))>(encoded_array%1#0, encoded_array%2#0, tmp%1#0)
         box_write("box", tmp%2#0)
         let storage_value%0#0: bytes = box_read("box")
         let box%offset%0#0: uint64 = (+ 0u 6u)
@@ -523,7 +530,8 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%0#0, box%mul%0#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%1#0, box%mul%0#0)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%1#0, tmp%4#0, 1u, 4096u)
-        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(encoded_array%0#0)
+        let encoded_array%3#0: Encoded(len+uint64[]) = (encoded_array%0#0)
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(encoded_array%3#0)
         exit 1u
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat[routing]() -> void:
@@ -550,6 +558,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let box%total_bytes%0#0: uint64 = (+ box%data_bytes%0#0 2u)
         let box%box_extract%2#0: Encoded(len+uint64[]) = (box_extract "box" box%offset%2#0 box%total_bytes%0#0)
         let tuple_item%2#0: Encoded(len+uint64[]) = box%box_extract%2#0
+        let total_length%0#0: uint64 = (len%0#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
         let tmp%0#1: uint64 = array_len(array#0)
         let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#1)

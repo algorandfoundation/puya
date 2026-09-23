@@ -149,7 +149,8 @@ subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ length%1#0 5u)
         let add%4#0: uint64 = (+ add%1#0 add%3#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let shared#0: Encoded((len+uint8[]),uint8) = (txna ApplicationArgs 2)
         let tuple_len%2#0: uint64 = (len shared#0)
@@ -160,7 +161,8 @@ subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
         let length%2#0: uint64 = array_len(substring3%3#0)
         let add%5#0: uint64 = (+ length%2#0 2u)
         let add%6#0: uint64 = (+ length%2#0 5u)
-        let eq%5#0: bool = (== tuple_len%2#0 add%6#0)
+        let len%1#0: uint64 = (tuple_len%2#0)
+        let eq%5#0: bool = (== len%1#0 add%6#0)
         (assert eq%5#0) // invalid number of bytes for test_cases.arc_56.contract.SharedStruct
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
         let tmp%0#1: bool = (== tuple_item%0#0 shared#0)
@@ -194,13 +196,16 @@ subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ length%1#0 5u)
         let add%4#0: uint64 = (+ add%1#0 add%3#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
-        let (echo%0#0: Encoded((len+uint8[]),uint8), echo%1#0: Encoded((len+uint8[]),uint8)) = test_cases.arc_56.contract.echo(tuple_item%0#0)
+        let tuple_item%1#0: Encoded((len+uint8[]),uint8) = (tuple_item%0#0)
+        let (echo%0#0: Encoded((len+uint8[]),uint8), echo%1#0: Encoded((len+uint8[]),uint8)) = test_cases.arc_56.contract.echo(tuple_item%1#0)
         let tmp%0#1: bool = (== tuple_item%0#0 echo%0#0)
         (assert tmp%0#1) // this won't error
-        let tmp%2#0: bytes = (concat 0x151f7c75 tuple_item%0#0)
+        let tuple_item%2#0: Encoded((len+uint8[]),uint8) = (tuple_item%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tuple_item%2#0)
         (log tmp%2#0)
         exit 1u
 
@@ -228,7 +233,8 @@ subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ length%1#0 5u)
         let add%4#0: uint64 = (+ add%1#0 add%3#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let tuple_item%0#0: Encoded(uint64) = extract_value(arg#0, 0)
         let tmp%0#1: Encoded(uint8) = bytes_encode<uint8>(0u)
@@ -245,7 +251,8 @@ subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
         (log event%0#0)
         let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
         let tmp%4#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x68656c6c6f32)
-        let tmp%6#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%4#0, tmp%1#0)
+        let tmp%5#0: Encoded(uint8) = (tmp%1#0)
+        let tmp%6#0: Encoded((len+uint8[]),uint8) = bytes_encode<((len+uint8[]),uint8)>(tmp%4#0, tmp%5#0)
         let tmp%7#0: Encoded((len+utf8[]),((len+uint8[]),uint8)) = bytes_encode<((len+utf8[]),((len+uint8[]),uint8))>(tmp%3#0, tmp%6#0)
         let event%1#0: bytes = (concat method "Anonymous(string,(byte[],uint8))" tmp%7#0)
         (log event%1#0)
@@ -315,7 +322,8 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         let length%1#0: uint64 = array_len(substring3%0#0)
         let add%1#0: uint64 = (+ length%1#0 2u)
         let add%2#0: uint64 = (+ length%1#0 12u)
-        let eq%5#0: bool = (== tuple_len%0#0 add%2#0)
+        let len%4#0: uint64 = (tuple_len%0#0)
+        let eq%5#0: bool = (== len%4#0 add%2#0)
         (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>>
         let (e.0#0: uint64, e.1#0: string) = decode_bytes<(uint64,string,)>(tmp%6#0)
         let f#0: Encoded((len+utf8[])[2]) = (txna ApplicationArgs 6)
@@ -370,7 +378,8 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         goto block@5
     block@8: // after_for_L131
         let num_bytes%2#0: uint64 = (+ num_bytes%1#1 2u)
-        let eq%7#0: bool = (== total_length%1#0 num_bytes%2#0)
+        let len%6#0: uint64 = (total_length%1#0)
+        let eq%7#0: bool = (== len%6#0 num_bytes%2#0)
         (assert eq%7#0) // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
         let tmp%11#0: bytes = (txna ApplicationArgs 8)
         let len%7#0: uint64 = (len tmp%11#0)

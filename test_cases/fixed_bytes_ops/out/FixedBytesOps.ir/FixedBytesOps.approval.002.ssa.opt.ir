@@ -132,8 +132,11 @@ main test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program:
         let tmp%3#11: uint64 = (len byte#0)
         let tmp%4#11: bool = (== tmp%3#11 1u)
         (assert tmp%4#11) // expected bytes to be length 1
+        let tmp%5#11: bool = 1u
         let tmp%6#9: bool = _puya_lib.bytes_.is_substring(byte#0, 0xabcdef)
         (assert tmp%6#9)
+        let tmp%8#9: bool = (tmp%4#11)
+        (assert tmp%8#9) // expected bytes to be length 1
         let tmp%9#9: bool = _puya_lib.bytes_.is_substring(byte#0, 0xabcdef)
         (assert tmp%9#9)
         let item_index_internal%1#2: uint64 = (+ idx#0 1u)
@@ -215,7 +218,8 @@ subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:
         let tmp%3#0: bool = (<= tmp%1#0 tmp%2#0)
         goto tmp%3#0 ? block@2 : block@5
     block@2: // while_body_L14
-        let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%1#0)
+        let tmp%5#0: uint64 = (tmp%1#0)
+        let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%5#0)
         let tmp%7#0: bool = (== item#0 tmp%6#0)
         goto tmp%7#0 ? block@3 : block@4
     block@3: // if_body_L15
@@ -301,6 +305,10 @@ subroutine test_cases.fixed_bytes_ops.contract.test_sequence_ops(val: bytes[4]) 
         let slice_result#3: bytes = ((substring 0 3) val#0)
         let tmp%12#0: bool = (== slice_result#3 0xabcd12)
         (assert tmp%12#0)
+        let tmp%14#0: bool = (tmp%10#0)
+        (assert tmp%14#0)
+        let tmp%16#0: bool = (tmp%6#0)
+        (assert tmp%16#0)
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@1

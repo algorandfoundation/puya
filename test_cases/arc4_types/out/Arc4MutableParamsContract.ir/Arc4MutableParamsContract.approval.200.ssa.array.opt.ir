@@ -30,6 +30,7 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%length_uint16%0#0: bytes = 0x0005
         let aggregate%encoded_value%0#0: bytes = 0x00054861707079
         let aggregate%length%1#0: uint64 = 4u
+        let aggregate%as_bytes%1#0: bytes[8] = (aggregate%val_as_bytes%3#0)
         let aggregate%length_uint16%1#0: bytes = 0x0004
         let aggregate%encoded_value%1#0: bytes = 0x000444617973
         let aggregate%head%4#0: bytes = 0x80
@@ -44,6 +45,7 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%head%7#0: bytes = 0x80320006000d
         let aggregate%concat%0#0: bytes = 0x80320006000d00054861707079
         let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x80320006000d00054861707079000444617973
+        let aggregate%val_as_bytes%5#0: bytes[8] = (aggregate%as_bytes%0#0)
         let aggregate%bitlen%5#0: uint64 = 3u
         let aggregate%no_overflow%5#0: bool = 1u
         let aggregate%uint8%5#0: bytes = 0x05
@@ -244,7 +246,8 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let aggregate%updated_data%1#0: bytes = (concat aggregate%updated_data%0#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = (- aggregate%next_item_offset%0#0 aggregate%item_offset%0#0)
         let aggregate%new_value_length%0#0: uint64 = 9u
-        let aggregate%tail_offset%1#0: uint64 = (+ aggregate%next_item_offset%0#0 9u)
+        let aggregate%tail_offset%0#0: uint64 = (aggregate%next_item_offset%0#0)
+        let aggregate%tail_offset%1#0: uint64 = (+ aggregate%tail_offset%0#0 9u)
         let aggregate%tail_offset%2#0: uint64 = (- aggregate%tail_offset%1#0 aggregate%old_value_length%0#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%tail_offset%2#0)
         let aggregate%tail_offset_bytes%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
@@ -291,15 +294,18 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let arrays.2#3: Encoded(uint8[4]) = ((replace2 0) arrays.2#0 aggregate%uint8%2#0) // on error: index access is out of bounds
         let aggregate%bytes_offset%0#0: uint64 = 0u
         let aggregate%encoded_element%0#0: bytes = ((extract 0 1) arrays.0#1) // on error: index access is out of bounds
-        let tmp%6#0: bool = (b== aggregate%encoded_element%0#0 aggregate%val_as_bytes%0#0)
+        let tmp%5#0: biguint = (aggregate%val_as_bytes%0#0)
+        let tmp%6#0: bool = (b== aggregate%encoded_element%0#0 tmp%5#0)
         (assert tmp%6#0)
         let aggregate%bytes_offset%1#0: uint64 = 0u
         let aggregate%encoded_element%1#0: bytes = ((extract 0 1) arrays.1#2) // on error: index access is out of bounds
-        let tmp%9#0: bool = (b== aggregate%encoded_element%1#0 aggregate%val_as_bytes%1#0)
+        let tmp%8#0: biguint = (aggregate%val_as_bytes%1#0)
+        let tmp%9#0: bool = (b== aggregate%encoded_element%1#0 tmp%8#0)
         (assert tmp%9#0)
         let aggregate%bytes_offset%2#0: uint64 = 0u
         let aggregate%encoded_element%2#0: bytes = ((extract 0 1) arrays.2#3) // on error: index access is out of bounds
-        let tmp%12#0: bool = (b== aggregate%encoded_element%2#0 aggregate%val_as_bytes%2#0)
+        let tmp%11#0: biguint = (aggregate%val_as_bytes%2#0)
+        let tmp%12#0: bool = (b== aggregate%encoded_element%2#0 tmp%11#0)
         (assert tmp%12#0)
         let tmp%13#0: uint64 = (+ start#0 3u)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%13#0)
@@ -376,14 +382,17 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let arrays.2%out#5: Encoded(uint8[4]) = φ(arrays.2#7 <- block@24, arrays.2#16 <- block@25)
         let aggregate%bytes_offset%3#0: uint64 = 1u
         let aggregate%encoded_element%3#0: bytes = ((extract 1 1) arrays.0#14) // on error: index access is out of bounds
-        let tmp%27#0: bool = (b== aggregate%encoded_element%3#0 aggregate%val_as_bytes%6#0)
+        let tmp%26#0: biguint = (aggregate%val_as_bytes%6#0)
+        let tmp%27#0: bool = (b== aggregate%encoded_element%3#0 tmp%26#0)
         (assert tmp%27#0)
         let aggregate%bytes_offset%4#0: uint64 = 1u
         let aggregate%encoded_element%4#0: bytes = ((extract 1 1) arrays.1#15) // on error: index access is out of bounds
-        let tmp%30#0: bool = (b== aggregate%encoded_element%4#0 aggregate%val_as_bytes%7#0)
+        let tmp%29#0: biguint = (aggregate%val_as_bytes%7#0)
+        let tmp%30#0: bool = (b== aggregate%encoded_element%4#0 tmp%29#0)
         (assert tmp%30#0)
         let aggregate%bytes_offset%5#0: uint64 = 1u
         let aggregate%encoded_element%5#0: bytes = ((extract 1 1) arrays.2#16) // on error: index access is out of bounds
-        let tmp%33#0: bool = (b== aggregate%encoded_element%5#0 aggregate%val_as_bytes%8#0)
+        let tmp%32#0: biguint = (aggregate%val_as_bytes%8#0)
+        let tmp%33#0: bool = (b== aggregate%encoded_element%5#0 tmp%32#0)
         (assert tmp%33#0)
         return arrays.0%out#7 arrays.1%out#6 arrays.2%out#5

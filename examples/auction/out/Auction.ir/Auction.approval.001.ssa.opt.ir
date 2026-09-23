@@ -141,10 +141,13 @@ subroutine examples.auction.contract.Auction.bid[routing]() -> void:
         (assert maybe_exists%1#0) // check self.previous_bid exists
         let tmp%6#0: bool = (> tmp%5#0 maybe_value%1#0)
         (assert tmp%6#0) // Bid must be higher than previous bid
-        (app_global_put "previous_bid" tmp%5#0)
-        (app_global_put "previous_bidder" tmp%2#0)
+        let tmp%7#0: uint64 = (tmp%5#0)
+        (app_global_put "previous_bid" tmp%7#0)
+        let tmp%8#0: account = (tmp%2#0)
+        (app_global_put "previous_bidder" tmp%8#0)
+        let tmp%9#0: uint64 = (tmp%5#0)
         let tmp%10#0: account = (txn Sender)
-        (app_local_put tmp%10#0 "claim" tmp%5#0)
+        (app_local_put tmp%10#0 "claim" tmp%9#0)
         exit 1u
 
 subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:

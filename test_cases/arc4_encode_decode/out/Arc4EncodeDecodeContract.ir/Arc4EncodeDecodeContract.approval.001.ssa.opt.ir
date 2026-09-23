@@ -7,9 +7,9 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let eq%0#0: bool = (== len%0#0 9u)
         (assert eq%0#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.NativeStruct
         let tmp%2#0: bool = 1u
-        let encoded#2: bytes = bytes_encode<uint64>(42u)
-        let encoded#4: bytes = bytes_encode<(len+utf8[])>("hello")
-        let original#1: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(encoded#2, encoded#4)
+        let tmp%0#1: Encoded(uint64) = bytes_encode<uint64>(42u)
+        let tmp%1#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
+        let original#1: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(tmp%0#1, tmp%1#1)
         let tuple_len%0#0: uint64 = (len original#1)
         let extract_uint16%0#0: uint64 = (extract_uint16 original#1 8u) // on error: invalid tuple encoding
         let eq%0#1: bool = (== extract_uint16%0#0 10u)
@@ -18,15 +18,17 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let length%0#0: uint64 = array_len(substring3%0#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let add%1#0: uint64 = (+ length%0#0 12u)
-        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        let len%0#1: uint64 = (tuple_len%0#0)
+        let eq%1#0: bool = (== len%0#1 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.Arc4Struct
         let tmp%3#0: bool = 1u
+        let encoded#2: bytes = (tmp%0#1)
         let tmp%1#2: bool = (== encoded#2 0x000000000000002a)
         (assert tmp%1#2)
         let len%0#2: uint64 = (len encoded#2)
         let eq%0#2: bool = (== len%0#2 8u)
         (assert eq%0#2) // invalid number of bytes for uint64
-        let decoded#2: uint64 = 42u
+        let decoded#2: uint64 = decode_bytes<uint64>(encoded#2)
         let tmp%3#1: bool = (== decoded#2 42u)
         (assert tmp%3#1)
         let encoded#3: bytes = bytes_encode<uint512>(42b)
@@ -36,6 +38,7 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let decoded#3: biguint = decode_bytes<biguint>(encoded#3)
         let tmp%2#3: bool = (b== decoded#3 42b)
         (assert tmp%2#3)
+        let encoded#4: bytes = (tmp%1#1)
         let tmp%1#4: bool = (== encoded#4 0x000568656c6c6f)
         (assert tmp%1#4)
         let length%0#1: uint64 = array_len(encoded#4)
@@ -43,7 +46,7 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let len%0#4: uint64 = (len encoded#4)
         let eq%0#4: bool = (== len%0#4 add%0#1)
         (assert eq%0#4) // invalid number of bytes for string
-        let decoded#4: string = "hello"
+        let decoded#4: string = decode_bytes<string>(encoded#4)
         let tmp%3#2: bool = (== decoded#4 "hello")
         (assert tmp%3#2)
         let encoded#5: bytes = bytes_encode<(len+uint8[])>(0x010203)
@@ -81,6 +84,15 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let decoded#6: account = addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
         let tmp%2#7: bool = (== decoded#6 addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ)
         (assert tmp%2#7)
+        let encoded#7: bytes = (tmp%0#1)
+        let tmp%1#8: bool = (== encoded#7 0x000000000000002a)
+        (assert tmp%1#8)
+        let len%0#8: uint64 = (len encoded#7)
+        let eq%0#8: bool = (== len%0#8 8u)
+        (assert eq%0#8) // invalid number of bytes for asset
+        let decoded#7: uint64 = decode_bytes<uint64>(encoded#7)
+        let tmp%3#5: bool = (== decoded#7 42u)
+        (assert tmp%3#5)
         let encoded#8: bytes = bytes_encode<uint64>(123u)
         let tmp%1#9: bool = (== encoded#8 0x000000000000007b)
         (assert tmp%1#9)
@@ -90,10 +102,20 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let decoded#8: uint64 = 123u
         let tmp%3#6: bool = (== decoded#8 123u)
         (assert tmp%3#6)
+        let value#7: Encoded(uint64) = (tmp%0#1)
+        let tmp%1#10: bool = (== value#7 0x000000000000002a)
+        (assert tmp%1#10)
+        let len%0#10: uint64 = (len value#7)
+        let eq%0#10: bool = (== len%0#10 8u)
+        (assert eq%0#10) // invalid number of bytes for arc4.uint64
         let tmp%2#10: bool = 1u
-        let length%0#3: uint64 = array_len(encoded#4)
+        let value#8: Encoded(len+utf8[]) = (tmp%1#1)
+        let tmp%1#11: bool = (== value#8 0x000568656c6c6f)
+        (assert tmp%1#11)
+        let length%0#3: uint64 = array_len(value#8)
         let add%0#3: uint64 = (+ length%0#3 2u)
-        let eq%0#11: bool = (== len%0#4 add%0#3)
+        let len%0#11: uint64 = (len value#8)
+        let eq%0#11: bool = (== len%0#11 add%0#3)
         (assert eq%0#11) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%2#11: bool = 1u
         let encoded#11: bytes = bytes_encode<(uint64,uint64)>(1u, 2u)
@@ -116,7 +138,8 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let length%0#4: uint64 = array_len(substring3%0#1)
         let add%0#4: uint64 = (+ length%0#4 2u)
         let add%1#1: uint64 = (+ length%0#4 12u)
-        let eq%1#2: bool = (== tuple_len%0#1 add%1#1)
+        let len%0#13: uint64 = (tuple_len%0#1)
+        let eq%1#2: bool = (== len%0#13 add%1#1)
         (assert eq%1#2) // invalid number of bytes for test_cases.arc4_encode_decode.contract.MyNamedTuple
         let (decoded.x#0: uint64, decoded.y#0: string) = (5u, "test")
         let tmp%3#8: bool = (== decoded.x#0 5u)

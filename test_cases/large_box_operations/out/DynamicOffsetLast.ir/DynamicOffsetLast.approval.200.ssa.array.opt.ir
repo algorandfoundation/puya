@@ -82,11 +82,13 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let aggregate%head%2#0: bytes = 0x000000000000000200120000000000000003
         let aggregate%concat%0#0: bytes = 0x0000000000000002001200000000000000030000
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
+        let aggregate%as_bytes%2#0: bytes[8] = (aggregate%as_bytes%1#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0012
         let aggregate%head%4#0: bytes = 0x00000000000000010012
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob 4u)
         let aggregate%head%5#0: bytes = 0x000000000000000100120000000000000004
         let aggregate%concat%1#0: bytes = 0x0000000000000001001200000000000000040000000000000002001200000000000000030000
+        let aggregate%as_bytes%3#0: bytes[8] = (aggregate%as_bytes%0#0)
         let aggregate%len_u16%1#0: bytes = 0x0000
         let aggregate%as_bytes%4#0: bytes[8] = (itob 6u)
         let aggregate%offset_as_uint16%2#0: bytes = 0x0006
@@ -123,10 +125,11 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
+        let aggregate%array_length%1#0: uint64 = (aggregate%array_length%0#0)
         let box%box_extract%4#0: bytes = (box_extract "box" 4u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
         let box%offset%5#0: uint64 = (+ box%btoi%3#0 36u)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, aggregate%array_length%0#0, 8u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, aggregate%array_length%1#0, 8u)
         exit 1u
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append[routing]() -> void:

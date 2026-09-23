@@ -406,9 +406,11 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#1)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@2
     block@2: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#1 <- block@0, value_internal%0#2 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -442,9 +444,11 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#0)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@1
     block@1: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -481,12 +485,14 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tmp%4#0: uint64 = (tmp%0#0)
+        let tmp%5#0: uint64 = (tmp%1#0)
         goto block@1
     block@1: // for_header_L412
-        let head_offset#0: uint64 = φ(tmp%1#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%5#0 <- block@0, value_internal%0#2 <- block@2)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@2)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L413
         let tmp%0#1: bytes = (itob tail_offset#1)
@@ -831,8 +837,9 @@ subroutine test_cases.array.uint64.Contract.test_array_extend[routing]() -> void
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
         test_cases.array.uint64.add_x(arr#0, 1u)
+        let encoded_array%1#0: Encoded(uint64[]) = (encoded_array%0#0)
         let arr2#0: Encoded(uint64[])* = new()
-        store(arr2#0, encoded_array%0#0)
+        store(arr2#0, encoded_array%1#0)
         let slot_contents%0#0: Encoded(uint64[]) = load(arr2#0)
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(1u)
         let tmp%1#0: Encoded(uint64[]) = array_concat(slot_contents%0#0, tmp%0#0, 1u)
@@ -1199,8 +1206,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         goto block@14
     block@17: // after_for_L158
         let arc4_arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
+        let encoded_array%2#0: Encoded(uint64[]) = (encoded_array%0#0)
         let native_arr#0: Encoded(uint64[])* = new()
-        store(native_arr#0, encoded_array%0#0)
+        store(native_arr#0, encoded_array%2#0)
         let value_internal%1#0: uint64 = 0u
         goto block@18
     block@18: // for_header_L164
@@ -1212,8 +1220,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let tmp%10#0: Encoded(uint64) = bytes_encode<uint64>(i#0)
         let tmp%11#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%10#0)
         let arc4_arr#2: Encoded(len+uint64[]) = array_concat(arc4_arr#1, tmp%11#0, 1u)
+        let tmp%13#0: Encoded(uint64) = (tmp%10#0)
         let slot_contents%4#0: Encoded(uint64[]) = load(native_arr#0)
-        let tmp%15#0: Encoded(uint64[]) = array_concat(slot_contents%4#0, tmp%11#0, 1u)
+        let tmp%14#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%13#0)
+        let tmp%15#0: Encoded(uint64[]) = array_concat(slot_contents%4#0, tmp%14#0, 1u)
         store(native_arr#0, tmp%15#0)
         let value_internal%1#2: uint64 = (+ i#0 1u)
         goto block@18
@@ -1233,10 +1243,12 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let tmp%23#0: bool = (b== array_item%4#0 tmp%22#0)
         (assert tmp%23#0)
         let array_item%5#0: Encoded(uint64) = extract_value(combined_arr#0, 5u)
-        let tmp%25#0: bool = (b== array_item%5#0 tmp%20#0)
+        let tmp%24#0: Encoded(uint64) = (tmp%20#0)
+        let tmp%25#0: bool = (b== array_item%5#0 tmp%24#0)
         (assert tmp%25#0)
         let array_item%6#0: Encoded(uint64) = extract_value(combined_arr#0, 9u)
-        let tmp%27#0: bool = (b== array_item%6#0 tmp%22#0)
+        let tmp%26#0: Encoded(uint64) = (tmp%22#0)
+        let tmp%27#0: bool = (b== array_item%6#0 tmp%26#0)
         (assert tmp%27#0)
         exit 1u
 

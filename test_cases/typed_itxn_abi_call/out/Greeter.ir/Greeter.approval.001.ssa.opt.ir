@@ -307,10 +307,18 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload
         let tmp%16#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: tuple")
         let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
         (assert tmp%17#0)
-        let length%3#0: uint64 = array_len(tmp%15#0)
+        let tmp%18#0: bytes = (tmp%13#0)
+        let tmp%19#0: bool = (== tmp%18#0 0x151f7c75)
+        (assert tmp%19#0) // application log value is not the result of an ABI return
+        let tmp%20#0: bytes = (tmp%15#0)
+        let length%3#0: uint64 = array_len(tmp%20#0)
         let add%3#0: uint64 = (+ length%3#0 2u)
-        let eq%3#0: bool = (== len%2#0 add%3#0)
+        let len%3#0: uint64 = (len tmp%20#0)
+        let eq%3#0: bool = (== len%3#0 add%3#0)
         (assert eq%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%21#0: Encoded(len+utf8[]) = (tmp%16#0)
+        let tmp%22#0: bool = (== tmp%20#0 tmp%21#0)
+        (assert tmp%22#0)
         itxn_begin
         let tmp%23#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("untyped")
         ((itxn_field ApplicationID) app#0)
@@ -612,9 +620,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_string[r
         let tmp%5#0: bool = (== result1#0 "echo: s")
         (assert tmp%5#0)
         itxn_begin
+        let tmp%6#0: Encoded(len+utf8[]) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%6#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -632,9 +641,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_string[r
         let tmp%11#0: bool = (== result2#0 result1#0)
         (assert tmp%11#0)
         itxn_begin
+        let tmp%12#0: Encoded(len+utf8[]) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%12#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -682,9 +692,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_bytes[ro
         let tmp%5#0: bool = (== result1#0 0x6563686f3a2062)
         (assert tmp%5#0)
         itxn_begin
+        let tmp%6#0: Encoded(len+uint8[]) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%6#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -702,9 +713,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_bytes[ro
         let tmp%11#0: bool = (== result2#0 result1#0)
         (assert tmp%11#0)
         itxn_begin
+        let tmp%12#0: Encoded(len+uint8[]) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%12#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -750,9 +762,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64[r
         let tmp%5#0: bool = (== result1#0 2u)
         (assert tmp%5#0)
         itxn_begin
+        let tmp%6#0: Encoded(uint64) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%6#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -768,9 +781,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64[r
         let tmp%11#0: bool = (== result2#0 result1#0)
         (assert tmp%11#0)
         itxn_begin
+        let tmp%12#0: Encoded(uint64) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%12#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -786,9 +800,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64[r
         let tmp%17#0: bool = (== result3#0 result1#0)
         (assert tmp%17#0)
         itxn_begin
+        let tmp%18#0: Encoded(uint64) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%18#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -832,9 +847,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         let tmp%5#0: bool = (b== result1#0 3b)
         (assert tmp%5#0)
         itxn_begin
+        let tmp%6#0: Encoded(uint512) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%6#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -850,9 +866,10 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[
         let tmp%11#0: bool = (b== result2#0 result1#0)
         (assert tmp%11#0)
         itxn_begin
+        let tmp%12#0: Encoded(uint512) = (tmp%0#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
-        ((itxn_field ApplicationArgs) tmp%0#1)
+        ((itxn_field ApplicationArgs) tmp%12#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -948,7 +965,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let length%1#0: uint64 = array_len(substring3%1#0)
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
+        let len%0#1: uint64 = (tuple_len%0#0)
+        let eq%2#0: bool = (== len%0#1 add%3#0)
         (assert eq%2#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
         let (s#0: Encoded(len+utf8[]), b#0: Encoded(len+uint8[]), u#0: Encoded(uint64), bu#0: Encoded(uint512)) = decode_bytes<(Encoded(len+utf8[]),Encoded(len+uint8[]),Encoded(uint64),Encoded(uint512),)>(result1#0)
         let tmp%11#0: string = decode_bytes<string>(s#0)
@@ -964,12 +982,15 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let tmp%18#0: bool = (b== tmp%17#0 3b)
         (assert tmp%18#0)
         itxn_begin
+        let tmp%19#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%20#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%21#0: Encoded(uint64) = (tmp%2#0)
         let tmp%22#0: Encoded(uint512) = bytes_encode<uint512>(2b)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) tmp%19#0)
+        ((itxn_field ApplicationArgs) tmp%20#0)
+        ((itxn_field ApplicationArgs) tmp%21#0)
         ((itxn_field ApplicationArgs) tmp%22#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -994,17 +1015,22 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let length%3#0: uint64 = array_len(substring3%3#0)
         let add%6#0: uint64 = (+ length%3#0 2u)
         let add%7#0: uint64 = (+ add%5#0 add%6#0)
-        let eq%5#0: bool = (== tuple_len%1#0 add%7#0)
+        let len%1#0: uint64 = (tuple_len%1#0)
+        let eq%5#0: bool = (== len%1#0 add%7#0)
         (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
         let tmp%26#0: bool = (== result1#0 result2#0)
         (assert tmp%26#0)
         itxn_begin
+        let tmp%27#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%28#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%29#0: Encoded(uint64) = (tmp%2#0)
+        let tmp%30#0: Encoded(uint512) = (tmp%22#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
-        ((itxn_field ApplicationArgs) tmp%22#0)
+        ((itxn_field ApplicationArgs) tmp%27#0)
+        ((itxn_field ApplicationArgs) tmp%28#0)
+        ((itxn_field ApplicationArgs) tmp%29#0)
+        ((itxn_field ApplicationArgs) tmp%30#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1028,17 +1054,22 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let length%5#0: uint64 = array_len(substring3%5#0)
         let add%10#0: uint64 = (+ length%5#0 2u)
         let add%11#0: uint64 = (+ add%9#0 add%10#0)
-        let eq%8#0: bool = (== tuple_len%2#0 add%11#0)
+        let len%2#0: uint64 = (tuple_len%2#0)
+        let eq%8#0: bool = (== len%2#0 add%11#0)
         (assert eq%8#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
         let tmp%34#0: bool = (== result1#0 result3#0)
         (assert tmp%34#0)
         itxn_begin
+        let tmp%35#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%36#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%37#0: Encoded(uint64) = (tmp%2#0)
+        let tmp%38#0: Encoded(uint512) = (tmp%22#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
-        ((itxn_field ApplicationArgs) tmp%22#0)
+        ((itxn_field ApplicationArgs) tmp%35#0)
+        ((itxn_field ApplicationArgs) tmp%36#0)
+        ((itxn_field ApplicationArgs) tmp%37#0)
+        ((itxn_field ApplicationArgs) tmp%38#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1062,16 +1093,25 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let length%7#0: uint64 = array_len(substring3%7#0)
         let add%14#0: uint64 = (+ length%7#0 2u)
         let add%15#0: uint64 = (+ add%13#0 add%14#0)
-        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        let len%3#0: uint64 = (tuple_len%3#0)
+        let eq%11#0: bool = (== len%3#0 add%15#0)
         (assert eq%11#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result_native.0#0: string, result_native.1#0: bytes, result_native.2#0: uint64, result_native.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%41#0)
-        let tmp%51#0: bool = (== tmp%11#0 result_native.0#0)
+        let (tmp%46#0: Encoded(len+utf8[]), tmp%47#0: Encoded(len+uint8[]), tmp%48#0: Encoded(uint64), tmp%49#0: Encoded(uint512)) = (s#0, b#0, u#0, bu#0)
+        let tmp%50#0: string = decode_bytes<string>(tmp%46#0)
+        let tmp%51#0: bool = (== tmp%50#0 result_native.0#0)
         (assert tmp%51#0)
-        let tmp%57#0: bool = (== tmp%13#0 result_native.1#0)
+        let (tmp%52#0: Encoded(len+utf8[]), tmp%53#0: Encoded(len+uint8[]), tmp%54#0: Encoded(uint64), tmp%55#0: Encoded(uint512)) = (s#0, b#0, u#0, bu#0)
+        let tmp%56#0: bytes = decode_bytes<bytes>(tmp%53#0)
+        let tmp%57#0: bool = (== tmp%56#0 result_native.1#0)
         (assert tmp%57#0)
-        let tmp%63#0: bool = (== tmp%15#0 result_native.2#0)
+        let (tmp%58#0: Encoded(len+utf8[]), tmp%59#0: Encoded(len+uint8[]), tmp%60#0: Encoded(uint64), tmp%61#0: Encoded(uint512)) = (s#0, b#0, u#0, bu#0)
+        let tmp%62#0: uint64 = decode_bytes<uint64>(tmp%60#0)
+        let tmp%63#0: bool = (== tmp%62#0 result_native.2#0)
         (assert tmp%63#0)
-        let tmp%69#0: bool = (b== tmp%17#0 result_native.3#0)
+        let (tmp%64#0: Encoded(len+utf8[]), tmp%65#0: Encoded(len+uint8[]), tmp%66#0: Encoded(uint64), tmp%67#0: Encoded(uint512)) = (s#0, b#0, u#0, bu#0)
+        let tmp%68#0: biguint = decode_bytes<biguint>(tmp%67#0)
+        let tmp%69#0: bool = (b== tmp%68#0 result_native.3#0)
         (assert tmp%69#0)
         exit 1u
 
@@ -1116,7 +1156,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let length%1#0: uint64 = array_len(substring3%1#0)
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
+        let len%0#1: uint64 = (tuple_len%0#0)
+        let eq%2#0: bool = (== len%0#1 add%3#0)
         (assert eq%2#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result.0#0: string, result.1#0: bytes, result.2#0: uint64, result.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%6#0)
         let tmp%11#0: bool = (== result.0#0 "echo: s1")
@@ -1128,12 +1169,16 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let tmp%14#0: bool = (b== result.3#0 3b)
         (assert tmp%14#0)
         itxn_begin
+        let tmp%15#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%16#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%17#0: Encoded(uint64) = (tmp%2#0)
+        let tmp%18#0: Encoded(uint512) = (tmp%3#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
-        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field ApplicationArgs) tmp%16#0)
+        ((itxn_field ApplicationArgs) tmp%17#0)
+        ((itxn_field ApplicationArgs) tmp%18#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1157,7 +1202,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let length%3#0: uint64 = array_len(substring3%3#0)
         let add%6#0: uint64 = (+ length%3#0 2u)
         let add%7#0: uint64 = (+ add%5#0 add%6#0)
-        let eq%5#0: bool = (== tuple_len%1#0 add%7#0)
+        let len%1#0: uint64 = (tuple_len%1#0)
+        let eq%5#0: bool = (== len%1#0 add%7#0)
         (assert eq%5#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result_2.0#0: string, result_2.1#0: bytes, result_2.2#0: uint64, result_2.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%21#0)
         let tmp%26#0: bool = (== result_2.0#0 result.0#0)
@@ -1169,12 +1215,16 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let tmp%32#0: bool = (&& tmp%30#0 tmp%31#0)
         (assert tmp%32#0) // expected native arguments to give the same result
         itxn_begin
+        let tmp%33#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%34#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%35#0: Encoded(uint64) = (tmp%2#0)
+        let tmp%36#0: Encoded(uint512) = (tmp%3#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
-        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field ApplicationArgs) tmp%33#0)
+        ((itxn_field ApplicationArgs) tmp%34#0)
+        ((itxn_field ApplicationArgs) tmp%35#0)
+        ((itxn_field ApplicationArgs) tmp%36#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1198,7 +1248,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let length%5#0: uint64 = array_len(substring3%5#0)
         let add%10#0: uint64 = (+ length%5#0 2u)
         let add%11#0: uint64 = (+ add%9#0 add%10#0)
-        let eq%8#0: bool = (== tuple_len%2#0 add%11#0)
+        let len%2#0: uint64 = (tuple_len%2#0)
+        let eq%8#0: bool = (== len%2#0 add%11#0)
         (assert eq%8#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result_3.0#0: string, result_3.1#0: bytes, result_3.2#0: uint64, result_3.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%39#0)
         let tmp%44#0: bool = (== result_3.0#0 result.0#0)
@@ -1210,12 +1261,16 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let tmp%50#0: bool = (&& tmp%48#0 tmp%49#0)
         (assert tmp%50#0) // expected arc4 arguments to give the same result
         itxn_begin
+        let tmp%51#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%52#0: Encoded(len+uint8[]) = (tmp%1#1)
+        let tmp%53#0: Encoded(uint64) = (tmp%2#0)
+        let tmp%54#0: Encoded(uint512) = (tmp%3#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
-        ((itxn_field ApplicationArgs) tmp%0#1)
-        ((itxn_field ApplicationArgs) tmp%1#1)
-        ((itxn_field ApplicationArgs) tmp%2#0)
-        ((itxn_field ApplicationArgs) tmp%3#0)
+        ((itxn_field ApplicationArgs) tmp%51#0)
+        ((itxn_field ApplicationArgs) tmp%52#0)
+        ((itxn_field ApplicationArgs) tmp%53#0)
+        ((itxn_field ApplicationArgs) tmp%54#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1239,7 +1294,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_me
         let length%7#0: uint64 = array_len(substring3%7#0)
         let add%14#0: uint64 = (+ length%7#0 2u)
         let add%15#0: uint64 = (+ add%13#0 add%14#0)
-        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        let len%3#0: uint64 = (tuple_len%3#0)
+        let eq%11#0: bool = (== len%3#0 add%15#0)
         (assert eq%11#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result_native.0#0: string, result_native.1#0: bytes, result_native.2#0: uint64, result_native.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%57#0)
         let tmp%62#0: bool = (== result_native.0#0 result.0#0)
@@ -1308,7 +1364,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         let add%5#0: uint64 = (+ length%2#0 2u)
         let add%6#0: uint64 = (+ length%2#0 20u)
         let add%7#0: uint64 = (+ add%4#0 add%6#0)
-        let eq%5#0: bool = (== tuple_len%0#0 add%7#0)
+        let len%0#1: uint64 = (tuple_len%0#0)
+        let eq%5#0: bool = (== len%0#1 add%7#0)
         (assert eq%5#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
         let (result.0.0#0: string, result.0.1#0: Encoded(len+utf8[]), result.1.0#0: uint64, result.1.1#0: Encoded(uint64), result.1.2#0: bytes) = decode_bytes<((string,Encoded(len+utf8[]),),(uint64,Encoded(uint64),bytes,),)>(tmp%5#0)
         let tmp%11#0: bool = (== result.0.0#0 "echo: s1")
@@ -1324,9 +1381,12 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         let tmp%17#0: bool = (== result.1.2#0 0x6563686f3a2033)
         (assert tmp%17#0)
         itxn_begin
+        let tmp%18#0: Encoded(len+utf8[]) = (tmp%0#1)
+        let tmp%19#0: Encoded(uint64) = (tmp%1#1)
+        let tmp%20#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = bytes_encode<(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))>("s1", tmp%18#0, 1u, tmp%19#0, 0x33)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) tmp%20#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1369,16 +1429,19 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         let add%13#0: uint64 = (+ length%5#0 2u)
         let add%14#0: uint64 = (+ length%5#0 20u)
         let add%15#0: uint64 = (+ add%12#0 add%14#0)
-        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        let len%1#0: uint64 = (tuple_len%3#0)
+        let eq%11#0: bool = (== len%1#0 add%15#0)
         (assert eq%11#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
         let (result.0.0#1: string, result.0.1#1: Encoded(len+utf8[]), result.1.0#1: uint64, result.1.1#1: Encoded(uint64), result.1.2#1: bytes) = decode_bytes<((string,Encoded(len+utf8[]),),(uint64,Encoded(uint64),bytes,),)>(tmp%23#0)
         let tmp%29#0: bool = (== result.0.0#1 "echo: s1")
         (assert tmp%29#0)
-        let tmp%31#0: bool = (== result.0.1#1 tmp%12#0)
+        let tmp%30#0: Encoded(len+utf8[]) = (tmp%12#0)
+        let tmp%31#0: bool = (== result.0.1#1 tmp%30#0)
         (assert tmp%31#0)
         let tmp%32#0: bool = (== result.1.0#1 2u)
         (assert tmp%32#0)
-        let tmp%34#0: bool = (b== result.1.1#1 tmp%15#0)
+        let tmp%33#0: Encoded(uint64) = (tmp%15#0)
+        let tmp%34#0: bool = (b== result.1.1#1 tmp%33#0)
         (assert tmp%34#0)
         let tmp%35#0: bool = (== result.1.2#1 0x6563686f3a2033)
         (assert tmp%35#0)
@@ -1436,7 +1499,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[r
         let add%21#0: uint64 = (+ length%8#0 2u)
         let add%22#0: uint64 = (+ length%8#0 20u)
         let add%23#0: uint64 = (+ add%20#0 add%22#0)
-        let eq%17#0: bool = (== tuple_len%6#0 add%23#0)
+        let len%2#0: uint64 = (tuple_len%6#0)
+        let eq%17#0: bool = (== len%2#0 add%23#0)
         (assert eq%17#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
         let (result.0.0#2: string, result.0.1#2: Encoded(len+utf8[]), result.1.0#2: uint64, result.1.1#2: Encoded(uint64), result.1.2#2: bytes) = decode_bytes<((string,Encoded(len+utf8[]),),(uint64,Encoded(uint64),bytes,),)>(tmp%46#0)
         let tmp%52#0: bool = (== result.0.0#2 "echo: s1b")
@@ -1508,7 +1572,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_no_args[routing
         let len%2#0: uint64 = (len tmp%12#0)
         let eq%2#0: bool = (== len%2#0 8u)
         (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let tmp%14#0: bool = (b== tmp%12#0 tmp%8#0)
+        let tmp%13#0: Encoded(uint64) = (tmp%8#0)
+        let tmp%14#0: bool = (b== tmp%12#0 tmp%13#0)
         (assert tmp%14#0)
         exit 1u
 
@@ -1541,10 +1606,11 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples[ro
         (assert result#0)
         itxn_begin
         let tmp%6#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(2u, "log 2")
+        let tmp%7#0: Encoded(uint64,(len+utf8[])) = (tmp%1#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
         ((itxn_field ApplicationArgs) tmp%6#0)
-        ((itxn_field ApplicationArgs) tmp%1#1)
+        ((itxn_field ApplicationArgs) tmp%7#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1591,15 +1657,28 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[rou
         let length%0#0: uint64 = array_len(substring3%0#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let add%1#0: uint64 = (+ length%0#0 12u)
-        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        let len%0#1: uint64 = (tuple_len%0#0)
+        let eq%1#0: bool = (== len%0#1 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
         let tmp%6#0: bool = (== tmp%5#0 log#0)
         (assert tmp%6#0) // expected output to match input
-        let length%1#0: uint64 = array_len(substring3%0#0)
+        let tmp%7#0: bytes = (tmp%3#0)
+        let tmp%8#0: bool = (== tmp%7#0 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#0: bytes = (tmp%5#0)
+        let tuple_len%1#0: uint64 = (len tmp%9#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%9#0 8u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%1#0 10u)
+        (assert eq%2#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let substring3%1#0: bytes = (substring3 tmp%9#0 extract_uint16%1#0 tuple_len%1#0)
+        let length%1#0: uint64 = array_len(substring3%1#0)
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ length%1#0 12u)
-        let eq%3#0: bool = (== tuple_len%0#0 add%3#0)
+        let len%1#0: uint64 = (tuple_len%1#0)
+        let eq%3#0: bool = (== len%1#0 add%3#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+        let tmp%10#0: bool = (== tmp%9#0 log#0)
+        (assert tmp%10#0) // expected output to match input
         exit 1u
 
 subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]() -> void:
@@ -1698,11 +1777,14 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encodi
         let tmp%37#0: bool = (&& tmp%35#0 tmp%36#0)
         (assert tmp%37#0) // expected echo to return same resources
         itxn_begin
+        let tmp%38#0: Encoded(uint64) = (tmp%13#0)
+        let tmp%39#0: Encoded(uint64) = (tmp%14#0)
+        let tmp%40#0: Encoded(uint8[32]) = (tmp%15#0)
         ((itxn_field ApplicationID) app_to_call#0)
         ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
-        ((itxn_field ApplicationArgs) tmp%13#0)
-        ((itxn_field ApplicationArgs) tmp%14#0)
-        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field ApplicationArgs) tmp%38#0)
+        ((itxn_field ApplicationArgs) tmp%39#0)
+        ((itxn_field ApplicationArgs) tmp%40#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1749,11 +1831,14 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encodi
         let tmp%62#0: bool = (&& tmp%60#0 tmp%61#0)
         (assert tmp%62#0) // expected echo to return same resources
         itxn_begin
+        let tmp%63#0: Encoded(uint64) = (tmp%13#0)
+        let tmp%64#0: Encoded(uint64) = (tmp%14#0)
+        let tmp%65#0: Encoded(uint8[32]) = (tmp%15#0)
         ((itxn_field ApplicationID) app_to_call#0)
         ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
-        ((itxn_field ApplicationArgs) tmp%13#0)
-        ((itxn_field ApplicationArgs) tmp%14#0)
-        ((itxn_field ApplicationArgs) tmp%15#0)
+        ((itxn_field ApplicationArgs) tmp%63#0)
+        ((itxn_field ApplicationArgs) tmp%64#0)
+        ((itxn_field ApplicationArgs) tmp%65#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

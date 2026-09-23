@@ -79,6 +79,9 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let new_len_u16#3: bytes = ((extract 6 0) tmp%0#14)
         let result#4: bytes = ((replace2 0) array#4 new_len_u16#3)
         let tmp%4#12: bytes = (concat result#4 0xff)
+        let length#3: uint64 = (length#2)
+        let tmp%1#11: bool = (< 0u length#3)
+        (assert length#3) // index out of bounds
         let array_of_array#3: Encoded(len+(len+uint8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#2, tmp%4#12, 0u)
         let tmp%10#3: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%10#3)
@@ -87,6 +90,9 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         (assert length#4) // index out of bounds
         let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(array_of_array#3, 0u)
         let aggregate%updated_array%3#0: bytes = ((replace2 3) aggregate%item%3#0 0x00) // on error: index access is out of bounds
+        let length#5: uint64 = (length#4)
+        let tmp%1#13: bool = (< 0u length#5)
+        (assert length#5) // index out of bounds
         let array_of_array#4: Encoded(len+(len+uint8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, aggregate%updated_array%3#0, 0u)
         let tmp%12#3: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%12#3)

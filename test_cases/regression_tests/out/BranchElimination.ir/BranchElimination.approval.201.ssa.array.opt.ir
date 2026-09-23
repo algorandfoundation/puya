@@ -165,7 +165,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%0#1: bool = (< i#0 length#2)
         goto continue_looping%0#1 ? block@7 : block@19
     block@7: // for_body_L39
-        (assert continue_looping%0#1) // index out of bounds
+        let tmp%1#4: bool = (continue_looping%0#1)
+        (assert tmp%1#4) // index out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* i#0 2u)
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%0#0)
         let aggregate%item_length%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%0#0)
@@ -183,7 +184,14 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%1#0: bool = (< j#0 aggregate%array_length%3#0)
         goto continue_looping%1#0 ? block@9 : block@17
     block@9: // for_body_L42
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) inner_list#0)
+        let tmp%1#3: bool = (continue_looping%0#1)
+        (assert tmp%1#3) // index out of bounds
+        let aggregate%item_offset%1#0: uint64 = (aggregate%item_offset%0#0)
+        let aggregate%item_length%1#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%1#0)
+        let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%1#0 8u)
+        let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%1#0 2u)
+        let aggregate%item%1#0: bytes = (extract3 array_data%0#0 aggregate%item_offset%1#0 aggregate%item_head_tail_length%1#0)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) aggregate%item%1#0)
         let aggregate%bytes_offset%0#0: uint64 = (* j#0 8u)
         let value#0: Encoded(uint64) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let tmp%4#0: bool = (b>= value#0 threshold#0)
@@ -194,8 +202,16 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@11: // if_body_L46
         let total#2: uint64 = (+ total#1 1u)
         let tmp%7#0: uint64 = (+ j#0 1u)
+        let tmp%1#2: bool = (continue_looping%0#1)
+        (assert tmp%1#2) // index out of bounds
+        let aggregate%item_offset%2#0: uint64 = (aggregate%item_offset%0#0)
+        let aggregate%item_length%2#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%2#0)
+        let aggregate%item_length_in_bytes%2#0: uint64 = (* aggregate%item_length%2#0 8u)
+        let aggregate%item_head_tail_length%2#0: uint64 = (+ aggregate%item_length_in_bytes%2#0 2u)
+        let aggregate%item%2#0: bytes = (extract3 array_data%0#0 aggregate%item_offset%2#0 aggregate%item_head_tail_length%2#0)
+        let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) aggregate%item%2#0)
         let aggregate%bytes_offset%1#0: uint64 = (* tmp%7#0 8u)
-        let next_value#0: Encoded(uint64) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 8u) // on error: index access is out of bounds
+        let next_value#0: Encoded(uint64) = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 8u) // on error: index access is out of bounds
         let tmp%8#0: bool = (b< value#0 next_value#0)
         goto tmp%8#0 ? block@12 : block@13
     block@12: // if_body_L49

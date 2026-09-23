@@ -218,7 +218,8 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         (box_replace "box_large" 4096u aggregate%val_as_bytes%0#0)
         let box%box_extract%0#0: bytes = (box_extract "b" 0u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%5#0: bool = (== box%btoi%0#0 box%btoi%0#0)
+        let box%btoi%1#0: uint64 = (box%btoi%0#0)
+        let tmp%5#0: bool = (== box%btoi%0#0 box%btoi%1#0)
         (assert tmp%5#0) // direct reference should match copy
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%1#0) // check self.box_a exists
@@ -510,8 +511,8 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes[routing]() -> 
         (box_del "b")
         (box_del 0x424f585f43)
         let (maybe_value%0#0: bytes, a_exists#0: bool) = (box_get "box_a")
-        let a#0: uint64 = (btoi maybe_value%0#0)
-        let state_get%0#0: uint64 = (select 42u a#0 a_exists#0)
+        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
+        let state_get%0#0: uint64 = (select 42u maybe_value_converted%0#0 a_exists#0)
         let tmp%0#0: bool = (== state_get%0#0 42u)
         (assert tmp%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "b")
@@ -523,6 +524,7 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes[routing]() -> 
         let state_get%2#0: bytes = (select 0x00023432 maybe_value%2#0 maybe_exists%2#0)
         let tmp%6#0: bool = (== state_get%2#0 0x00023432)
         (assert tmp%6#0)
+        let a#0: uint64 = (maybe_value_converted%0#0)
         let tmp%7#0: bool = (! a_exists#0)
         (assert tmp%7#0)
         let tmp%8#0: bool = (! a#0)
@@ -869,6 +871,9 @@ subroutine examples.box_storage.contract.BoxContract.nested_read[routing]() -> v
         let box%btoi%0#0: uint64 = (btoi box%box_extract%2#0)
         let box%index_ok%0#0: bool = (< i1#0 box%btoi%0#0)
         (assert box%index_ok%0#0) // index out of bounds
+        let box%btoi%3#0: uint64 = (box%btoi%0#0)
+        let box%index_ok%1#0: bool = (< i1#0 box%btoi%3#0)
+        (assert box%index_ok%1#0) // index out of bounds
         let box%mul%1#0: uint64 = (* 2u i1#0)
         let box%add%3#0: uint64 = (+ 4138u box%mul%1#0)
         let box%box_extract%7#0: bytes = (box_extract "box" box%add%3#0 2u)
@@ -904,13 +909,17 @@ subroutine examples.box_storage.contract.BoxContract.nested_read[routing]() -> v
         let box%btoi%9#0: uint64 = (btoi box%box_extract%15#0)
         let box%index_ok%4#0: bool = (< i2#0 box%btoi%9#0)
         (assert box%index_ok%4#0) // index out of bounds
-        let box%box_extract%20#0: bytes = box%box_extract%13#0
+        let box%btoi%12#0: uint64 = (box%btoi%6#0)
+        let box%offset%25#0: uint64 = (+ 4098u box%btoi%12#0)
+        let box%box_extract%20#0: bytes = (box_extract "box" box%offset%25#0 2u)
         let box%btoi%13#0: uint64 = (btoi box%box_extract%20#0)
         let box%index_ok%5#0: bool = (< i1#0 box%btoi%13#0)
         (assert box%index_ok%5#0) // index out of bounds
-        let box%box_extract%21#0: bytes = box%box_extract%14#0
+        let box%add%11#0: uint64 = (+ box%offset%25#0 2u)
+        let box%add%12#0: uint64 = (+ box%add%11#0 box%mul%1#0)
+        let box%box_extract%21#0: bytes = (box_extract "box" box%add%12#0 2u)
         let box%btoi%14#0: uint64 = (btoi box%box_extract%21#0)
-        let box%offset%26#0: uint64 = (+ box%add%6#0 box%btoi%14#0)
+        let box%offset%26#0: uint64 = (+ box%add%11#0 box%btoi%14#0)
         let box%offset%27#0: uint64 = (+ box%offset%26#0 18u)
         let box%box_extract%22#0: bytes = (box_extract "box" box%offset%27#0 2u)
         let box%btoi%15#0: uint64 = (btoi box%box_extract%22#0)
@@ -951,7 +960,9 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[rout
         let tmp%2#1: uint64 = (btoi box%box_extract%1#0)
         let tmp%3#0: bool = (== tmp%2#1 2u)
         (assert tmp%3#0) // expected 2
-        let total#0: uint64 = (+ tmp%0#1 tmp%2#1)
+        let tmp%4#0: uint64 = (tmp%0#1)
+        let tmp%5#0: uint64 = (tmp%2#1)
+        let total#0: uint64 = (+ tmp%4#0 tmp%5#0)
         let box%box_extract%6#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%6#0)
         let item_index_internal%0#0: uint64 = 0u
@@ -1226,6 +1237,12 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> 
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "blob")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // no data
+        let tmp%1#0: bool = (tmp%0#0)
+        (assert tmp%1#0) // no data
+        let tmp%2#0: bool = (tmp%0#0)
+        (assert tmp%2#0) // no data
+        let tmp%3#0: bool = (tmp%0#0)
+        (assert tmp%3#0) // no data
         let tmp%4#0: bool = (box_create "blob" 32u)
         (assert tmp%4#0)
         let sender_bytes#0: bytes = (txn Sender)
@@ -1254,6 +1271,8 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> 
         let (_%5#0: uint64, maybe_exists%7#0: bool) = (box_len "blob")
         let tmp%18#0: bool = (== _%5#0 64u)
         (assert tmp%18#0)
+        let tmp%20#0: bool = (tmp%18#0)
+        (assert tmp%20#0)
         (box_create "box_ref" 32u)
         (box_del "box_ref")
         exit 1u

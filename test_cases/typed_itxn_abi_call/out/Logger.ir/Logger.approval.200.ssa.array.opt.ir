@@ -109,8 +109,8 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.is_a_b[routing]() -> voi
 subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo[routing]() -> void:
     block@0: // L37
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let new_items_count#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ new_items_count#0 2u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -119,6 +119,7 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo[routing]() -> void:
         let aggregate%length_uint16%0#0: bytes = 0x0006
         let array#0: bytes = 0x00066563686f3a20
         let new_items_bytes#0: bytes = ((extract 2 0) value#0)
+        let new_items_count#0: uint64 = (aggregate%array_length%0#0)
         let array_length#0: uint64 = 6u
         let new_array_length#0: uint64 = (+ 6u new_items_count#0)
         let tmp%0#3: bytes = (itob new_array_length#0)
@@ -464,17 +465,26 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple[routin
         let add%7#0: uint64 = (+ add%4#0 add%6#0)
         let eq%5#0: bool = (== tuple_len%0#0 add%7#0)
         (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 extract_uint16%3#0)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16%0#0)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16%3#0)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u)
         let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 aggregate%substring3%0#0 2u)
         let aggregate%substring3%1#0: bytes = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%2#0 aggregate%extract_uint16%3#0)
         let tuple_of_tuples.0.0#0: string = ((extract 2 0) aggregate%substring3%1#0)
+        let aggregate%extract_uint16%4#0: uint64 = (aggregate%extract_uint16%3#0)
         let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let tuple_of_tuples.0.1#0: Encoded(len+utf8[]) = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%3#0 aggregate%len%0#0)
-        let aggregate%extract%0#0: bytes = ((extract 0 8) substring3%3#0)
-        let tuple_of_tuples.1.0#0: uint64 = (extract_uint64 substring3%3#0 0u)
-        let tuple_of_tuples.1.1#0: Encoded(uint64) = ((extract 8 8) substring3%3#0)
-        let tuple_of_tuples.1.2#0: bytes = ((extract 2 0) substring3%4#0)
+        let tuple_of_tuples.0.1#0: Encoded(len+utf8[]) = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%4#0 aggregate%len%0#0)
+        let aggregate%extract_uint16%5#0: uint64 = (extract_uint16%3#0)
+        let aggregate%len%1#0: uint64 = (tuple_len%0#0)
+        let aggregate%substring3%3#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%5#0 aggregate%len%1#0)
+        let aggregate%extract%0#0: bytes = ((extract 0 8) aggregate%substring3%3#0)
+        let tuple_of_tuples.1.0#0: uint64 = (extract_uint64 aggregate%substring3%3#0 0u)
+        let tuple_of_tuples.1.1#0: Encoded(uint64) = ((extract 8 8) aggregate%substring3%3#0)
+        let aggregate%extract_uint16%6#0: uint64 = (extract_uint16 aggregate%substring3%3#0 16u)
+        let aggregate%len%2#0: uint64 = (len aggregate%substring3%3#0)
+        let aggregate%substring3%4#0: bytes = (substring3 aggregate%substring3%3#0 aggregate%extract_uint16%6#0 aggregate%len%2#0)
+        let tuple_of_tuples.1.2#0: bytes = ((extract 2 0) aggregate%substring3%4#0)
         let tmp%0#1: bytes = (concat "echo: " tuple_of_tuples.0.0#0)
         let aggregate%length%0#0: uint64 = 6u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 6u)
@@ -489,7 +499,7 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple[routin
         let result#0: bytes = ((replace2 0) 0x00066563686f3a20 new_len_u16#0)
         let tmp%4#2: bytes = (concat result#0 new_items_bytes#0)
         let tmp%4#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
-        let tmp%5#1: uint64 = (extract_uint64 substring3%3#0 8u)
+        let tmp%5#1: uint64 = (extract_uint64 aggregate%substring3%3#0 8u)
         let tmp%6#1: uint64 = (+ tmp%5#1 1u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%6#1)
         let tmp%8#1: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
@@ -507,6 +517,7 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple[routin
         let aggregate%head%1#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 aggregate%encoded_value%1#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 tmp%4#2)
+        let aggregate%as_bytes%4#0: bytes[8] = (aggregate%as_bytes%2#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x0004
         let aggregate%head%2#0: bytes = 0x0004
         let aggregate%data_length%2#0: uint64 = (len aggregate%concat%1#0)
@@ -649,7 +660,10 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.logs_are_equal[routing](
         (assert eq%1#0) // invalid number of bytes for test_cases.typed_itxn_abi_call.logger.LogMessage
         let aggregate%extract%0#0: bytes = ((extract 0 8) tmp%0#0)
         let log_1.level#0: uint64 = (extract_uint64 tmp%0#0 0u)
-        let log_1.message#0: string = ((extract 2 0) substring3%0#0)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16%0#0)
+        let aggregate%len%0#0: uint64 = (tuple_len%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let log_1.message#0: string = ((extract 2 0) aggregate%substring3%0#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 2)
         let tuple_len%1#0: uint64 = (len tmp%3#0)
         let extract_uint16%1#0: uint64 = (extract_uint16 tmp%3#0 8u) // on error: invalid tuple encoding
@@ -662,7 +676,10 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.logs_are_equal[routing](
         (assert eq%3#0) // invalid number of bytes for test_cases.typed_itxn_abi_call.logger.LogMessage
         let aggregate%extract%1#0: bytes = ((extract 0 8) tmp%3#0)
         let log_2.level#0: uint64 = (extract_uint64 tmp%3#0 0u)
-        let log_2.message#0: string = ((extract 2 0) substring3%1#0)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16%1#0)
+        let aggregate%len%1#0: uint64 = (tuple_len%1#0)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%3#0 aggregate%extract_uint16%1#0 aggregate%len%1#0)
+        let log_2.message#0: string = ((extract 2 0) aggregate%substring3%1#0)
         let tmp%0#1: bool = (== log_1.level#0 log_2.level#0)
         let tmp%1#1: bool = (== log_1.message#0 log_2.message#0)
         let tmp%2#1: bool = (&& tmp%0#1 tmp%1#1)

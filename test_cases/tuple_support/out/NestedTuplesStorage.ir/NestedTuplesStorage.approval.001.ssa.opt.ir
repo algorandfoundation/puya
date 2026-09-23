@@ -7,15 +7,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#2)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, 0u)
         (app_global_put "tup" encoded_for_storage%0#0)
+        let tmp%1#2: Encoded(uint64) = (tmp%0#2)
+        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%1#2)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
-        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%1#0)
         (app_global_put "glob" encoded_for_storage%1#0)
+        let tmp%2#1: Encoded(uint64) = (tmp%0#2)
+        let encoded_array%2#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%2#1)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
-        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%2#0, awst_tmp%3#0)
         (app_global_put "tup" encoded_for_storage%2#0)
         goto block@2
     block@2: // after_if_else_L1
@@ -170,13 +174,14 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tail_offset#0: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
+        let tmp%4#1: uint64 = (tail_offset#0)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#1)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)
@@ -248,11 +253,13 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
+        let tmp%1#0: Encoded(uint64) = (tmp%0#0)
+        let encoded_array%1#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%1#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
         let tmp%2#0: account = (txn Sender)
-        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%1#0, awst_tmp%3#0)
         (app_local_put tmp%2#0 "loc" encoded_for_storage%1#0)
         exit 1u
 

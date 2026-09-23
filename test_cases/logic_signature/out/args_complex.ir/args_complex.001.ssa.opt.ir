@@ -91,7 +91,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let length%4#0: uint64 = array_len(substring3%0#0)
         let add%4#0: uint64 = (+ length%4#0 2u)
         let add%5#0: uint64 = (+ length%4#0 12u)
-        let eq%18#0: bool = (== tuple_len%0#0 add%5#0)
+        let len%17#0: uint64 = (tuple_len%0#0)
+        let eq%18#0: bool = (== len%17#0 add%5#0)
         (assert eq%18#0) // invalid number of bytes for tuple<uint64,bytes>
         let (arg17.0#0: uint64, arg17.1#0: bytes) = decode_bytes<(uint64,bytes,)>(tmp%24#0)
         let tmp%27#0: bytes = (arg 18)
@@ -109,7 +110,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let add%6#0: uint64 = (+ length%5#0 2u)
         let add%7#0: uint64 = (+ length%5#0 12u)
         let add%8#0: uint64 = (+ length%5#0 22u)
-        let eq%21#0: bool = (== tuple_len%1#0 add%8#0)
+        let len%18#0: uint64 = (tuple_len%1#0)
+        let eq%21#0: bool = (== len%18#0 add%8#0)
         (assert eq%21#0) // invalid number of bytes for tuple<uint64,tuple<bytes,uint64>>
         let (arg18.0#0: uint64, arg18.1.0#0: bytes, arg18.1.1#0: uint64) = decode_bytes<(uint64,(bytes,uint64,),)>(tmp%27#0)
         let arg19#0: Encoded(uint8,bool1) = (arg 19)
@@ -201,7 +203,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%81#0: bytes = decode_bytes<bytes>(tuple_item%6#0)
         let tmp%82#0: bool = (== arg18.1.0#0 tmp%81#0)
         (assert tmp%82#0)
-        let tuple_item%8#0: Encoded(uint64) = extract_value(_raw18#0, 1, 1)
+        let tuple_item%7#0: Encoded((len+uint8[]),uint64) = (tuple_item%5#0)
+        let tuple_item%8#0: Encoded(uint64) = extract_value(tuple_item%7#0, 1)
         let tmp%83#0: uint64 = decode_bytes<uint64>(tuple_item%8#0)
         let tmp%84#0: bool = (== arg18.1.1#0 tmp%83#0)
         (assert tmp%84#0)
@@ -279,7 +282,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%145#0: bool = (! tmp%144#0)
         let tmp%146#0: Encoded(bool8) = bytes_encode<bool8>(tmp%145#0)
         let arg19#1: Encoded(uint8,bool1) = bytes_encode<(uint8,bool1)>(tmp%142#0, tmp%146#0)
-        let tmp%149#0: Encoded(uint8[]) = bytes_encode<uint8[]>(tmp%113#0)
+        let tmp%148#0: Encoded(uint8) = (tmp%113#0)
+        let tmp%149#0: Encoded(uint8[]) = bytes_encode<uint8[]>(tmp%148#0)
         let arg20#1: Encoded(len+uint8[]) = array_concat(arg20#0, tmp%149#0, 1u)
         let tmp%151#0: bool = (> arg0#1 0u)
         (assert arg0#1)
@@ -310,7 +314,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%169#0: bool = (> tmp%168#0 0u)
         (assert tmp%168#0)
         let array_item%0#0: Encoded(uint8) = extract_value(arg12#1, 0u)
-        let tmp%171#0: bool = (b== array_item%0#0 tmp%113#0)
+        let tmp%170#0: Encoded(uint8) = (tmp%113#0)
+        let tmp%171#0: bool = (b== array_item%0#0 tmp%170#0)
         (assert tmp%171#0)
         let tuple_item%17#0: Encoded(uint64) = extract_value(arg13#1, 0)
         let tmp%172#0: uint64 = decode_bytes<uint64>(tuple_item%17#0)
@@ -346,8 +351,10 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%189#0: uint64 = array_len(arg20#1)
         let tmp%190#0: bool = (> tmp%189#0 0u)
         (assert tmp%189#0)
-        let tmp%192#0: uint64 = (+ arg0#1 tmp%157#0)
-        let tmp%194#0: uint64 = (+ tmp%192#0 tmp%159#0)
+        let tmp%191#0: uint64 = (tmp%157#0)
+        let tmp%192#0: uint64 = (+ arg0#1 tmp%191#0)
+        let tmp%193#0: uint64 = (tmp%159#0)
+        let tmp%194#0: uint64 = (+ tmp%192#0 tmp%193#0)
         let tuple_item%21#0: Encoded(uint64) = extract_value(arg15#1, 1)
         let tmp%195#0: uint64 = decode_bytes<uint64>(tuple_item%21#0)
         let total#0: uint64 = (+ tmp%194#0 tmp%195#0)
@@ -358,7 +365,8 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let total#1: uint64 = (+ total#0 tmp%200#0)
         goto arg4#0 ? block@2 : block@1
     block@1: // if_body_L147
-        let total#2: uint64 = (+ total#1 tmp%152#0)
+        let tmp%202#0: uint64 = (tmp%152#0)
+        let total#2: uint64 = (+ total#1 tmp%202#0)
         goto block@2
     block@2: // after_if_else_L146
         let total#3: uint64 = φ(total#1 <- block@0, total#2 <- block@1)
@@ -606,9 +614,11 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#1)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@2
     block@2: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#1 <- block@0, value_internal%0#2 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -642,9 +652,11 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
         let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
         let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (tmp%2#0)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
         goto block@1
     block@1: // for_header_L350
-        let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%17#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -681,12 +693,14 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tmp%4#0: uint64 = (tmp%0#0)
+        let tmp%5#0: uint64 = (tmp%1#0)
         goto block@1
     block@1: // for_header_L412
-        let head_offset#0: uint64 = φ(tmp%1#0 <- block@0, value_internal%0#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%5#0 <- block@0, value_internal%0#2 <- block@2)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@2)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L413
         let tmp%0#1: bytes = (itob tail_offset#1)

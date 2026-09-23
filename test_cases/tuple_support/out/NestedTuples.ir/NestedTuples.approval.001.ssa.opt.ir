@@ -225,13 +225,14 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tail_offset#0: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
+        let tmp%4#1: uint64 = (tail_offset#0)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%4#1)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)
@@ -335,8 +336,16 @@ subroutine test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, 
         let tmp%6#0: bool = (== nt.1.1#0 tmp%5#0)
         let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
         (assert tmp%7#0)
-        (assert tmp%4#0)
-        (assert tmp%6#0)
+        let tmp%8#0: bool = (tmp%4#0)
+        (assert tmp%8#0)
+        let tmp%9#0: uint64 = (tmp%5#0)
+        let tmp%10#0: bool = (== nt.1.1#0 tmp%9#0)
+        (assert tmp%10#0)
+        let tmp%11#0: bool = (tmp%4#0)
+        (assert tmp%11#0)
+        let tmp%12#0: uint64 = (tmp%5#0)
+        let tmp%13#0: bool = (== nt.1.1#0 tmp%12#0)
+        (assert tmp%13#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
@@ -379,7 +388,8 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         (assert tmp%7#0)
         let tmp%8#0: bool = 1u
         let s1#1: uint64 = (+ s.1.0#2 one#0)
-        let tmp%10#0: bool = (== s1#1 select%1#0)
+        let select%2#0: uint64 = (select%1#0)
+        let tmp%10#0: bool = (== s1#1 select%2#0)
         (assert tmp%10#0)
         let select%3#0: uint64 = (select 1u 4u reassign#0)
         let tmp%11#0: bool = (== s.1.0#2 select%3#0)
@@ -535,7 +545,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routi
     block@4: // after_for_L61
         let num_bytes%1#0: uint64 = (+ num_bytes%0#1 2u)
         let add%10#0: uint64 = (+ add%5#0 num_bytes%1#0)
-        let eq%7#0: bool = (== tuple_len%0#0 add%10#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%7#0: bool = (== len%0#0 add%10#0)
         (assert eq%7#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
         let (pwl.parent.foo#0: uint64, pwl.parent.foo_arc#0: Encoded(uint64), pwl.parent.child.a#0: uint64, pwl.parent.child.b#0: bytes, pwl.parent.child.c#0: string, pwl.children#0: Encoded(len+(uint64,(len+uint8[]),(len+utf8[]))[])) = decode_bytes<((uint64,Encoded(uint64),(uint64,bytes,string,),),Encoded(len+(uint64,(len+uint8[]),(len+utf8[]))[]),)>(tmp%0#0)
         let encoded_for_storage%0#0: Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) = tmp%0#0
@@ -780,7 +791,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ length%1#0 12u)
         let add%4#0: uint64 = (+ add%1#0 add%3#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
         let (args.0#0: string, args.1.0#0: bytes, args.1.1.0#0: uint64) = decode_bytes<(string,(bytes,(uint64,),),)>(tmp%0#0)
         let tmp%7#0: Encoded((len+uint8[]),((len+utf8[]),uint64)) = bytes_encode<((len+uint8[]),((len+utf8[]),uint64))>(args.1.0#0, args.0#0, args.1.1.0#0)
@@ -806,7 +818,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple[routi
         let length%1#0: uint64 = array_len(substring3%1#0)
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%2#0: bool = (== len%0#0 add%3#0)
         (assert eq%2#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
         let (args.a#0: uint64, args.b#0: bytes, args.c#0: string) = decode_bytes<(uint64,bytes,string,)>(tmp%0#0)
         let tmp%7#0: Encoded(uint64,(len+uint8[]),(len+utf8[])) = tmp%0#0
@@ -838,7 +851,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tupl
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let add%4#0: uint64 = (+ 18u add%3#0)
-        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        let len%0#0: uint64 = (tuple_len%0#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
         let (args.foo#0: uint64, args.foo_arc#0: Encoded(uint64), args.child.a#0: uint64, args.child.b#0: bytes, args.child.c#0: string) = decode_bytes<(uint64,Encoded(uint64),(uint64,bytes,string,),)>(tmp%0#0)
         let tmp%11#0: Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))) = tmp%0#0

@@ -1001,13 +1001,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple[routing
         let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
         (assert eq%11#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
         let (result_native.0#0: string, result_native.1#0: bytes, result_native.2#0: uint64, result_native.3#0: biguint) = decode_bytes<(string,bytes,uint64,biguint,)>(tmp%41#0)
-        let tmp%51#0: bool = (== tmp%11#0 result_native.0#0)
+        let tmp%50#0: string = (tmp%11#0)
+        let tmp%51#0: bool = (== tmp%50#0 result_native.0#0)
         (assert tmp%51#0)
-        let tmp%57#0: bool = (== tmp%13#0 result_native.1#0)
+        let tmp%56#0: bytes = (tmp%13#0)
+        let tmp%57#0: bool = (== tmp%56#0 result_native.1#0)
         (assert tmp%57#0)
-        let tmp%63#0: bool = (== tmp%15#0 result_native.2#0)
+        let tmp%62#0: uint64 = (tmp%15#0)
+        let tmp%63#0: bool = (== tmp%62#0 result_native.2#0)
         (assert tmp%63#0)
-        let tmp%69#0: bool = (b== tmp%17#0 result_native.3#0)
+        let tmp%68#0: biguint = (tmp%17#0)
+        let tmp%69#0: bool = (b== tmp%68#0 result_native.3#0)
         (assert tmp%69#0)
         exit 1u
 
@@ -1254,9 +1258,10 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let tmp%17#0: bool = (== result.1.2#0 0x6563686f3a2033)
         (assert tmp%17#0)
         itxn_begin
+        let tmp%20#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = (tmp%2#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) tmp%20#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
