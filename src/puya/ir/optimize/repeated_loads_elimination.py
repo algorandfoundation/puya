@@ -13,6 +13,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.types_ import PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
 
@@ -46,20 +47,21 @@ _StateKey = tuple[models.Value | bytes | _ReadType, ...]
 @attrs.define(kw_only=True)
 class _StateTrackingVisitor(NoOpIRVisitor[None]):
     modified: bool = attrs.field(default=False, init=False)
-    _block: models.BasicBlock
+    edits: EditSet[models.Op] = attrs.field(factory=EditSet, init=False)
+    op_index: int = attrs.field(default=0, init=False)
     _read_results: defaultdict[_StateType, dict[_StateKey, Sequence[models.Value]]] = attrs.field(
         factory=lambda: defaultdict(dict)
     )
-    _last_write: dict[_StateType, tuple[_StateKey, models.Op]] = attrs.field(factory=dict)
+    _last_write: dict[_StateType, tuple[_StateKey, models.Op, int]] = attrs.field(factory=dict)
 
     @classmethod
     def optimise(cls, block: models.BasicBlock) -> bool:
-        visitor = cls(block=block)
-        # iterate over a copy b.c. visiting may
-        # remove ops. (see _handle_write() below)
-        for op in block.ops.copy():
+        visitor = cls()
+        for index, op in enumerate(block.ops):
+            visitor.op_index = index
             op.accept(visitor)
-        return visitor.modified
+        # note: apply() must be called unconditionally, it is what performs the edits
+        return visitor.edits.apply(block.ops) or visitor.modified
 
     def _cached_read(
         self,
@@ -111,7 +113,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         normalized_key = _normalize_key(key)
         self._read_results[typ] = {normalized_key: values}
         try:
-            last_write_key, last_write_op = self._last_write[typ]
+            last_write_key, last_write_op, last_write_index = self._last_write[typ]
         except KeyError:
             pass
         else:
@@ -122,9 +124,8 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                     f"removing unobserved {typ.name} write to key: {_key_str(key)}",
                     location=last_write_op.source_location,
                 )
-                self._block.ops.remove(last_write_op)
-                self.modified = True
-        self._last_write[typ] = (normalized_key, op)
+                self.edits.remove(last_write_index)
+        self._last_write[typ] = (normalized_key, op, self.op_index)
 
     def _invalidate(self, typ: _StateType | typing.Literal["all"]) -> None:
         if typ == "all":

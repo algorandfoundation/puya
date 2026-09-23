@@ -6,6 +6,7 @@ from puya.errors import InternalError
 from puya.ir import encodings, models
 from puya.ir.types_ import EncodedType, IRType, PrimitiveIRType, TupleIRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
 
@@ -16,7 +17,8 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
 
     modified = False
     for block in subroutine.body:
-        for op in block.ops.copy():
+        edits = EditSet[models.Op]()
+        for idx, op in enumerate(block.ops):
             match op:
                 case models.Assignment(targets=[target], source=models.Register() as source):
                     try:
@@ -27,8 +29,8 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
                         all_equivalence_sets.append(equiv_set)
                     equiv_set.append(target)
                     set_lookup[target] = equiv_set
-                    block.ops.remove(op)
-                    modified = True
+                    edits.remove(idx)
+        modified = edits.apply(block.ops) or modified
 
     replacements = dict[models.Register, models.Register]()
     for equivalence_set in all_equivalence_sets:

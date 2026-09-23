@@ -15,6 +15,7 @@ from puya.ir.types_ import IRType
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
+from puya.utils import EditSet
 
 
 @attrs.define(kw_only=True)
@@ -34,22 +35,22 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
             phi.accept(self)
             assert not self._inserted_ops, "cannot insert ops before phi node"
 
-        ops = []
-        for op in block.ops:
+        edits = EditSet[ir.Op]()
+        for idx, op in enumerate(block.ops):
             maybe_replacement = op.accept(self)
-            if self._inserted_ops:
-                ops.extend(self._inserted_ops)
-                self._inserted_ops.clear()
-            ops.append(maybe_replacement or op)
+            self._inserted_ops.append(maybe_replacement or op)
+            if self._inserted_ops or maybe_replacement:
+                edits.add_edit(idx, 1, self._inserted_ops)
+                self._inserted_ops = []
 
         if block.terminator is not None:
             maybe_replacement = block.terminator.accept(self)
             if self._inserted_ops:
-                ops.extend(self._inserted_ops)
-                self._inserted_ops.clear()
+                edits.add_edit(len(block.ops), 0, self._inserted_ops)
+                self._inserted_ops = []
             if maybe_replacement:
                 block.terminator = maybe_replacement
-        block.ops[:] = ops
+        edits.apply(block.ops)
 
     @_versions.default
     def _versions_factory(self) -> dict[str, int]:

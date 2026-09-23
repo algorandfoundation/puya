@@ -21,7 +21,14 @@ from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add, sha512_256_hash
+from puya.utils import (
+    Address,
+    EditSet,
+    biguint_bytes_eval,
+    biguint_bytes_length,
+    set_add,
+    sha512_256_hash,
+)
 
 logger = log.get_logger(__name__)
 
@@ -305,24 +312,19 @@ def _simplify_non_returning_intrinsics(
 ) -> int:
     modified = 0
     for block in subroutine.body:
-        ops = list[models.Op]()
+        edits = EditSet[models.Op]()
         result: models.Op | None
-        for op in block.ops:
+        for idx, op in enumerate(block.ops):
             if isinstance(op, models.Intrinsic):
                 result = _visit_intrinsic_op(op)
-                if result is not op:
-                    modified += 1
-                if result is not None:
-                    ops.append(result)
             elif isinstance(op, models.Assert):
                 result = _simplify_assert(op, register_intrinsics)
-                if result is not op:
-                    modified += 1
-                if result is not None:
-                    ops.append(result)
             else:
-                ops.append(op)
-        block.ops[:] = ops
+                continue
+            if result is not op:
+                modified += 1
+                edits.add_edit(idx, 1, () if result is None else (result,))
+        edits.apply(block.ops)
     return modified
 
 

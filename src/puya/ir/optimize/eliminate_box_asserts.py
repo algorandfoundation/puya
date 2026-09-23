@@ -2,7 +2,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.utils import set_add
+from puya.utils import EditSet, set_add
 
 logger = log.get_logger(__name__)
 
@@ -30,10 +30,10 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
     #       if known that box exists then remove any asserts
     #       if known that box does not exist then replace asserts with err
 
-    modified = False
+    edits = EditSet[models.Op]()
     box_exists = set[models.Value]()
     box_exists_regs = dict[models.Value, models.Value]()
-    for op in block.ops.copy():
+    for idx, op in enumerate(block.ops):
         if isinstance(op, models.Assert):
             maybe_box_key = box_exists_regs.get(op.condition)
             if maybe_box_key and not set_add(box_exists, maybe_box_key):
@@ -42,8 +42,7 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
                     location=op.source_location,
                 )
                 # box exists, so can remove assert
-                block.ops.remove(op)
-                modified = True
+                edits.remove(idx)
         else:
             if isinstance(op, models.Assignment):
                 targets = op.targets
@@ -79,4 +78,4 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
                             _, exists_reg = targets
                             box_exists_regs[exists_reg] = box_key
 
-    return modified
+    return edits.apply(block.ops)

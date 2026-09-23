@@ -32,7 +32,7 @@ from puya.ir.optimize.repeated_loads_elimination import (
 from puya.ir.optimize.sink_single_use_intrinsics import sink_single_use_intrinsics
 from puya.ir.to_text_visitor import render_program
 from puya.options import PuyaOptions
-from puya.utils import attrs_extend
+from puya.utils import EditSet, attrs_extend
 
 MAX_PASSES = 100
 SubroutineOptimizerCallable = Callable[[IROptimizationContext, models.Subroutine], bool]
@@ -106,9 +106,8 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
     # which makes finding copy assignments straight forward
     any_modified = False
     for block in sub.body:
-        ops = list[models.Op]()
-        modified = False
-        for op in block.ops:
+        edits = EditSet[models.Op]()
+        for idx, op in enumerate(block.ops):
             if isinstance(op, models.Assignment) and isinstance(op.source, models.ValueTuple):
                 if set(op.targets).intersection(op.source.values):
                     # We only introduce ValueTuples in a few places - none of which should have
@@ -119,20 +118,16 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
                     raise InternalError(
                         "tuple copy requires sequentialization", op.source_location
                     )
-                for dst, src in zip(op.targets, op.source.values, strict=True):
-                    modified = True
-                    ops.append(
-                        models.Assignment(
-                            targets=[dst],
-                            source=src,
-                            source_location=op.source_location,
-                        )
+                split_assignments = [
+                    models.Assignment(
+                        targets=[dst],
+                        source=src,
+                        source_location=op.source_location,
                     )
-            else:
-                ops.append(op)
-        if modified:
-            any_modified = True
-            block.ops = ops
+                    for dst, src in zip(op.targets, op.source.values, strict=True)
+                ]
+                edits.add_edit(idx, 1, split_assignments)
+        any_modified = edits.apply(block.ops) or any_modified
     return any_modified
 
 

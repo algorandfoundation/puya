@@ -6,6 +6,7 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import SSAReadTracker
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
 
@@ -131,7 +132,11 @@ def _consumes_single_value(op: models.Op) -> bool:
 
 
 def _splits_dupable_chunk(
-    ops: list[models.Op], op: models.Assignment, consumer: models.Op, ssa_reads: SSAReadTracker
+    ops: list[models.Op],
+    op_idx: int,
+    op: models.Assignment,
+    consumer: models.Op,
+    ssa_reads: SSAReadTracker,
 ) -> bool:
     # when there is a chunk of adjacent value loads followed by consumers of said values
     # (i.e. they happen to be locally aligned stack optimally already) some of them may
@@ -144,7 +149,6 @@ def _splits_dupable_chunk(
 
     # collect the chunk of identical loads before and up to `op`
     source = op.source.freeze()
-    op_idx = ops.index(op)
     loads_chunk = [op]
     for other_op in reversed(ops[:op_idx]):
         if isinstance(other_op, models.Assignment) and other_op.source.freeze() == source:
@@ -185,10 +189,14 @@ def sink_single_use_intrinsics(_context: CompileContext, subroutine: models.Subr
 
     # maps each consumer to the assignment that should be sunk to directly before it
     consumer_assignment = dict[models.Op, models.Assignment]()
+    # maps each block to its edits
+    edits = dict[models.BasicBlock, EditSet[models.Op]]()
     for block in subroutine.body:
-        # iterate over a copy so the assignment can be removed from the block
-        ops = block.ops.copy()
-        for op, next_op in itertools.zip_longest(ops, ops[1:]):
+        ops = block.ops
+        block_edits = EditSet[models.Op]()
+        edits[block] = block_edits
+
+        for op_idx, (op, next_op) in enumerate(itertools.zip_longest(ops, ops[1:])):
             match op:
                 case models.Assignment(
                     targets=[target], source=models.Intrinsic() as intrinsic
@@ -198,20 +206,19 @@ def sink_single_use_intrinsics(_context: CompileContext, subroutine: models.Subr
                         isinstance(consumer, models.Op)
                         and consumer is not next_op
                         and _consumes_single_value(consumer)
-                        and not _splits_dupable_chunk(ops, op, consumer, ssa_reads)
+                        and not _splits_dupable_chunk(ops, op_idx, op, consumer, ssa_reads)
                     ):
                         logger.debug(f"moving {op} to be co-located with sole usage {consumer}")
                         consumer_assignment[consumer] = op
-                        block.ops.remove(op)
+                        block_edits.remove(op_idx)
     if not consumer_assignment:
         return False
 
     for block in subroutine.body:
-        new_ops = list[models.Op]()
-        for op in block.ops:
+        block_edits = edits[block]
+        for idx, op in enumerate(block.ops):
             if (assignment_to_sink := consumer_assignment.pop(op, None)) is not None:
-                new_ops.append(assignment_to_sink)
-            new_ops.append(op)
-        block.ops[:] = new_ops
+                block_edits.add_edit(idx, 0, (assignment_to_sink,))
+        block_edits.apply(block.ops)
     assert not consumer_assignment, f"consumers not in any block: {consumer_assignment}"
     return True

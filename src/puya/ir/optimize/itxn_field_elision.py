@@ -6,6 +6,7 @@ import attrs
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
+from puya.utils import EditSet
 
 _ARRAY_FIELDS: typing.Final = frozenset(
     (
@@ -55,19 +56,17 @@ def _elide_within_block(block: models.BasicBlock) -> bool:
                         current_group.sets[field_im].append(op_idx)
     if not groups:
         return False
-    remove_indexes = set[int]()
+    edits = EditSet[models.Op]()
     for group in groups:
         for field_im, indexes in group.sets.items():
             final_idx = indexes.pop()
-            remove_indexes.update(indexes)
+            for idx in indexes:
+                edits.remove(idx)
             if group.has_start and field_im in _ZERO_DEFAULTS:
                 match block.ops[final_idx]:
                     case models.Intrinsic(args=[models.UInt64Constant(value=0)]):
-                        remove_indexes.add(final_idx)
-    if not remove_indexes:
-        return False
-    block.ops = [op for idx, op in enumerate(block.ops) if idx not in remove_indexes]
-    return True
+                        edits.remove(final_idx)
+    return edits.apply(block.ops)
 
 
 @attrs.define

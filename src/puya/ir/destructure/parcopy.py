@@ -3,6 +3,7 @@ from collections.abc import Callable, Iterable
 
 from puya import log
 from puya.ir import models
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
 
@@ -29,32 +30,30 @@ def sequentialize_parallel_copies(sub: models.Subroutine) -> None:
         )
 
     for block in sub.body:
-        ops = list[models.Op]()
-        for op in block.ops:
+        edits = EditSet[models.Op]()
+        for idx, op in enumerate(block.ops):
             match op:
                 case models.Assignment(targets=targets, source=models.ValueTuple(values=sources)):
                     seqd = _sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
-                    for dst, src in seqd:
-                        assert isinstance(dst, models.Register)  # TODO: this is bad
-                        ops.append(
-                            models.Assignment(
-                                targets=[dst],
-                                source=src,
-                                source_location=op.source_location,
-                            )
+                    copies = [
+                        models.Assignment(
+                            targets=[dst],
+                            source=src,
+                            source_location=op.source_location,
                         )
-                case _:
-                    ops.append(op)
-        block.ops = ops
+                        for dst, src in seqd
+                    ]
+                    edits.add_edit(idx, 1, copies)
+        edits.apply(block.ops)
 
 
-def _sequentialize[T](
-    copies: Iterable[tuple[T, T]],
-    mktmp: Callable[[T], T],
+def _sequentialize(
+    copies: Iterable[tuple[models.Register, models.Value]],
+    mktmp: Callable[[models.Register], models.Register],
     *,
     filter_dup_dests: bool = True,
     allow_fan_out: bool = True,
-) -> list[tuple[T, T]]:
+) -> list[tuple[models.Register, models.Register]]:
     # If filter_dup_dests is True, consider pairs ordered, and if multiple
     # pairs have the same dest var, the last one takes effect. Otherwise,
     # such duplicate dest vars is an error.
@@ -65,13 +64,14 @@ def _sequentialize[T](
     ready = []
     to_do = []
     pred = {}
-    loc = dict[T, T | None]()
+    loc = dict[models.Register, models.Register | None]()
     res = []
 
     for b, _ in copies:
         loc[b] = None
 
     for b, a in copies:
+        assert isinstance(a, models.Register)  # TODO: this is bad
         loc[a] = a
         pred[b] = a
 

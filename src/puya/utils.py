@@ -423,3 +423,47 @@ def read_text_from_maybe_compressed_file(path: Path) -> str:
             return fp.read()
     else:
         return path.read_text("utf8")
+
+
+@attrs.define
+class EditSet[T]:
+    """Queues splices against a list, applying them all at once.
+
+    Indexes are relative to the unedited list, so a traversal can queue edits as it
+    goes without accounting for the drift caused by earlier ones.
+    """
+
+    _edits: list[tuple[int, int, Sequence[T]]] = attrs.field(factory=list, init=False)
+
+    def __bool__(self) -> bool:
+        return bool(self._edits)
+
+    def add_edit(self, index: int, length: int, replacement: Sequence[T]) -> None:
+        """Queues dst[index:index + length] = replacement"""
+        assert index >= 0, "index must be non-negative"
+        assert length >= 0, "length must be non-negative"
+        self._edits.append((index, length, replacement))
+
+    def remove(self, index: int) -> None:
+        """Queues dst[index:index + 1] = ()"""
+        self.add_edit(index, 1, ())
+
+    def apply(self, dst: list[T]) -> bool:
+        """Applies and clears all queued edits, returning True if there were any"""
+        if not self._edits:
+            return False
+        # sorting by (index, length) means an insertion at an index always precedes a
+        # replacement at the same index, regardless of the order they were queued in,
+        # and the sort being stable keeps repeated insertions in queue order
+        edits = sorted(self._edits, key=lambda edit: edit[:2])
+        result = list[T]()
+        end_of_last_edit = 0
+        for index, length, replacement in edits:
+            assert index >= end_of_last_edit, f"overlapping edit at index {index}"
+            result.extend(dst[end_of_last_edit:index])
+            result.extend(replacement)
+            end_of_last_edit = index + length
+        result.extend(dst[end_of_last_edit:])
+        dst[:] = result
+        self._edits.clear()
+        return True

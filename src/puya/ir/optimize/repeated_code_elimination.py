@@ -11,8 +11,11 @@ from puya.ir import models
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
+
+type _KnownConsts = Mapping[object, Sequence[models.Register]]
 
 
 def repeated_expression_elimination(
@@ -20,7 +23,7 @@ def repeated_expression_elimination(
 ) -> bool:
     start, dom_tree = compute_dominator_tree(subroutine)
     modified = False
-    while _recursive_rce(dom_tree, start, const_intrinsics={}, asserted=set()):
+    while _recursive_rce(dom_tree, start, consts={}, asserted=set()):
         modified = True
         copy_propagation(context, subroutine)
     return modified
@@ -29,22 +32,12 @@ def repeated_expression_elimination(
 def _recursive_rce(
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
-    *,
-    const_intrinsics: Mapping[object, Sequence[models.Register]],
+    consts: _KnownConsts,
     asserted: Set[models.Value],
 ) -> bool:
-    visitor = RCEVisitor(
-        block=block,
-        const_intrinsics=dict(const_intrinsics),
-        asserted=set(asserted),
-    )
-    for op in block.ops.copy():
-        op.accept(visitor)
-    modified = visitor.modified
+    modified, out_consts, out_asserted = RCEVisitor.apply_to(block, consts, asserted)
     for child in dom_tree.get(block, []):
-        modified |= _recursive_rce(
-            dom_tree, child, const_intrinsics=visitor.const_intrinsics, asserted=visitor.asserted
-        )
+        modified |= _recursive_rce(dom_tree, child, out_consts, out_asserted)
     return modified
 
 
@@ -78,10 +71,10 @@ def compute_dominator_tree(
 
 @attrs.define(kw_only=True)
 class RCEVisitor(NoOpIRVisitor[None]):
-    block: models.BasicBlock
-    const_intrinsics: dict[object, Sequence[models.Register]]
+    consts: dict[object, Sequence[models.Register]]
     asserted: set[models.Value]
-    modified: bool = False
+    edits: EditSet[models.Op] = attrs.field(factory=EditSet, init=False)
+    op_index: int = attrs.field(default=0, init=False)
 
     _assignment: models.Assignment | None = None
 
@@ -111,8 +104,7 @@ class RCEVisitor(NoOpIRVisitor[None]):
         assert_arg = assert_.condition
         if assert_arg in self.asserted:
             logger.debug(f"Removing redundant assert of {assert_arg}")
-            self.modified = True
-            self.block.ops.remove(assert_)
+            self.edits.remove(self.op_index)
         else:
             self.asserted.add(assert_arg)
 
@@ -141,20 +133,25 @@ class RCEVisitor(NoOpIRVisitor[None]):
             self._cache_or_replace(self._assignment, key)
 
     def _cache_or_replace(self, ass: models.Assignment, key: object) -> None:
-        try:
-            existing = self.const_intrinsics[key]
-        except KeyError:
-            self.const_intrinsics[key] = ass.targets
+        existing = self.consts.get(key)
+        if existing is None:
+            self.consts[key] = ass.targets
             return
         logger.debug(
             f"Replacing redundant declaration {ass} with copy of existing registers {existing}"
         )
-        if len(existing) == 1:
-            ass.source = existing[0]
-        else:
-            current_idx = self.block.ops.index(ass)
-            self.block.ops[current_idx : current_idx + 1] = [
-                models.Assignment(targets=[dst], source=src, source_location=ass.source_location)
-                for dst, src in zip(ass.targets, existing, strict=True)
-            ]
-        self.modified = True
+        source = models.ValueTuple(values=existing, source_location=ass.source_location)
+        replacement = models.Assignment(
+            targets=ass.targets, source=source, source_location=ass.source_location
+        )
+        self.edits.add_edit(self.op_index, 1, (replacement,))
+
+    @classmethod
+    def apply_to(
+        cls, block: models.BasicBlock, consts: _KnownConsts, asserted: Set[models.Value]
+    ) -> tuple[bool, _KnownConsts, Set[models.Value]]:
+        visitor = cls(consts=dict(consts), asserted=set(asserted))
+        for index, op in enumerate(block.ops):
+            visitor.op_index = index
+            op.accept(visitor)
+        return visitor.edits.apply(block.ops), visitor.consts, visitor.asserted

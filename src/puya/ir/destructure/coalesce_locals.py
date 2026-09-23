@@ -12,7 +12,7 @@ from puya.ir import (
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
-from puya.utils import StableSet
+from puya.utils import EditSet, StableSet
 
 logger = log.get_logger(__name__)
 
@@ -27,13 +27,13 @@ def _replace_registers_and_remove_redundant_assignments(
     replacer = MemoryReplacer(replacements=replacements)
     for block in blocks:
         assert not block.phis, "coalescing runs after phi-node removal"
-        ops = list[models.Op]()
-        for op in block.ops:
+        edits = EditSet[models.Op]()
+        for idx, op in enumerate(block.ops):
             replacement = op.accept(replacer)
             assert replacement is None, "MemoryReplacer should modify in-place"
-            if not _assignment_eliminated(op):
-                ops.append(op)
-        block.ops[:] = ops
+            if _assignment_eliminated(op):
+                edits.remove(idx)
+        edits.apply(block.ops)
         assert block.terminator is not None
         replacement = block.terminator.accept(replacer)
         assert replacement is None, "MemoryReplacer should modify in-place"
