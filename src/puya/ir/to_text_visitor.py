@@ -115,12 +115,16 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> str:
         box = read.key.accept(self)
+        if read.app is not None:
+            return f"box_read({read.app.accept(self)}, {box})"
         return f"box_read({box})"
 
     @typing.override
     def visit_box_write(self, write: models.BoxWrite) -> str:
         box = write.key.accept(self)
         value = write.value.accept(self)
+        if write.app is not None:
+            return f"box_write({write.app.accept(self)}, {box}, {value})"
         return f"box_write({box}, {value})"
 
     @typing.override

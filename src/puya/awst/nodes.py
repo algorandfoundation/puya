@@ -1345,9 +1345,16 @@ class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
     exists_assertion_message: str | None
     """TEAL comment that will be emitted in a checked-read scenario"""
+    app: Expression | None = attrs.field(
+        default=None,
+        validator=attrs.validators.optional(expression_has_wtype(wtypes.application_wtype)),
+    )
+    """if not None, the box belongs to another application, and is accessed via app_box_* ops"""
 
     @property
     def storage_kind(self) -> AppStorageKind:
+        # note: remote boxes box are never part of the contract state (AppStorageKind doesn't
+        # distinguish them)
         return AppStorageKind.box
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

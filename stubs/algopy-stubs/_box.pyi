@@ -1,14 +1,24 @@
 import typing
 
-from typing_extensions import deprecated
+from typing_extensions import TypeVar, deprecated
 
-from algopy import Bytes, String, UInt64
+from algopy import Application, Bytes, String, UInt64
 
 _TKey = typing.TypeVar("_TKey")
 _TValue = typing.TypeVar("_TValue")
 
 @typing.final
-class Box(typing.Generic[_TValue]):
+class Local:
+    """Marks a `Box` as belonging to the current application. This is the default."""
+
+@typing.final
+class Remote:
+    """Marks a `Box` as belonging to another application. See `Box.remote`."""
+
+_TLocation = TypeVar("_TLocation", Local, Remote, default=Local)
+
+@typing.final
+class Box(typing.Generic[_TValue, _TLocation]):
     """
     Box abstracts the reading and writing of a single value to a single box.
     The box size will be reconfigured dynamically to fit the size of the value being assigned to
@@ -16,8 +26,45 @@ class Box(typing.Generic[_TValue]):
     """
 
     def __init__(
-        self, type_: type[_TValue], /, *, key: bytes | str | Bytes | String = ...
-    ) -> None: ...
+        self: "Box[_TValue, Local]",
+        type_: type[_TValue],
+        /,
+        *,
+        key: bytes | str | Bytes | String = ...,
+    ) -> None:
+        """Declare a box belonging to the current application.
+
+        :arg type_: The type of the value stored in the box
+        :arg key: The key of the box, defaults to the name of the member variable
+        """
+
+    @classmethod
+    def remote(
+        cls,
+        type_: type[_TValue],
+        /,
+        *,
+        app: Application,
+        key: bytes | str | Bytes | String,
+    ) -> "Box[_TValue, Remote]":
+        """Declare a reference to a box belonging to _another_ application.
+
+        The referenced application must opt in to sharing its boxes, and the box must be
+        available to the transaction. Such a box is not part of this contract's state, so it
+        cannot be declared as a contract member - construct it where it is used instead:
+
+        ```python
+        box = Box.remote(UInt64, app=other_app, key=b"counter")
+        assert box.value == 42
+        ```
+
+        Requires AVM 13 or later.
+
+        :arg type_: The type of the value stored in the box
+        :arg app: The application the box belongs to
+        :arg key: The key of the box
+        """
+
     def __bool__(self) -> bool:
         """
         Returns True if the box exists, regardless of the truthiness of the contents
@@ -34,6 +81,13 @@ class Box(typing.Generic[_TValue]):
         Fails if size is omitted and the type is not fixed size.
 
         Returns True if the box was created, False if the box already existed
+        """
+
+    @property
+    def app(self) -> Application:
+        """The application this box belongs to.
+
+        Returns the current application on local boxes.
         """
 
     @property
@@ -76,7 +130,7 @@ class Box(typing.Generic[_TValue]):
     @property
     @deprecated("Box methods previously accessed via `.ref` are now directly available")
     def ref(self) -> BoxRef:
-        """Provides a BoxRef for this box"""
+        """Provides a BoxRef for this box. Not supported on remote boxes."""
 
     def extract(self, start_index: UInt64 | int, length: UInt64 | int) -> Bytes:
         """

@@ -114,6 +114,8 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
+        if expr.app:
+            return f"Box[{expr.key.accept(self)}, {expr.app.accept(self)}]"
         return f"Box[{expr.key.accept(self)}]"
 
     @typing.override

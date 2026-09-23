@@ -39,15 +39,17 @@ def resolve_account(account: NodeBuilder) -> Expression:
 
 
 def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Expression:
-    box_len_expr = _box_len(box.key, location)
-    return CheckedMaybe(box_len_expr, comment=box.exists_assertion_message or "box exists")
-
-
-def _box_len(box_key: Expression, location: SourceLocation) -> IntrinsicCall:
-    assert box_key.wtype == wtypes.box_key
-    return IntrinsicCall(
-        op_code="box_len",
+    assert box.key.wtype == wtypes.box_key
+    if box.app is not None:
+        op_code = "app_box_len"
+        stack_args = [box.app, box.key]
+    else:
+        op_code = "box_len"
+        stack_args = [box.key]
+    box_len_expr = IntrinsicCall(
+        op_code=op_code,
         wtype=wtypes.WTuple([wtypes.uint64_wtype, wtypes.bool_wtype], source_location=location),
-        stack_args=[box_key],
+        stack_args=stack_args,
         source_location=location,
     )
+    return CheckedMaybe(box_len_expr, comment=box.exists_assertion_message or "box exists")

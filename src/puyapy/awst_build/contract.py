@@ -703,6 +703,14 @@ def _build_symbols_and_state(
                         kind = awst_nodes.AppStorageKind.account_local
                     case pytypes.GenericGlobalStateType:
                         kind = awst_nodes.AppStorageKind.app_global
+                    case pytypes.GenericBoxType if pytypes.is_remote_box(pytyp):
+                        context.error(
+                            "a box of another application is not this contract's state,"
+                            " so it can't be declared as a contract member"
+                            " - construct it where it is used instead",
+                            node_loc,
+                        )
+                        continue
                     case pytypes.GenericBoxType:
                         kind = awst_nodes.AppStorageKind.box
                     case None if pytyp == pytypes.BoxRefType:

@@ -420,6 +420,13 @@ class WTuple(_WTypeInstance):
         return visitor.visit_tuple_type(self)
 
 
+remote_box_wtype: typing.Final = WTuple(
+    name="remote_box",
+    types=(application_wtype, box_key),
+    names=("app", "key"),
+)
+
+
 @attrs.frozen(kw_only=True)
 class ARC4Type(_WTypeInstance):
     arc4_alias: str | None = attrs.field(default=None, eq=False)

@@ -172,6 +172,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_box_write(self, write: models.BoxWrite) -> None:
+        self._invalidate(_StateType.box)
         self._handle_box_put_or_write(write, key=write.key, value=write.value)
 
     @typing.override
@@ -206,15 +207,6 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 key, len_ = op.args
                 self._cache_box_len(key=key, length=len_)
             case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
-                self._invalidate(_StateType.box)
-            case (
-                AVMOp.app_box_create
-                | AVMOp.app_box_del
-                | AVMOp.app_box_put
-                | AVMOp.app_box_splice
-                | AVMOp.app_box_resize
-                | AVMOp.app_box_replace
-            ):
                 # Remote box modifications can be made on the current APP ID (and therefore modify
                 # local boxes)
                 self._invalidate(_StateType.box)

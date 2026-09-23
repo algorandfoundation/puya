@@ -1067,6 +1067,58 @@ ARC4AddressType: typing.Final = _register_builtin(
 )
 
 
+BoxLocalType: typing.Final[PyType] = _register_builtin(StaticType(name="algopy._box.Local"))
+BoxRemoteType: typing.Final[PyType] = _register_builtin(StaticType(name="algopy._box.Remote"))
+
+
+def _parameterise_box(
+    self: _GenericType[StorageProxyType],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> StorageProxyType:
+    """Parameterise `Box[content]` / `Box[content, Local]` / `Box[content, Remote]`.
+
+    The location parameter defaults to `Local` (via PEP 696), and a remote box has a different
+    runtime representation - the key alone is not enough to identify a box of another
+    application - hence the differing wtype.
+    """
+    match args:
+        case (content,):
+            location = BoxLocalType
+        case (content, location):
+            pass
+        case _:
+            raise CodeError(
+                f"expected one or two type parameters, got {len(args)} parameters", source_location
+            )
+    if location == BoxLocalType:
+        wtype = wtypes.box_key
+        # deliberately omits the default location, so that error messages (and the AWST) for
+        # the common case are unchanged
+        name = f"{self.name}[{content.name}]"
+    elif location == BoxRemoteType:
+        wtype = wtypes.remote_box_wtype
+        name = f"{self.name}[{content.name}, {location.name}]"
+    else:
+        raise CodeError(
+            f"expected {BoxLocalType} or {BoxRemoteType} as the second type parameter,"
+            f" got {location}",
+            source_location,
+        )
+    return StorageProxyType(
+        generic=self,
+        name=name,
+        content=content,
+        wtype=wtype,
+        content_wtype=content.checked_wtype(source_location),
+    )
+
+
+def is_remote_box(typ: PyType) -> bool:
+    """Is this the type of a box belonging to another application?"""
+    return isinstance(typ, StorageProxyType) and typ.wtype == wtypes.remote_box_wtype
+
+
 def _make_storage_parameterise(wtype: wtypes.WType) -> _Parameterise[StorageProxyType]:
     def parameterise(
         self: _GenericType[StorageProxyType],
@@ -1129,7 +1181,7 @@ GenericLocalStateType: typing.Final = _GenericType(
 )
 GenericBoxType: typing.Final = _GenericType(
     name="algopy._box.Box",
-    parameterise=_make_storage_parameterise(wtypes.box_key),
+    parameterise=_parameterise_box,
 )
 BoxRefType: typing.Final = _register_builtin(
     StorageProxyType(

@@ -25,6 +25,8 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "Account": SymbolData(fullname="algopy._reference.Account", module_public=True),
         "Asset": SymbolData(fullname="algopy._reference.Asset", module_public=True),
         "Application": SymbolData(fullname="algopy._reference.Application", module_public=True),
+        "Local": SymbolData(fullname="algopy._box.Local", module_public=True),
+        "Remote": SymbolData(fullname="algopy._box.Remote", module_public=True),
         "Box": SymbolData(fullname="algopy._box.Box", module_public=True),
         "BoxRef": SymbolData(fullname="algopy._box.BoxRef", module_public=True),
         "BoxMap": SymbolData(fullname="algopy._box.BoxMap", module_public=True),
@@ -86,6 +88,9 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
     "algopy._box": {
         "_TKey": SymbolData(fullname="algopy._box._TKey", module_public=True),
         "_TValue": SymbolData(fullname="algopy._box._TValue", module_public=True),
+        "Local": SymbolData(fullname="algopy._box.Local", module_public=True),
+        "Remote": SymbolData(fullname="algopy._box.Remote", module_public=True),
+        "_TLocation": SymbolData(fullname="algopy._box._TLocation", module_public=True),
         "Box": SymbolData(fullname="algopy._box.Box", module_public=True),
         "BoxRef": SymbolData(fullname="algopy._box.BoxRef", module_public=True),
         "BoxMap": SymbolData(fullname="algopy._box.BoxMap", module_public=True),
@@ -487,7 +492,7 @@ STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
         "algopy.op",
     ],
     "algopy._aliases": ["algopy.arc4"],
-    "algopy._box": ["algopy", "algopy._primitives"],
+    "algopy._box": ["algopy", "algopy._primitives", "algopy._reference"],
     "algopy._compiled": [
         "algopy",
         "algopy._contract",

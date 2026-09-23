@@ -4,6 +4,7 @@ from collections.abc import Callable, Sequence
 from functools import cached_property
 
 from puya import log
+from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -70,7 +71,7 @@ def _fetch_and_decode_from_storage_with_assert(
     *,
     default_error_message: str,
 ) -> ir.ValueProvider:
-    storage_codec = _get_storage_codec_for_node(expr)
+    storage_codec = get_storage_codec_for_node(expr)
     if isinstance(expr, awst_nodes.BoxValueExpression):
         # BoxRead will assert the box exists when lowered
         # It is deliberately used in this case to provide further optimization opportunities
@@ -79,6 +80,7 @@ def _fetch_and_decode_from_storage_with_assert(
         # the implications.
         box_read = ir.BoxRead(
             key=key,
+            app=_materialise_box_app(context, expr),
             value_type=types.bytes_,
             source_location=expr.source_location,
             exists_assertion_message=expr.exists_assertion_message or default_error_message,
@@ -136,20 +138,30 @@ def _build_get_ex_op(
         )
     else:
         typing.assert_type(expr, awst_nodes.BoxValueExpression)
+        app = _materialise_box_app(context, expr)
         get_storage_value = ir.Intrinsic(
-            op=AVMOp.box_get,
-            args=[key],
+            op=AVMOp.box_get if app is None else AVMOp.app_box_get,
+            args=[key] if app is None else [app, key],
             types=[result_type, types.bool_],
             source_location=expr.source_location,
         )
     return get_storage_value
 
 
+def _materialise_box_app(
+    context: IRFunctionBuildContext, expr: awst_nodes.BoxValueExpression
+) -> ir.Value | None:
+    """Evaluate the application a box belongs to, or None if it belongs to this application."""
+    if expr.app is None:
+        return None
+    return context.visitor.visit_and_materialise_single(expr.app)
+
+
 def visit_state_exists(
     context: IRFunctionBuildContext, field: awst_nodes.StorageExpression, loc: SourceLocation
 ) -> ir.ValueProvider:
     key = context.visitor.visit_and_materialise_single(field.key)
-    result_type = _get_storage_codec_for_node(field).encoded_ir_type
+    result_type = get_storage_codec_for_node(field).encoded_ir_type
     if isinstance(field, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_get_ex
         args = [ir.UInt64Constant(value=0, source_location=loc), key]
@@ -161,8 +173,9 @@ def visit_state_exists(
         typing.assert_type(field, awst_nodes.BoxValueExpression)
         # use box_len for existence check, in case len(value) is > 4096
         result_type = types.uint64
-        op = AVMOp.box_len
-        args = [key]
+        app = _materialise_box_app(context, field)
+        op = AVMOp.box_len if app is None else AVMOp.app_box_len
+        args = [key] if app is None else [app, key]
 
     ir_types = [result_type, types.bool_]
     get_ex = ir.Intrinsic(op=op, args=args, types=ir_types, source_location=loc)
@@ -175,7 +188,7 @@ def visit_state_get(
 ) -> ir.ValueProvider:
     # ensure we materialize key before default value
     key = context.visitor.visit_and_materialise_single(expr.field.key)
-    storage_codec = _get_storage_codec_for_node(expr.field)
+    storage_codec = get_storage_codec_for_node(expr.field)
     get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr.field, key)
     # default should always be materialized, and should be after account for local-state,
     # but before the result is materialized
@@ -221,7 +234,7 @@ def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ir.ValueProvider:
     key = context.visitor.visit_and_materialise_single(expr.field.key)
-    storage_codec = _get_storage_codec_for_node(expr.field)
+    storage_codec = get_storage_codec_for_node(expr.field)
     get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr.field, key)
     storage_value, did_exist = context.visitor.materialise_value_provider(
         get_ex_op, ("maybe_value", "maybe_exists")
@@ -314,14 +327,22 @@ def _conditional_tuple_value_provider(
 def visit_state_delete(
     context: IRFunctionBuildContext, statement: awst_nodes.StateDelete
 ) -> ir.ValueProvider | None:
+    args = []
+
     match statement:
         case awst_nodes.StateDelete(
-            field=awst_nodes.BoxValueExpression(key=awst_key),
+            field=awst_nodes.BoxValueExpression() as box_field,
             wtype=wtypes.bool_wtype
             | wtypes.void_wtype,
         ):
-            op = AVMOp.box_del
+            awst_key = box_field.key
             awst_account = None
+            app = _materialise_box_app(context, box_field)
+            if app is None:
+                op = AVMOp.box_del
+            else:
+                op = AVMOp.app_box_del
+                args.append(app)
         case awst_nodes.StateDelete(
             field=awst_nodes.AppStateExpression(key=awst_key), wtype=wtypes.void_wtype
         ):
@@ -339,7 +360,6 @@ def visit_state_delete(
         case _:
             typing.assert_never(statement)
 
-    args = []
     if awst_account is not None:
         account_value = context.visitor.visit_and_materialise_single(awst_account)
         args.append(account_value)
@@ -378,8 +398,20 @@ class StorageCodec(abc.ABC):
         return storage_type
 
 
-def _get_storage_codec_for_node(node: awst_nodes.StorageExpression) -> StorageCodec:
-    return get_storage_codec(node.wtype, node.storage_kind, node.source_location)
+def get_storage_codec_for_node(node: awst_nodes.StorageExpression) -> StorageCodec:
+    codec = get_storage_codec(node.wtype, node.storage_kind, node.source_location)
+    if isinstance(node, awst_nodes.BoxValueExpression) and node.app is not None:
+        # a box larger than a single stack value is read and written in chunks via
+        # box_extract/box_replace (see the add_box_extract_replace optimisation), which has no
+        # app_box_* equivalent yet, so app_box_get/app_box_put would fail at runtime
+        num_bytes = codec.encoded_ir_type.num_bytes
+        if num_bytes is not None and num_bytes > MAX_BYTES_LENGTH:
+            logger.error(
+                f"remote box values larger than {MAX_BYTES_LENGTH} bytes are not supported"
+                f" - use .extract() and .replace() to access the box in chunks instead",
+                location=node.source_location,
+            )
+    return codec
 
 
 def get_storage_codec(

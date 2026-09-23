@@ -138,15 +138,20 @@ def handle_assignment(
                 )
             )
             return source
-        case awst_nodes.BoxValueExpression(
-            key=awst_key, wtype=wtype, source_location=field_location
-        ):
-            key_value = context.visitor.visit_and_materialise_single(awst_key)
-            codec = storage.get_storage_codec(wtype, awst_nodes.AppStorageKind.box, field_location)
+        case awst_nodes.BoxValueExpression() as box_target:
+            field_location = box_target.source_location
+            app_value = (
+                context.visitor.visit_and_materialise_single(box_target.app)
+                if box_target.app is not None
+                else None
+            )
+            key_value = context.visitor.visit_and_materialise_single(box_target.key)
+            codec = storage.get_storage_codec_for_node(box_target)
             encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
                 ir.BoxWrite(
                     key=key_value,
+                    app=app_value,
                     value=encode_result,
                     delete_first=codec.encoded_ir_type.num_bytes is None,
                     source_location=assignment_location,

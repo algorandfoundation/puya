@@ -188,8 +188,8 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         loc = read.source_location
 
         box_get = ir.Intrinsic(
-            op=AVMOp.box_get,
-            args=[read.key],
+            op=AVMOp.box_get if read.app is None else AVMOp.app_box_get,
+            args=[read.key] if read.app is None else [read.app, read.key],
             types=[*read.types, types.bool_],
             source_location=loc,
         )
@@ -201,16 +201,17 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
 
     @typing.override
     def visit_box_write(self, write: ir.BoxWrite) -> ir.Intrinsic:
+        prefix = [] if write.app is None else [write.app]
         if write.delete_first:
             self.add_op(
                 ir.Intrinsic(
-                    op=AVMOp.box_del,
-                    args=[write.key],
+                    op=AVMOp.box_del if write.app is None else AVMOp.app_box_del,
+                    args=[*prefix, write.key],
                     source_location=write.source_location,
                 )
             )
         return ir.Intrinsic(
-            op=AVMOp.box_put,
-            args=[write.key, write.value],
+            op=AVMOp.box_put if write.app is None else AVMOp.app_box_put,
+            args=[*prefix, write.key, write.value],
             source_location=write.source_location,
         )

@@ -227,9 +227,13 @@ class IRTraverser(IRVisitor[None]):
         write.value.accept(self)
 
     def visit_box_read(self, read: puya.ir.models.BoxRead) -> None:
+        if read.app is not None:
+            read.app.accept(self)
         read.key.accept(self)
 
     def visit_box_write(self, write: puya.ir.models.BoxWrite) -> None:
+        if write.app is not None:
+            write.app.accept(self)
         write.key.accept(self)
         write.value.accept(self)
 

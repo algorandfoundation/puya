@@ -79,6 +79,7 @@ class BoxRefProxyExpressionBuilder(
             exists_assertion_message = "check BoxRef exists"
         return BoxValueExpression(
             key=self.resolve(),
+            app=None,  # BoxRefs are always local (for now)
             wtype=wtypes.bytes_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
@@ -102,7 +103,7 @@ class BoxRefProxyExpressionBuilder(
             case "delete":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.resolve(),
+                    stack_args_prefix=(self.resolve(),),
                     op_code="box_del",
                     args={},
                     return_type=pytypes.BoolType,
@@ -110,7 +111,7 @@ class BoxRefProxyExpressionBuilder(
             case "extract":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.resolve(),
+                    stack_args_prefix=(self.resolve(),),
                     op_code="box_extract",
                     args={"start_index": pytypes.UInt64Type, "length": pytypes.UInt64Type},
                     return_type=pytypes.BytesType,
@@ -118,7 +119,7 @@ class BoxRefProxyExpressionBuilder(
             case "resize":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.resolve(),
+                    stack_args_prefix=(self.resolve(),),
                     op_code="box_resize",
                     args={"new_size": pytypes.UInt64Type},
                     return_type=pytypes.NoneType,
@@ -126,7 +127,7 @@ class BoxRefProxyExpressionBuilder(
             case "replace":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.resolve(),
+                    stack_args_prefix=(self.resolve(),),
                     op_code="box_replace",
                     args={"start_index": pytypes.UInt64Type, "value": pytypes.BytesType},
                     return_type=pytypes.NoneType,
@@ -134,7 +135,7 @@ class BoxRefProxyExpressionBuilder(
             case "splice":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.resolve(),
+                    stack_args_prefix=(self.resolve(),),
                     op_code="box_splice",
                     args={
                         "start_index": pytypes.UInt64Type,
@@ -181,13 +182,13 @@ class _IntrinsicMethod(FunctionBuilder):
         self,
         location: SourceLocation,
         *,
-        box_proxy: Expression,
+        stack_args_prefix: Sequence[Expression],
         op_code: str,
         args: dict[str, pytypes.PyType],
         return_type: pytypes.RuntimeType,
     ) -> None:
         super().__init__(location)
-        self.box_proxy = box_proxy
+        self.stack_args_prefix = stack_args_prefix
         self.op_code = op_code
         self.args = args
         self.return_type = return_type
@@ -217,7 +218,7 @@ class _IntrinsicMethod(FunctionBuilder):
         ]
         result_expr = IntrinsicCall(
             op_code=self.op_code,
-            stack_args=[self.box_proxy, *stack_args],
+            stack_args=[*self.stack_args_prefix, *stack_args],
             wtype=self.return_type.wtype,
             source_location=location,
         )

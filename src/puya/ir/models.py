@@ -562,11 +562,13 @@ class ReplaceValue(_Aggregate):
 @attrs.define(eq=False)
 class BoxRead(ValueProvider):
     key: Value
+    app: Value | None
+    """if not None, the box belongs to another application"""
     value_type: IRType
     exists_assertion_message: str
 
     def _frozen_data(self) -> object:
-        return self.key, self.value_type
+        return self.key, self.app, self.value_type
 
     @property
     def types(self) -> Sequence[IRType]:
@@ -579,12 +581,14 @@ class BoxRead(ValueProvider):
 @attrs.define(eq=False)
 class BoxWrite(Op):
     key: Value
+    app: Value | None
+    """if not None, the box belongs to another application"""
     value: Value
     delete_first: bool
     source_location: SourceLocation | None
 
     def _frozen_data(self) -> object:
-        return self.key, self.value, self.delete_first
+        return self.key, self.app, self.value, self.delete_first
 
     @property
     def types(self) -> Sequence[IRType]:

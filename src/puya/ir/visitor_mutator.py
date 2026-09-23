@@ -174,12 +174,16 @@ class IRMutator(IRVisitor[typing.Any]):
     def visit_box_read(self, read: ir.BoxRead) -> ir.ValueProvider | None:
         if replacement := read.key.accept(self):
             read.key = replacement
+        if read.app is not None and (replacement := read.app.accept(self)):
+            read.app = replacement
         return None
 
     @typing.override
     def visit_box_write(self, write: ir.BoxWrite) -> ir.Op | None:
         if replacement := write.key.accept(self):
             write.key = replacement
+        if write.app is not None and (replacement := write.app.accept(self)):
+            write.app = replacement
         if replacement := write.value.accept(self):
             write.value = replacement
         return None

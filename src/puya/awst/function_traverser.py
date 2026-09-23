@@ -405,6 +405,8 @@ class FunctionTraverser(
     @typing.override
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         expr.key.accept(self)
+        if expr.app:
+            expr.app.accept(self)
 
     @typing.override
     def visit_biguint_postfix_unary_operation(

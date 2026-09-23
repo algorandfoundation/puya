@@ -247,7 +247,7 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.PyType | None, InstanceBuilderFromExpressionAndPyTypeFactory
 ] = {
     pytypes.GenericTupleType: tuple_.TupleExpressionBuilder,
-    pytypes.GenericBoxType: storage.BoxProxyExpressionBuilder,
+    pytypes.GenericBoxType: storage.box_proxy_builder,
     pytypes.GenericBoxMapType: storage.BoxMapProxyExpressionBuilder,
     pytypes.GenericReferenceArrayType: native.ReferenceArrayExpressionBuilder,
     pytypes.GenericImmutableArrayType: native.ImmutableArrayExpressionBuilder,

@@ -196,3 +196,86 @@ class MyContract(arc4.ARC4Contract):
         self.box = Box(UInt64, key=dynamic) ## E: assigning algopy.Box[algopy.UInt64] to a member variable requires a constant value for key
         self.box_map = BoxMap(UInt64, UInt64, key_prefix=dynamic) ## E: assigning algopy.BoxMap[algopy.UInt64, algopy.UInt64] to a member variable requires a constant value for key_prefix
         self.box_ref = BoxRef(key=dynamic) ## E: assigning algopy.BoxRef to a member variable requires a constant value for key
+
+## case: remote_box
+
+from algopy import Application, ARC4Contract, Box, Bytes, Local, Remote, String, UInt64, arc4, subroutine
+
+@subroutine
+def key_types(app: Application) -> None:
+    box = Box.remote(UInt64, app=app, key="1")
+    box = Box.remote(UInt64, app=app, key=b"1")
+    box = Box.remote(UInt64, app=app, key=String("1"))
+    box = Box.remote(UInt64, app=app, key=Bytes(b"1"))
+    box = Box.remote(UInt64, app=app, key=2)  # type: ignore[arg-type] ## E: unexpected argument type
+
+@subroutine
+def missing_key(app: Application) -> None:
+    Box.remote(UInt64, app=app)  # type: ignore[call-arg] ## E: missing required keyword argument(s): key
+
+@subroutine
+def missing_app() -> None:
+    Box.remote(UInt64, key=b"box")  # type: ignore[call-arg] ## E: missing required keyword argument(s): app
+
+@subroutine
+def wrong_app_type() -> None:
+    Box.remote(UInt64, app=UInt64(123), key=b"box")  # type: ignore[arg-type] ## W: expression result is ignored \
+                                                                              ## E: unexpected argument type
+
+@subroutine
+def wrong_type_arg(app: Application) -> None:
+    Box.remote("oops", app=app, key=b"box")  # type: ignore[arg-type] ## E: first argument must be a type reference
+
+@subroutine
+def remote_annotation_local_ctor() -> None:
+    Box[UInt64, Remote](UInt64, key=b"box")  ## W: expression result is ignored \
+                                             ## E: box annotated as algopy.Remote but constructed as algopy.Local - Box() constructs a algopy.Local box, and Box.remote() constructs a algopy.Remote box
+
+@subroutine
+def local_annotation_remote_ctor(app: Application) -> None:
+    Box[UInt64, Local].remote(UInt64, app=app, key=b"box")  ## W: expression result is ignored \
+                                                            ## E: box annotated as algopy.Local but constructed as algopy.Remote - Box() constructs a algopy.Local box, and Box.remote() constructs a algopy.Remote box
+
+@subroutine
+def bad_location_arg() -> None:
+    # the type: ignore records that mypy rejects this too - _TLocation is constrained to
+    # Local/Remote - and would fail as an unused-ignore if that ever stopped being the case
+    Box[UInt64, UInt64](UInt64, key=b"box")  # type: ignore[type-var] ## E: expected algopy.Local or algopy.Remote as the second type parameter, got algopy.UInt64
+
+# the location is part of the type, so mypy rejects both directions on its own; the ignores
+# below suppress that, leaving puyapy's own check to be asserted
+
+@subroutine
+def remote_assigned_to_local(app: Application) -> None:
+    box: Box[UInt64] = Box.remote(UInt64, app=app, key=b"box")  # type: ignore[assignment] ## E: type annotation does not match expression value type
+
+@subroutine
+def local_assigned_to_remote() -> None:
+    box: Box[UInt64, Remote] = Box(UInt64, key=b"box")  # type: ignore[assignment] ## E: type annotation does not match expression value type
+
+@subroutine
+def ref_on_remote(app: Application) -> None:
+    Box.remote(UInt64, app=app, key=b"box").ref.delete()  ## E: BoxRef does not support boxes of another application - the equivalent methods are available directly on this box
+
+class RemoteAsState(ARC4Contract):
+    def __init__(self) -> None:
+        self.remote = Box.remote(UInt64, app=Application(123), key=b"box")  ## E: a box of another application is not this contract's state, so it can't be declared as a contract member - construct it where it is used instead \
+                                                                            ## E: unsupported usage of storage type
+
+    @arc4.abimethod
+    def read(self) -> UInt64:
+        return self.remote.value  ## E: unable to resolve storage member
+
+## case: remote_box_too_big
+
+import typing
+
+from algopy import Application, Box, arc4, subroutine
+
+class TooBig(arc4.Struct):
+    values: arc4.StaticArray[arc4.UInt64, typing.Literal[600]]
+
+@subroutine
+def too_big(app: Application) -> arc4.UInt64:
+    box = Box.remote(TooBig, app=app, key=b"box")
+    return box.value.values[0]  ## E: remote box values larger than 4096 bytes are not supported - use .extract() and .replace() to access the box in chunks instead

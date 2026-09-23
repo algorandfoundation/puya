@@ -103,7 +103,10 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> None:
-        if self._target:
+        # FIXME?
+        # remote boxes are not combined with extract/replace ops yet - all the combining below
+        # emits box_extract/box_replace etc. against the current application
+        if self._target and read.app is None:
             self.box_reads[self._target] = read
 
     @typing.override

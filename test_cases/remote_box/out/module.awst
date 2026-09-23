@@ -1,0 +1,135 @@
+contract RemoteBoxContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    [hex<"6C6F63616C">]: uint64
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.remote_box.contract.RemoteBoxContract.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.local_app_is_current_app(): bool
+  {
+    return global<CurrentApplicationID>() == global<CurrentApplicationID>()
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.explicit_location(app: application): uint64
+  {
+    local: box_key = hex<"636F756E746572">
+    remote: remote_box = (app=app, key=hex<"636F756E746572">)
+    return Box[local] + Box[remote[1], remote[0]]
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.read(app: application): uint64
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return Box[box[1], box[0]]
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.read_with_default(app: application): uint64
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return STATE_GET(Box[box[1], box[0]], default=42u)
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.maybe(app: application): tuple<uint64,bool>
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return STATE_GET_EX(Box[box[1], box[0]])
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.exists(app: application): bool
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return STATE_EXISTS(Box[box[1], box[0]])
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.length(app: application): uint64
+  {
+    box: remote_box = (app=app, key=hex<"626C6F62">)
+    return checked_maybe(app_box_len(box[0], box[1]))
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.write(app: application, value: uint64): void
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    Box[box[1], box[0]]: uint64 = value
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.delete(app: application): void
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    STATE_DELETE(Box[box[1], box[0]])
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.create_and_splice(app: application, value: bytes): bytes
+  {
+    box: remote_box = (app=app, key=hex<"626C6F62">)
+    assert(app_box_create(box[0], box[1], 32u), comment="box should not already exist")
+    app_box_replace(box[0], box[1], 0u, value)
+    app_box_splice(box[0], box[1], 0u, 4u, value)
+    app_box_resize(box[0], box[1], 64u)
+    return app_box_extract(box[0], box[1], 0u, 8u)
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.struct_member_write(app: application, value: arc4.uint64): void
+  {
+    box: remote_box = (app=app, key=hex<"636F756E74657273">)
+    Box[box[1], box[0]].a: arc4.uint64 = value
+    Box[box[1], box[0]].b: arc4.uint64 = value
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.big_read(app: application, index: uint64): arc4.uint64
+  {
+    box: remote_box = (app=app, key=hex<"626967">)
+    return Box[box[1], box[0]].values[index]
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.big_write(app: application, index: uint64, value: arc4.uint64): void
+  {
+    box: remote_box = (app=app, key=hex<"626967">)
+    Box[box[1], box[0]].values[index]: arc4.uint64 = value
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.key_and_app(app: application): tuple<bytes,uint64>
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return (reinterpret_cast<bytes>(box[1]), reinterpret_cast<uint64>(box[0]))
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.passed_around(app: application): uint64
+  {
+    box: remote_box = (app=app, key=hex<"636F756E746572">)
+    return test_cases.remote_box.contract._sum_twice(box)
+  }
+  
+  baremethod test_cases.remote_box.contract.RemoteBoxContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _sum_twice(box: remote_box): uint64
+{
+  return Box[box[1], box[0]] + Box[box[1], box[0]]
+}

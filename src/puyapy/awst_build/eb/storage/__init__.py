@@ -2,6 +2,7 @@ from puyapy.awst_build.eb.storage.box import (
     BoxGenericTypeExpressionBuilder,
     BoxProxyExpressionBuilder,
     BoxTypeBuilder,
+    box_proxy_builder,
 )
 from puyapy.awst_build.eb.storage.box_map import (
     BoxMapGenericTypeExpressionBuilder,
@@ -37,6 +38,7 @@ __all__ = [
     "BoxTypeBuilder",
     "BoxGenericTypeExpressionBuilder",
     "BoxProxyExpressionBuilder",
+    "box_proxy_builder",
     "BoxRefTypeBuilder",
     "BoxRefProxyExpressionBuilder",
     "BoxMapTypeBuilder",

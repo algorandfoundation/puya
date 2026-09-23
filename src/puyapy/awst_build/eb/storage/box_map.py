@@ -149,6 +149,7 @@ class BoxMapProxyExpressionBuilder(
             exists_assertion_message = "check BoxMap entry exists"
         return BoxValueExpression(
             key=self._build_box_map_key(key, location),
+            app=None,  # BoxMaps are always local (for now)
             wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
