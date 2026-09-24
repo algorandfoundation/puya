@@ -57,7 +57,8 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
                 replacements[r] = replacement
 
     for block in subroutine.body:
-        for phi in block.phis.copy():
+        phi_edits = EditSet[models.Phi]()
+        for phi_idx, phi in enumerate(block.phis):
             # don't replace if phi.register is involved in an equivalence set
             if phi.register in set_lookup:
                 continue
@@ -68,8 +69,8 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
             else:
                 assert single_register not in replacements, "chained replacement detected"
                 replacements[phi.register] = single_register
-                block.phis.remove(phi)
-                modified = True
+                phi_edits.remove(phi_idx)
+        modified = phi_edits.apply(block.phis) or modified
     replaced = MemoryReplacer.apply(subroutine.body, replacements=replacements)
     if replaced:
         logger.debug(f"Copy propagation made {replaced} modifications")

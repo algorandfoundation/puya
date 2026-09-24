@@ -4,6 +4,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import remove_linear_jumps, retarget_and_simplify
+from puya.utils import EditSet
 
 logger = log.get_logger(__name__)
 
@@ -27,22 +28,17 @@ def post_ssa_optimizer(context: CompileContext, sub: models.Subroutine) -> None:
 
 def _block_deduplication(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     seen = dict[tuple[object, ...], models.BasicBlock]()
-    modified = False
-    blocks = []
-    for block in subroutine.body:
-        blocks.append(block)
+    edits = EditSet[models.BasicBlock]()
+    for block_idx, block in enumerate(subroutine.body):
         all_ops = tuple(op.freeze() for op in block.all_ops)
         first = seen.setdefault(all_ops, block)
         if first is not block:
             duplicate = block
-            modified = True
-            blocks.pop()
+            edits.remove(block_idx)
             logger.debug(
                 f"Removing duplicated block {duplicate} and updating references to {first}"
             )
             for succ in duplicate.successors:
                 succ.replace_predecessor(old=duplicate, new=first)
             retarget_and_simplify(old=duplicate, new=first)
-    if modified:
-        subroutine.body[:] = blocks
-    return modified
+    return edits.apply(subroutine.body)

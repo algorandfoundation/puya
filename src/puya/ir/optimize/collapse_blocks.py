@@ -1,7 +1,7 @@
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
-from puya.utils import not_none
+from puya.utils import EditSet, not_none
 
 logger = log.get_logger(__name__)
 
@@ -25,10 +25,8 @@ def _replace_single_target_with_goto(terminator: models.ControlOp) -> models.Con
 
 
 def merge_blocks(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    modified = False
-    blocks = [subroutine.body[0]]
-    for block in subroutine.body[1:]:
-        blocks.append(block)
+    edits = EditSet[models.BasicBlock]()
+    for block_idx, block in enumerate(subroutine.body[1:], start=1):
         if len(block.predecessors) == 1:
             (predecessor,) = block.predecessors
             if type(predecessor.terminator) is models.Goto:
@@ -53,12 +51,9 @@ def merge_blocks(_context: CompileContext, subroutine: models.Subroutine) -> boo
                 for succ in block.successors:
                     succ.replace_predecessor(old=block, new=predecessor)
 
-                blocks.pop()
-                modified = True
+                edits.remove(block_idx)
                 logger.debug(f"Merged linear {block} into {predecessor}")
-    if modified:
-        subroutine.body[:] = blocks
-    return modified
+    return edits.apply(subroutine.body)
 
 
 def remove_linear_jumps(_context: CompileContext, subroutine: models.Subroutine) -> bool:
@@ -68,9 +63,8 @@ def remove_linear_jumps(_context: CompileContext, subroutine: models.Subroutine)
     #  update references within P from j to t
     #  ensure P are all in predecessors of t
     jumps = dict[models.BasicBlock, models.BasicBlock]()
-    blocks = []
-    for block in subroutine.body:
-        blocks.append(block)
+    edits = EditSet[models.BasicBlock]()
+    for block_idx, block in enumerate(subroutine.body):
         match block:
             case models.BasicBlock(phis=[], ops=[], terminator=models.Goto(target=target)):
                 if target is block:
@@ -83,7 +77,7 @@ def remove_linear_jumps(_context: CompileContext, subroutine: models.Subroutine)
                     continue
                 jumps[block] = target
                 logger.debug(f"Removing jump block {block}")
-                blocks.pop()
+                edits.remove(block_idx)
 
     if not jumps:
         return False
@@ -97,8 +91,7 @@ def remove_linear_jumps(_context: CompileContext, subroutine: models.Subroutine)
             except KeyError:
                 break
         retarget_and_simplify(old=src, new=target)
-    subroutine.body[:] = blocks
-    return True
+    return edits.apply(subroutine.body)
 
 
 def retarget_and_simplify(*, old: models.BasicBlock, new: models.BasicBlock) -> None:

@@ -8,7 +8,7 @@ from puya.context import CompileContext
 from puya.ir import models, visitor
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
-from puya.utils import StableSet
+from puya.utils import EditSet, StableSet
 
 logger = log.get_logger(__name__)
 
@@ -353,16 +353,14 @@ def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subro
     if len(reachable_set) == len(subroutine.body):
         return False
 
-    reachable_blocks = [subroutine.body[0]]
-    for block in subroutine.body[1:]:
-        if block in reachable_set:
-            reachable_blocks.append(block)
-        else:
+    edits = EditSet[models.BasicBlock]()
+    for block_idx, block in enumerate(subroutine.body[1:], start=1):
+        if block not in reachable_set:
             logger.debug(f"Removing unreachable block: {block}")
+            edits.remove(block_idx)
             for succ in block.successors:
                 if succ in reachable_set:
                     did_remove = succ.remove_predecessor(block)
                     assert did_remove
 
-    subroutine.body[:] = reachable_blocks
-    return True
+    return edits.apply(subroutine.body)

@@ -3,16 +3,15 @@ from collections.abc import Iterator
 
 from puya import log
 from puya.ir import models
-from puya.utils import not_none
+from puya.utils import EditSet, not_none
 
 logger = log.get_logger(__name__)
 
 
 def split_critical_edges(sub: models.Subroutine) -> None:
     id_counter: Iterator[int] | None = None
-    blocks = []
-    for predecessor in sub.body:
-        blocks.append(predecessor)
+    edits = EditSet[models.BasicBlock]()
+    for predecessor_idx, predecessor in enumerate(sub.body):
         if len(predecessor.successors) <= 1:
             continue
         for successor in predecessor.successors:
@@ -31,8 +30,8 @@ def split_critical_edges(sub: models.Subroutine) -> None:
                     max_id = max(not_none(b.id) for b in sub.body)
                     id_counter = itertools.count(max_id + 1)
                 new_block = _split_critical_edge(id_counter, predecessor, successor)
-                blocks.append(new_block)
-    sub.body[:] = blocks
+                edits.insert(predecessor_idx + 1, [new_block])
+    edits.apply(sub.body)
 
 
 def _split_critical_edge(

@@ -448,6 +448,10 @@ class EditSet[T]:
         """Queues dst[index:index + 1] = ()"""
         self.add_edit(index, 1, ())
 
+    def insert(self, index: int, values: Sequence[T]) -> None:
+        """Queues dst[index:index] = values, ie inserts before the element at index"""
+        self.add_edit(index, 0, values)
+
     def apply(self, dst: list[T]) -> bool:
         """Applies and clears all queued edits, returning True if there were any"""
         if not self._edits:
