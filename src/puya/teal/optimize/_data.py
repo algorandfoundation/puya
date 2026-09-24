@@ -4,6 +4,7 @@ LOAD_OP_CODES = frozenset(
         "arg",
         *(f"arg_{i}" for i in range(4)),
         "byte",
+        "bytec",
         *(f"bytec_{i}" for i in range(4)),  # valid as long as we don't push through a bytecblock
         "gaid",
         "gload",
@@ -13,6 +14,7 @@ LOAD_OP_CODES = frozenset(
         "gtxn",
         "gtxna",
         "int",
+        "intc",
         *(f"intc_{i}" for i in range(4)),  # valid as long as we don't push through an intcblock
         "load",  # valid as long as we don't push through a store/stores
         "method",
@@ -20,6 +22,7 @@ LOAD_OP_CODES = frozenset(
         "pushint",
         "txn",
         "txna",
+        "online_stake",
         # below are valid as long as we don't push through an itxn_submit
         "gitxn",
         "gitxna",

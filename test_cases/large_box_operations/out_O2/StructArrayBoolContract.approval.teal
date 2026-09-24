@@ -38,6 +38,7 @@ main_verify_route@12:
     return
 
 main_set_route@11:
+    bytec_0 // "box"
     txna ApplicationArgs 1
     dup
     len
@@ -86,13 +87,12 @@ main_set_route@11:
     swap
     uncover 3
     setbit
-    bytec_0 // "box"
-    cover 2
     box_replace // on error: index out of bounds
     intc_1 // 1
     return
 
 main_get_route@10:
+    bytec_2 // 0x151f7c75
     txna ApplicationArgs 1
     dup
     len
@@ -136,8 +136,6 @@ main_get_route@10:
     intc_3 // 0
     uncover 2
     setbit
-    bytec_2 // 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
@@ -203,12 +201,11 @@ main_pop_route@9:
     pushbytes 0x
     box_splice
     bytec_0 // "box"
+    dup
     box_len
     pop
     intc_1 // 1
     -
-    bytec_0 // "box"
-    swap
     box_resize
     intc_1 // 1
 
@@ -272,12 +269,11 @@ main_concat_route@8:
     swap
     extract 2 0
     bytec_0 // "box"
+    dup
     pushint 3
     intc_0 // 2
     box_extract
     btoi
-    bytec_0 // "box"
-    swap
     uncover 2
     uncover 3
     intc_1 // 1
@@ -303,12 +299,11 @@ main_append_route@7:
     uncover 2
     setbit
     bytec_0 // "box"
+    dup
     pushint 3
     intc_0 // 2
     box_extract
     btoi
-    bytec_0 // "box"
-    swap
     uncover 2
     intc_1 // 1
     dup
@@ -338,17 +333,17 @@ main_bootstrap_route@6:
     intc 4 // 4096
     callsub box_update_offset_inc
     bytec_0 // "box"
+    dup
     intc_2 // 8
     intc_0 // 2
     box_extract
     btoi
     bytec_0 // "box"
+    dup
     box_len
     pop
     intc 4 // 4096
     +
-    bytec_0 // "box"
-    swap
     box_resize
     dup
     intc_1 // 1
@@ -363,8 +358,6 @@ main_bootstrap_route@6:
     *
     pushint 10
     +
-    bytec_0 // "box"
-    swap
     intc_3 // 0
     uncover 3
     box_splice
@@ -547,6 +540,7 @@ box_dynamic_array_concat_bits_after_while@9:
 verify:
     proto 1 1
     bytec_0 // "box"
+    dup
     pushint 3
     intc_0 // 2
     box_extract
@@ -562,8 +556,6 @@ verify:
     /
     intc_0 // 2
     +
-    bytec_0 // "box"
-    cover 2
     box_extract
     frame_dig -1
     ==
@@ -592,6 +584,7 @@ verify:
     ==
     assert
     bytec_0 // "box"
+    dup
     pushint 6
     intc_0 // 2
     box_extract
@@ -605,8 +598,6 @@ verify:
     *
     intc_0 // 2
     +
-    bytec_0 // "box"
-    cover 2
     box_extract
     pushbytes 0x0001000000000000002a
     ==
