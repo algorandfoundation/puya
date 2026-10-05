@@ -265,17 +265,3 @@ class RemoteAsState(ARC4Contract):
     @arc4.abimethod
     def read(self) -> UInt64:
         return self.remote.value  ## E: unable to resolve storage member
-
-## case: remote_box_too_big
-
-import typing
-
-from algopy import Application, Box, arc4, subroutine
-
-class TooBig(arc4.Struct):
-    values: arc4.StaticArray[arc4.UInt64, typing.Literal[600]]
-
-@subroutine
-def too_big(app: Application) -> arc4.UInt64:
-    box = Box.remote(TooBig, app=app, key=b"box")
-    return box.value.values[0]  ## E: remote box values larger than 4096 bytes are not supported - use .extract() and .replace() to access the box in chunks instead

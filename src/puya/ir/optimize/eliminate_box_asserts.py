@@ -12,6 +12,8 @@ def minimize_box_exist_asserts(_context: CompileContext, subroutine: models.Subr
     for block in subroutine.body:
         if _remove_box_exists_asserts(block):
             modified = True
+        if _remove_remote_box_exists_asserts(block):
+            modified = True
     return modified
 
 
@@ -70,7 +72,7 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
                     ):
                         box_key = source.args[0]
                         box_exists.add(box_key)
-                    case AVMOp.box_del:
+                    case AVMOp.box_del | AVMOp.app_box_del | AVMOp.itxn_submit:
                         # conservative assume could be deleting any box
                         box_exists.clear()
                     case AVMOp.box_get | AVMOp.box_len:
@@ -78,5 +80,73 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
                             (box_key,) = source.args
                             _, exists_reg = targets
                             box_exists_regs[exists_reg] = box_key
+
+    return modified
+
+
+def _remove_remote_box_exists_asserts(block: models.BasicBlock) -> bool:
+    #   for any app_box op that returns an exist flag that is asserted
+    #   can remove any asserts after the first one as long as the box register is the same
+    #   and no app_box_del op is called
+    #   begin block | subroutine call | itxn_submit
+    #       exist state of all box keys are unknown
+    #   app_box_{create,extract,put,replace,resize,splice key}
+    #       set box key as known to exist
+    #   app_box_del key
+    #       sett box key as known to not exist
+    #   app_box_get | app_box_len
+    #       if unknown if box exists then keep the assert, assume box exists after assert
+    #       if known that box exists then remove any asserts
+    #       if known that box does not exist then replace asserts with err
+
+    modified = False
+    box_exists = set[tuple[models.Value, models.Value]]()
+    box_exists_regs = dict[models.Value, tuple[models.Value, models.Value]]()
+    for op in block.ops.copy():
+        if isinstance(op, models.Assert):
+            maybe_box_tuple = box_exists_regs.get(op.condition)
+            if maybe_box_tuple and not set_add(box_exists, maybe_box_tuple):
+                logger.debug(
+                    f"app_box {maybe_box_tuple} is known to exist, removing assert",
+                    location=op.source_location,
+                )
+                # box exists, so can remove assert
+                block.ops.remove(op)
+                modified = True
+        else:
+            if isinstance(op, models.Assignment):
+                targets = op.targets
+                source = op.source
+            elif isinstance(op, models.ValueProvider):
+                targets = None
+                source = op
+            else:
+                targets = None
+                source = None
+
+            if isinstance(source, models.InvokeSubroutine):
+                if not source.target.pure:
+                    box_exists.clear()
+            elif isinstance(source, models.Intrinsic):
+                match source.op:
+                    case (
+                        AVMOp.app_box_create
+                        | AVMOp.app_box_extract
+                        | AVMOp.app_box_put
+                        | AVMOp.app_box_replace
+                        | AVMOp.app_box_resize
+                        | AVMOp.app_box_splice
+                    ):
+                        box_app = source.args[0]
+                        box_key = source.args[1]
+                        box_exists.add((box_app, box_key))
+                    case AVMOp.box_del | AVMOp.app_box_del | AVMOp.itxn_submit:
+                        # conservative assume could be deleting any box
+                        box_exists.clear()
+                    case AVMOp.app_box_get | AVMOp.app_box_len:
+                        if targets is not None:
+                            (box_app, box_key) = source.args
+                            _, exists_reg = targets
+                            box_exists_regs[exists_reg] = (box_app, box_key)
 
     return modified

@@ -4,7 +4,6 @@ from collections.abc import Callable, Sequence
 from functools import cached_property
 
 from puya import log
-from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -399,19 +398,7 @@ class StorageCodec(abc.ABC):
 
 
 def get_storage_codec_for_node(node: awst_nodes.StorageExpression) -> StorageCodec:
-    codec = get_storage_codec(node.wtype, node.storage_kind, node.source_location)
-    if isinstance(node, awst_nodes.BoxValueExpression) and node.app is not None:
-        # a box larger than a single stack value is read and written in chunks via
-        # box_extract/box_replace (see the add_box_extract_replace optimisation), which has no
-        # app_box_* equivalent yet, so app_box_get/app_box_put would fail at runtime
-        num_bytes = codec.encoded_ir_type.num_bytes
-        if num_bytes is not None and num_bytes > MAX_BYTES_LENGTH:
-            logger.error(
-                f"remote box values larger than {MAX_BYTES_LENGTH} bytes are not supported"
-                f" - use .extract() and .replace() to access the box in chunks instead",
-                location=node.source_location,
-            )
-    return codec
+    return get_storage_codec(node.wtype, node.storage_kind, node.source_location)
 
 
 def get_storage_codec(

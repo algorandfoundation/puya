@@ -164,6 +164,9 @@ IMPURE_SIDE_EFFECT_FREE_AVM_OPS = frozenset(
         "box_extract",
         "box_get",
         "box_len",
+        "app_box_extract",
+        "app_box_get",
+        "app_box_len",
         # group: fail on index out of bounds
         "loads",
         # group: might fail depending on state
@@ -233,6 +236,9 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.box_dynamic_array_pop_fixed_size,
             PuyaLibIR.box_dynamic_array_pop_bit,
             PuyaLibIR.box_update_offset_dec,
+            PuyaLibIR.remote_box_dynamic_array_pop_fixed_size,
+            PuyaLibIR.remote_box_dynamic_array_pop_bit,
+            PuyaLibIR.remote_box_update_offset_dec,
         )
 
     def visit_array_concat(self, _: models.ArrayConcat) -> None:
@@ -244,6 +250,9 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.box_dynamic_array_concat_fixed,
             PuyaLibIR.box_dynamic_array_concat_bits,
             PuyaLibIR.box_update_offset_inc,
+            PuyaLibIR.remote_box_dynamic_array_concat_fixed,
+            PuyaLibIR.remote_box_dynamic_array_concat_bits,
+            PuyaLibIR.remote_box_update_offset_inc,
         )
 
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:

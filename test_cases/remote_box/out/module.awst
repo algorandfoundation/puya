@@ -114,6 +114,24 @@ contract RemoteBoxContract
     return (reinterpret_cast<bytes>(box[1]), reinterpret_cast<uint64>(box[0]))
   }
   
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local(app: application, value: arc4.uint64): void
+  {
+    local: box_key = hex<"636F756E74657273">
+    remote: remote_box = (app=app, key=hex<"636F756E74657273">)
+    updated: test_cases.remote_box.contract.Counters = Box[local].copy()
+    updated.a: arc4.uint64 = value
+    Box[remote[1], remote[0]]: test_cases.remote_box.contract.Counters = updated.copy()
+  }
+  
+  abimethod test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array(app: application, value: arc4.uint64): void
+  {
+    local: box_key = hex<"6974656D73">
+    remote: remote_box = (app=app, key=hex<"6974656D73">)
+    updated: arc4.dynamic_array<arc4.uint64> = Box[local].copy()
+    updated.extend((value))
+    Box[remote[1], remote[0]]: arc4.dynamic_array<arc4.uint64> = updated.copy()
+  }
+  
   abimethod test_cases.remote_box.contract.RemoteBoxContract.passed_around(app: application): uint64
   {
     box: remote_box = (app=app, key=hex<"636F756E746572">)

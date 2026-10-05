@@ -509,6 +509,7 @@ class OpFactory:
 
     def box_extract(
         self,
+        box_app: Value | int | None,
         box_key: Value | bytes,
         offset: Value | int,
         length: Value | int,
@@ -516,35 +517,47 @@ class OpFactory:
         error_message: str | None = None,
         temp_desc: str = "box_extract",
     ) -> Register:
-        result = assign_intrinsic_op(
+        if box_app is None:
+            op = AVMOp.box_extract
+            args = [box_key, offset, length]
+        else:
+            op = AVMOp.app_box_extract
+            args = [box_app, box_key, offset, length]
+        return assign_intrinsic_op(
             self.context,
             target=temp_desc,
-            op=AVMOp.box_extract,
-            args=[box_key, offset, length],
+            op=op,
+            args=args,
             return_type=ir_type,
             error_message=error_message,
             source_location=self.source_location,
         )
-        return result
 
     def box_extract_u16(
         self,
+        box_app: Value | int | None,
         box_key: Value | bytes,
         offset: Value | int,
     ) -> Register:
-        u16_bytes = self.box_extract(box_key, offset, 2, PrimitiveIRType.bytes)
+        u16_bytes = self.box_extract(box_app, box_key, offset, 2, PrimitiveIRType.bytes)
         return self.btoi(u16_bytes)
 
     def box_replace(
         self,
+        box_app: Value | int | None,
         box_key: Value | bytes,
         offset: Value | int,
         value: Value | bytes,
         error_message: str | None = None,
     ) -> Intrinsic:
-        args = [box_key, offset, value]
+        if box_app is None:
+            op = AVMOp.box_replace
+            args = [box_key, offset, value]
+        else:
+            op = AVMOp.app_box_replace
+            args = [box_app, box_key, offset, value]
         return Intrinsic(
-            op=AVMOp.box_replace,
+            op=op,
             args=[convert_constants(a, self.source_location) for a in args],
             error_message=error_message,
             source_location=self.source_location,
@@ -558,11 +571,18 @@ class OpFactory:
             source_location=self.source_location,
         )
 
-    def box_len(self, box_key: Value | bytes) -> tuple[Value, Value]:
+    def box_len(self, box_app: Value | int | None, box_key: Value | bytes) -> tuple[Value, Value]:
+        args: list[Value | int | bytes]
+        if box_app is None:
+            op = AVMOp.box_len
+            args = [box_key]
+        else:
+            op = AVMOp.app_box_len
+            args = [box_app, box_key]
         box_len, exists = self.context.materialise_value_provider(
             Intrinsic(
-                op=AVMOp.box_len,
-                args=[convert_constants(box_key, self.source_location)],
+                op=op,
+                args=[convert_constants(a, self.source_location) for a in args],
                 source_location=self.source_location,
             ),
             "box_len",

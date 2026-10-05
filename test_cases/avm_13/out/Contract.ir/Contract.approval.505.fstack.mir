@@ -218,33 +218,15 @@ subroutine test_app_box_ops:
         // avm_13/contract.py:54
         // op.AppBox.put(app, name, op.bzero(8))
         int 8                                                                 app#0,8
-        bzero                                                                 app#0,tmp%2#0
-        l-load-copy app#0 1                                                   app#0,tmp%2#0,app#0 (copy)
+        bzero                                                                 app#0,value#0
+        l-load-copy app#0 1                                                   app#0,value#0,app#0 (copy)
         // avm_13/contract.py:52
         // name = Bytes(b"bx")
-        byte 0x6278                                                           app#0,tmp%2#0,app#0 (copy),0x6278
+        byte 0x6278                                                           app#0,value#0,app#0 (copy),0x6278
         // avm_13/contract.py:54
         // op.AppBox.put(app, name, op.bzero(8))
-        l-load-copy tmp%2#0 2                                                 app#0,tmp%2#0,app#0 (copy),0x6278,tmp%2#0 (copy)
-        app_box_put                                                           app#0,tmp%2#0
-        // avm_13/contract.py:55
-        // value, exists = op.AppBox.get(app, name)
-        l-load-copy app#0 1                                                   app#0,tmp%2#0,app#0 (copy)
-        // avm_13/contract.py:52
-        // name = Bytes(b"bx")
-        byte 0x6278                                                           app#0,tmp%2#0,app#0 (copy),0x6278
-        // avm_13/contract.py:55
-        // value, exists = op.AppBox.get(app, name)
-        app_box_get                                                           app#0,tmp%2#0,value#0,exists#0
-        // avm_13/contract.py:56
-        // assert exists
-        assert                                                                app#0,tmp%2#0,value#0
-        // avm_13/contract.py:57
-        // assert value == op.bzero(8)
-        l-load value#0 0                                                      app#0,tmp%2#0,value#0
-        l-load tmp%2#0 1                                                      app#0,value#0,tmp%2#0
-        ==                                                                    app#0,tmp%6#0
-        assert                                                                app#0
+        l-load value#0 2                                                      app#0,app#0 (copy),0x6278,value#0
+        app_box_put                                                           app#0
         // avm_13/contract.py:58
         // op.AppBox.replace(app, name, 0, b"\xff")
         l-load-copy app#0 0                                                   app#0,app#0 (copy)
@@ -300,10 +282,9 @@ subroutine test_app_box_ops:
         byte 0x6278                                                           app#0,app#0 (copy),0x6278
         // avm_13/contract.py:62
         // length, exists = op.AppBox.length(app, name)
-        app_box_len                                                           app#0,length#0,exists#0
-        // avm_13/contract.py:63
-        // assert exists
-        assert                                                                app#0,length#0
+        app_box_len                                                           app#0,length#0,exists#1
+        pop 1                                                                 app#0,length#0
+        l-store length#0 0                                                    app#0,length#0
         // avm_13/contract.py:64
         // assert length == 4
         l-load length#0 0                                                     app#0,length#0

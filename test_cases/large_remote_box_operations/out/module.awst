@@ -1,0 +1,690 @@
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteStructMultipleArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=0, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=0)[0]]: test_cases.large_remote_box_operations.struct_multiple_array_uint64.StructWithMultipleArrays = new test_cases.large_remote_box_operations.struct_multiple_array_uint64.StructWithMultipleArrays(a=1u, arr1=new arc4.dynamic_array<uint64>(), arr2=new arc4.dynamic_array<uint64>(), arr3=new arc4.dynamic_array<uint64>(), b=2u, padding=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=1, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=1)[0]].padding.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=2, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=2)[0]].arr1.extend((value))
+    Box[SINGLE_EVAL(id=3, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=3)[0]].arr2.extend((value + 1u))
+    Box[SINGLE_EVAL(id=4, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=4)[0]].arr3.extend((value + 2u))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=5, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=5)[0]].arr1.extend(array)
+    Box[SINGLE_EVAL(id=6, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=6)[0]].arr2.extend(test_cases.large_remote_box_operations.struct_multiple_array_uint64.inc_array(array, 1u))
+    Box[SINGLE_EVAL(id=7, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=7)[0]].arr3.extend(test_cases.large_remote_box_operations.struct_multiple_array_uint64.inc_array(array, 2u))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.pop(app: application): uint64
+  {
+    result: uint64 = Box[SINGLE_EVAL(id=8, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=8)[0]].arr1.pop()
+    assert(Box[SINGLE_EVAL(id=9, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=9)[0]].arr2.pop() == result + 1u)
+    assert(Box[SINGLE_EVAL(id=10, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=10)[0]].arr3.pop() == result + 2u)
+    return result
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.get(app: application, idx: uint64): uint64
+  {
+    result: uint64 = Box[SINGLE_EVAL(id=11, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=11)[0]].arr1[idx]
+    assert(Box[SINGLE_EVAL(id=12, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=12)[0]].arr2[idx] == result + 1u)
+    assert(Box[SINGLE_EVAL(id=13, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=13)[0]].arr3[idx] == result + 2u)
+    return result
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=14, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=14)[0]].arr1[idx]: uint64 = value
+    Box[SINGLE_EVAL(id=15, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=15)[0]].arr2[idx]: uint64 = value + 1u
+    Box[SINGLE_EVAL(id=16, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=16)[0]].arr3[idx]: uint64 = value + 2u
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    _puya_lib.util.ensure_budget(required_budget=2000u, fee_source=0u)
+    assert(Box[SINGLE_EVAL(id=17, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=17)[0]].arr1 == expected)
+    assert(Box[SINGLE_EVAL(id=18, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=18)[0]].arr2 == test_cases.large_remote_box_operations.struct_multiple_array_uint64.inc_array(expected, 1u))
+    assert(Box[SINGLE_EVAL(id=19, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=19)[0]].arr3 == test_cases.large_remote_box_operations.struct_multiple_array_uint64.inc_array(expected, 2u))
+    assert(Box[SINGLE_EVAL(id=20, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=20)[0]].a == 1u)
+    assert(Box[SINGLE_EVAL(id=21, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=21)[0]].b == 2u)
+    assert(Box[SINGLE_EVAL(id=22, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[1], SINGLE_EVAL(id=22)[0]].padding.length == 1u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=23, source=test_cases.large_remote_box_operations.struct_multiple_array_uint64._box(app))[0], SINGLE_EVAL(id=23)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_remote_box_operations.struct_multiple_array_uint64.RemoteStructMultipleArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine inc_array(arr: arc4.dynamic_array<uint64>, inc: uint64): arc4.dynamic_array<uint64>
+{
+  new: arc4.dynamic_array<uint64> = arr.copy()
+  for idx in range(0u, new.length, 1u) {
+    new[idx] += inc
+  }
+  return new
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteStructArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=24, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=24)[0]]: test_cases.large_remote_box_operations.struct_array_uint64.StructWithArrayU64 = new test_cases.large_remote_box_operations.struct_array_uint64.StructWithArrayU64(a=1u, arr=new arc4.dynamic_array<uint64>(), b=2u, padding=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=25, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=25)[0]].padding.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=26, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=26)[0]].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=27, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=27)[0]].arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.pop(app: application): uint64
+  {
+    return Box[SINGLE_EVAL(id=28, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=28)[0]].arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.get(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=29, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=29)[0]].arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=30, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=30)[0]].arr[idx]: uint64 = value
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box[SINGLE_EVAL(id=31, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=31)[0]].arr == expected)
+    assert(Box[SINGLE_EVAL(id=32, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=32)[0]].a == 1u)
+    assert(Box[SINGLE_EVAL(id=33, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=33)[0]].b == 2u)
+    assert(Box[SINGLE_EVAL(id=34, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[1], SINGLE_EVAL(id=34)[0]].padding.length == 1u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=35, source=test_cases.large_remote_box_operations.struct_array_uint64._box(app))[0], SINGLE_EVAL(id=35)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_remote_box_operations.struct_array_uint64.RemoteStructArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteStructArrayBoolContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=36, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=36)[0]]: test_cases.large_remote_box_operations.struct_array_bool.StructWithArrayBool = new test_cases.large_remote_box_operations.struct_array_bool.StructWithArrayBool(padding=new arc4.dynamic_array<bytes[4096]>(), a=false, arr=new arc4.dynamic_array<bool>(), b=true, trailing=new arc4.dynamic_array<uint64>(42u))
+    Box[SINGLE_EVAL(id=37, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=37)[0]].padding.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<bool>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.append(app: application, value: bool): void
+  {
+    Box[SINGLE_EVAL(id=38, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=38)[0]].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.concat(app: application, array: arc4.dynamic_array<bool>): void
+  {
+    Box[SINGLE_EVAL(id=39, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=39)[0]].arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.pop(app: application): bool
+  {
+    return Box[SINGLE_EVAL(id=40, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=40)[0]].arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.get(app: application, idx: uint64): bool
+  {
+    return Box[SINGLE_EVAL(id=41, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=41)[0]].arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.set(app: application, idx: uint64, value: bool): void
+  {
+    Box[SINGLE_EVAL(id=42, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=42)[0]].arr[idx]: bool = value
+  }
+  
+  abimethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.verify(app: application, expected: arc4.dynamic_array<bool>): void
+  {
+    assert(Box[SINGLE_EVAL(id=43, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=43)[0]].arr == expected)
+    assert(!(Box[SINGLE_EVAL(id=44, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=44)[0]].a))
+    assert(Box[SINGLE_EVAL(id=45, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=45)[0]].b)
+    assert(Box[SINGLE_EVAL(id=46, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=46)[0]].padding.length == 1u)
+    assert(Box[SINGLE_EVAL(id=47, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[1], SINGLE_EVAL(id=47)[0]].trailing == new arc4.dynamic_array<uint64>(42u))
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=48, source=test_cases.large_remote_box_operations.struct_array_bool._box(app))[0], SINGLE_EVAL(id=48)[1])) == 4118u + expected.length + 7u // 8u, comment="unexpected box size")
+  }
+  
+  baremethod test_cases.large_remote_box_operations.struct_array_bool.RemoteStructArrayBoolContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteNestedItemArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=49, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=49)[0]]: test_cases.large_remote_box_operations.nested_item.StructWithNestedArray = new test_cases.large_remote_box_operations.nested_item.StructWithNestedArray(grand=new test_cases.large_remote_box_operations.nested_item.GrandParent(a=1u, arr=new arc4.dynamic_array<test_cases.large_remote_box_operations.nested_item.Parent>(new test_cases.large_remote_box_operations.nested_item.Parent(child=new test_cases.large_remote_box_operations.nested_item.Child(uint=42u, bool_=true), bar=123u)), b=2u), padding=new arc4.dynamic_array<bytes[4096]>(), items=new arc4.dynamic_array<test_cases.large_remote_box_operations.nested_item.ItemWithArray>())
+    Box[SINGLE_EVAL(id=50, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=50)[0]].items.extend((new test_cases.large_remote_box_operations.nested_item.ItemWithArray(arr=new arc4.dynamic_array<uint64>())))
+    Box[SINGLE_EVAL(id=51, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=51)[0]].padding.extend((bzero(4096u)))
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=52, source=test_cases.large_remote_box_operations.nested_item._box(app))[0], SINGLE_EVAL(id=52)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.append(app: application, value: test_cases.large_remote_box_operations.nested_item.Parent): void
+  {
+    Box[SINGLE_EVAL(id=53, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=53)[0]].grand.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.pop(app: application): test_cases.large_remote_box_operations.nested_item.Parent
+  {
+    return Box[SINGLE_EVAL(id=54, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=54)[0]].grand.arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_uint(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=55, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=55)[0]].grand.arr[idx].child.uint
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_bool(app: application, idx: uint64): bool
+  {
+    return Box[SINGLE_EVAL(id=56, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=56)[0]].grand.arr[idx].child.bool_
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_arr_append(app: application, item_idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=57, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=57)[0]].items[item_idx].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_arr_pop(app: application, item_idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=58, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=58)[0]].items[item_idx].arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.dynamic_append(app: application, item: test_cases.large_remote_box_operations.nested_item.ItemWithArray): void
+  {
+    Box[SINGLE_EVAL(id=59, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=59)[0]].items.extend((item.copy()))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.dynamic_pop(app: application): test_cases.large_remote_box_operations.nested_item.ItemWithArray
+  {
+    return Box[SINGLE_EVAL(id=60, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=60)[0]].items.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.clear_padding(app: application): void
+  {
+    _discarded: bytes[4096] = Box[SINGLE_EVAL(id=61, source=test_cases.large_remote_box_operations.nested_item._box(app))[1], SINGLE_EVAL(id=61)[0]].padding.pop()
+  }
+  
+  baremethod test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteNestedArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=62, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=62)[0]]: test_cases.large_remote_box_operations.nested.StructWithNestedArray = new test_cases.large_remote_box_operations.nested.StructWithNestedArray(nested=new test_cases.large_remote_box_operations.nested.GrandParent(a=1u, arr=new arc4.dynamic_array<test_cases.large_remote_box_operations.nested.Parent>(), b=2u), padding=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=63, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=63)[0]].padding.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<test_cases.large_remote_box_operations.nested.Parent>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.append(app: application, value: test_cases.large_remote_box_operations.nested.Parent): void
+  {
+    Box[SINGLE_EVAL(id=64, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=64)[0]].nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.concat(app: application, array: arc4.dynamic_array<test_cases.large_remote_box_operations.nested.Parent>): void
+  {
+    Box[SINGLE_EVAL(id=65, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=65)[0]].nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.pop(app: application): test_cases.large_remote_box_operations.nested.Parent
+  {
+    return Box[SINGLE_EVAL(id=66, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=66)[0]].nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.get(app: application, idx: uint64): test_cases.large_remote_box_operations.nested.Parent
+  {
+    return Box[SINGLE_EVAL(id=67, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=67)[0]].nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.set(app: application, idx: uint64, value: test_cases.large_remote_box_operations.nested.Parent): void
+  {
+    Box[SINGLE_EVAL(id=68, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=68)[0]].nested.arr[idx]: test_cases.large_remote_box_operations.nested.Parent = value
+  }
+  
+  abimethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.verify(app: application, expected: arc4.dynamic_array<test_cases.large_remote_box_operations.nested.Parent>): void
+  {
+    assert(Box[SINGLE_EVAL(id=69, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=69)[0]].nested.arr == expected)
+    assert(Box[SINGLE_EVAL(id=70, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=70)[0]].nested.a == 1u)
+    assert(Box[SINGLE_EVAL(id=71, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=71)[0]].nested.b == 2u)
+    assert(Box[SINGLE_EVAL(id=72, source=test_cases.large_remote_box_operations.nested._box(app))[1], SINGLE_EVAL(id=72)[0]].padding.length == 1u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=73, source=test_cases.large_remote_box_operations.nested._box(app))[0], SINGLE_EVAL(id=73)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_remote_box_operations.nested.RemoteNestedArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteDynamicOffsetMiddle
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=74, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=74)[0]]: test_cases.large_remote_box_operations.dynamic_offset_middle.DynamicOffsets = new test_cases.large_remote_box_operations.dynamic_offset_middle.DynamicOffsets(nested=new test_cases.large_remote_box_operations.dynamic_offset_middle.Parent(baz=1u, nested=new test_cases.large_remote_box_operations.dynamic_offset_middle.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=75, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=75)[0]].pad1.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=76, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=76)[0]].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=77, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=77)[0]].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.pop(app: application): uint64
+  {
+    return Box[SINGLE_EVAL(id=78, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=78)[0]].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box[SINGLE_EVAL(id=79, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=79)[0]].nested.baz == 1u)
+    assert(Box[SINGLE_EVAL(id=80, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=80)[0]].nested.nested.foo == 2u)
+    assert(Box[SINGLE_EVAL(id=81, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=81)[0]].nested.nested.bar == 3u)
+    assert(Box[SINGLE_EVAL(id=82, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=82)[0]].nested.buz == 4u)
+    assert(Box[SINGLE_EVAL(id=83, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=83)[0]].nested.nested.arr == expected)
+    assert(Box[SINGLE_EVAL(id=84, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=84)[0]].pad1.length == 1u)
+    assert(Box[SINGLE_EVAL(id=85, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=85)[0]].pad2.length == 0u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=86, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[0], SINGLE_EVAL(id=86)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.get(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=87, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=87)[0]].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=88, source=test_cases.large_remote_box_operations.dynamic_offset_middle._box(app))[1], SINGLE_EVAL(id=88)[0]].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteDynamicOffsetLast
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=89, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=89)[0]]: test_cases.large_remote_box_operations.dynamic_offset_last.DynamicOffsets = new test_cases.large_remote_box_operations.dynamic_offset_last.DynamicOffsets(nested=new test_cases.large_remote_box_operations.dynamic_offset_last.Parent(baz=1u, nested=new test_cases.large_remote_box_operations.dynamic_offset_last.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=90, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=90)[0]].pad1.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=91, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=91)[0]].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=92, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=92)[0]].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.pop(app: application): uint64
+  {
+    return Box[SINGLE_EVAL(id=93, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=93)[0]].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box[SINGLE_EVAL(id=94, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=94)[0]].nested.baz == 1u)
+    assert(Box[SINGLE_EVAL(id=95, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=95)[0]].nested.nested.foo == 2u)
+    assert(Box[SINGLE_EVAL(id=96, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=96)[0]].nested.nested.bar == 3u)
+    assert(Box[SINGLE_EVAL(id=97, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=97)[0]].nested.buz == 4u)
+    assert(Box[SINGLE_EVAL(id=98, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=98)[0]].nested.nested.arr == expected)
+    assert(Box[SINGLE_EVAL(id=99, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=99)[0]].pad1.length == 1u)
+    assert(Box[SINGLE_EVAL(id=100, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=100)[0]].pad2.length == 0u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=101, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[0], SINGLE_EVAL(id=101)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.get(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=102, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=102)[0]].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=103, source=test_cases.large_remote_box_operations.dynamic_offset_last._box(app))[1], SINGLE_EVAL(id=103)[0]].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_remote_box_operations.dynamic_offset_last.RemoteDynamicOffsetLast.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteDynamicOffsetFirst
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=104, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=104)[0]]: test_cases.large_remote_box_operations.dynamic_offset_first.DynamicOffsets = new test_cases.large_remote_box_operations.dynamic_offset_first.DynamicOffsets(nested=new test_cases.large_remote_box_operations.dynamic_offset_first.Parent(baz=1u, nested=new test_cases.large_remote_box_operations.dynamic_offset_first.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box[SINGLE_EVAL(id=105, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=105)[0]].pad1.extend((bzero(4096u)))
+    this::verify(app, new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=106, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=106)[0]].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=107, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=107)[0]].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.pop(app: application): uint64
+  {
+    return Box[SINGLE_EVAL(id=108, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=108)[0]].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box[SINGLE_EVAL(id=109, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=109)[0]].nested.baz == 1u)
+    assert(Box[SINGLE_EVAL(id=110, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=110)[0]].nested.nested.foo == 2u)
+    assert(Box[SINGLE_EVAL(id=111, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=111)[0]].nested.nested.bar == 3u)
+    assert(Box[SINGLE_EVAL(id=112, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=112)[0]].nested.buz == 4u)
+    assert(Box[SINGLE_EVAL(id=113, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=113)[0]].nested.nested.arr == expected)
+    assert(Box[SINGLE_EVAL(id=114, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=114)[0]].pad1.length == 1u)
+    assert(Box[SINGLE_EVAL(id=115, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=115)[0]].pad2.length == 0u)
+    assert(checked_maybe(app_box_len(SINGLE_EVAL(id=116, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[0], SINGLE_EVAL(id=116)[1])) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.get(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=117, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=117)[0]].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=118, source=test_cases.large_remote_box_operations.dynamic_offset_first._box(app))[1], SINGLE_EVAL(id=118)[0]].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_remote_box_operations.dynamic_offset_first.RemoteDynamicOffsetFirst.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _box(app: application): remote_box
+{
+  return (app=app, key=hex<"626F78">)
+}
+
+contract RemoteArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.bootstrap(app: application): void
+  {
+    Box[SINGLE_EVAL(id=119, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=119)[0]]: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.append(app: application, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=120, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=120)[0]].extend((value))
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.concat(app: application, array: arc4.dynamic_array<uint64>): void
+  {
+    Box[SINGLE_EVAL(id=121, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=121)[0]].extend(array)
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.pop(app: application): uint64
+  {
+    return Box[SINGLE_EVAL(id=122, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=122)[0]].pop()
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.get(app: application, idx: uint64): uint64
+  {
+    return Box[SINGLE_EVAL(id=123, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=123)[0]][idx]
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.set(app: application, idx: uint64, value: uint64): void
+  {
+    Box[SINGLE_EVAL(id=124, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=124)[0]][idx]: uint64 = value
+  }
+  
+  abimethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.verify(app: application, expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box[SINGLE_EVAL(id=125, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=125)[0]].length == expected.length)
+    for i in range(0u, expected.length, 1u) {
+      assert(Box[SINGLE_EVAL(id=126, source=test_cases.large_remote_box_operations.array_uint64._box(app))[1], SINGLE_EVAL(id=126)[0]][i] == expected[i])
+    }
+  }
+  
+  baremethod test_cases.large_remote_box_operations.array_uint64.RemoteArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}

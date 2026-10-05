@@ -106,6 +106,26 @@ class RemoteBoxContract(ARC4Contract, avm_version=13):
         return box.key, box.app.id
 
     @arc4.abimethod
+    def same_key_as_local(self, app: Application, value: arc4.UInt64) -> None:
+        # a local box and a remote box can share a key, so a value read from one must never be
+        # written back to the other - the in-place box update optimisation rewrites a whole box
+        # write into box_extract/box_replace, which only ever address the current application
+        local = Box(Counters, key=b"counters")
+        remote = Box.remote(Counters, app=app, key=b"counters")
+        updated = local.value.copy()
+        updated.a = value
+        remote.value = updated.copy()
+
+    @arc4.abimethod
+    def same_key_as_local_array(self, app: Application, value: arc4.UInt64) -> None:
+        # as above, for the array concat/pop variants of the same optimisation
+        local = Box(arc4.DynamicArray[arc4.UInt64], key=b"items")
+        remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+        updated = local.value.copy()
+        updated.append(value)
+        remote.value = updated.copy()
+
+    @arc4.abimethod
     def passed_around(self, app: Application) -> UInt64:
         # the proxy survives a round trip through a local variable and a subroutine
         box = Box.remote(UInt64, app=app, key=b"counter")

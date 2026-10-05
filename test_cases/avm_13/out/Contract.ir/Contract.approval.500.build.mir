@@ -270,39 +270,16 @@ subroutine test_app_box_ops:
         // avm_13/contract.py:54
         // op.AppBox.put(app, name, op.bzero(8))
         int 8                                                                 8
-        bzero                                                                 tmp%2#0
-        v-store tmp%2#0
+        bzero                                                                 value#0
+        v-store value#0
         v-load app#0                                                          app#0
         // avm_13/contract.py:52
         // name = Bytes(b"bx")
         byte 0x6278                                                           app#0,0x6278
         // avm_13/contract.py:54
         // op.AppBox.put(app, name, op.bzero(8))
-        v-load tmp%2#0                                                        app#0,0x6278,tmp%2#0
+        v-load value#0                                                        app#0,0x6278,value#0
         app_box_put
-        // avm_13/contract.py:55
-        // value, exists = op.AppBox.get(app, name)
-        v-load app#0                                                          app#0
-        // avm_13/contract.py:52
-        // name = Bytes(b"bx")
-        byte 0x6278                                                           app#0,0x6278
-        // avm_13/contract.py:55
-        // value, exists = op.AppBox.get(app, name)
-        app_box_get                                                           value#0,exists#0
-        v-store exists#0                                                      value#0
-        v-store value#0
-        // avm_13/contract.py:56
-        // assert exists
-        v-load exists#0                                                       exists#0
-        assert
-        // avm_13/contract.py:57
-        // assert value == op.bzero(8)
-        v-load value#0                                                        value#0
-        v-load tmp%2#0                                                        value#0,tmp%2#0
-        ==                                                                    tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                        tmp%6#0
-        assert
         // avm_13/contract.py:58
         // op.AppBox.replace(app, name, 0, b"\xff")
         v-load app#0                                                          app#0
@@ -362,13 +339,9 @@ subroutine test_app_box_ops:
         byte 0x6278                                                           app#0,0x6278
         // avm_13/contract.py:62
         // length, exists = op.AppBox.length(app, name)
-        app_box_len                                                           length#0,exists#0
-        v-store exists#0                                                      length#0
+        app_box_len                                                           length#0,exists#1
+        v-store exists#1                                                      length#0
         v-store length#0
-        // avm_13/contract.py:63
-        // assert exists
-        v-load exists#0                                                       exists#0
-        assert
         // avm_13/contract.py:64
         // assert length == 4
         v-load length#0                                                       length#0

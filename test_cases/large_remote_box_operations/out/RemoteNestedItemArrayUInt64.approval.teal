@@ -1,0 +1,1412 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 2 1 0 8 4096
+    bytecblock 0x626f78 0x151f7c75
+    // large_remote_box_operations/nested_item.py:51
+    // class RemoteNestedItemArrayUInt64(ARC4Contract, avm_version=13):
+    txn NumAppArgs
+    bz main___algopy_default_create@17
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xa0cadf8a 0x46ae45a1 0xc8cf9e57 0x0a54d7b1 0xb7bb31f9 0x5ec06c07 0x5a523518 0xc5bab189 0xc2d0f51a 0xa7c248cb // method "bootstrap(uint64)void", method "append(uint64,((uint64,bool),uint64))void", method "pop(uint64)((uint64,bool),uint64)", method "nested_uint(uint64,uint64)uint64", method "nested_bool(uint64,uint64)bool", method "nested_arr_append(uint64,uint64,uint64)void", method "nested_arr_pop(uint64,uint64)uint64", method "dynamic_append(uint64,(uint64[]))void", method "dynamic_pop(uint64)(uint64[])", method "clear_padding(uint64)void"
+    txna ApplicationArgs 0
+    match bootstrap append pop nested_uint nested_bool nested_arr_append nested_arr_pop dynamic_append dynamic_pop clear_padding
+    err
+
+main___algopy_default_create@17:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.remote_box_dynamic_array_pop_fixed_size(box_app: uint64, box_key: bytes, array_offset: uint64, fixed_byte_size: uint64) -> void:
+remote_box_dynamic_array_pop_fixed_size:
+    proto 4 0
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    intc_1 // 1
+    -
+    dup
+    itob
+    extract 6 2
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    uncover 3
+    app_box_replace
+    frame_dig -2
+    intc_0 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    frame_dig -4
+    frame_dig -3
+    uncover 2
+    frame_dig -1
+    pushbytes 0x
+    app_box_splice
+    frame_dig -4
+    frame_dig -3
+    app_box_len
+    pop
+    frame_dig -1
+    -
+    frame_dig -4
+    frame_dig -3
+    uncover 2
+    app_box_resize
+    retsub
+
+
+// _puya_lib.box_arc4.remote_box_dynamic_array_concat_fixed(box_app: uint64, box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+remote_box_dynamic_array_concat_fixed:
+    proto 6 0
+    frame_dig -6
+    frame_dig -5
+    frame_dig -4
+    intc_0 // 2
+    app_box_extract
+    btoi
+    frame_dig -6
+    frame_dig -5
+    app_box_len
+    pop
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    frame_dig -6
+    frame_dig -5
+    uncover 2
+    app_box_resize
+    dup
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig -6
+    frame_dig -5
+    frame_dig -4
+    uncover 3
+    app_box_replace
+    frame_dig -4
+    intc_0 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    frame_dig -6
+    frame_dig -5
+    uncover 2
+    intc_2 // 0
+    frame_dig -3
+    app_box_splice
+    retsub
+
+
+// _puya_lib.box_arc4.remote_box_update_offset_dec(box_app: uint64, box_key: bytes, offset: uint64, value: uint64) -> void:
+remote_box_update_offset_dec:
+    proto 4 0
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    frame_dig -1
+    -
+    itob
+    extract 6 2
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    uncover 3
+    app_box_replace
+    retsub
+
+
+// _puya_lib.box_arc4.remote_box_update_offset_inc(box_app: uint64, box_key: bytes, offset: uint64, value: uint64) -> void:
+remote_box_update_offset_inc:
+    proto 4 0
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    frame_dig -1
+    +
+    itob
+    extract 6 2
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    uncover 3
+    app_box_replace
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_2 // 0
+    extract_uint16
+    frame_dig -1
+    intc_0 // 2
+    *
+    dig 2
+    swap
+    extract_uint16
+    dig 2
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    dup
+    intc_0 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 4
+    uncover 2
+    -
+    select
+    substring3
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
+dynamic_array_concat_dynamic_element:
+    proto 3 1
+    frame_dig -3
+    intc_2 // 0
+    extract_uint16
+    dup
+    frame_dig -1
+    +
+    itob
+    extract 6 0
+    swap
+    frame_dig -3
+    extract 2 0
+    swap
+    intc_0 // 2
+    *
+    swap
+    frame_dig -1
+    intc_0 // 2
+    *
+    cover 2
+    intc_2 // 0
+    cover 4
+
+dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 0
+    dig 2
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@4
+    dup
+    frame_dig 0
+    dup
+    cover 2
+    extract_uint16
+    dig 4
+    +
+    itob
+    extract 6 0
+    uncover 5
+    swap
+    concat
+    cover 4
+    intc_0 // 2
+    +
+    frame_bury 0
+    b dynamic_array_concat_dynamic_element_for_header@1
+
+dynamic_array_concat_dynamic_element_after_for@4:
+    dup
+    len
+    swap
+    intc_2 // 0
+    frame_bury 0
+
+dynamic_array_concat_dynamic_element_for_header@5:
+    frame_dig 0
+    dig 4
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@8
+    frame_dig -2
+    frame_dig 0
+    dup
+    cover 2
+    extract_uint16
+    dig 3
+    +
+    itob
+    extract 6 0
+    uncover 6
+    swap
+    concat
+    cover 5
+    intc_0 // 2
+    +
+    frame_bury 0
+    b dynamic_array_concat_dynamic_element_for_header@5
+
+dynamic_array_concat_dynamic_element_after_for@8:
+    cover 2
+    substring3
+    uncover 2
+    swap
+    concat
+    frame_dig -2
+    len
+    frame_dig -2
+    uncover 3
+    uncover 2
+    substring3
+    concat
+    swap
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_dynamic_element:
+    proto 3 1
+    frame_dig -3
+    substring 0 2
+    dup
+    btoi
+    frame_dig -3
+    extract 2 0
+    frame_dig -2
+    len
+    cover 3
+    dup
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    intc_0 // 2
+    *
+    dig 2
+    dig 1
+    extract_uint16
+    dig 4
+    frame_dig -1
+    -
+    intc_1 // 1
+    -
+    dig 3
+    cover 2
+    select
+    frame_dig -1
+    intc_0 // 2
+    *
+    dig 4
+    swap
+    extract_uint16
+    dup2
+    -
+    cover 7
+    dig 4
+    intc_2 // 0
+    uncover 2
+    substring3
+    frame_dig -2
+    concat
+    uncover 4
+    uncover 2
+    uncover 4
+    substring3
+    concat
+    cover 2
+    swap
+    intc_0 // 2
+    *
+    cover 2
+
+dynamic_array_replace_dynamic_element_for_header@2:
+    dup
+    dig 3
+    <
+    bz dynamic_array_replace_dynamic_element_after_for@5
+    swap
+    dup
+    dig 2
+    extract_uint16
+    dig 6
+    +
+    dig 5
+    -
+    itob
+    extract 6 0
+    dig 2
+    swap
+    replace3
+    swap
+    intc_0 // 2
+    +
+    b dynamic_array_replace_dynamic_element_for_header@2
+
+dynamic_array_replace_dynamic_element_after_for@5:
+    pop
+    bury 1
+    concat
+    frame_bury 0
+    retsub
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.bootstrap[routing]() -> void:
+bootstrap:
+    // large_remote_box_operations/nested_item.py:52
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:54-72
+    // _box(app).value = StructWithNestedArray(
+    //     grand=GrandParent(
+    //         a=UInt64(1),
+    //         arr=Array(
+    //             (
+    //                 Parent(
+    //                     child=Child(
+    //                         uint=UInt64(42),
+    //                         bool_=True,
+    //                     ),
+    //                     bar=UInt64(123),
+    //                 ),
+    //             )
+    //         ),
+    //         b=UInt64(2),
+    //     ),
+    //     padding=LargeBytes(),
+    //     items=Array[ItemWithArray](),
+    // )
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:54-72
+    // _box(app).value = StructWithNestedArray(
+    //     grand=GrandParent(
+    //         a=UInt64(1),
+    //         arr=Array(
+    //             (
+    //                 Parent(
+    //                     child=Child(
+    //                         uint=UInt64(42),
+    //                         bool_=True,
+    //                     ),
+    //                     bar=UInt64(123),
+    //                 ),
+    //             )
+    //         ),
+    //         b=UInt64(2),
+    //     ),
+    //     padding=LargeBytes(),
+    //     items=Array[ItemWithArray](),
+    // )
+    app_box_del
+    pop
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:54-72
+    // _box(app).value = StructWithNestedArray(
+    //     grand=GrandParent(
+    //         a=UInt64(1),
+    //         arr=Array(
+    //             (
+    //                 Parent(
+    //                     child=Child(
+    //                         uint=UInt64(42),
+    //                         bool_=True,
+    //                     ),
+    //                     bar=UInt64(123),
+    //                 ),
+    //             )
+    //         ),
+    //         b=UInt64(2),
+    //     ),
+    //     padding=LargeBytes(),
+    //     items=Array[ItemWithArray](),
+    // )
+    pushbytes 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b00000000
+    app_box_put
+    // large_remote_box_operations/nested_item.py:73
+    // _box(app).value.items.append(ItemWithArray(arr=Array[UInt64]()))
+    pushbytess 0x0000 0x000200020000
+    intc_1 // 1
+    callsub dynamic_array_concat_dynamic_element
+    pushbytes 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000
+    swap
+    concat
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:73
+    // _box(app).value.items.append(ItemWithArray(arr=Array[UInt64]()))
+    app_box_del
+    pop
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:73
+    // _box(app).value.items.append(ItemWithArray(arr=Array[UInt64]()))
+    uncover 2
+    app_box_put
+    // large_remote_box_operations/nested_item.py:74
+    // _box(app).value.padding.append(Bytes4096())
+    intc 4 // 4096
+    bzero
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:74
+    // _box(app).value.padding.append(Bytes4096())
+    intc_0 // 2
+    dup
+    app_box_extract
+    btoi
+    dig 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:74
+    // _box(app).value.padding.append(Bytes4096())
+    pushint 4
+    intc 4 // 4096
+    callsub remote_box_update_offset_inc
+    dig 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:74
+    // _box(app).value.padding.append(Bytes4096())
+    uncover 2
+    uncover 3
+    intc_1 // 1
+    intc 4 // 4096
+    callsub remote_box_dynamic_array_concat_fixed
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:75
+    // assert _box(app).length > 4096, "expected box length >4096"
+    app_box_len
+    assert // check remote Box exists
+    intc 4 // 4096
+    >
+    assert // expected box length >4096
+    // large_remote_box_operations/nested_item.py:52
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.append[routing]() -> void:
+append:
+    // large_remote_box_operations/nested_item.py:77
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 17
+    ==
+    assert // invalid number of bytes for test_cases.large_remote_box_operations.nested_item.Parent
+    // large_remote_box_operations/nested_item.py:79
+    // _box(app).value.grand.arr.append(value)
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:79
+    // _box(app).value.grand.arr.append(value)
+    intc_0 // 2
+    pushint 17
+    callsub remote_box_update_offset_inc
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:79
+    // _box(app).value.grand.arr.append(value)
+    pushints 4 17
+    callsub remote_box_update_offset_inc
+    swap
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:79
+    // _box(app).value.grand.arr.append(value)
+    pushint 24
+    uncover 3
+    intc_1 // 1
+    pushint 17
+    callsub remote_box_dynamic_array_concat_fixed
+    // large_remote_box_operations/nested_item.py:77
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.pop[routing]() -> void:
+pop:
+    // large_remote_box_operations/nested_item.py:81
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    pushint 24
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dup
+    intc_1 // 1
+    - // on error: cannot pop from empty array
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    pushint 17
+    *
+    pushint 26
+    +
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    uncover 2
+    pushint 17
+    app_box_extract // on error: index out of bounds
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    intc_0 // 2
+    pushint 17
+    callsub remote_box_update_offset_dec
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    pushints 4 17
+    callsub remote_box_update_offset_dec
+    swap
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:83
+    // return _box(app).value.grand.arr.pop()
+    pushints 24 17
+    callsub remote_box_dynamic_array_pop_fixed_size
+    // large_remote_box_operations/nested_item.py:81
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_uint[routing]() -> void:
+nested_uint:
+    // large_remote_box_operations/nested_item.py:85
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:87
+    // return _box(app).value.grand.arr[idx].child.uint
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:87
+    // return _box(app).value.grand.arr[idx].child.uint
+    pushint 24
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 1
+    >
+    assert // index out of bounds
+    pushint 17
+    *
+    pushint 26
+    +
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:87
+    // return _box(app).value.grand.arr[idx].child.uint
+    swap
+    pushint 17
+    app_box_extract // on error: index out of bounds
+    extract 0 9
+    extract 0 8
+    // large_remote_box_operations/nested_item.py:85
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_bool[routing]() -> void:
+nested_bool:
+    // large_remote_box_operations/nested_item.py:89
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:91
+    // return _box(app).value.grand.arr[idx].child.bool_
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:91
+    // return _box(app).value.grand.arr[idx].child.bool_
+    pushint 24
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 1
+    >
+    assert // index out of bounds
+    pushint 17
+    *
+    pushint 26
+    +
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:91
+    // return _box(app).value.grand.arr[idx].child.bool_
+    swap
+    pushint 17
+    app_box_extract // on error: index out of bounds
+    extract 0 9
+    pushint 64
+    getbit
+    // large_remote_box_operations/nested_item.py:89
+    // @public
+    pushbytes 0x00
+    intc_2 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_arr_append[routing]() -> void:
+nested_arr_append:
+    // large_remote_box_operations/nested_item.py:93
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    dig 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    app_box_get
+    assert // check remote Box exists
+    dig 3
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    pushint 4
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 4
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    dig 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 4
+    >
+    assert // index out of bounds
+    intc_0 // 2
+    +
+    intc_0 // 2
+    dig 4
+    *
+    dig 1
+    +
+    dig 5
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    uncover 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    +
+    intc_0 // 2
+    +
+    dig 4
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    dig 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    intc_3 // 8
+    *
+    intc_0 // 2
+    +
+    dig 5
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    uncover 3
+    uncover 3
+    app_box_extract
+    uncover 2
+    itob
+    dig 1
+    intc_2 // 0
+    extract_uint16
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    uncover 2
+    swap
+    replace2 0
+    swap
+    concat
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    dig 1
+    pushint 4
+    extract_uint16
+    dig 2
+    len
+    dig 3
+    dig 2
+    uncover 2
+    substring3
+    dup
+    dig 5
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_2 // 0
+    swap
+    extract3
+    uncover 3
+    concat
+    uncover 4
+    callsub dynamic_array_replace_dynamic_element
+    uncover 2
+    intc_2 // 0
+    uncover 3
+    extract3
+    swap
+    concat
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    app_box_del
+    pop
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:95
+    // _box(app).value.items[item_idx].arr.append(value)
+    swap
+    app_box_put
+    // large_remote_box_operations/nested_item.py:93
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.nested_arr_pop[routing]() -> void:
+nested_arr_pop:
+    // large_remote_box_operations/nested_item.py:97
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    app_box_get
+    assert // check remote Box exists
+    dig 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    pushint 4
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 3
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    dig 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dig 3
+    >
+    assert // index out of bounds
+    intc_0 // 2
+    +
+    intc_0 // 2
+    dig 3
+    *
+    dig 1
+    +
+    dig 4
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    uncover 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    +
+    intc_0 // 2
+    +
+    dig 3
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    dig 2
+    intc_0 // 2
+    app_box_extract
+    btoi
+    dup
+    intc_3 // 8
+    *
+    intc_0 // 2
+    +
+    dig 5
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    dig 4
+    uncover 3
+    app_box_extract
+    dig 1
+    intc_1 // 1
+    - // on error: cannot pop from empty array
+    dup
+    uncover 3
+    <
+    assert // index out of bounds
+    uncover 2
+    intc_0 // 2
+    +
+    swap
+    intc_3 // 8
+    *
+    +
+    dig 4
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    uncover 2
+    intc_3 // 8
+    app_box_extract // on error: index out of bounds
+    dig 1
+    len
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    intc_3 // 8
+    -
+    uncover 2
+    intc_2 // 0
+    uncover 2
+    substring3
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    itob
+    extract 6 0
+    replace2 0
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    dig 2
+    pushint 4
+    extract_uint16
+    dig 3
+    len
+    dig 4
+    dig 2
+    uncover 2
+    substring3
+    dup
+    dig 6
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_2 // 0
+    swap
+    extract3
+    uncover 3
+    concat
+    uncover 5
+    callsub dynamic_array_replace_dynamic_element
+    uncover 3
+    intc_2 // 0
+    uncover 3
+    extract3
+    swap
+    concat
+    dig 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    app_box_del
+    pop
+    uncover 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:99
+    // return _box(app).value.items[item_idx].arr.pop()
+    uncover 2
+    app_box_put
+    // large_remote_box_operations/nested_item.py:97
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.dynamic_append[routing]() -> void:
+dynamic_append:
+    // large_remote_box_operations/nested_item.py:101
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    dig 1
+    intc_2 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_0 // 2
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint64[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 8
+    *
+    pushint 4
+    +
+    ==
+    assert // invalid number of bytes for test_cases.large_remote_box_operations.nested_item.ItemWithArray
+    // large_remote_box_operations/nested_item.py:103
+    // _box(app).value.items.append(item.copy())
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:103
+    // _box(app).value.items.append(item.copy())
+    app_box_get
+    assert // check remote Box exists
+    dup
+    pushint 4
+    extract_uint16
+    dig 1
+    len
+    dig 2
+    dig 2
+    uncover 2
+    substring3
+    pushbytes 0x0002
+    uncover 4
+    concat
+    intc_1 // 1
+    callsub dynamic_array_concat_dynamic_element
+    uncover 2
+    intc_2 // 0
+    uncover 3
+    extract3
+    swap
+    concat
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:103
+    // _box(app).value.items.append(item.copy())
+    app_box_del
+    pop
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:103
+    // _box(app).value.items.append(item.copy())
+    swap
+    app_box_put
+    // large_remote_box_operations/nested_item.py:101
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.dynamic_pop[routing]() -> void:
+dynamic_pop:
+    // large_remote_box_operations/nested_item.py:105
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dupn 2
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    app_box_get
+    swap
+    dup
+    cover 2
+    cover 3
+    assert // check remote Box exists
+    dup
+    pushint 4
+    extract_uint16
+    dup
+    cover 2
+    cover 3
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    dup
+    uncover 2
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    pushint 4
+    intc_0 // 2
+    app_box_extract
+    btoi
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    swap
+    intc_0 // 2
+    app_box_extract
+    btoi
+    intc_1 // 1
+    - // on error: cannot pop from empty array
+    dig 1
+    swap
+    callsub dynamic_array_read_dynamic_element
+    cover 2
+    intc_2 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    dup
+    itob
+    extract 6 0
+    cover 2
+    intc_0 // 2
+    *
+    intc_0 // 2
+
+dynamic_pop_while_top@2:
+    dup
+    dig 2
+    <=
+    bz dynamic_pop_after_while@4
+    dig 2
+    dig 1
+    extract_uint16
+    intc_0 // 2
+    -
+    itob
+    extract 6 0
+    uncover 4
+    swap
+    concat
+    cover 3
+    intc_0 // 2
+    +
+    b dynamic_pop_while_top@2
+
+dynamic_pop_after_while@4:
+    uncover 2
+    extract 2 0
+    dup
+    uncover 3
+    extract_uint16
+    swap
+    cover 2
+    substring3
+    concat
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    uncover 3
+    intc_2 // 0
+    uncover 4
+    extract3
+    swap
+    concat
+    uncover 2
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    app_box_del
+    pop
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:107
+    // return _box(app).value.items.pop()
+    uncover 2
+    app_box_put
+    // large_remote_box_operations/nested_item.py:105
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.nested_item.RemoteNestedItemArrayUInt64.clear_padding[routing]() -> void:
+clear_padding:
+    // large_remote_box_operations/nested_item.py:109
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/nested_item.py:111
+    // _discarded = _box(app).value.padding.pop()
+    dup
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:111
+    // _discarded = _box(app).value.padding.pop()
+    intc_0 // 2
+    dup
+    app_box_extract
+    btoi
+    dig 1
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:111
+    // _discarded = _box(app).value.padding.pop()
+    pushint 4
+    intc 4 // 4096
+    callsub remote_box_update_offset_dec
+    // large_remote_box_operations/nested_item.py:48
+    // return Box.remote(StructWithNestedArray, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/nested_item.py:111
+    // _discarded = _box(app).value.padding.pop()
+    swap
+    intc 4 // 4096
+    callsub remote_box_dynamic_array_pop_fixed_size
+    // large_remote_box_operations/nested_item.py:109
+    // @public
+    intc_1 // 1
+    return

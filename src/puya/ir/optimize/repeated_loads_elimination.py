@@ -159,12 +159,25 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                     op, _StateType.app_local, key=(account, key), allow_truncated_reads=True
                 )
             # BOX
-            case models.Intrinsic(op=AVMOp.box_get, args=[key]) | models.BoxRead(key=key):
+            case (
+                models.Intrinsic(op=AVMOp.box_get, args=[key])
+                | models.BoxRead(key=key, app=None)
+            ):
                 self._cached_read(op, _StateType.box, key=("rw", key))
             case models.Intrinsic(op=AVMOp.box_len, args=[key]):
                 self._cached_read(op, _StateType.box, key=("len", key))
             case models.Intrinsic(op=AVMOp.box_extract, args=[key, offset, length]):
                 self._cached_read(op, _StateType.box, key=("extract", key, offset, length))
+            # REMOTE BOX
+            case (
+                models.Intrinsic(op=AVMOp.app_box_get, args=[app, key])
+                | models.BoxRead(key=key, app=app)
+            ) if app is not None:
+                self._cached_read(op, _StateType.box, key=("rw", app, key))
+            case models.Intrinsic(op=AVMOp.app_box_len, args=[app, key]):
+                self._cached_read(op, _StateType.box, key=("len", app, key))
+            case models.Intrinsic(op=AVMOp.app_box_extract, args=[app, key, offset, length]):
+                self._cached_read(op, _StateType.box, key=("extract", app, key, offset, length))
             # OTHER
             case other_source:
                 # visit in case invalidations need to occur
@@ -172,8 +185,11 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_box_write(self, write: models.BoxWrite) -> None:
+        # A local write may invalidate any local box (and remote boxes that use the current appid).
+        # A remote write towards the current appid will invalidate a cached local box.
+        # We can do better, for now let's be conservative.
         self._invalidate(_StateType.box)
-        self._handle_box_put_or_write(write, key=write.key, value=write.value)
+        self._handle_box_put_or_write(write, app=write.app, key=write.key, value=write.value)
 
     @typing.override
     def visit_write_slot(self, write: models.WriteSlot) -> None:
@@ -201,15 +217,31 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             # BOX
             case AVMOp.box_put:
                 key, value = op.args
-                self._handle_box_put_or_write(op, key=key, value=value)
+                self._handle_box_put_or_write(op, app=None, key=key, value=value)
             case AVMOp.box_create:
                 self._invalidate(_StateType.box)
                 key, len_ = op.args
-                self._cache_box_len(key=key, length=len_)
-            case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
+                self._cache_box_len(app=None, key=key, length=len_)
+            case (
+                AVMOp.box_del
+                | AVMOp.box_splice
+                | AVMOp.box_resize
+                | AVMOp.box_replace
+                | AVMOp.app_box_del
+                | AVMOp.app_box_splice
+                | AVMOp.app_box_resize
+                | AVMOp.app_box_replace
+            ):
                 # Remote box modifications can be made on the current APP ID (and therefore modify
                 # local boxes)
                 self._invalidate(_StateType.box)
+            case AVMOp.app_box_put:
+                app, key, value = op.args
+                self._handle_box_put_or_write(op, app=app, key=key, value=value)
+            case AVMOp.app_box_create:
+                self._invalidate(_StateType.box)
+                app, key, len_ = op.args
+                self._cache_box_len(app=app, key=key, length=len_)
             case AVMOp.itxn_submit:
                 # If box family writes are enabled then performing an inner transaction to another
                 # app on our own family can modify our boxes.
@@ -222,19 +254,37 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             self._invalidate("all")
 
     def _handle_box_put_or_write(
-        self, op: models.Intrinsic | models.BoxWrite, *, key: models.Value, value: models.Value
+        self,
+        op: models.Intrinsic | models.BoxWrite,
+        *,
+        app: models.Value | None,
+        key: models.Value,
+        value: models.Value,
     ) -> None:
-        self._handle_write(op, _StateType.box, key=("rw", key), values=(value, _const_true()))
+        cache_key: (
+            tuple[typing.Literal["rw"], models.Value, models.Value]
+            | tuple[typing.Literal["rw"], models.Value]
+        )
+        if app is not None:
+            cache_key = ("rw", app, key)
+        else:
+            cache_key = ("rw", key)
+        self._handle_write(op, _StateType.box, key=cache_key, values=(value, _const_true()))
         if isinstance(value, models.Constant):
             bytes_const = get_bytes_constant(value)
             if bytes_const is not None:
                 bytes_const_len = models.UInt64Constant(
                     value=len(bytes_const), source_location=op.source_location
                 )
-                self._cache_box_len(key=key, length=bytes_const_len)
+                self._cache_box_len(app=app, key=key, length=bytes_const_len)
 
-    def _cache_box_len(self, *, key: models.Value, length: models.Value) -> None:
-        len_key = _normalize_key(("len", key))
+    def _cache_box_len(
+        self, *, app: models.Value | None, key: models.Value, length: models.Value
+    ) -> None:
+        if app is not None:
+            len_key = _normalize_key(("len", app, key))
+        else:
+            len_key = _normalize_key(("len", key))
         len_result = (length, _const_true())
         self._read_results[_StateType.box][len_key] = len_result
 

@@ -97,6 +97,20 @@ class RemoteBoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.Tuple[algopy.arc4.DynamicBytes, algopy.arc4.UIntN[typing.Literal[64]]]: ...
 
     @algopy.arc4.abimethod
+    def same_key_as_local(
+        self,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def same_key_as_local_array(
+        self,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def passed_around(
         self,
         app: algopy.arc4.UIntN[typing.Literal[64]],

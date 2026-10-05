@@ -4,8 +4,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 1 0 3200
-    bytecblock 0x151f7c75 0x636f756e746572 0x626c6f62 0x636f756e74657273 0x00 0x626967
+    intcblock 8 0 1
+    bytecblock 0x151f7c75 0x636f756e746572 0x626c6f62 0x 0x636f756e74657273 0x00 0x6974656d73 0x626967
     b main_block@0
 
 main_block@0:
@@ -24,22 +24,22 @@ main_block@3:
     // remote_box/contract.py:27
     // class RemoteBoxContract(ARC4Contract, avm_version=13):
     txn NumAppArgs
-    intc_2 // 0
+    intc_1 // 0
     !=
-    bz main___algopy_default_create@24
+    bz main___algopy_default_create@26
     b main_abi_routing@4
 
 main_abi_routing@4:
     // remote_box/contract.py:27
     // class RemoteBoxContract(ARC4Contract, avm_version=13):
     txn OnCompletion
-    intc_2 // NoOp
+    intc_1 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_2 // 0
+    intc_1 // 0
     !=
-    bz main_create_NoOp@22
+    bz main_create_NoOp@24
     b main_call_NoOp@5
 
 main_call_NoOp@5:
@@ -60,144 +60,158 @@ main_call_NoOp@5:
     pushbytes 0xeeed69dc // method "big_read(uint64,uint64)uint64"
     pushbytes 0x29c51367 // method "big_write(uint64,uint64,uint64)void"
     pushbytes 0x40a6176d // method "key_and_app(uint64)(byte[],uint64)"
+    pushbytes 0x535c8853 // method "same_key_as_local(uint64,uint64)void"
+    pushbytes 0xf73e143a // method "same_key_as_local_array(uint64,uint64)void"
     pushbytes 0x0e5c34fd // method "passed_around(uint64)uint64"
-    uncover 15
-    match main_local_app_is_current_app_route@6 main_explicit_location_route@7 main_read_route@8 main_read_with_default_route@9 main_maybe_route@10 main_exists_route@11 main_length_route@12 main_write_route@13 main_delete_route@14 main_create_and_splice_route@15 main_struct_member_write_route@16 main_big_read_route@17 main_big_write_route@18 main_key_and_app_route@19 main_passed_around_route@20
-    b main_switch_case_next@21
+    uncover 17
+    match main_local_app_is_current_app_route@6 main_explicit_location_route@7 main_read_route@8 main_read_with_default_route@9 main_maybe_route@10 main_exists_route@11 main_length_route@12 main_write_route@13 main_delete_route@14 main_create_and_splice_route@15 main_struct_member_write_route@16 main_big_read_route@17 main_big_write_route@18 main_key_and_app_route@19 main_same_key_as_local_route@20 main_same_key_as_local_array_route@21 main_passed_around_route@22
+    b main_switch_case_next@23
 
-main_switch_case_next@21:
-    b main_after_if_else@23
-
-main_after_if_else@23:
+main_switch_case_next@23:
     b main_after_if_else@25
 
 main_after_if_else@25:
+    b main_after_if_else@27
+
+main_after_if_else@27:
     // remote_box/contract.py:27
     // class RemoteBoxContract(ARC4Contract, avm_version=13):
     err
 
-main_passed_around_route@20:
-    // remote_box/contract.py:108
+main_passed_around_route@22:
+    // remote_box/contract.py:128
     // @arc4.abimethod
     callsub passed_around
-    b main_switch_case_next@21
+    b main_switch_case_next@23
+
+main_same_key_as_local_array_route@21:
+    // remote_box/contract.py:119
+    // @arc4.abimethod
+    callsub same_key_as_local_array
+    b main_switch_case_next@23
+
+main_same_key_as_local_route@20:
+    // remote_box/contract.py:108
+    // @arc4.abimethod
+    callsub same_key_as_local
+    b main_switch_case_next@23
 
 main_key_and_app_route@19:
     // remote_box/contract.py:103
     // @arc4.abimethod
     callsub key_and_app
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_big_write_route@18:
     // remote_box/contract.py:98
     // @arc4.abimethod
     callsub big_write
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_big_read_route@17:
     // remote_box/contract.py:92
     // @arc4.abimethod
     callsub big_read
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_struct_member_write_route@16:
     // remote_box/contract.py:86
     // @arc4.abimethod
     callsub struct_member_write
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_create_and_splice_route@15:
     // remote_box/contract.py:77
     // @arc4.abimethod
     callsub create_and_splice
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_delete_route@14:
     // remote_box/contract.py:72
     // @arc4.abimethod
     callsub delete
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_write_route@13:
     // remote_box/contract.py:67
     // @arc4.abimethod
     callsub write
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_length_route@12:
     // remote_box/contract.py:62
     // @arc4.abimethod
     callsub length
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_exists_route@11:
     // remote_box/contract.py:57
     // @arc4.abimethod
     callsub exists
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_maybe_route@10:
     // remote_box/contract.py:52
     // @arc4.abimethod
     callsub maybe
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_read_with_default_route@9:
     // remote_box/contract.py:47
     // @arc4.abimethod
     callsub read_with_default
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_read_route@8:
     // remote_box/contract.py:42
     // @arc4.abimethod
     callsub read
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_explicit_location_route@7:
     // remote_box/contract.py:36
     // @arc4.abimethod
     callsub explicit_location
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
 main_local_app_is_current_app_route@6:
     // remote_box/contract.py:32
     // @arc4.abimethod
     callsub local_app_is_current_app
-    b main_switch_case_next@21
+    b main_switch_case_next@23
 
-main_create_NoOp@22:
-    b main_after_if_else@23
+main_create_NoOp@24:
+    b main_after_if_else@25
 
-main___algopy_default_create@24:
+main___algopy_default_create@26:
     txn OnCompletion
-    intc_2 // NoOp
+    intc_1 // NoOp
     ==
     txn ApplicationID
-    intc_2 // 0
+    intc_1 // 0
     ==
     &&
     assert
-    b main_block@27
+    b main_block@29
 
-main_block@27:
-    b main_after_inlined_test_cases.remote_box.contract.RemoteBoxContract.__algopy_default_create@28
+main_block@29:
+    b main_after_inlined_test_cases.remote_box.contract.RemoteBoxContract.__algopy_default_create@30
 
-main_after_inlined_test_cases.remote_box.contract.RemoteBoxContract.__algopy_default_create@28:
-    intc_1 // 1
+main_after_inlined_test_cases.remote_box.contract.RemoteBoxContract.__algopy_default_create@30:
+    intc_2 // 1
     return
 
 
 // test_cases.remote_box.contract._sum_twice(box.app: uint64, box.key: bytes) -> uint64:
 _sum_twice:
-    // remote_box/contract.py:115-116
+    // remote_box/contract.py:135-136
     // @subroutine
     // def _sum_twice(box: Box[UInt64, Remote]) -> UInt64:
     proto 2 1
     b _sum_twice_block@0
 
 _sum_twice_block@0:
-    // remote_box/contract.py:117
+    // remote_box/contract.py:137
     // return box.value + box.value
     frame_dig -2
     frame_dig -1
@@ -221,15 +235,15 @@ local_app_is_current_app_block@0:
     // remote_box/contract.py:32
     // @arc4.abimethod
     callsub test_cases.remote_box.contract.RemoteBoxContract.local_app_is_current_app
-    bytec 4 // 0x00
-    intc_2 // 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
     bytec_0 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -253,7 +267,7 @@ explicit_location_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -277,7 +291,7 @@ read_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -301,7 +315,7 @@ read_with_default_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -322,11 +336,11 @@ maybe_block@0:
     callsub test_cases.remote_box.contract.RemoteBoxContract.maybe
     cover 1
     itob
-    pushbytes 0x
+    bytec_3 // 0x
     uncover 1
     concat
-    bytec 4 // 0x00
-    intc_2 // 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 3
     setbit
     concat
@@ -334,7 +348,7 @@ maybe_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -353,15 +367,15 @@ exists_block@0:
     assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.remote_box.contract.RemoteBoxContract.exists
-    bytec 4 // 0x00
-    intc_2 // 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
     bytec_0 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -385,7 +399,7 @@ length_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -411,7 +425,7 @@ write_block@0:
     assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.remote_box.contract.RemoteBoxContract.write
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -430,7 +444,7 @@ delete_block@0:
     assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.remote_box.contract.RemoteBoxContract.delete
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -450,9 +464,9 @@ create_and_splice_block@0:
     btoi
     txna ApplicationArgs 2
     dup
-    intc_2 // 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 1
+    intc_2 // 1
     *
     pushint 2
     +
@@ -472,7 +486,7 @@ create_and_splice_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -497,7 +511,7 @@ struct_member_write_block@0:
     ==
     assert // invalid number of bytes for arc4.uint64
     callsub test_cases.remote_box.contract.RemoteBoxContract.struct_member_write
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -527,7 +541,7 @@ big_read_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -562,7 +576,7 @@ big_write_block@0:
     uncover 2
     uncover 2
     callsub test_cases.remote_box.contract.RemoteBoxContract.big_write
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -591,7 +605,7 @@ key_and_app_block@0:
     pushint 10
     itob
     extract 6 2
-    pushbytes 0x
+    bytec_3 // 0x
     uncover 1
     concat
     uncover 2
@@ -603,7 +617,57 @@ key_and_app_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
+    return
+
+
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local[routing]() -> void:
+same_key_as_local:
+    b same_key_as_local_block@0
+
+same_key_as_local_block@0:
+    // remote_box/contract.py:108
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    callsub test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local
+    intc_2 // 1
+    return
+
+
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array[routing]() -> void:
+same_key_as_local_array:
+    b same_key_as_local_array_block@0
+
+same_key_as_local_array_block@0:
+    // remote_box/contract.py:119
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    callsub test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array
+    intc_2 // 1
     return
 
 
@@ -612,7 +676,7 @@ passed_around:
     b passed_around_block@0
 
 passed_around_block@0:
-    // remote_box/contract.py:108
+    // remote_box/contract.py:128
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
@@ -627,7 +691,7 @@ passed_around_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -871,7 +935,7 @@ test_cases.remote_box.contract.RemoteBoxContract.create_and_splice_block@0:
     bytec_2 // 0x626c6f62
     // remote_box/contract.py:81
     // box.replace(0, value)
-    intc_2 // 0
+    intc_1 // 0
     frame_dig -1
     app_box_replace
     // remote_box/contract.py:82
@@ -882,7 +946,7 @@ test_cases.remote_box.contract.RemoteBoxContract.create_and_splice_block@0:
     bytec_2 // 0x626c6f62
     // remote_box/contract.py:82
     // box.splice(0, 4, value)
-    intc_2 // 0
+    intc_1 // 0
     pushint 4
     frame_dig -1
     app_box_splice
@@ -901,7 +965,7 @@ test_cases.remote_box.contract.RemoteBoxContract.create_and_splice_block@0:
     bytec_2 // 0x626c6f62
     // remote_box/contract.py:84
     // return box.extract(0, 8)
-    intc_2 // 0
+    intc_1 // 0
     intc_0 // 8
     app_box_extract
     retsub
@@ -921,46 +985,32 @@ test_cases.remote_box.contract.RemoteBoxContract.struct_member_write_block@0:
     frame_dig -2
     // remote_box/contract.py:89
     // box.value.a = value
-    dup
-    // remote_box/contract.py:88
-    // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
-    // remote_box/contract.py:89
-    // box.value.a = value
-    app_box_get
-    assert // check remote Box exists
-    intc_2 // 0
-    frame_dig -1
-    replace3
+    intc_1 // 0
+    intc_1 // 0
+    +
     dig 1
     // remote_box/contract.py:88
     // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
+    bytec 4 // 0x636f756e74657273
     // remote_box/contract.py:89
     // box.value.a = value
     uncover 2
-    app_box_put
-    // remote_box/contract.py:90
-    // box.value.b = value
-    dup
-    // remote_box/contract.py:88
-    // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
-    // remote_box/contract.py:90
-    // box.value.b = value
-    app_box_get
-    assert // check remote Box exists
-    intc_0 // 8
     frame_dig -1
-    replace3
+    app_box_replace // on error: index out of bounds
+    // remote_box/contract.py:90
+    // box.value.b = value
+    intc_1 // 0
+    intc_0 // 8
+    +
     uncover 1
     // remote_box/contract.py:88
     // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
+    bytec 4 // 0x636f756e74657273
     // remote_box/contract.py:90
     // box.value.b = value
     uncover 2
-    app_box_put
+    frame_dig -1
+    app_box_replace // on error: index out of bounds
     retsub
 
 
@@ -977,13 +1027,13 @@ test_cases.remote_box.contract.RemoteBoxContract.big_read_block@0:
     // # exercises the BoxRead path rather than the app_box_get path
     // box = Box.remote(BigStruct, app=app, key=b"big")
     frame_dig -2
-    bytec 5 // 0x626967
+    bytec 7 // 0x626967
     // remote_box/contract.py:96
     // return box.value.values[index]
     app_box_get
     assert // check remote Box exists
-    intc_2 // 0
-    intc_3 // 3200
+    intc_1 // 0
+    pushint 3200
     extract3
     frame_dig -1
     intc_0 // 8
@@ -1007,35 +1057,22 @@ test_cases.remote_box.contract.RemoteBoxContract.big_write_block@0:
     frame_dig -3
     // remote_box/contract.py:101
     // box.value.values[index] = value
-    dup
-    // remote_box/contract.py:100
-    // box = Box.remote(BigStruct, app=app, key=b"big")
-    bytec 5 // 0x626967
-    // remote_box/contract.py:101
-    // box.value.values[index] = value
-    app_box_get
-    assert // check remote Box exists
-    dup
-    intc_2 // 0
-    intc_3 // 3200
-    extract3
+    intc_1 // 0
+    intc_1 // 0
+    +
     frame_dig -2
     intc_0 // 8
     *
-    frame_dig -1
-    replace3 // on error: index access is out of bounds
-    uncover 1
-    intc_2 // 0
-    uncover 2
-    replace3
+    +
     uncover 1
     // remote_box/contract.py:100
     // box = Box.remote(BigStruct, app=app, key=b"big")
-    bytec 5 // 0x626967
+    bytec 7 // 0x626967
     // remote_box/contract.py:101
     // box.value.values[index] = value
     uncover 2
-    app_box_put
+    frame_dig -1
+    app_box_replace // on error: index out of bounds
     retsub
 
 
@@ -1058,21 +1095,147 @@ test_cases.remote_box.contract.RemoteBoxContract.key_and_app_block@0:
     retsub
 
 
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local(app: uint64, value: bytes) -> void:
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local:
+    // remote_box/contract.py:108-109
+    // @arc4.abimethod
+    // def same_key_as_local(self, app: Application, value: arc4.UInt64) -> None:
+    proto 2 0
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_block@0
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_block@0:
+    // remote_box/contract.py:114
+    // remote = Box.remote(Counters, app=app, key=b"counters")
+    frame_dig -2
+    // remote_box/contract.py:110-113
+    // # a local box and a remote box can share a key, so a value read from one must never be
+    // # written back to the other - the in-place box update optimisation rewrites a whole box
+    // # write into box_extract/box_replace, which only ever address the current application
+    // local = Box(Counters, key=b"counters")
+    bytec 4 // 0x636f756e74657273
+    // remote_box/contract.py:115
+    // updated = local.value.copy()
+    box_get
+    assert // check Box exists
+    // remote_box/contract.py:116
+    // updated.a = value
+    intc_1 // 0
+    frame_dig -1
+    replace3
+    // remote_box/contract.py:117
+    // remote.value = updated.copy()
+    uncover 1
+    // remote_box/contract.py:114
+    // remote = Box.remote(Counters, app=app, key=b"counters")
+    bytec 4 // 0x636f756e74657273
+    // remote_box/contract.py:117
+    // remote.value = updated.copy()
+    uncover 2
+    app_box_put
+    retsub
+
+
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array(app: uint64, value: bytes) -> void:
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array:
+    // remote_box/contract.py:119-120
+    // @arc4.abimethod
+    // def same_key_as_local_array(self, app: Application, value: arc4.UInt64) -> None:
+    proto 2 0
+    intc_1 // 0
+    intc_1 // 0
+    bytec_3 // ""
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@0
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@0:
+    // remote_box/contract.py:123
+    // remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+    frame_dig -2
+    // remote_box/contract.py:121-122
+    // # as above, for the array concat/pop variants of the same optimisation
+    // local = Box(arc4.DynamicArray[arc4.UInt64], key=b"items")
+    bytec 6 // 0x6974656d73
+    // remote_box/contract.py:124
+    // updated = local.value.copy()
+    box_get
+    assert // check Box exists
+    // remote_box/contract.py:125
+    // updated.append(value)
+    bytec_3 // 0x
+    frame_dig -1
+    concat
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@1
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@1:
+    frame_dig 4
+    intc_1 // 0
+    extract_uint16
+    // remote_box/contract.py:125
+    // updated.append(value)
+    intc_2 // 1
+    +
+    frame_bury 2
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@2
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_block@2:
+    frame_dig 2
+    itob
+    extract 6 0
+    frame_bury 1
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_after_inlined__puya_lib.arc4._itob16@3
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_after_inlined__puya_lib.arc4._itob16@3:
+    frame_dig 1
+    frame_dig 4
+    intc_1 // 0
+    uncover 2
+    replace3
+    frame_dig 5
+    concat
+    frame_bury 0
+    // remote_box/contract.py:125
+    // updated.append(value)
+    b test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
+
+test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
+    // remote_box/contract.py:125
+    // updated.append(value)
+    frame_dig 0
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    frame_dig 3
+    dup
+    // remote_box/contract.py:123
+    // remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+    bytec 6 // 0x6974656d73
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    app_box_del
+    pop
+    // remote_box/contract.py:123
+    // remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+    bytec 6 // 0x6974656d73
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    uncover 2
+    app_box_put
+    retsub
+
+
 // test_cases.remote_box.contract.RemoteBoxContract.passed_around(app: uint64) -> uint64:
 test_cases.remote_box.contract.RemoteBoxContract.passed_around:
-    // remote_box/contract.py:108-109
+    // remote_box/contract.py:128-129
     // @arc4.abimethod
     // def passed_around(self, app: Application) -> UInt64:
     proto 1 1
     b test_cases.remote_box.contract.RemoteBoxContract.passed_around_block@0
 
 test_cases.remote_box.contract.RemoteBoxContract.passed_around_block@0:
-    // remote_box/contract.py:110-111
+    // remote_box/contract.py:130-131
     // # the proxy survives a round trip through a local variable and a subroutine
     // box = Box.remote(UInt64, app=app, key=b"counter")
     frame_dig -1
     bytec_1 // 0x636f756e746572
-    // remote_box/contract.py:112
+    // remote_box/contract.py:132
     // return _sum_twice(box)
     callsub _sum_twice
     retsub

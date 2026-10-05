@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@4 : block@24
+        goto tmp%0#1 ? block@4 : block@26
     block@4: // abi_routing_L27
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,55 +9,61 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "local_app_is_current_app()bool" => block@6, method "explicit_location(uint64)uint64" => block@7, method "read(uint64)uint64" => block@8, method "read_with_default(uint64)uint64" => block@9, method "maybe(uint64)(uint64,bool)" => block@10, method "exists(uint64)bool" => block@11, method "length(uint64)uint64" => block@12, method "write(uint64,uint64)void" => block@13, method "delete(uint64)void" => block@14, method "create_and_splice(uint64,byte[])byte[]" => block@15, method "struct_member_write(uint64,uint64)void" => block@16, method "big_read(uint64,uint64)uint64" => block@17, method "big_write(uint64,uint64,uint64)void" => block@18, method "key_and_app(uint64)(byte[],uint64)" => block@19, method "passed_around(uint64)uint64" => block@20, * => block@23}
+        switch tmp%6#0 {method "local_app_is_current_app()bool" => block@6, method "explicit_location(uint64)uint64" => block@7, method "read(uint64)uint64" => block@8, method "read_with_default(uint64)uint64" => block@9, method "maybe(uint64)(uint64,bool)" => block@10, method "exists(uint64)bool" => block@11, method "length(uint64)uint64" => block@12, method "write(uint64,uint64)void" => block@13, method "delete(uint64)void" => block@14, method "create_and_splice(uint64,byte[])byte[]" => block@15, method "struct_member_write(uint64,uint64)void" => block@16, method "big_read(uint64,uint64)uint64" => block@17, method "big_write(uint64,uint64,uint64)void" => block@18, method "key_and_app(uint64)(byte[],uint64)" => block@19, method "same_key_as_local(uint64,uint64)void" => block@20, method "same_key_as_local_array(uint64,uint64)void" => block@21, method "passed_around(uint64)uint64" => block@22, * => block@25}
     block@6: // local_app_is_current_app_route_L32
         test_cases.remote_box.contract.RemoteBoxContract.local_app_is_current_app[routing]()
-        goto block@23
+        goto block@25
     block@7: // explicit_location_route_L36
         test_cases.remote_box.contract.RemoteBoxContract.explicit_location[routing]()
-        goto block@23
+        goto block@25
     block@8: // read_route_L42
         test_cases.remote_box.contract.RemoteBoxContract.read[routing]()
-        goto block@23
+        goto block@25
     block@9: // read_with_default_route_L47
         test_cases.remote_box.contract.RemoteBoxContract.read_with_default[routing]()
-        goto block@23
+        goto block@25
     block@10: // maybe_route_L52
         test_cases.remote_box.contract.RemoteBoxContract.maybe[routing]()
-        goto block@23
+        goto block@25
     block@11: // exists_route_L57
         test_cases.remote_box.contract.RemoteBoxContract.exists[routing]()
-        goto block@23
+        goto block@25
     block@12: // length_route_L62
         test_cases.remote_box.contract.RemoteBoxContract.length[routing]()
-        goto block@23
+        goto block@25
     block@13: // write_route_L67
         test_cases.remote_box.contract.RemoteBoxContract.write[routing]()
-        goto block@23
+        goto block@25
     block@14: // delete_route_L72
         test_cases.remote_box.contract.RemoteBoxContract.delete[routing]()
-        goto block@23
+        goto block@25
     block@15: // create_and_splice_route_L77
         test_cases.remote_box.contract.RemoteBoxContract.create_and_splice[routing]()
-        goto block@23
+        goto block@25
     block@16: // struct_member_write_route_L86
         test_cases.remote_box.contract.RemoteBoxContract.struct_member_write[routing]()
-        goto block@23
+        goto block@25
     block@17: // big_read_route_L92
         test_cases.remote_box.contract.RemoteBoxContract.big_read[routing]()
-        goto block@23
+        goto block@25
     block@18: // big_write_route_L98
         test_cases.remote_box.contract.RemoteBoxContract.big_write[routing]()
-        goto block@23
+        goto block@25
     block@19: // key_and_app_route_L103
         test_cases.remote_box.contract.RemoteBoxContract.key_and_app[routing]()
-        goto block@23
-    block@20: // passed_around_route_L108
+        goto block@25
+    block@20: // same_key_as_local_route_L108
+        test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local[routing]()
+        goto block@25
+    block@21: // same_key_as_local_array_route_L119
+        test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array[routing]()
+        goto block@25
+    block@22: // passed_around_route_L128
         test_cases.remote_box.contract.RemoteBoxContract.passed_around[routing]()
-        goto block@23
-    block@23: // after_if_else_L27
+        goto block@25
+    block@25: // after_if_else_L27
         fail
-    block@24: // __algopy_default_create_L1
+    block@26: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -233,14 +239,8 @@ subroutine test_cases.remote_box.contract.RemoteBoxContract.struct_member_write[
         let len%1#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (app_box_get app#0 0x636f756e74657273)
-        (assert aggregate%box_get%1#0) // check remote Box exists
-        let aggregate%updated_data%0#0: bytes = ((replace2 0) aggregate%box_get%0#0 value#0)
-        (app_box_put app#0 0x636f756e74657273 aggregate%updated_data%0#0)
-        let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (app_box_get app#0 0x636f756e74657273)
-        (assert aggregate%box_get%3#0) // check remote Box exists
-        let aggregate%updated_data%1#0: bytes = ((replace2 8) aggregate%box_get%2#0 value#0)
-        (app_box_put app#0 0x636f756e74657273 aggregate%updated_data%1#0)
+        (app_box_replace app#0 0x636f756e74657273 0u value#0) // on error: index out of bounds
+        (app_box_replace app#0 0x636f756e74657273 8u value#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.remote_box.contract.RemoteBoxContract.big_read[routing]() -> void:
@@ -280,13 +280,8 @@ subroutine test_cases.remote_box.contract.RemoteBoxContract.big_write[routing]()
         let len%2#0: uint64 = (len value#0)
         let eq%2#0: bool = (== len%2#0 8u)
         (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (app_box_get app#0 0x626967)
-        (assert aggregate%box_get%1#0) // check remote Box exists
-        let aggregate%extract%0#0: bytes = (extract3 aggregate%box_get%0#0 0u 3200u)
-        let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%extract%0#0 aggregate%write_offset%0#0 value#0) // on error: index access is out of bounds
-        let aggregate%updated_data%0#0: bytes = ((replace2 0) aggregate%box_get%0#0 aggregate%updated_array%0#0)
-        (app_box_put app#0 0x626967 aggregate%updated_data%0#0)
+        let box%element_offset%0#0: uint64 = (* index#0 8u)
+        (app_box_replace app#0 0x626967 box%element_offset%0#0 value#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.remote_box.contract.RemoteBoxContract.key_and_app[routing]() -> void:
@@ -303,8 +298,48 @@ subroutine test_cases.remote_box.contract.RemoteBoxContract.key_and_app[routing]
         (log tmp%5#0)
         exit 1u
 
-subroutine test_cases.remote_box.contract.RemoteBoxContract.passed_around[routing]() -> void:
+subroutine test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local[routing]() -> void:
     block@0: // L108
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len value#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let (updated#0: Encoded(uint64,uint64), aggregate%box_get%1#0: bool) = (box_get 0x636f756e74657273)
+        (assert aggregate%box_get%1#0) // check Box exists
+        let updated#1: Encoded(uint64,uint64) = ((replace2 0) updated#0 value#0)
+        (app_box_put app#0 0x636f756e74657273 updated#1)
+        exit 1u
+
+subroutine test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array[routing]() -> void:
+    block@0: // L119
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len value#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let (updated#0: Encoded(len+uint64[]), aggregate%box_get%1#0: bool) = (box_get 0x6974656d73)
+        (assert aggregate%box_get%1#0) // check Box exists
+        let array_length#0: uint64 = (extract_uint16 updated#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 1u)
+        let tmp%0#3: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#3)
+        let result#0: bytes = ((replace2 0) updated#0 new_len_u16#0)
+        let updated#1: Encoded(len+uint64[]) = (concat result#0 value#0)
+        (app_box_del app#0 0x6974656d73)
+        (app_box_put app#0 0x6974656d73 updated#1)
+        exit 1u
+
+subroutine test_cases.remote_box.contract.RemoteBoxContract.passed_around[routing]() -> void:
+    block@0: // L128
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -313,10 +348,7 @@ subroutine test_cases.remote_box.contract.RemoteBoxContract.passed_around[routin
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (app_box_get app#0 0x636f756e746572)
         (assert aggregate%box_get%1#0) // check remote Box exists
         let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%0#0)
-        let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (app_box_get app#0 0x636f756e746572)
-        (assert aggregate%box_get%3#0) // check remote Box exists
-        let maybe_value_converted%1#0: uint64 = (btoi aggregate%box_get%2#0)
-        let tmp%0#2: uint64 = (+ maybe_value_converted%0#0 maybe_value_converted%1#0)
+        let tmp%0#2: uint64 = (+ maybe_value_converted%0#0 maybe_value_converted%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#2)
         let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%4#0)

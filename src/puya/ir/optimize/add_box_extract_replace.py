@@ -103,10 +103,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> None:
-        # FIXME?
-        # remote boxes are not combined with extract/replace ops yet - all the combining below
-        # emits box_extract/box_replace etc. against the current application
-        if self._target and read.app is None:
+        if self._target:
             self.box_reads[self._target] = read
 
     @typing.override
@@ -184,13 +181,14 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         else:
             fixed_offset = _get_fixed_byte_offset(
                 factory,
+                box_app=box_read.app,
                 box_key=box_read.key,
                 encoding=maybe_extract_value.base_type.encoding,
                 indexes=maybe_extract_value.indexes,
                 stop_at_valid_stack_value=False,
             )
             offset = fixed_offset.offset
-        return factory.box_extract_u16(box_read.key, offset)
+        return factory.box_extract_u16(box_read.app, box_read.key, offset)
 
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider | None:
         # find box read
@@ -221,9 +219,13 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         )
         factory = OpFactory(self, merged_loc)
         if final_encoding.is_fixed:
-            new_read = _combine_box_read_and_extract_value(factory, box_read.key, read)
+            new_read = _combine_box_read_and_extract_value(
+                factory, box_read.app, box_read.key, read
+            )
         elif _is_dynamic_array_fixed_element(final_encoding):
-            new_read = _combine_box_read_and_dynamic_array_read(factory, box_read.key, read)
+            new_read = _combine_box_read_and_dynamic_array_read(
+                factory, box_read.app, box_read.key, read
+            )
         else:
             # unsupported
             return None
@@ -247,7 +249,6 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             return None
 
     def visit_box_write(self, write: models.BoxWrite) -> models.Op | None:
-        # see if this box write relates to a mutation we can potentially optimise
         try:
             mutation = self.aggregates.aggregate_mutations[write.value]
         except KeyError:
@@ -260,7 +261,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             return None
 
         # can only do an update if the mutation was for a value from the same box
-        if write.key != read_src.key:
+        if write.key != read_src.key or write.app != read_src.app:
             return None
 
         if isinstance(mutation, models.ReplaceValue):
@@ -336,6 +337,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                 raise InternalError("unexpected intrinsic op", merged_loc)
 
         box_extract = factory.box_extract(
+            box_read.app,
             box_read.key,
             offset,
             length,
@@ -362,9 +364,16 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             (intrinsic.source_location, box_read.source_location)
         )
 
+        if box_read.app is None:
+            op = AVMOp.box_len
+            args = [box_read.key]
+        else:
+            op = AVMOp.app_box_len
+            args = [box_read.app, box_read.key]
+
         get_box_len = models.Intrinsic(
-            op=AVMOp.box_len,
-            args=[box_read.key],
+            op=op,
+            args=args,
             types=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
             source_location=merged_loc,
         )
@@ -396,6 +405,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         pop = _pop_index_from_array_in_place(
             factory,
             fixed_element_size,
+            box_app=write.app,
             box_key=write.key,
             array_offset=0,
             bit_packed=array_pop.array_encoding.element.is_bit,
@@ -422,6 +432,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         concat = _extend_array_in_place(
             factory,
             fixed_element_size,
+            box_app=write.app,
             box_key=write.key,
             array_offset=0,
             new_items_bytes=array_concat.items,
@@ -448,6 +459,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
     ) -> models.Op:
         loc = mutation.source_location
         replacement = self._update_tuple_nested_array_offsets(
+            box_app=write.app,
             box_key=write.key,
             replace_value=replace_value,
             mutation=mutation,
@@ -479,6 +491,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         """
         loc = mutation.source_location
         replacement = self._update_tuple_nested_array_offsets(
+            box_app=write.app,
             box_key=write.key,
             replace_value=replace_value,
             mutation=mutation,
@@ -498,6 +511,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
 
     def _update_tuple_nested_array_offsets(
         self,
+        box_app: models.Value | None,
         box_key: models.Value,
         replace_value: models.ReplaceValue,
         mutation: models.ArrayPop | models.ArrayConcat,
@@ -531,29 +545,39 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                 # Calculate the offset that contains the offset to read from the box
                 offset_ptr_position = factory.add(box_offset, tuple_offset.offset_delta)
                 # Read the actual offset from the box
-                element_offset = factory.box_extract_u16(box_key, offset_ptr_position)
+                element_offset = factory.box_extract_u16(box_app, box_key, offset_ptr_position)
                 box_offset = factory.add(box_offset, element_offset)
         array_offset = _get_fixed_byte_offset(
             factory,
+            box_app=box_app,
             box_key=box_key,
             encoding=replace_value.base_type.encoding,
             indexes=replace_value.indexes,
             stop_at_valid_stack_value=False,
         )
+        args = [box_key] if box_app is None else [box_app, box_key]
         if isinstance(mutation, models.ArrayPop):
-            update_offset = PuyaLibIR.box_update_offset_dec
+            if box_app is None:
+                update_offset = PuyaLibIR.box_update_offset_dec
+            else:
+                update_offset = PuyaLibIR.remote_box_update_offset_dec
             invoke = _pop_index_from_array_in_place(
                 factory,
                 element_size,
+                box_app=box_app,
                 box_key=box_key,
                 array_offset=array_offset.offset,
                 bit_packed=bit_packed,
             )
         else:
-            update_offset = PuyaLibIR.box_update_offset_inc
+            if box_app is None:
+                update_offset = PuyaLibIR.box_update_offset_inc
+            else:
+                update_offset = PuyaLibIR.remote_box_update_offset_inc
             invoke = _extend_array_in_place(
                 factory,
                 element_size,
+                box_app=box_app,
                 box_key=box_key,
                 array_offset=array_offset.offset,
                 new_items_bytes=mutation.items,
@@ -565,16 +589,14 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         if fixed_offset_delta is not None:
             # the byte delta is known, so update heads before mutating the array
             for offset in tuple_dynamic_offsets:
-                self.add_op(factory.invoke(update_offset, [box_key, offset, fixed_offset_delta]))
+                self.add_op(factory.invoke(update_offset, [*args, offset, fixed_offset_delta]))
         elif tuple_dynamic_offsets:
             # bit mutations return the byte delta, so mutate the array before updating heads
             offset_delta = factory.materialise_single(invoke, "offset_delta")
             for offset in tuple_dynamic_offsets[:-1]:
-                self.add_op(factory.invoke(update_offset, [box_key, offset, offset_delta]))
+                self.add_op(factory.invoke(update_offset, [*args, offset, offset_delta]))
             # return the final head update
-            return factory.invoke(
-                update_offset, [box_key, tuple_dynamic_offsets[-1], offset_delta]
-            )
+            return factory.invoke(update_offset, [*args, tuple_dynamic_offsets[-1], offset_delta])
         return invoke
 
     def _combine_box_write_and_replace_value_fixed_size(
@@ -586,10 +608,10 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         factory = OpFactory(self, merged_loc)
         # TODO: determine for writes if calculating the offset and asserting indexes
         #       is more efficient than doing N reads & writes
-        box_key = write.key
         fixed_offset = _get_fixed_byte_offset(
             factory,
-            box_key=box_key,
+            box_app=write.app,
+            box_key=write.key,
             encoding=replace_value.base_type.encoding,
             indexes=replace_value.indexes,
             stop_at_valid_stack_value=False,
@@ -601,7 +623,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             encoding = fixed_offset.encoding
             extract_ir_type = EncodedType(encoding)
             box_extract = factory.box_extract(
-                box_key,
+                write.app,
+                write.key,
                 fixed_offset.offset,
                 fixed_offset.encoding.checked_num_bytes,
                 ir_type=extract_ir_type,
@@ -619,7 +642,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                 )
             )
         replace = factory.box_replace(
-            box_key, fixed_offset.offset, value, error_message="index out of bounds"
+            write.app, write.key, fixed_offset.offset, value, error_message="index out of bounds"
         )
         self.modified = True
         logger.debug(
@@ -701,25 +724,31 @@ def _pop_index_from_array_in_place(
     factory: OpFactory,
     fixed_element_size: int,
     *,
+    box_app: models.Value | None,
     box_key: models.Value,
     array_offset: models.Value | int,
     bit_packed: bool,
 ) -> models.InvokeSubroutine:
-    if bit_packed:
-        return factory.invoke(
-            PuyaLibIR.box_dynamic_array_pop_bit,
-            [box_key, array_offset],
-        )
-    return factory.invoke(
-        PuyaLibIR.box_dynamic_array_pop_fixed_size,
-        [box_key, array_offset, fixed_element_size],
-    )
+    if bit_packed and box_app is not None:
+        fn = PuyaLibIR.remote_box_dynamic_array_pop_bit
+        args = [box_app, box_key, array_offset]
+    elif bit_packed:
+        fn = PuyaLibIR.box_dynamic_array_pop_bit
+        args = [box_key, array_offset]
+    elif box_app is not None:
+        fn = PuyaLibIR.remote_box_dynamic_array_pop_fixed_size
+        args = [box_app, box_key, array_offset, fixed_element_size]
+    else:
+        fn = PuyaLibIR.box_dynamic_array_pop_fixed_size
+        args = [box_key, array_offset, fixed_element_size]
+    return factory.invoke(fn, args)
 
 
 def _extend_array_in_place(
     factory: OpFactory,
     fixed_element_size: int,
     *,
+    box_app: models.Value | None,
     box_key: models.Value,
     array_offset: models.Value | int,
     new_items_bytes: models.Value,
@@ -727,27 +756,43 @@ def _extend_array_in_place(
     bit_packed: bool,
     read_step: int,
 ) -> models.InvokeSubroutine:
-    if bit_packed:
+    if bit_packed and box_app is not None:
         # bitpacked bools, so the new items are either also bit packed
         # or a sequence of individually encoded bools
         assert read_step in (1, 8), "expected packed or individually encoded bools"
-        return factory.invoke(
-            PuyaLibIR.box_dynamic_array_concat_bits,
-            [box_key, array_offset, new_items_bytes, new_items_count, read_step],
-        )
-    return factory.invoke(
-        PuyaLibIR.box_dynamic_array_concat_fixed,
-        [box_key, array_offset, new_items_bytes, new_items_count, fixed_element_size],
-    )
+        fn = PuyaLibIR.remote_box_dynamic_array_concat_bits
+        args = [box_app, box_key, array_offset, new_items_bytes, new_items_count, read_step]
+    elif bit_packed:
+        # bitpacked bools, so the new items are either also bit packed
+        # or a sequence of individually encoded bools
+        assert read_step in (1, 8), "expected packed or individually encoded bools"
+        fn = PuyaLibIR.box_dynamic_array_concat_bits
+        args = [box_key, array_offset, new_items_bytes, new_items_count, read_step]
+    elif box_app is not None:
+        fn = PuyaLibIR.remote_box_dynamic_array_concat_fixed
+        args = [
+            box_app,
+            box_key,
+            array_offset,
+            new_items_bytes,
+            new_items_count,
+            fixed_element_size,
+        ]
+    else:
+        fn = PuyaLibIR.box_dynamic_array_concat_fixed
+        args = [box_key, array_offset, new_items_bytes, new_items_count, fixed_element_size]
+    return factory.invoke(fn, args)
 
 
 def _combine_box_read_and_extract_value(
     factory: OpFactory,
+    box_app: models.Value | None,
     box_key: models.Value,
     agg_read: models.ExtractValue,
 ) -> models.ValueProvider:
     fixed_offset = _get_fixed_byte_offset(
         factory,
+        box_app=box_app,
         box_key=box_key,
         encoding=agg_read.base_type.encoding,
         indexes=agg_read.indexes,
@@ -757,6 +802,7 @@ def _combine_box_read_and_extract_value(
     encoding_at_offset = fixed_offset.encoding
     extract_ir_type = EncodedType(encoding_at_offset)
     box_extract = factory.box_extract(
+        box_app,
         box_key,
         fixed_offset.offset,
         encoding_at_offset.checked_num_bytes,
@@ -783,11 +829,13 @@ def _combine_box_read_and_extract_value(
 
 def _combine_box_read_and_dynamic_array_read(
     factory: OpFactory,
+    box_app: models.Value | None,
     box_key: models.Value,
     agg_read: models.ExtractValue,
 ) -> models.ValueProvider:
     array_offset = _get_fixed_byte_offset(
         factory,
+        box_app=box_app,
         box_key=box_key,
         encoding=agg_read.base_type.encoding,
         indexes=agg_read.indexes,
@@ -799,7 +847,7 @@ def _combine_box_read_and_dynamic_array_read(
     assert array_encoding.element.is_fixed, "expected fixed size elements"
 
     # Read array length header (2 bytes at array_offset)
-    array_length = factory.box_extract_u16(box_key, array_offset.offset)
+    array_length = factory.box_extract_u16(box_app, box_key, array_offset.offset)
 
     # Calculate total bytes: 2 + array_length * element_size
     element_encoding = array_encoding.element
@@ -812,6 +860,7 @@ def _combine_box_read_and_dynamic_array_read(
 
     # Extract the entire array
     return factory.box_extract(
+        box_app,
         box_key,
         array_offset.offset,
         total_bytes,
@@ -829,6 +878,7 @@ class _FixedOffset:
 def _get_fixed_byte_offset(
     factory: OpFactory,
     *,
+    box_app: models.Value | None,
     box_key: models.Value,
     encoding: Encoding,
     indexes: Sequence[int | models.Value],
@@ -839,6 +889,7 @@ def _get_fixed_byte_offset(
     return _get_nested_fixed_byte_offset(
         factory,
         box_offset=box_offset,
+        box_app=box_app,
         box_key=box_key,
         encoding=encoding,
         indexes=indexes,
@@ -852,6 +903,7 @@ def _get_nested_fixed_byte_offset(
     factory: OpFactory,
     *,
     box_offset: models.Value,
+    box_app: models.Value | None,
     box_key: models.Value,
     encoding: Encoding,
     indexes: Sequence[int | models.Value],
@@ -877,21 +929,33 @@ def _get_nested_fixed_byte_offset(
             index_bits_offset = encoding.get_head_bit_offset(index)
             return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index_bits_offset)
         element_offset = _get_tuple_element_byte_offset(
-            factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
+            factory,
+            box_offset=box_offset,
+            box_app=box_app,
+            box_key=box_key,
+            encoding=encoding,
+            index=index,
         )
         # if not already checking array bounds, only need to start if there is trailing data
         check_array_bounds = check_array_bounds or _has_trailing_data(encoding, index)
     elif isinstance(encoding, ArrayEncoding):
         index_encoding = encoding.element
         if check_array_bounds or (check_bit_bounds and index_encoding.is_bit):
-            _assert_index_is_in_array_bounds(factory, encoding, box_key, box_offset, index)
+            _assert_index_is_in_array_bounds(
+                factory, encoding, box_app, box_key, box_offset, index
+            )
         if encoding.length_header:
             box_offset = factory.add(box_offset, 2)
         # stop if element is a bit, as that can't be extracted directly
         if index_encoding.is_bit:
             return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index)
         element_offset = _get_array_element_byte_offset(
-            factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
+            factory,
+            box_offset=box_offset,
+            box_app=box_app,
+            box_key=box_key,
+            encoding=encoding,
+            index=index,
         )
         # always need to check array bounds after the first array read
         check_array_bounds = True
@@ -913,6 +977,7 @@ def _get_nested_fixed_byte_offset(
         return _get_nested_fixed_byte_offset(
             factory,
             box_offset=offset,
+            box_app=box_app,
             box_key=box_key,
             encoding=index_encoding,
             indexes=remaining_indexes,
@@ -945,6 +1010,7 @@ def _get_tuple_element_byte_offset(
     factory: OpFactory,
     *,
     box_offset: models.Value,
+    box_app: models.Value | None,
     box_key: models.Value,
     encoding: TupleEncoding,
     index: int,
@@ -958,13 +1024,14 @@ def _get_tuple_element_byte_offset(
         return bits_to_bytes(tail_bit_offset)
     else:
         element_offset_offset = factory.add(box_offset, index_head_offset)
-        return factory.box_extract_u16(box_key, element_offset_offset)
+        return factory.box_extract_u16(box_app, box_key, element_offset_offset)
 
 
 def _get_array_element_byte_offset(
     factory: OpFactory,
     *,
     box_offset: models.Value,
+    box_app: models.Value | None,
     box_key: models.Value,
     encoding: ArrayEncoding,
     index: int | models.Value,
@@ -976,7 +1043,7 @@ def _get_array_element_byte_offset(
         index_offset = factory.mul(2, index)
         # the offset into head from the start of this element that contains the data offset
         box_absolute_offset_offset = factory.add(box_offset, index_offset)
-        return factory.box_extract_u16(box_key, box_absolute_offset_offset)
+        return factory.box_extract_u16(box_app, box_key, box_absolute_offset_offset)
 
 
 def _get_fixed_byte_offset_from_bit_offset(
@@ -1006,12 +1073,13 @@ def _get_fixed_byte_offset_from_bit_offset(
 def _assert_index_is_in_array_bounds(
     factory: OpFactory,
     encoding: ArrayEncoding,
+    box_app: models.Value | None,
     box_key: models.Value,
     box_offset: models.Value,
     index: models.Value | int,
 ) -> None:
     if encoding.length_header:
-        size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
+        size: models.Value | int = factory.box_extract_u16(box_app, box_key, box_offset)
     else:
         assert encoding.size is not None, "expected fixed size array"
         size = encoding.size

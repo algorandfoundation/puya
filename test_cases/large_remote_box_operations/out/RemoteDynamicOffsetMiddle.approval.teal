@@ -1,0 +1,821 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 2 1 4 4096
+    bytecblock 0x626f78 0x151f7c75
+    // large_remote_box_operations/dynamic_offset_middle.py:44
+    // class RemoteDynamicOffsetMiddle(ARC4Contract, avm_version=13):
+    txn NumAppArgs
+    bz main___algopy_default_create@14
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xa0cadf8a 0x1fd6f2a2 0x87ae5a4c 0x7d507d3b 0xa52cf06e 0xfc4e6bbe 0x4aa9f08d // method "bootstrap(uint64)void", method "concat(uint64,uint64[])void", method "append(uint64,uint64)void", method "pop(uint64)uint64", method "verify(uint64,uint64[])void", method "get(uint64,uint64)uint64", method "set(uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match bootstrap concat append pop verify get set
+    err
+
+main___algopy_default_create@14:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.remote_box_dynamic_array_concat_fixed(box_app: uint64, box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+remote_box_dynamic_array_concat_fixed:
+    proto 6 0
+    frame_dig -6
+    frame_dig -5
+    frame_dig -4
+    intc_1 // 2
+    app_box_extract
+    btoi
+    frame_dig -6
+    frame_dig -5
+    app_box_len
+    pop
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    frame_dig -6
+    frame_dig -5
+    uncover 2
+    app_box_resize
+    dup
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig -6
+    frame_dig -5
+    frame_dig -4
+    uncover 3
+    app_box_replace
+    frame_dig -4
+    intc_1 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    frame_dig -6
+    frame_dig -5
+    uncover 2
+    pushint 0
+    frame_dig -3
+    app_box_splice
+    retsub
+
+
+// _puya_lib.box_arc4.remote_box_update_offset_inc(box_app: uint64, box_key: bytes, offset: uint64, value: uint64) -> void:
+remote_box_update_offset_inc:
+    proto 4 0
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    frame_dig -1
+    +
+    itob
+    extract 6 2
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
+    uncover 3
+    app_box_replace
+    retsub
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.bootstrap[routing]() -> void:
+bootstrap:
+    // large_remote_box_operations/dynamic_offset_middle.py:45
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/dynamic_offset_middle.py:47-59
+    // _box(app).value = DynamicOffsets(
+    //     nested=Parent(
+    //         baz=UInt64(1),
+    //         nested=Child(
+    //             foo=UInt64(2),
+    //             arr=ArrayU64(),
+    //             bar=UInt64(3),
+    //         ),
+    //         buz=UInt64(4),
+    //     ),
+    //     pad1=LargeBytes(),
+    //     pad2=LargeBytes(),
+    // )
+    dup
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:47-59
+    // _box(app).value = DynamicOffsets(
+    //     nested=Parent(
+    //         baz=UInt64(1),
+    //         nested=Child(
+    //             foo=UInt64(2),
+    //             arr=ArrayU64(),
+    //             bar=UInt64(3),
+    //         ),
+    //         buz=UInt64(4),
+    //     ),
+    //     pad1=LargeBytes(),
+    //     pad2=LargeBytes(),
+    // )
+    app_box_del
+    pop
+    dup
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:47-59
+    // _box(app).value = DynamicOffsets(
+    //     nested=Parent(
+    //         baz=UInt64(1),
+    //         nested=Child(
+    //             foo=UInt64(2),
+    //             arr=ArrayU64(),
+    //             bar=UInt64(3),
+    //         ),
+    //         buz=UInt64(4),
+    //     ),
+    //     pad1=LargeBytes(),
+    //     pad2=LargeBytes(),
+    // )
+    pushbytes 0x00060008002e000000000000000000010012000000000000000400000000000000020012000000000000000300000000
+    app_box_put
+    // large_remote_box_operations/dynamic_offset_middle.py:60
+    // _box(app).value.pad1.append(Bytes4096())
+    intc 4 // 4096
+    bzero
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:60
+    // _box(app).value.pad1.append(Bytes4096())
+    intc_1 // 2
+    intc 4 // 4096
+    callsub remote_box_update_offset_inc
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:60
+    // _box(app).value.pad1.append(Bytes4096())
+    intc_3 // 4
+    intc 4 // 4096
+    callsub remote_box_update_offset_inc
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:60
+    // _box(app).value.pad1.append(Bytes4096())
+    pushint 6
+    uncover 3
+    intc_2 // 1
+    intc 4 // 4096
+    callsub remote_box_dynamic_array_concat_fixed
+    // large_remote_box_operations/dynamic_offset_middle.py:52
+    // arr=ArrayU64(),
+    pushbytes 0x0000
+    // large_remote_box_operations/dynamic_offset_middle.py:61
+    // self.verify(app, ArrayU64())
+    callsub test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify
+    pop
+    // large_remote_box_operations/dynamic_offset_middle.py:45
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.concat[routing]() -> void:
+concat:
+    // large_remote_box_operations/dynamic_offset_middle.py:63
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_0 // 8
+    *
+    dup
+    intc_1 // 2
+    +
+    dig 3
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // large_remote_box_operations/dynamic_offset_middle.py:65
+    // _box(app).value.nested.nested.arr.extend(array)
+    uncover 2
+    extract 2 0
+    dig 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:65
+    // _box(app).value.nested.nested.arr.extend(array)
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    pushint 36
+    +
+    dig 4
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:65
+    // _box(app).value.nested.nested.arr.extend(array)
+    intc_3 // 4
+    uncover 5
+    callsub remote_box_update_offset_inc
+    uncover 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:65
+    // _box(app).value.nested.nested.arr.extend(array)
+    uncover 2
+    uncover 3
+    uncover 4
+    intc_0 // 8
+    callsub remote_box_dynamic_array_concat_fixed
+    // large_remote_box_operations/dynamic_offset_middle.py:63
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.append[routing]() -> void:
+append:
+    // large_remote_box_operations/dynamic_offset_middle.py:67
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/dynamic_offset_middle.py:69
+    // _box(app).value.nested.nested.arr.append(value)
+    itob
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:69
+    // _box(app).value.nested.nested.arr.append(value)
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    pushint 36
+    +
+    dig 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:69
+    // _box(app).value.nested.nested.arr.append(value)
+    intc_3 // 4
+    intc_0 // 8
+    callsub remote_box_update_offset_inc
+    uncover 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:69
+    // _box(app).value.nested.nested.arr.append(value)
+    uncover 2
+    uncover 3
+    intc_2 // 1
+    intc_0 // 8
+    callsub remote_box_dynamic_array_concat_fixed
+    // large_remote_box_operations/dynamic_offset_middle.py:67
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.pop[routing]() -> void:
+pop:
+    // large_remote_box_operations/dynamic_offset_middle.py:71
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    dup
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    pushint 36
+    +
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    dig 2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    dup
+    intc_2 // 1
+    - // on error: cannot pop from empty array
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dig 1
+    intc_1 // 2
+    +
+    swap
+    intc_0 // 8
+    *
+    dig 1
+    +
+    dig 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    uncover 2
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    dig 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_3 // 4
+    intc_1 // 2
+    app_box_extract
+    btoi
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_0 // 8
+    -
+    itob
+    extract 6 2
+    dig 4
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_3 // 4
+    uncover 3
+    app_box_replace
+    dig 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    dig 4
+    intc_1 // 2
+    app_box_extract
+    btoi
+    intc_2 // 1
+    -
+    dup
+    itob
+    extract 6 2
+    dig 5
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    uncover 6
+    uncover 3
+    app_box_replace
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_0 // 8
+    *
+    uncover 2
+    +
+    dig 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    uncover 2
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_0 // 8
+    pushbytes 0x
+    app_box_splice
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    app_box_len
+    pop
+    // large_remote_box_operations/dynamic_offset_middle.py:73
+    // return _box(app).value.nested.nested.arr.pop()
+    intc_0 // 8
+    -
+    uncover 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    uncover 2
+    app_box_resize
+    // large_remote_box_operations/dynamic_offset_middle.py:71
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify[routing]() -> void:
+verify:
+    // large_remote_box_operations/dynamic_offset_middle.py:75
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify
+    pop
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.get[routing]() -> void:
+get:
+    // large_remote_box_operations/dynamic_offset_middle.py:86
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_remote_box_operations/dynamic_offset_middle.py:88
+    // return _box(app).value.nested.nested.arr[idx]
+    dig 1
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:88
+    // return _box(app).value.nested.nested.arr[idx]
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    pushint 36
+    +
+    dig 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:88
+    // return _box(app).value.nested.nested.arr[idx]
+    dig 2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    dig 2
+    >
+    assert // index out of bounds
+    intc_1 // 2
+    +
+    swap
+    intc_0 // 8
+    *
+    +
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:88
+    // return _box(app).value.nested.nested.arr[idx]
+    swap
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    // large_remote_box_operations/dynamic_offset_middle.py:86
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.set[routing]() -> void:
+set:
+    // large_remote_box_operations/dynamic_offset_middle.py:90
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // large_remote_box_operations/dynamic_offset_middle.py:92
+    // _box(app).value.nested.nested.arr[idx] = value
+    dig 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:92
+    // _box(app).value.nested.nested.arr[idx] = value
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    pushint 36
+    +
+    dig 3
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:92
+    // _box(app).value.nested.nested.arr[idx] = value
+    dig 2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    dig 3
+    >
+    assert // index out of bounds
+    intc_1 // 2
+    +
+    uncover 2
+    intc_0 // 8
+    *
+    +
+    uncover 2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:92
+    // _box(app).value.nested.nested.arr[idx] = value
+    uncover 2
+    uncover 3
+    app_box_replace // on error: index out of bounds
+    // large_remote_box_operations/dynamic_offset_middle.py:90
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify(app: uint64, expected: bytes) -> bytes:
+test_cases.large_remote_box_operations.dynamic_offset_middle.RemoteDynamicOffsetMiddle.verify:
+    // large_remote_box_operations/dynamic_offset_middle.py:75-76
+    // @public
+    // def verify(self, app: Application, expected: ArrayU64) -> None:
+    proto 2 1
+    // large_remote_box_operations/dynamic_offset_middle.py:77
+    // assert _box(app).value.nested.baz == 1
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:77
+    // assert _box(app).value.nested.baz == 1
+    intc_1 // 2
+    dup
+    app_box_extract
+    btoi
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:77
+    // assert _box(app).value.nested.baz == 1
+    dig 2
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    btoi
+    intc_2 // 1
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:78
+    // assert _box(app).value.nested.nested.foo == 2
+    dup
+    pushint 18
+    +
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:78
+    // assert _box(app).value.nested.nested.foo == 2
+    uncover 2
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    btoi
+    intc_1 // 2
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:79
+    // assert _box(app).value.nested.nested.bar == 3
+    dup
+    pushint 28
+    +
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:79
+    // assert _box(app).value.nested.nested.bar == 3
+    uncover 2
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    btoi
+    pushint 3
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:80
+    // assert _box(app).value.nested.buz == 4
+    dup
+    pushint 10
+    +
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:80
+    // assert _box(app).value.nested.buz == 4
+    uncover 2
+    intc_0 // 8
+    app_box_extract // on error: index out of bounds
+    btoi
+    intc_3 // 4
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:81
+    // assert _box(app).value.nested.nested.arr == expected
+    pushint 36
+    +
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:81
+    // assert _box(app).value.nested.nested.arr == expected
+    dig 2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:81
+    // assert _box(app).value.nested.nested.arr == expected
+    uncover 3
+    uncover 3
+    app_box_extract
+    frame_dig -1
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:82
+    // assert _box(app).value.pad1.length == 1
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:82
+    // assert _box(app).value.pad1.length == 1
+    pushint 6
+    intc_1 // 2
+    app_box_extract
+    btoi
+    intc_2 // 1
+    ==
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:83
+    // assert _box(app).value.pad2.length == 0
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:83
+    // assert _box(app).value.pad2.length == 0
+    intc_3 // 4
+    intc_1 // 2
+    app_box_extract
+    btoi
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:83
+    // assert _box(app).value.pad2.length == 0
+    uncover 2
+    intc_1 // 2
+    app_box_extract
+    btoi
+    !
+    assert
+    // large_remote_box_operations/dynamic_offset_middle.py:84
+    // assert _box(app).length > 4096, "expected box length >4096"
+    frame_dig -2
+    // large_remote_box_operations/dynamic_offset_middle.py:41
+    // return Box.remote(DynamicOffsets, app=app, key=b"box")
+    bytec_0 // 0x626f78
+    // large_remote_box_operations/dynamic_offset_middle.py:84
+    // assert _box(app).length > 4096, "expected box length >4096"
+    app_box_len
+    pop
+    intc 4 // 4096
+    >
+    assert // expected box length >4096
+    frame_dig -1
+    retsub

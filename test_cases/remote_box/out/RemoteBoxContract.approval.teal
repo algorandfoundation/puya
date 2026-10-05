@@ -4,23 +4,23 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 1 0 3200
-    bytecblock 0x151f7c75 0x636f756e746572 0x626c6f62 0x636f756e74657273 0x00 0x626967
+    intcblock 8 1 0
+    bytecblock 0x151f7c75 0x636f756e746572 0x626c6f62 0x636f756e74657273 0x00 0x6974656d73 0x626967
     // remote_box/contract.py:27
     // class RemoteBoxContract(ARC4Contract, avm_version=13):
     txn NumAppArgs
-    bz main___algopy_default_create@24
+    bz main___algopy_default_create@26
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0xae9690e7 0x86dfa237 0x7b0adba5 0x887cd382 0xf6d46e55 0x49699f74 0x9ad4fa8d 0x8e723f00 0x8a39e79f 0x3e0afad2 0x01ad3cab 0xeeed69dc 0x29c51367 0x40a6176d 0x0e5c34fd // method "local_app_is_current_app()bool", method "explicit_location(uint64)uint64", method "read(uint64)uint64", method "read_with_default(uint64)uint64", method "maybe(uint64)(uint64,bool)", method "exists(uint64)bool", method "length(uint64)uint64", method "write(uint64,uint64)void", method "delete(uint64)void", method "create_and_splice(uint64,byte[])byte[]", method "struct_member_write(uint64,uint64)void", method "big_read(uint64,uint64)uint64", method "big_write(uint64,uint64,uint64)void", method "key_and_app(uint64)(byte[],uint64)", method "passed_around(uint64)uint64"
+    pushbytess 0xae9690e7 0x86dfa237 0x7b0adba5 0x887cd382 0xf6d46e55 0x49699f74 0x9ad4fa8d 0x8e723f00 0x8a39e79f 0x3e0afad2 0x01ad3cab 0xeeed69dc 0x29c51367 0x40a6176d 0x535c8853 0xf73e143a 0x0e5c34fd // method "local_app_is_current_app()bool", method "explicit_location(uint64)uint64", method "read(uint64)uint64", method "read_with_default(uint64)uint64", method "maybe(uint64)(uint64,bool)", method "exists(uint64)bool", method "length(uint64)uint64", method "write(uint64,uint64)void", method "delete(uint64)void", method "create_and_splice(uint64,byte[])byte[]", method "struct_member_write(uint64,uint64)void", method "big_read(uint64,uint64)uint64", method "big_write(uint64,uint64,uint64)void", method "key_and_app(uint64)(byte[],uint64)", method "same_key_as_local(uint64,uint64)void", method "same_key_as_local_array(uint64,uint64)void", method "passed_around(uint64)uint64"
     txna ApplicationArgs 0
-    match local_app_is_current_app explicit_location read read_with_default maybe exists length write delete create_and_splice struct_member_write big_read big_write key_and_app passed_around
+    match local_app_is_current_app explicit_location read read_with_default maybe exists length write delete create_and_splice struct_member_write big_read big_write key_and_app same_key_as_local same_key_as_local_array passed_around
     err
 
-main___algopy_default_create@24:
+main___algopy_default_create@26:
     txn OnCompletion
     !
     txn ApplicationID
@@ -423,37 +423,20 @@ struct_member_write:
     bytec_3 // 0x636f756e74657273
     // remote_box/contract.py:89
     // box.value.a = value
-    app_box_get
-    assert // check remote Box exists
-    dig 1
-    replace2 0
-    dig 2
-    // remote_box/contract.py:88
-    // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
-    // remote_box/contract.py:89
-    // box.value.a = value
-    uncover 2
-    app_box_put
-    // remote_box/contract.py:90
-    // box.value.b = value
-    dig 1
-    // remote_box/contract.py:88
-    // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
-    // remote_box/contract.py:90
-    // box.value.b = value
-    app_box_get
-    assert // check remote Box exists
-    swap
-    replace2 8
-    // remote_box/contract.py:88
-    // box = Box.remote(Counters, app=app, key=b"counters")
-    bytec_3 // 0x636f756e74657273
+    intc_2 // 0
+    dig 3
+    app_box_replace // on error: index out of bounds
     // remote_box/contract.py:90
     // box.value.b = value
     swap
-    app_box_put
+    // remote_box/contract.py:88
+    // box = Box.remote(Counters, app=app, key=b"counters")
+    bytec_3 // 0x636f756e74657273
+    // remote_box/contract.py:90
+    // box.value.b = value
+    intc_0 // 8
+    uncover 3
+    app_box_replace // on error: index out of bounds
     // remote_box/contract.py:86
     // @arc4.abimethod
     intc_1 // 1
@@ -484,13 +467,13 @@ big_read:
     // remote_box/contract.py:94-95
     // # exercises the BoxRead path rather than the app_box_get path
     // box = Box.remote(BigStruct, app=app, key=b"big")
-    bytec 5 // 0x626967
+    bytec 6 // 0x626967
     // remote_box/contract.py:96
     // return box.value.values[index]
     app_box_get
     assert // check remote Box exists
     intc_2 // 0
-    intc_3 // 3200
+    pushint 3200
     extract3
     swap
     intc_0 // 8
@@ -533,31 +516,18 @@ big_write:
     assert // invalid number of bytes for arc4.uint64
     // remote_box/contract.py:101
     // box.value.values[index] = value
-    dig 2
-    // remote_box/contract.py:100
-    // box = Box.remote(BigStruct, app=app, key=b"big")
-    bytec 5 // 0x626967
-    // remote_box/contract.py:101
-    // box.value.values[index] = value
-    app_box_get
-    assert // check remote Box exists
-    dup
-    intc_2 // 0
-    intc_3 // 3200
-    extract3
-    uncover 3
+    swap
     intc_0 // 8
     *
-    uncover 3
-    replace3 // on error: index access is out of bounds
-    replace2 0
+    uncover 2
     // remote_box/contract.py:100
     // box = Box.remote(BigStruct, app=app, key=b"big")
-    bytec 5 // 0x626967
+    bytec 6 // 0x626967
     // remote_box/contract.py:101
     // box.value.values[index] = value
-    swap
-    app_box_put
+    uncover 2
+    uncover 3
+    app_box_replace // on error: index out of bounds
     // remote_box/contract.py:98
     // @arc4.abimethod
     intc_1 // 1
@@ -589,8 +559,8 @@ key_and_app:
     return
 
 
-// test_cases.remote_box.contract.RemoteBoxContract.passed_around[routing]() -> void:
-passed_around:
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local[routing]() -> void:
+same_key_as_local:
     // remote_box/contract.py:108
     // @arc4.abimethod
     txna ApplicationArgs 1
@@ -600,30 +570,122 @@ passed_around:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // remote_box/contract.py:117
-    // return box.value + box.value
+    txna ApplicationArgs 2
     dup
-    // remote_box/contract.py:110-111
-    // # the proxy survives a round trip through a local variable and a subroutine
-    // box = Box.remote(UInt64, app=app, key=b"counter")
-    bytec_1 // 0x636f756e746572
-    // remote_box/contract.py:117
-    // return box.value + box.value
-    app_box_get
-    assert // check remote Box exists
-    btoi
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // remote_box/contract.py:110-113
+    // # a local box and a remote box can share a key, so a value read from one must never be
+    // # written back to the other - the in-place box update optimisation rewrites a whole box
+    // # write into box_extract/box_replace, which only ever address the current application
+    // local = Box(Counters, key=b"counters")
+    bytec_3 // 0x636f756e74657273
+    // remote_box/contract.py:115
+    // updated = local.value.copy()
+    box_get
+    assert // check Box exists
+    // remote_box/contract.py:116
+    // updated.a = value
     swap
-    // remote_box/contract.py:110-111
+    replace2 0
+    // remote_box/contract.py:114
+    // remote = Box.remote(Counters, app=app, key=b"counters")
+    bytec_3 // 0x636f756e74657273
+    // remote_box/contract.py:117
+    // remote.value = updated.copy()
+    swap
+    app_box_put
+    // remote_box/contract.py:108
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// test_cases.remote_box.contract.RemoteBoxContract.same_key_as_local_array[routing]() -> void:
+same_key_as_local_array:
+    // remote_box/contract.py:119
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // remote_box/contract.py:121-122
+    // # as above, for the array concat/pop variants of the same optimisation
+    // local = Box(arc4.DynamicArray[arc4.UInt64], key=b"items")
+    bytec 5 // 0x6974656d73
+    // remote_box/contract.py:124
+    // updated = local.value.copy()
+    box_get
+    assert // check Box exists
+    dup
+    intc_2 // 0
+    extract_uint16
+    // remote_box/contract.py:125
+    // updated.append(value)
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    swap
+    concat
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    dig 1
+    // remote_box/contract.py:123
+    // remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+    bytec 5 // 0x6974656d73
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    app_box_del
+    pop
+    // remote_box/contract.py:123
+    // remote = Box.remote(arc4.DynamicArray[arc4.UInt64], app=app, key=b"items")
+    bytec 5 // 0x6974656d73
+    // remote_box/contract.py:126
+    // remote.value = updated.copy()
+    swap
+    app_box_put
+    // remote_box/contract.py:119
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// test_cases.remote_box.contract.RemoteBoxContract.passed_around[routing]() -> void:
+passed_around:
+    // remote_box/contract.py:128
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // remote_box/contract.py:130-131
     // # the proxy survives a round trip through a local variable and a subroutine
     // box = Box.remote(UInt64, app=app, key=b"counter")
     bytec_1 // 0x636f756e746572
-    // remote_box/contract.py:117
+    // remote_box/contract.py:137
     // return box.value + box.value
     app_box_get
     assert // check remote Box exists
     btoi
+    dup
     +
-    // remote_box/contract.py:108
+    // remote_box/contract.py:128
     // @arc4.abimethod
     itob
     bytec_0 // 0x151f7c75
