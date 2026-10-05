@@ -8,7 +8,7 @@ from puya.errors import InternalError
 from puya.parse import sequential_source_locations_merge
 from puya.teal import models
 from puya.teal._util import is_stack_swap, preserve_stack_manipulations
-from puya.teal.optimize._data import LOAD_OP_CODES
+from puya.teal.optimize._data import LOAD_OP_CODES, PASSABLE_OPS
 
 logger = log.get_logger(__name__)
 
@@ -252,6 +252,13 @@ def _is_barrier(*, op_to_move: models.TealOp, maybe_barrier_op: models.TealOp) -
     """Returns true if maybe_barrier_op invalidates the value op_to_move would read."""
     moving_op_code = op_to_move.op_code
     barrier_op_code = maybe_barrier_op.op_code
+    if moving_op_code in _INTC_OPS | _BYTEC_OPS:
+        # barrier code assumes constant blocks are not present yet
+        raise InternalError(
+            "unexpected constant block reference op", maybe_barrier_op.source_location
+        )
+    if barrier_op_code not in PASSABLE_OPS:
+        return True
     is_callsub = barrier_op_code == "callsub"
     if moving_op_code == "frame_dig":
         return (
@@ -268,12 +275,6 @@ def _is_barrier(*, op_to_move: models.TealOp, maybe_barrier_op: models.TealOp) -
         )
     if moving_op_code in _ITXN_RESULT_OPS:
         return is_callsub or barrier_op_code == "itxn_submit"
-
-    if moving_op_code in _INTC_OPS | _BYTEC_OPS:
-        # barrier code assumes constant blocks are not present yet
-        raise InternalError(
-            "unexpected constant block reference op", maybe_barrier_op.source_location
-        )
     return False
 
 
