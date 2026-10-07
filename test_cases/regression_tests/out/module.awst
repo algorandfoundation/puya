@@ -1010,6 +1010,36 @@ contract Jira142
   }
 }
 
+contract ITxnBoxOptBarrier
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.itxn_box_optimization_barrier.ITxnBoxOptBarrier.approval_program(): bool
+  {
+    arg0: bytes = txnas<ApplicationArgs>(0u)
+    arg1: bytes = txnas<ApplicationArgs>(1u)
+    (val, exists): tuple<bytes,bool> = box_get(arg0)
+    log(val)
+    itxn_begin()
+    itxn_submit()
+    log(Box[reinterpret_cast<box_key>(arg0)])
+    app_box_put(txn<ApplicationID>(), arg1, arg1)
+    log(Box[reinterpret_cast<box_key>(arg0)])
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.itxn_box_optimization_barrier.ITxnBoxOptBarrier.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract Parent
 {
   method_resolution_order: (

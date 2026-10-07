@@ -207,6 +207,23 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 self._cache_box_len(key=key, length=len_)
             case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
                 self._invalidate(_StateType.box)
+            case (
+                AVMOp.app_box_create
+                | AVMOp.app_box_del
+                | AVMOp.app_box_put
+                | AVMOp.app_box_splice
+                | AVMOp.app_box_resize
+                | AVMOp.app_box_replace
+            ):
+                # Remote box modifications can be made on the current APP ID (and therefore modify
+                # local boxes)
+                self._invalidate(_StateType.box)
+            case AVMOp.itxn_submit:
+                # If box family writes are enabled then performing an inner transaction to another
+                # app on our own family can modify our boxes.
+                # There's no way to statically know if an app is in our family or not since creator
+                # rekeys can be used to merge/split families at runtime.
+                self._invalidate(_StateType.box)
 
     @typing.override
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:

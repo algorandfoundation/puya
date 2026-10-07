@@ -1,0 +1,55 @@
+// Op                                                           Stack (out)
+// test_cases.regression_tests.itxn_box_optimization_barrier.ITxnBoxOptBarrier.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/itxn_box_optimization_barrier.py:13
+        // arg0 = Txn.application_args(0)
+        txna ApplicationArgs 0                                  arg0#0
+        // regression_tests/itxn_box_optimization_barrier.py:14
+        // arg1 = Txn.application_args(1)
+        txna ApplicationArgs 1                                  arg0#0,arg1#0
+        // regression_tests/itxn_box_optimization_barrier.py:15
+        // val, exists = op.Box.get(arg0)
+        l-load-copy arg0#0 1                                    arg0#0,arg1#0,arg0#0 (copy)
+        box_get                                                 arg0#0,arg1#0,val#0,exists#0
+        v-store exists#0                                        arg0#0,arg1#0,val#0
+        l-store val#0 0                                         arg0#0,arg1#0,val#0
+        // regression_tests/itxn_box_optimization_barrier.py:16
+        // log(val)
+        l-load val#0 0                                          arg0#0,arg1#0,val#0
+        log                                                     arg0#0,arg1#0
+        // regression_tests/itxn_box_optimization_barrier.py:17
+        // op.ITxnCreate.begin()
+        itxn_begin                                              arg0#0,arg1#0
+        // regression_tests/itxn_box_optimization_barrier.py:18
+        // op.ITxnCreate.submit()
+        itxn_submit                                             arg0#0,arg1#0
+        // regression_tests/itxn_box_optimization_barrier.py:19
+        // log(Box(Bytes, key=arg0).value)
+        l-load-copy arg0#0 1                                    arg0#0,arg1#0,arg0#0 (copy)
+        box_get                                                 arg0#0,arg1#0,aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                          arg0#0,arg1#0,aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check Box exists                              arg0#0,arg1#0,aggregate%box_get%0#0
+        l-load aggregate%box_get%0#0 0                          arg0#0,arg1#0,aggregate%box_get%0#0
+        log                                                     arg0#0,arg1#0
+        // regression_tests/itxn_box_optimization_barrier.py:20
+        // op.AppBox.put(Txn.application_id, arg1, arg1)
+        txn ApplicationID                                       arg0#0,arg1#0,tmp%4#0
+        l-load tmp%4#0 0                                        arg0#0,arg1#0,tmp%4#0
+        l-load-copy arg1#0 1                                    arg0#0,arg1#0,tmp%4#0,arg1#0 (copy)
+        l-load arg1#0 2                                         arg0#0,tmp%4#0,arg1#0 (copy),arg1#0
+        app_box_put                                             arg0#0
+        // regression_tests/itxn_box_optimization_barrier.py:21
+        // log(Box(Bytes, key=arg0).value)
+        l-load arg0#0 0                                         arg0#0
+        box_get                                                 aggregate%box_get%2#0,aggregate%box_get%3#0
+        v-store aggregate%box_get%3#0                           aggregate%box_get%2#0
+        l-store aggregate%box_get%2#0 0                         aggregate%box_get%2#0
+        l-load aggregate%box_get%2#0 0                          aggregate%box_get%2#0
+        log
+        // regression_tests/itxn_box_optimization_barrier.py:22
+        // return True
+        int 1                                                   1
+        return
+
+
