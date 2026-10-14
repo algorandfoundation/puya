@@ -290,3 +290,19 @@ def test_box_bool_array_append_read(deployer_o: Deployer) -> None:
     )
     with pytest.raises(au.LogicError, match="index out of bounds"):
         client.send.call(au.AppClientMethodCallParams(method="box_out_of_bounds"))
+
+
+def test_box_read_forwarding(deployer_o: Deployer) -> None:
+    # a value read from a box must not observe later modifications to that box,
+    # each case asserts this itself
+    client = deployer_o.create(
+        TEST_CASES_DIR / "regression_tests" / "box_read_forwarding.py"
+    ).client
+    deployer_o.localnet.account.ensure_funded(
+        account_to_fund=client.app_address,
+        dispenser_account=deployer_o.account,
+        min_spending_balance=au.AlgoAmount.from_algo(1),
+    )
+    client.send.call(
+        au.AppClientMethodCallParams(method="run_all", box_references=[b"a", b"b", b"d"])
+    )
