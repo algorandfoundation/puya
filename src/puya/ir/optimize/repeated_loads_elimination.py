@@ -221,8 +221,6 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             case AVMOp.itxn_submit:
                 # If box family writes are enabled then performing an inner transaction to another
                 # app on our own family can modify our boxes.
-                # There's no way to statically know if an app is in our family or not since creator
-                # rekeys can be used to merge/split families at runtime.
                 self._invalidate(_StateType.box)
 
     @typing.override
