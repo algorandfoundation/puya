@@ -1,0 +1,15 @@
+main test_cases.regression_tests.itxn_box_optimization_barrier.ITxnBoxOptBarrier.approval_program:
+    block@0: // L12
+        let arg0#0: bytes = (txna ApplicationArgs 0)
+        let arg1#0: bytes = (txna ApplicationArgs 1)
+        let (val#0: bytes, exists#0: bool) = (box_get arg0#0)
+        (log val#0)
+        itxn_begin
+        itxn_submit
+        let storage_value%0#0: bytes = box_read(arg0#0)
+        (log storage_value%0#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (app_box_put tmp%4#0 arg1#0 arg1#0)
+        let storage_value%1#0: bytes = box_read(arg0#0)
+        (log storage_value%1#0)
+        return 1u
