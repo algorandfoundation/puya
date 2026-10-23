@@ -81,17 +81,24 @@ Any type where its size is not statically defined is dynamically sized e.g. `Byt
 
 All `bytes` on the AVM stack cannot exceed 4096 bytes in length, this means all arrays and structs cannot exceed this size.
 Boxes are an exception to this, the contents of a box can be up to 32k bytes.
-However loading this entire box into a variable is not possible as it would exceed the AVM limit of 4096 bytes.
-However Puya will support reading and writing parts of a box
+However loading the entire contents of such a box at once is not possible as it would exceed the AVM limit (for a single stack value) of 4096 bytes.
+
+Instead, Puya supports reading and writing parts of a box value in place, without loading the whole value,
+for example indexing an array, accessing a struct field, appending to (or popping from) an array of a box value, etc.
+Any other use of the box value, such as comparing it whole, returning it, copying it into a variable or passing it to a subroutine, loads the whole value.
+
+- If the box value is a statically sized type larger than 4096 bytes, a whole value load will always fail at runtime, so a compile warning is emitted.
+- If the box value is a dynamically sized type, this will fail at runtime if the value is larger than 4096 bytes when it is
+    loaded (its size is not known at compile time, so no compile warning is emitted in this case, as keeping the value within
+    this limit is left to the developer logic).
 
 ```python
 import typing
 from algopy import Box, FixedArray, Struct, UInt64, arc4, size_of
 
 
-
 class BigStruct(Struct):
-    count: UInt64 # 8 bytes
+    padding: UInt64 # 8 bytes
     large_array: FixedArray[UInt64, typing.Literal[512]] # 4096 bytes
 
 class Contract(arc4.ARC4Contract):
@@ -101,11 +108,17 @@ class Contract(arc4.ARC4Contract):
         self.box.create()
 
     @arc4.abimethod()
-    def read_box_fails(self) -> UInt64:
-        assert size_of(BigStruct) == 4104
-        big_struct = self.box.value # this fails to compile because size_of(BigStruct)
-        assert big_struct.count > 0, ""
+    def read_box_parts(self, index: UInt64) -> UInt64:
+        # the array field is exactly 4096 bytes, so it can be loaded on its own
+        large_array = self.box.value.large_array.copy()
+        return large_array[index]
 
+    @arc4.abimethod()
+    def read_box_fails(self) -> BigStruct:
+        assert size_of(BigStruct) == 4104
+        # this fails at runtime (and reports a compile warning) because returning the value
+        # requires loading the whole box value, but size_of(BigStruct) > 4096
+        return self.box.value.copy()
 ```
 
 ## Algorand Python composite types
