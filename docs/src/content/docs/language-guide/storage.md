@@ -249,6 +249,8 @@ class MyContract(Contract):
 
 In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096).
 
+See [size constraints](/puya/language-guide/data-structures/#size-constraints) for how box values larger than this limit can be used.
+
 ```python
 from algopy import Box, Contract, Global, Txn
 
