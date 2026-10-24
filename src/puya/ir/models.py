@@ -564,6 +564,8 @@ class BoxRead(ValueProvider):
     key: Value
     value_type: IRType
     exists_assertion_message: str
+    declared_num_bytes: int | None = None
+    """declared size of the box value in bytes, if it is statically known"""
 
     def _frozen_data(self) -> object:
         return self.key, self.value_type

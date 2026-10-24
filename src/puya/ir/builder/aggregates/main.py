@@ -3,6 +3,7 @@ import typing
 import attrs
 
 from puya import log
+from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.errors import CodeError, InternalError
 from puya.ir import (
     encodings,
@@ -187,10 +188,15 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     def visit_box_read(self, read: ir.BoxRead) -> ir.ValueProvider:
         loc = read.source_location
 
+        value_type = read.value_type
+        assert value_type == types.bytes_, "expected box value to be read as bytes"
+        if read.declared_num_bytes is not None and read.declared_num_bytes > MAX_BYTES_LENGTH:
+            # declared (not actual) size, only for the statically_failing_op warning
+            value_type = types.SizedBytesType(num_bytes=read.declared_num_bytes)
         box_get = ir.Intrinsic(
             op=AVMOp.box_get,
             args=[read.key],
-            types=[*read.types, types.bool_],
+            types=[value_type, types.bool_],
             source_location=loc,
         )
         box_value, box_exists = self.materialise_value_provider(box_get, "box_get")
