@@ -82,6 +82,7 @@ def _fetch_and_decode_from_storage_with_assert(
             value_type=types.bytes_,
             source_location=expr.source_location,
             exists_assertion_message=expr.exists_assertion_message or default_error_message,
+            declared_num_bytes=_get_static_num_bytes(storage_codec.encoded_ir_type),
         )
         (storage_value,) = context.visitor.materialise_value_provider(box_read, "storage_value")
     else:
@@ -376,6 +377,20 @@ class StorageCodec(abc.ABC):
             storage_type is not AVMType.any
         ), "storage encoding should not have AVM type of 'any'"
         return storage_type
+
+
+def _get_static_num_bytes(ir_type: types.IRType) -> int | None:
+    match ir_type:
+        case types.EncodedType(encoding=encoding) if encoding.is_fixed:
+            return encoding.checked_num_bytes
+        case types.EncodedType():
+            # dynamically sized, so not known at compile time
+            # if we do end up doing size hinting, use it here
+            return None
+        case types.SizedBytesType(num_bytes=num_bytes):
+            return num_bytes
+    # we don't care about the other statically known types here
+    return None
 
 
 def _get_storage_codec_for_node(node: awst_nodes.StorageExpression) -> StorageCodec:

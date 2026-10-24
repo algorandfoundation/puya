@@ -31,3 +31,40 @@ class StaticallyFailingOps(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+## case: big_box_value_loaded_as_a_whole
+import typing
+from algopy import *
+
+Big = arc4.StaticArray[arc4.UInt64, typing.Literal[513]]
+
+
+@subroutine(inline=False)
+def six(value: Big) -> arc4.UInt64:
+    return value[7]
+
+
+@subroutine(inline=False)
+def take_blob(value: FixedBytes[typing.Literal[5000]]) -> UInt64:
+    return value.length
+
+
+class BigBoxValue(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        self.big = Box(Big, key=b"big")
+        self.blob = Box(FixedBytes[typing.Literal[5000]], key=b"blob")
+        self.dynamic = Box(arc4.DynamicArray[arc4.UInt64], key=b"dynamic")
+
+    @arc4.abimethod
+    def copy_passed_to_subroutine(self) -> arc4.UInt64:
+        return six(self.big.value.copy()) ## W: box value is 4104 bytes, which exceeds the maximum stack value size of 4096 bytes, so it cannot be loaded as a whole; will fail at runtime if reached
+
+    @arc4.abimethod
+    def immutable_passed_to_subroutine(self) -> UInt64:
+        # immutable, so no copy is needed
+        return take_blob(self.blob.value) ## W: box value is 5000 bytes, which exceeds the maximum stack value size of 4096 bytes, so it cannot be loaded as a whole; will fail at runtime if reached
+
+    @arc4.abimethod
+    def dynamic_value_loaded_as_a_whole(self) -> Bytes:
+        # size is not known at compile time, fails at runtime if larger than 4096 bytes
+        return op.sha256(self.dynamic.value.copy().bytes)

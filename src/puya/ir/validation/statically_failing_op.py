@@ -284,6 +284,18 @@ def _check_biguint_sub_underflow(intrinsic: models.Intrinsic) -> _Problem | None
     return None
 
 
+def _check_box_get_value_size(intrinsic: models.Intrinsic) -> _Problem | None:
+    match intrinsic.types:
+        case [types.SizedBytesType(num_bytes=num_bytes), _] if (
+            num_bytes > algo_constants.MAX_BYTES_LENGTH
+        ):
+            return _Problem(
+                f"box value is {num_bytes} bytes, which exceeds the maximum stack value size"
+                f" of {algo_constants.MAX_BYTES_LENGTH} bytes, so it cannot be loaded as a whole"
+            )
+    return None
+
+
 def _check_box_extract_end_bounds(intrinsic: models.Intrinsic) -> _Problem | None:
     match intrinsic.args:
         case [_, models.UInt64Constant(value=start), models.UInt64Constant(value=length)]:
@@ -455,6 +467,7 @@ _CHECKERS: typing.Final[Mapping[AVMOp, Sequence[Checker]]] = {
     AVMOp.box_create: [
         _make_box_size_arg_check(1, "box_create length"),
     ],
+    AVMOp.box_get: [_check_box_get_value_size],
     AVMOp.box_extract: [
         _make_uint64_const_arg_checker(
             2,

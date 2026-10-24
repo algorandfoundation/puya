@@ -27,11 +27,23 @@ pytestmark = pytest.mark.asyncio(loop_scope="module")
 
 
 _ANALYSE_DIR = VCS_ROOT / "tests" / "analyse"
+_RETI_STAKING_POOL = "/home/parallels/dev/reti/contracts/contracts/stakingPool.algo.ts"
+# analysis runs at -O0, where these copies of the stakers box value are loaded as a whole
+_RETI_BIG_BOX_WARNING = (
+    "box value is 12800 bytes, which exceeds the maximum stack value size of 4096 bytes,"
+    " so it cannot be loaded as a whole; will fail at runtime if reached"
+)
 _HELLO_WORLD_PATH = EXAMPLES_DIR / "hello_world_arc4"
 _EXPECTED_ANALYSE_OUTPUT = {
     _HELLO_WORLD_PATH: [],
     _ANALYSE_DIR / "reti.awst.json.gz": [
         "warning: Variable tokenPayoutRatio potentially used before assignment",
+        f"{_RETI_STAKING_POOL}:247:37 warning: {_RETI_BIG_BOX_WARNING}",
+        f"{_RETI_STAKING_POOL}:309:37 warning: {_RETI_BIG_BOX_WARNING}",
+        f"{_RETI_STAKING_POOL}:415:37 warning: {_RETI_BIG_BOX_WARNING}",
+        f"{_RETI_STAKING_POOL}:482:37 warning: {_RETI_BIG_BOX_WARNING}",
+        f"{_RETI_STAKING_POOL}:779:41 warning: {_RETI_BIG_BOX_WARNING}",
+        f"{_RETI_STAKING_POOL}:839:45 warning: {_RETI_BIG_BOX_WARNING}",
     ],
     _ANALYSE_DIR / "valid_awst_with_error": [
         "contract.py:7:38 error: cannot encode bytes to arc4.uint64",
