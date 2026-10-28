@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Sequence
+from collections.abc import Callable, Iterable, Sequence
 
 import attrs
 
@@ -13,6 +13,7 @@ from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncodi
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import OpFactory
 from puya.ir.optimize.context import IROptimizationContext
+from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.types_ import EncodedType, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -26,8 +27,12 @@ def replace_aggregate_box_ops(
 ) -> bool:
     aggregates = _AggregateCollector()
     for block in subroutine.body:
+        aggregates.block_ops[block] = block.ops.copy()
+        for index, block_op in enumerate(block.ops):
+            aggregates.positions[block_op] = (block, index)
         for op in block.all_ops:
             op.accept(aggregates)
+    aggregates.resolve_copies()
     # all optimizations involve a box read, so exit if none were found
     if not aggregates.box_reads:
         return False
@@ -60,6 +65,13 @@ class _AggregateCollector(NoOpIRVisitor[None]):
     intrinsic_reads: dict[models.Value, models.Intrinsic] = attrs.field(factory=dict)
     intrinsic_lens: dict[models.Value, models.Intrinsic] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
+    box_read_ops: dict[models.Value, models.Assignment] = attrs.field(factory=dict)
+    copies: dict[models.Register, models.Register] = attrs.field(factory=dict)
+    positions: dict[models.Op, tuple[models.BasicBlock, int]] = attrs.field(factory=dict)
+    """position of each op in the original IR"""
+    block_ops: dict[models.BasicBlock, list[models.Op]] = attrs.field(factory=dict)
+    """ops of each block in the original IR"""
+    _assignment: models.Assignment | None = None
     _target: models.Register | None = None
     has_array_length: bool = False
     has_box_write: bool = False
@@ -70,8 +82,53 @@ class _AggregateCollector(NoOpIRVisitor[None]):
             (self._target,) = ass.targets
         except ValueError:
             return
+        if isinstance(ass.source, models.Register):
+            self.copies[self._target] = ass.source
+        self._assignment = ass
         ass.source.accept(self)
+        self._assignment = None
         self._target = None
+
+    def resolve_copies(self) -> None:
+        """Treat copies of values as the values themselves"""
+        mappings: Sequence[dict[models.Value, typing.Any]] = (
+            self.aggregate_mutations,
+            self.extract_values,
+            self.box_reads,
+            self.box_read_ops,
+        )
+        modified = True
+        while modified:
+            modified = False
+            for target, source in self.copies.items():
+                for mapping in mappings:
+                    if target not in mapping and source in mapping:
+                        mapping[target] = mapping[source]
+                        modified = True
+
+    def is_box_unchanged_between(self, read_value: models.Value, use: models.Op) -> bool:
+        """
+        Checks no op on any path from the box read of read_value to use could modify a box,
+        in which case reading directly from the box at use is equivalent to using the read value.
+        Paths that pass through the box read again don't need to be considered, as the box
+        is read again.
+        """
+        read_block, read_index = self.positions[self.box_read_ops[read_value]]
+        use_block, use_index = self.positions[use]
+        if read_block is use_block and read_index < use_index:
+            between = self.block_ops[read_block][read_index + 1 : use_index]
+        else:
+            after_read = _reachable(read_block.successors, lambda b: b.successors, read_block)
+            before_use = _reachable(use_block.predecessors, lambda b: b.predecessors, read_block)
+            between = self.block_ops[read_block][read_index + 1 :]
+            for block in after_read & before_use:
+                if block is not use_block:
+                    between.extend(self.block_ops[block])
+            # the use block is only fully between if it is part of a cycle not containing the
+            # read, otherwise only the ops before the use are between
+            use_block_ops = self.block_ops[use_block]
+            between.extend(use_block_ops if use_block in before_use else use_block_ops[:use_index])
+        return all(_cannot_modify_boxes(op) for op in between)
 
     @typing.override
     def visit_array_length(self, read: models.ArrayLength) -> None:
@@ -103,8 +160,9 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> None:
-        if self._target:
+        if self._target and self._assignment:
             self.box_reads[self._target] = read
+            self.box_read_ops[self._target] = self._assignment
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> None:
@@ -149,6 +207,17 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
 
     aggregates: _AggregateCollector
     modified: bool = False
+    _current_op: models.Op | None = None
+
+    @typing.override
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        self._current_op = ass
+        super().visit_assignment(ass)
+        self._current_op = None
+
+    def _is_box_unchanged(self, read_value: models.Value, use: models.Op | None) -> bool:
+        assert use is not None, "expected use to be an op"
+        return self.aggregates.is_box_unchanged_between(read_value, use)
 
     def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider | None:
         if not length.array_encoding.length_header:
@@ -169,6 +238,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         try:
             box_read = self.aggregates.box_reads[maybe_box_register]
         except KeyError:
+            return None
+        if not self._is_box_unchanged(maybe_box_register, self._current_op):
             return None
 
         loc = sequential_source_locations_merge(
@@ -194,6 +265,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         try:
             box_read = self.aggregates.box_reads[read.base]
         except KeyError:
+            return None
+        if not self._is_box_unchanged(read.base, self._current_op):
             return None
 
         aggregate_encoding = read.base_type.encoding
@@ -259,6 +332,9 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         # can only do an update if the mutation was for a value from the same box
         if write.key != read_src.key:
             return None
+        # and the box still contains the read value
+        if not self._is_box_unchanged(mutation.base, write):
+            return None
 
         if isinstance(mutation, models.ReplaceValue):
             # TODO: support writing a whole dynamic array
@@ -272,6 +348,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
 
             if (
                 (array_mutation := self.aggregates.aggregate_mutations.get(mutation.value))
+                and self._is_mutation_of_extracted_value(array_mutation, mutation)
                 and _is_dynamic_array_fixed_element(array_mutation.base_type.encoding)
                 and (
                     tuple_offsets := _get_tuple_dynamic_offsets(
@@ -309,11 +386,30 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                     )
         return None
 
+    def _is_mutation_of_extracted_value(
+        self,
+        array_mutation: models.ReplaceValue | models.ArrayPop | models.ArrayConcat,
+        replace_value: models.ReplaceValue,
+    ) -> bool:
+        """
+        Checks array_mutation is a mutation of the same value that replace_value replaces,
+        e.g. self.box.value.array_member.append(item)
+        """
+        extract = self.aggregates.extract_values.get(array_mutation.base)
+        return (
+            extract is not None
+            and extract.indexes == replace_value.indexes
+            and self.aggregates.box_read_ops.get(extract.base)
+            is self.aggregates.box_read_ops.get(replace_value.base)
+        )
+
     def _handle_intrinsic_read(self, intrinsic: models.Intrinsic) -> models.ValueProvider | None:
         # find box read
         try:
             box_read = self.aggregates.box_reads[intrinsic.args[0]]
         except KeyError:
+            return None
+        if not self._is_box_unchanged(intrinsic.args[0], self._current_op or intrinsic):
             return None
 
         merged_loc = sequential_source_locations_merge(
@@ -353,6 +449,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         try:
             box_read = self.aggregates.box_reads[intrinsic.args[0]]
         except KeyError:
+            return None
+        if not self._is_box_unchanged(intrinsic.args[0], self._current_op or intrinsic):
             return None
 
         merged_loc = sequential_source_locations_merge(
@@ -1022,3 +1120,78 @@ def _is_dynamic_array_fixed_element(
     if not isinstance(encoding, encodings.ArrayEncoding):
         return False
     return encoding.length_header and encoding.element.is_fixed
+
+
+# ops that can't modify any box, in addition to PURE_AVM_OPS
+_BOX_PRESERVING_OPS: typing.Final = frozenset(
+    (
+        # reads
+        AVMOp.app_global_get,
+        AVMOp.app_global_get_ex,
+        AVMOp.app_local_get,
+        AVMOp.app_local_get_ex,
+        AVMOp.box_extract,
+        AVMOp.box_get,
+        AVMOp.box_len,
+        AVMOp.global_,
+        AVMOp.itxn,
+        AVMOp.load,
+        AVMOp.loads,
+        # writes to non-box state
+        AVMOp.app_global_del,
+        AVMOp.app_global_put,
+        AVMOp.app_local_del,
+        AVMOp.app_local_put,
+        AVMOp.itxn_begin,
+        AVMOp.itxn_field,
+        AVMOp.itxn_next,
+        AVMOp.log,
+        AVMOp.store,
+        AVMOp.stores,
+    )
+)
+
+
+def _cannot_modify_boxes(op: models.Op) -> bool:
+    source = op.source if isinstance(op, models.Assignment) else op
+    match source:
+        case (
+            models.Value()
+            | models.Assert()
+            | models.ArrayConcat()
+            | models.ArrayLength()
+            | models.ArrayPop()
+            | models.BoxRead()
+            | models.BytesEncode()
+            | models.DecodeBytes()
+            | models.ExtractValue()
+            | models.InnerTransactionField()
+            | models.NewSlot()
+            | models.ReadSlot()
+            | models.ReplaceValue()
+            | models.ValueTuple()
+            | models.WriteSlot()
+        ):
+            return True
+        case models.Intrinsic(op=avm_op):
+            return avm_op.code in PURE_AVM_OPS or avm_op in _BOX_PRESERVING_OPS
+        case _:
+            # notably BoxWrite, box modifying ops, inner transaction submission
+            # and subroutine calls
+            return False
+
+
+def _reachable(
+    start: Iterable[models.BasicBlock],
+    next_blocks: Callable[[models.BasicBlock], Iterable[models.BasicBlock]],
+    stop: models.BasicBlock,
+) -> set[models.BasicBlock]:
+    """Returns all blocks reachable from start via next_blocks, without passing through stop"""
+    result = set[models.BasicBlock]()
+    queue = [block for block in start if block is not stop]
+    while queue:
+        block = queue.pop()
+        if block not in result:
+            result.add(block)
+            queue.extend(b for b in next_blocks(block) if b is not stop)
+    return result

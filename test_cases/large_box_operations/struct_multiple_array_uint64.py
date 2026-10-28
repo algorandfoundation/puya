@@ -54,9 +54,13 @@ class StructMultipleArrayUInt64(ARC4Contract):
 
     @public
     def concat(self, array: ArrayU64) -> None:
+        # compute the new items before accessing the box, so a call isn't between
+        # the box read and the write, allowing them to be combined into an in-place update
+        array_plus_one = inc_array(array, UInt64(1))
+        array_plus_two = inc_array(array, UInt64(2))
         self.box.value.arr1.extend(array)
-        self.box.value.arr2.extend(inc_array(array, UInt64(1)))
-        self.box.value.arr3.extend(inc_array(array, UInt64(2)))
+        self.box.value.arr2.extend(array_plus_one)
+        self.box.value.arr3.extend(array_plus_two)
 
     @public
     def pop(self) -> UInt64:
