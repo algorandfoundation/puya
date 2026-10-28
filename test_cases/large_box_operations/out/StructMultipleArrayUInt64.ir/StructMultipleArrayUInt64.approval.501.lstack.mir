@@ -49,25 +49,25 @@ subroutine main:
         b main_after_if_else@15
 
     main_pop_route@9:
-        // large_box_operations/struct_multiple_array_uint64.py:61
+        // large_box_operations/struct_multiple_array_uint64.py:65
         // @public
         callsub pop
         b main_after_if_else@15
 
     main_get_route@10:
-        // large_box_operations/struct_multiple_array_uint64.py:68
+        // large_box_operations/struct_multiple_array_uint64.py:72
         // @public
         callsub get
         b main_after_if_else@15
 
     main_set_route@11:
-        // large_box_operations/struct_multiple_array_uint64.py:75
+        // large_box_operations/struct_multiple_array_uint64.py:79
         // @public
         callsub set
         b main_after_if_else@15
 
     main_verify_route@12:
-        // large_box_operations/struct_multiple_array_uint64.py:81
+        // large_box_operations/struct_multiple_array_uint64.py:85
         // @public
         callsub verify
         b main_after_if_else@15
@@ -239,7 +239,7 @@ subroutine box_update_offset_inc:
 // test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(arr: bytes, inc: uint64) -> bytes, bytes:
 subroutine inc_array:
     inc_array_block@0:                                                                                            (𝕡) arr#0,inc#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:96
+        // large_box_operations/struct_multiple_array_uint64.py:100
         // for idx in urange(new.length):
         p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | arr#0 (copy)
         int 0                                                                                                     (𝕡) arr#0,inc#0 | arr#0 (copy),0
@@ -254,7 +254,7 @@ subroutine inc_array:
         b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 |
 
     inc_array_for_header@1:                                                                                       (𝕡) arr#0,inc#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:96
+        // large_box_operations/struct_multiple_array_uint64.py:100
         // for idx in urange(new.length):
         v-load idx#0                                                                                              (𝕡) arr#0,inc#0 | idx#0
         v-load aggregate%array_length%0#0                                                                         (𝕡) arr#0,inc#0 | idx#0,aggregate%array_length%0#0
@@ -263,7 +263,7 @@ subroutine inc_array:
         bz inc_array_after_for@4 ; b inc_array_for_body@2                                                         (𝕡) arr#0,inc#0 |
 
     inc_array_for_body@2:                                                                                         (𝕡) arr#0,inc#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:97
+        // large_box_operations/struct_multiple_array_uint64.py:101
         // new[idx] += inc
         v-load new#1                                                                                              (𝕡) arr#0,inc#0 | new#1
         l-store-copy new#1 0                                                                                      (𝕡) arr#0,inc#0 | new#1,new#1 (copy)
@@ -288,7 +288,7 @@ subroutine inc_array:
         l-load aggregate%val_as_bytes%0#0 2                                                                       (𝕡) arr#0,inc#0 | idx#0,new#1,aggregate%write_offset_with_length_header%0#0,aggregate%val_as_bytes%0#0
         replace3 // on error: index access is out of bounds                                                       (𝕡) arr#0,inc#0 | idx#0,new#1
         v-store new#1                                                                                             (𝕡) arr#0,inc#0 | idx#0
-        // large_box_operations/struct_multiple_array_uint64.py:96
+        // large_box_operations/struct_multiple_array_uint64.py:100
         // for idx in urange(new.length):
         l-load idx#0 0                                                                                            (𝕡) arr#0,inc#0 | idx#0
         int 1                                                                                                     (𝕡) arr#0,inc#0 | idx#0,1
@@ -298,7 +298,7 @@ subroutine inc_array:
         b inc_array_for_header@1                                                                                  (𝕡) arr#0,inc#0 |
 
     inc_array_after_for@4:                                                                                        (𝕡) arr#0,inc#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:98
+        // large_box_operations/struct_multiple_array_uint64.py:102
         // return new
         v-load new#1                                                                                              (𝕡) arr#0,inc#0 | new#1
         p-load arr#0                                                                                              (𝕡) arr#0,inc#0 | new#1,arr#0 (copy)
@@ -467,85 +467,93 @@ subroutine concat:
         l-load-copy array#0 0                                                                                     array#0,array#0 (copy)
         int 0                                                                                                     array#0,array#0 (copy),0
         extract_uint16 // on error: invalid array length header                                                   array#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                                                  array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 8                                                                                                     array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),8
-        *                                                                                                         array#0,aggregate%array_length%0#0,mul%0#0
-        l-load-copy mul%0#0 0                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy)
-        int 2                                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy),2
-        +                                                                                                         array#0,aggregate%array_length%0#0,mul%0#0,add%0#0
-        l-load-copy array#0 3                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,array#0 (copy)
-        len                                                                                                       array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                                          array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                                          array#0,aggregate%array_length%0#0,mul%0#0,len%0#0,add%0#0
-        ==                                                                                                        array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        l-load eq%0#0 0                                                                                           array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                                          array#0,aggregate%array_length%0#0,mul%0#0
-        // large_box_operations/struct_multiple_array_uint64.py:57
-        // self.box.value.arr1.extend(array)
-        l-load-copy array#0 2                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,array#0 (copy)
-        extract 2 0                                                                                               array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                                                array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 10                                                                                                    array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",10
-        l-load-copy mul%0#0 3                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",10,mul%0#0 (copy)
-        callsub box_update_offset_inc                                                                             array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                                                array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 12                                                                                                    array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",12
-        l-load-copy mul%0#0 3                                                                                     array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",12,mul%0#0 (copy)
-        callsub box_update_offset_inc                                                                             array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                                                array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 22                                                                                                    array#0,aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",22
-        l-load mul%0#0 3                                                                                          array#0,aggregate%array_length%0#0,extract_to_end%0#0,"box",22,mul%0#0
-        callsub box_update_offset_inc                                                                             array#0,aggregate%array_length%0#0,extract_to_end%0#0
-        byte "box"                                                                                                array#0,aggregate%array_length%0#0,extract_to_end%0#0,"box"
-        int 24                                                                                                    array#0,aggregate%array_length%0#0,extract_to_end%0#0,"box",24
-        l-load extract_to_end%0#0 2                                                                               array#0,aggregate%array_length%0#0,"box",24,extract_to_end%0#0
-        l-load aggregate%array_length%0#0 3                                                                       array#0,"box",24,extract_to_end%0#0,aggregate%array_length%0#0
-        int 8                                                                                                     array#0,"box",24,extract_to_end%0#0,aggregate%array_length%0#0,8
-        callsub box_dynamic_array_concat_fixed                                                                    array#0
-        // large_box_operations/struct_multiple_array_uint64.py:58
-        // self.box.value.arr2.extend(inc_array(array, UInt64(1)))
+        l-load aggregate%array_length%0#0 0                                                                       array#0,aggregate%array_length%0#0
+        int 8                                                                                                     array#0,aggregate%array_length%0#0,8
+        *                                                                                                         array#0,mul%0#0
+        l-load mul%0#0 0                                                                                          array#0,mul%0#0
+        int 2                                                                                                     array#0,mul%0#0,2
+        +                                                                                                         array#0,add%0#0
+        l-load-copy array#0 1                                                                                     array#0,add%0#0,array#0 (copy)
+        len                                                                                                       array#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                                          array#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                                          array#0,len%0#0,add%0#0
+        ==                                                                                                        array#0,eq%0#0
+        l-load eq%0#0 0                                                                                           array#0,eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<uint64>                                          array#0
+        // large_box_operations/struct_multiple_array_uint64.py:59
+        // array_plus_one = inc_array(array, UInt64(1))
         l-load array#0 0                                                                                          array#0
         int 1                                                                                                     array#0,1
-        callsub inc_array                                                                                         inc_array%0#0,array#0
-        l-load-copy inc_array%0#0 1                                                                               inc_array%0#0,array#0,inc_array%0#0 (copy)
-        extract 2 0                                                                                               inc_array%0#0,array#0,extract_to_end%1#0
-        l-load inc_array%0#0 2                                                                                    array#0,extract_to_end%1#0,inc_array%0#0
-        int 0                                                                                                     array#0,extract_to_end%1#0,inc_array%0#0,0
-        extract_uint16 // on error: invalid array length header                                                   array#0,extract_to_end%1#0,aggregate%array_length%2#0
-        l-load-copy aggregate%array_length%2#0 0                                                                  array#0,extract_to_end%1#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
-        int 8                                                                                                     array#0,extract_to_end%1#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy),8
-        *                                                                                                         array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0
-        byte "box"                                                                                                array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box"
-        int 10                                                                                                    array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box",10
-        int 2                                                                                                     array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box",10,2
-        box_extract                                                                                               array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%box_extract%6#0
-        l-load box%box_extract%6#0 0                                                                              array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%box_extract%6#0
-        btoi                                                                                                      array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0
-        byte "box"                                                                                                array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box"
-        int 12                                                                                                    array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",12
-        l-load-copy box%mul%1#0 3                                                                                 array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",12,box%mul%1#0 (copy)
-        callsub box_update_offset_inc                                                                             array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0
-        byte "box"                                                                                                array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box"
-        int 22                                                                                                    array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",22
-        l-load box%mul%1#0 3                                                                                      array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0,"box",22,box%mul%1#0
-        callsub box_update_offset_inc                                                                             array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0
-        byte "box"                                                                                                array#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0,"box"
-        l-load box%btoi%4#0 1                                                                                     array#0,extract_to_end%1#0,aggregate%array_length%2#0,"box",box%btoi%4#0
-        l-load extract_to_end%1#0 3                                                                               array#0,aggregate%array_length%2#0,"box",box%btoi%4#0,extract_to_end%1#0
-        l-load aggregate%array_length%2#0 3                                                                       array#0,"box",box%btoi%4#0,extract_to_end%1#0,aggregate%array_length%2#0
-        int 8                                                                                                     array#0,"box",box%btoi%4#0,extract_to_end%1#0,aggregate%array_length%2#0,8
-        callsub box_dynamic_array_concat_fixed                                                                    array#0
-        // large_box_operations/struct_multiple_array_uint64.py:59
-        // self.box.value.arr3.extend(inc_array(array, UInt64(2)))
-        l-load array#0 0                                                                                          array#0
-        int 2                                                                                                     array#0,2
-        callsub inc_array                                                                                         inc_array%2#0,array#0
-        v-store array#0                                                                                           inc_array%2#0
-        l-store inc_array%2#0 0                                                                                   inc_array%2#0
-        l-load-copy inc_array%2#0 0                                                                               inc_array%2#0,inc_array%2#0 (copy)
-        extract 2 0                                                                                               inc_array%2#0,extract_to_end%2#0
-        l-load inc_array%2#0 1                                                                                    extract_to_end%2#0,inc_array%2#0
-        int 0                                                                                                     extract_to_end%2#0,inc_array%2#0,0
+        callsub inc_array                                                                                         array_plus_one#0,array#0
+        // large_box_operations/struct_multiple_array_uint64.py:60
+        // array_plus_two = inc_array(array, UInt64(2))
+        l-load array#0 0                                                                                          array_plus_one#0,array#0
+        int 2                                                                                                     array_plus_one#0,array#0,2
+        callsub inc_array                                                                                         array_plus_one#0,array_plus_two#0,array#0
+        // large_box_operations/struct_multiple_array_uint64.py:61
+        // self.box.value.arr1.extend(array)
+        l-load-copy array#0 0                                                                                     array_plus_one#0,array_plus_two#0,array#0,array#0 (copy)
+        extract 2 0                                                                                               array_plus_one#0,array_plus_two#0,array#0,extract_to_end%0#0
+        l-load array#0 1                                                                                          array_plus_one#0,array_plus_two#0,extract_to_end%0#0,array#0
+        int 0                                                                                                     array_plus_one#0,array_plus_two#0,extract_to_end%0#0,array#0,0
+        extract_uint16 // on error: invalid array length header                                                   array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0
+        l-load-copy aggregate%array_length%1#0 0                                                                  array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
+        int 8                                                                                                     array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy),8
+        *                                                                                                         array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0
+        byte "box"                                                                                                array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box"
+        int 10                                                                                                    array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box",10
+        l-load-copy box%mul%0#0 2                                                                                 array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box",10,box%mul%0#0 (copy)
+        callsub box_update_offset_inc                                                                             array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0
+        byte "box"                                                                                                array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box"
+        int 12                                                                                                    array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box",12
+        l-load-copy box%mul%0#0 2                                                                                 array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box",12,box%mul%0#0 (copy)
+        callsub box_update_offset_inc                                                                             array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0
+        byte "box"                                                                                                array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box"
+        int 22                                                                                                    array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,box%mul%0#0,"box",22
+        l-load box%mul%0#0 2                                                                                      array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,"box",22,box%mul%0#0
+        callsub box_update_offset_inc                                                                             array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0
+        byte "box"                                                                                                array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,"box"
+        int 24                                                                                                    array_plus_one#0,array_plus_two#0,extract_to_end%0#0,aggregate%array_length%1#0,"box",24
+        l-load extract_to_end%0#0 3                                                                               array_plus_one#0,array_plus_two#0,aggregate%array_length%1#0,"box",24,extract_to_end%0#0
+        l-load aggregate%array_length%1#0 3                                                                       array_plus_one#0,array_plus_two#0,"box",24,extract_to_end%0#0,aggregate%array_length%1#0
+        int 8                                                                                                     array_plus_one#0,array_plus_two#0,"box",24,extract_to_end%0#0,aggregate%array_length%1#0,8
+        callsub box_dynamic_array_concat_fixed                                                                    array_plus_one#0,array_plus_two#0
+        // large_box_operations/struct_multiple_array_uint64.py:62
+        // self.box.value.arr2.extend(array_plus_one)
+        l-load-copy array_plus_one#0 1                                                                            array_plus_one#0,array_plus_two#0,array_plus_one#0 (copy)
+        extract 2 0                                                                                               array_plus_one#0,array_plus_two#0,extract_to_end%1#0
+        l-load array_plus_one#0 2                                                                                 array_plus_two#0,extract_to_end%1#0,array_plus_one#0
+        int 0                                                                                                     array_plus_two#0,extract_to_end%1#0,array_plus_one#0,0
+        extract_uint16 // on error: invalid array length header                                                   array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0
+        l-load-copy aggregate%array_length%2#0 0                                                                  array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
+        int 8                                                                                                     array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy),8
+        *                                                                                                         array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0
+        byte "box"                                                                                                array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box"
+        int 10                                                                                                    array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box",10
+        int 2                                                                                                     array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,"box",10,2
+        box_extract                                                                                               array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%box_extract%6#0
+        l-load box%box_extract%6#0 0                                                                              array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%box_extract%6#0
+        btoi                                                                                                      array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0
+        byte "box"                                                                                                array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box"
+        int 12                                                                                                    array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",12
+        l-load-copy box%mul%1#0 3                                                                                 array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",12,box%mul%1#0 (copy)
+        callsub box_update_offset_inc                                                                             array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0
+        byte "box"                                                                                                array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box"
+        int 22                                                                                                    array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%mul%1#0,box%btoi%4#0,"box",22
+        l-load box%mul%1#0 3                                                                                      array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0,"box",22,box%mul%1#0
+        callsub box_update_offset_inc                                                                             array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0
+        byte "box"                                                                                                array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,box%btoi%4#0,"box"
+        l-load box%btoi%4#0 1                                                                                     array_plus_two#0,extract_to_end%1#0,aggregate%array_length%2#0,"box",box%btoi%4#0
+        l-load extract_to_end%1#0 3                                                                               array_plus_two#0,aggregate%array_length%2#0,"box",box%btoi%4#0,extract_to_end%1#0
+        l-load aggregate%array_length%2#0 3                                                                       array_plus_two#0,"box",box%btoi%4#0,extract_to_end%1#0,aggregate%array_length%2#0
+        int 8                                                                                                     array_plus_two#0,"box",box%btoi%4#0,extract_to_end%1#0,aggregate%array_length%2#0,8
+        callsub box_dynamic_array_concat_fixed                                                                    array_plus_two#0
+        // large_box_operations/struct_multiple_array_uint64.py:63
+        // self.box.value.arr3.extend(array_plus_two)
+        l-load-copy array_plus_two#0 0                                                                            array_plus_two#0,array_plus_two#0 (copy)
+        extract 2 0                                                                                               array_plus_two#0,extract_to_end%2#0
+        l-load array_plus_two#0 1                                                                                 extract_to_end%2#0,array_plus_two#0
+        int 0                                                                                                     extract_to_end%2#0,array_plus_two#0,0
         extract_uint16 // on error: invalid array length header                                                   extract_to_end%2#0,aggregate%array_length%3#0
         l-load-copy aggregate%array_length%3#0 0                                                                  extract_to_end%2#0,aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
         int 8                                                                                                     extract_to_end%2#0,aggregate%array_length%3#0,aggregate%array_length%3#0 (copy),8
@@ -575,7 +583,7 @@ subroutine concat:
 // test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.pop[routing]() -> void:
 subroutine pop:
     pop_block@0:
-        // large_box_operations/struct_multiple_array_uint64.py:63
+        // large_box_operations/struct_multiple_array_uint64.py:67
         // result = self.box.value.arr1.pop()
         byte "box"                                                                                                "box"
         int 24                                                                                                    "box",24
@@ -619,7 +627,7 @@ subroutine pop:
         int 24                                                                                                    box%box_extract%4#0,result#0,"box",24
         int 8                                                                                                     box%box_extract%4#0,result#0,"box",24,8
         callsub box_dynamic_array_pop_fixed_size                                                                  box%box_extract%4#0,result#0
-        // large_box_operations/struct_multiple_array_uint64.py:64
+        // large_box_operations/struct_multiple_array_uint64.py:68
         // assert self.box.value.arr2.pop() == result + 1
         byte "box"                                                                                                box%box_extract%4#0,result#0,"box"
         int 10                                                                                                    box%box_extract%4#0,result#0,"box",10
@@ -676,7 +684,7 @@ subroutine pop:
         ==                                                                                                        box%box_extract%4#0,result#0,tmp%9#0
         l-load tmp%9#0 0                                                                                          box%box_extract%4#0,result#0,tmp%9#0
         assert                                                                                                    box%box_extract%4#0,result#0
-        // large_box_operations/struct_multiple_array_uint64.py:65
+        // large_box_operations/struct_multiple_array_uint64.py:69
         // assert self.box.value.arr3.pop() == result + 2
         byte "box"                                                                                                box%box_extract%4#0,result#0,"box"
         int 12                                                                                                    box%box_extract%4#0,result#0,"box",12
@@ -729,7 +737,7 @@ subroutine pop:
         ==                                                                                                        box%box_extract%4#0,tmp%15#0
         l-load tmp%15#0 0                                                                                         box%box_extract%4#0,tmp%15#0
         assert                                                                                                    box%box_extract%4#0
-        // large_box_operations/struct_multiple_array_uint64.py:61
+        // large_box_operations/struct_multiple_array_uint64.py:65
         // @public
         byte 0x151f7c75                                                                                           box%box_extract%4#0,0x151f7c75
         l-load box%box_extract%4#0 1                                                                              0x151f7c75,box%box_extract%4#0
@@ -743,7 +751,7 @@ subroutine pop:
 // test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.get[routing]() -> void:
 subroutine get:
     get_block@0:
-        // large_box_operations/struct_multiple_array_uint64.py:68
+        // large_box_operations/struct_multiple_array_uint64.py:72
         // @public
         txna ApplicationArgs 1                                                                                    tmp%0#0
         l-load-copy tmp%0#0 0                                                                                     tmp%0#0,tmp%0#0 (copy)
@@ -755,7 +763,7 @@ subroutine get:
         assert // invalid number of bytes for arc4.uint64                                                         tmp%0#0
         l-load tmp%0#0 0                                                                                          tmp%0#0
         btoi                                                                                                      idx#0
-        // large_box_operations/struct_multiple_array_uint64.py:70
+        // large_box_operations/struct_multiple_array_uint64.py:74
         // result = self.box.value.arr1[idx]
         byte "box"                                                                                                idx#0,"box"
         int 24                                                                                                    idx#0,"box",24
@@ -780,7 +788,7 @@ subroutine get:
         box_extract // on error: index out of bounds                                                              idx#0,box%element_offset%0#0,box%box_extract%3#0
         l-load-copy box%box_extract%3#0 0                                                                         idx#0,box%element_offset%0#0,box%box_extract%3#0,box%box_extract%3#0 (copy)
         btoi                                                                                                      idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0
-        // large_box_operations/struct_multiple_array_uint64.py:71
+        // large_box_operations/struct_multiple_array_uint64.py:75
         // assert self.box.value.arr2[idx] == result + 1
         byte "box"                                                                                                idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,"box"
         int 10                                                                                                    idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,"box",10
@@ -819,7 +827,7 @@ subroutine get:
         ==                                                                                                        idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,tmp%3#1
         l-load tmp%3#1 0                                                                                          idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,tmp%3#1
         assert                                                                                                    idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0
-        // large_box_operations/struct_multiple_array_uint64.py:72
+        // large_box_operations/struct_multiple_array_uint64.py:76
         // assert self.box.value.arr3[idx] == result + 2
         byte "box"                                                                                                idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,"box"
         int 12                                                                                                    idx#0,box%element_offset%0#0,box%box_extract%3#0,result#0,"box",12
@@ -858,7 +866,7 @@ subroutine get:
         ==                                                                                                        box%box_extract%3#0,tmp%6#0
         l-load tmp%6#0 0                                                                                          box%box_extract%3#0,tmp%6#0
         assert                                                                                                    box%box_extract%3#0
-        // large_box_operations/struct_multiple_array_uint64.py:68
+        // large_box_operations/struct_multiple_array_uint64.py:72
         // @public
         byte 0x151f7c75                                                                                           box%box_extract%3#0,0x151f7c75
         l-load box%box_extract%3#0 1                                                                              0x151f7c75,box%box_extract%3#0
@@ -872,7 +880,7 @@ subroutine get:
 // test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.set[routing]() -> void:
 subroutine set:
     set_block@0:
-        // large_box_operations/struct_multiple_array_uint64.py:75
+        // large_box_operations/struct_multiple_array_uint64.py:79
         // @public
         txna ApplicationArgs 1                                                                                    tmp%0#0
         l-load-copy tmp%0#0 0                                                                                     tmp%0#0,tmp%0#0 (copy)
@@ -894,7 +902,7 @@ subroutine set:
         assert // invalid number of bytes for arc4.uint64                                                         idx#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                                                     idx#0,tmp%2#0,tmp%2#0 (copy)
         btoi                                                                                                      idx#0,tmp%2#0,value#0
-        // large_box_operations/struct_multiple_array_uint64.py:77
+        // large_box_operations/struct_multiple_array_uint64.py:81
         // self.box.value.arr1[idx] = value
         byte "box"                                                                                                idx#0,tmp%2#0,value#0,"box"
         int 24                                                                                                    idx#0,tmp%2#0,value#0,"box",24
@@ -917,7 +925,7 @@ subroutine set:
         l-load box%offset%1#0 1                                                                                   idx#0,tmp%2#0,value#0,box%element_offset%0#0,"box",box%offset%1#0
         l-load tmp%2#0 4                                                                                          idx#0,value#0,box%element_offset%0#0,"box",box%offset%1#0,tmp%2#0
         box_replace // on error: index out of bounds                                                              idx#0,value#0,box%element_offset%0#0
-        // large_box_operations/struct_multiple_array_uint64.py:78
+        // large_box_operations/struct_multiple_array_uint64.py:82
         // self.box.value.arr2[idx] = value + 1
         l-load-copy value#0 1                                                                                     idx#0,value#0,box%element_offset%0#0,value#0 (copy)
         int 1                                                                                                     idx#0,value#0,box%element_offset%0#0,value#0 (copy),1
@@ -951,7 +959,7 @@ subroutine set:
         l-load box%offset%3#0 1                                                                                   idx#0,value#0,box%element_offset%0#0,aggregate%val_as_bytes%0#0,"box",box%offset%3#0
         l-load aggregate%val_as_bytes%0#0 2                                                                       idx#0,value#0,box%element_offset%0#0,"box",box%offset%3#0,aggregate%val_as_bytes%0#0
         box_replace // on error: index out of bounds                                                              idx#0,value#0,box%element_offset%0#0
-        // large_box_operations/struct_multiple_array_uint64.py:79
+        // large_box_operations/struct_multiple_array_uint64.py:83
         // self.box.value.arr3[idx] = value + 2
         l-load value#0 1                                                                                          idx#0,box%element_offset%0#0,value#0
         int 2                                                                                                     idx#0,box%element_offset%0#0,value#0,2
@@ -985,7 +993,7 @@ subroutine set:
         l-load box%offset%5#0 1                                                                                   aggregate%val_as_bytes%1#0,"box",box%offset%5#0
         l-load aggregate%val_as_bytes%1#0 2                                                                       "box",box%offset%5#0,aggregate%val_as_bytes%1#0
         box_replace // on error: index out of bounds
-        // large_box_operations/struct_multiple_array_uint64.py:75
+        // large_box_operations/struct_multiple_array_uint64.py:79
         // @public
         int 1                                                                                                     1
         return
@@ -994,7 +1002,7 @@ subroutine set:
 // test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify[routing]() -> void:
 subroutine verify:
     verify_block@0:
-        // large_box_operations/struct_multiple_array_uint64.py:81
+        // large_box_operations/struct_multiple_array_uint64.py:85
         // @public
         txna ApplicationArgs 1                                                                                    tmp%0#0
         l-load-copy tmp%0#0 0                                                                                     tmp%0#0,tmp%0#0 (copy)
@@ -1046,7 +1054,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         b test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify_while_top@6 (𝕡) expected#0 | 
 
     test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify_after_while@11: (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:84
+        // large_box_operations/struct_multiple_array_uint64.py:88
         // assert self.box.value.arr1 == expected
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 24                                                                                                    (𝕡) expected#0 | "box",24
@@ -1069,7 +1077,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%0#0
         l-load tmp%0#0 0                                                                                          (𝕡) expected#0 | tmp%0#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:85
+        // large_box_operations/struct_multiple_array_uint64.py:89
         // assert self.box.value.arr2 == inc_array(expected, UInt64(1))
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 10                                                                                                    (𝕡) expected#0 | "box",10
@@ -1103,7 +1111,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%1#0
         l-load tmp%1#0 0                                                                                          (𝕡) expected#0 | tmp%1#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:86
+        // large_box_operations/struct_multiple_array_uint64.py:90
         // assert self.box.value.arr3 == inc_array(expected, UInt64(2))
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 12                                                                                                    (𝕡) expected#0 | "box",12
@@ -1137,7 +1145,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%2#0
         l-load tmp%2#0 0                                                                                          (𝕡) expected#0 | tmp%2#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:87
+        // large_box_operations/struct_multiple_array_uint64.py:91
         // assert self.box.value.a == 1
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 0                                                                                                     (𝕡) expected#0 | "box",0
@@ -1150,7 +1158,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%4#0
         l-load tmp%4#0 0                                                                                          (𝕡) expected#0 | tmp%4#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:88
+        // large_box_operations/struct_multiple_array_uint64.py:92
         // assert self.box.value.b == 2
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 14                                                                                                    (𝕡) expected#0 | "box",14
@@ -1163,7 +1171,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%6#0
         l-load tmp%6#0 0                                                                                          (𝕡) expected#0 | tmp%6#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:89
+        // large_box_operations/struct_multiple_array_uint64.py:93
         // assert self.box.value.padding.length == 1
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         int 22                                                                                                    (𝕡) expected#0 | "box",22
@@ -1182,7 +1190,7 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         ==                                                                                                        (𝕡) expected#0 | tmp%8#0
         l-load tmp%8#0 0                                                                                          (𝕡) expected#0 | tmp%8#0
         assert                                                                                                    (𝕡) expected#0 |
-        // large_box_operations/struct_multiple_array_uint64.py:90
+        // large_box_operations/struct_multiple_array_uint64.py:94
         // assert self.box.length > 4096, "expected box length >4096"
         byte "box"                                                                                                (𝕡) expected#0 | "box"
         box_len                                                                                                   (𝕡) expected#0 | value%0#0,check%0#0
