@@ -1,0 +1,348 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 8 1
+    bytecblock 0x62 0x61 0x64 0x61626364 0x000200000000000000010000000000000002 0x78 0x000200000000000000050000000000000009
+    // regression_tests/box_read_forwarding.py:11
+    // class BoxReadForwarding(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@7
+    pushbytes 0x122c2f5e // method "run_all()void"
+    txna ApplicationArgs 0
+    match main_run_all_route@5
+    err
+
+main_run_all_route@5:
+    // regression_tests/box_read_forwarding.py:22
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b run_all
+
+main___algopy_default_create@7:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all[routing]() -> void:
+run_all:
+    // regression_tests/box_read_forwarding.py:24
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec_3 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:25
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    bytec 4 // 0x000200000000000000010000000000000002
+    box_put
+    // regression_tests/box_read_forwarding.py:26
+    // self.d.value = Inner(x=arc4.UInt64(1), arr=UInt64Array(arc4.UInt64(1), arc4.UInt64(2)))
+    bytec_2 // 0x64
+    box_del
+    pop
+    bytec_2 // 0x64
+    pushbytes 0x0000000000000001000a000200000000000000010000000000000002
+    box_put
+    // regression_tests/box_read_forwarding.py:40
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:41
+    // self.b.value = Bytes(b"\x05")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    pushbytes 0x05
+    box_put
+    // regression_tests/box_read_forwarding.py:42
+    // assert m.length == 4
+    len
+    pushint 4
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:43
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec_3 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:48
+    // self.b.splice(0, 1, b"qqq")
+    bytec_0 // 0x62
+    intc_0 // 0
+    intc_3 // 1
+    pushbytes 0x717171
+    box_splice
+    // regression_tests/box_read_forwarding.py:50
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec_3 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:55
+    // self.write_b()
+    callsub write_b
+    // regression_tests/box_read_forwarding.py:57
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec_3 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:66
+    // if Txn.num_app_args:  # always true, but not known at compile time
+    txn NumAppArgs
+    bz run_all_after_if_else@9
+    // regression_tests/box_read_forwarding.py:67
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+
+run_all_after_if_else@9:
+    // regression_tests/box_read_forwarding.py:69
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec_3 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:74
+    // total = UInt64(0)
+    intc_0 // 0
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    dup
+
+run_all_for_header@12:
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    dup
+    intc_1 // 2
+    <
+    bz run_all_after_for@14
+    // regression_tests/box_read_forwarding.py:76
+    // total += m.length
+    swap
+    pushint 4
+    +
+    swap
+    // regression_tests/box_read_forwarding.py:77
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    intc_3 // 1
+    +
+    b run_all_for_header@12
+
+run_all_after_for@14:
+    pop
+    // regression_tests/box_read_forwarding.py:78
+    // assert total == 8
+    intc_2 // 8
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:82
+    // m = self.a.value.copy()
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    pushint 9
+    itob
+    bytec_1 // 0x61
+    intc_0 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    bytec_1 // 0x61
+    box_len
+    pop
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    intc_2 // 8
+    +
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    bytec_1 // 0x61
+    swap
+    box_resize
+    dup
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    intc_3 // 1
+    +
+    itob
+    extract 6 2
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    bytec_1 // 0x61
+    intc_0 // 0
+    uncover 2
+    box_replace
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    intc_2 // 8
+    *
+    intc_1 // 2
+    +
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    bytec_1 // 0x61
+    swap
+    intc_0 // 0
+    uncover 3
+    box_splice
+    // regression_tests/box_read_forwarding.py:84
+    // assert m.length == 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:85
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    // regression_tests/box_read_forwarding.py:25
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    bytec 4 // 0x000200000000000000010000000000000002
+    // regression_tests/box_read_forwarding.py:85
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    box_put
+    // regression_tests/box_read_forwarding.py:90
+    // self.a.value[0] = arc4.UInt64(7)
+    pushint 7
+    itob
+    bytec_1 // 0x61
+    intc_1 // 2
+    uncover 2
+    box_replace // on error: index out of bounds
+    // regression_tests/box_read_forwarding.py:92
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    // regression_tests/box_read_forwarding.py:25
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    bytec 4 // 0x000200000000000000010000000000000002
+    // regression_tests/box_read_forwarding.py:92
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    box_put
+    // regression_tests/box_read_forwarding.py:97
+    // self.a.value = UInt64Array(arc4.UInt64(7))
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    pushbytes 0x00010000000000000007
+    box_put
+    // regression_tests/box_read_forwarding.py:99
+    // self.a.value = m.copy()
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    pushbytes 0x0003000000000000000100000000000000020000000000000009
+    // regression_tests/box_read_forwarding.py:99
+    // self.a.value = m.copy()
+    box_put
+    // regression_tests/box_read_forwarding.py:104
+    // m = self.d.value.copy()
+    bytec_2 // 0x64
+    box_get
+    assert // check self.d exists
+    // regression_tests/box_read_forwarding.py:107
+    // m.arr = other.copy()
+    dup
+    intc_2 // 8
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    bytec 6 // 0x000200000000000000050000000000000009
+    // regression_tests/box_read_forwarding.py:107
+    // m.arr = other.copy()
+    concat
+    // regression_tests/box_read_forwarding.py:108
+    // self.d.value = m.copy()
+    bytec_2 // 0x64
+    box_del
+    pop
+    bytec_2 // 0x64
+    swap
+    box_put
+    // regression_tests/box_read_forwarding.py:109
+    // assert self.d.value.arr == UInt64Array(arc4.UInt64(5), arc4.UInt64(9))
+    bytec_2 // 0x64
+    pushint 10
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_2 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_2 // 0x64
+    pushint 10
+    uncover 2
+    box_extract
+    bytec 6 // 0x000200000000000000050000000000000009
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:22
+    // @arc4.abimethod
+    intc_3 // 1
+    return
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
+write_b:
+    // regression_tests/box_read_forwarding.py:61
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+    retsub
