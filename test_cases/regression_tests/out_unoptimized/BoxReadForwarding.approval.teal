@@ -1,0 +1,867 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 8
+    bytecblock 0x62 0x61 0x 0x64 0x61626364 0x78
+    b main_block@0
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    b main_call___init__@1
+
+main_call___init__@1:
+    callsub __init__
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    b main_block@3
+
+main_block@3:
+    // regression_tests/box_read_forwarding.py:11
+    // class BoxReadForwarding(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@7
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // regression_tests/box_read_forwarding.py:11
+    // class BoxReadForwarding(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x122c2f5e // method "run_all()void"
+    uncover 1
+    match main_run_all_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    // regression_tests/box_read_forwarding.py:11
+    // class BoxReadForwarding(ARC4Contract):
+    err
+
+main_run_all_route@5:
+    // regression_tests/box_read_forwarding.py:22
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub run_all
+    b main_switch_case_next@6
+
+main___algopy_default_create@7:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@10
+
+main_block@10:
+    b main_after_inlined_test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.__algopy_default_create@11
+
+main_after_inlined_test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.__algopy_default_create@11:
+    intc_2 // 1
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+box_dynamic_array_concat_fixed:
+    proto 5 0
+    intc_0 // 0
+    bytec_2 // ""
+    bytec_2 // ""
+    bytec_2 // ""
+    bytec_2 // ""
+    b box_dynamic_array_concat_fixed_block@0
+
+box_dynamic_array_concat_fixed_block@0:
+    frame_dig -5
+    frame_dig -4
+    b box_dynamic_array_concat_fixed_block@1
+
+box_dynamic_array_concat_fixed_block@1:
+    frame_dig 5
+    frame_dig 6
+    intc_1 // 2
+    box_extract
+    btoi
+    frame_bury 2
+    b box_dynamic_array_concat_fixed_after_inlined__puya_lib.box_arc4._box_extract_u16@2
+
+box_dynamic_array_concat_fixed_after_inlined__puya_lib.box_arc4._box_extract_u16@2:
+    frame_dig 2
+    dup
+    frame_bury 1
+    frame_dig -5
+    box_len
+    frame_bury 3
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    uncover 1
+    box_resize
+    frame_dig -2
+    +
+    frame_bury 4
+    b box_dynamic_array_concat_fixed_block@3
+
+box_dynamic_array_concat_fixed_block@3:
+    frame_dig 4
+    itob
+    extract 6 2
+    frame_bury 0
+    b box_dynamic_array_concat_fixed_after_inlined__puya_lib.box_arc4._as_uint16@4
+
+box_dynamic_array_concat_fixed_after_inlined__puya_lib.box_arc4._as_uint16@4:
+    frame_dig 0
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    frame_dig -4
+    intc_1 // 2
+    +
+    frame_dig 1
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    uncover 1
+    intc_0 // 0
+    frame_dig -3
+    box_splice
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all[routing]() -> void:
+run_all:
+    b run_all_block@0
+
+run_all_block@0:
+    // regression_tests/box_read_forwarding.py:22
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all
+    intc_2 // 1
+    return
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all() -> void:
+test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all:
+    b test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all_block@0
+
+test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all_block@0:
+    // regression_tests/box_read_forwarding.py:24
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 4 // 0x61626364
+    box_put
+    // regression_tests/box_read_forwarding.py:25
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    intc_2 // 1
+    itob
+    intc_1 // 2
+    itob
+    intc_1 // 2
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    uncover 1
+    concat
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    uncover 1
+    box_put
+    // regression_tests/box_read_forwarding.py:26
+    // self.d.value = Inner(x=arc4.UInt64(1), arr=UInt64Array(arc4.UInt64(1), arc4.UInt64(2)))
+    intc_2 // 1
+    itob
+    intc_2 // 1
+    itob
+    intc_1 // 2
+    itob
+    intc_1 // 2
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    uncover 1
+    concat
+    bytec_2 // 0x
+    uncover 2
+    concat
+    pushint 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    bytec_3 // 0x64
+    box_del
+    pop
+    bytec_3 // 0x64
+    uncover 1
+    box_put
+    // regression_tests/box_read_forwarding.py:28
+    // self.bytes_len_after_put()
+    callsub bytes_len_after_put
+    // regression_tests/box_read_forwarding.py:29
+    // self.bytes_extract_after_splice()
+    callsub bytes_extract_after_splice
+    // regression_tests/box_read_forwarding.py:30
+    // self.bytes_len_after_subroutine_write()
+    callsub bytes_len_after_subroutine_write
+    // regression_tests/box_read_forwarding.py:31
+    // self.bytes_len_after_conditional_put()
+    callsub bytes_len_after_conditional_put
+    // regression_tests/box_read_forwarding.py:32
+    // self.bytes_len_in_loop_with_put()
+    callsub bytes_len_in_loop_with_put
+    // regression_tests/box_read_forwarding.py:33
+    // self.array_len_after_append()
+    callsub array_len_after_append
+    // regression_tests/box_read_forwarding.py:34
+    // self.array_element_after_set()
+    callsub array_element_after_set
+    // regression_tests/box_read_forwarding.py:35
+    // self.array_append_write_back_after_put()
+    callsub array_append_write_back_after_put
+    // regression_tests/box_read_forwarding.py:36
+    // self.struct_array_replaced_with_other_array()
+    callsub struct_array_replaced_with_other_array
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_put() -> void:
+bytes_len_after_put:
+    b bytes_len_after_put_block@0
+
+bytes_len_after_put_block@0:
+    // regression_tests/box_read_forwarding.py:40
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:41
+    // self.b.value = Bytes(b"\x05")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    pushbytes 0x05
+    box_put
+    // regression_tests/box_read_forwarding.py:42
+    // assert m.length == 4
+    len
+    pushint 4
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:43
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 4 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_extract_after_splice() -> void:
+bytes_extract_after_splice:
+    b bytes_extract_after_splice_block@0
+
+bytes_extract_after_splice_block@0:
+    // regression_tests/box_read_forwarding.py:47
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:48
+    // self.b.splice(0, 1, b"qqq")
+    bytec_0 // 0x62
+    intc_0 // 0
+    intc_2 // 1
+    pushbytes 0x717171
+    box_splice
+    // regression_tests/box_read_forwarding.py:49
+    // assert m[0:2] == b"ab"
+    dup
+    len
+    intc_0 // 0
+    dig 1
+    >=
+    intc_0 // 0
+    dig 2
+    uncover 2
+    select
+    cover 1
+    intc_1 // 2
+    dig 1
+    >=
+    intc_1 // 2
+    uncover 2
+    uncover 2
+    select
+    uncover 2
+    uncover 2
+    uncover 2
+    substring3
+    pushbytes 0x6162
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:50
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 4 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_subroutine_write() -> void:
+bytes_len_after_subroutine_write:
+    b bytes_len_after_subroutine_write_block@0
+
+bytes_len_after_subroutine_write_block@0:
+    // regression_tests/box_read_forwarding.py:54
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:55
+    // self.write_b()
+    callsub write_b
+    // regression_tests/box_read_forwarding.py:56
+    // assert m.length == 4
+    len
+    pushint 4
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:57
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 4 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
+write_b:
+    b write_b_block@0
+
+write_b_block@0:
+    // regression_tests/box_read_forwarding.py:61
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_conditional_put() -> void:
+bytes_len_after_conditional_put:
+    // regression_tests/box_read_forwarding.py:63-64
+    // @subroutine
+    // def bytes_len_after_conditional_put(self) -> None:
+    proto 0 0
+    b bytes_len_after_conditional_put_block@0
+
+bytes_len_after_conditional_put_block@0:
+    // regression_tests/box_read_forwarding.py:65
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:66
+    // if Txn.num_app_args:  # always true, but not known at compile time
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz bytes_len_after_conditional_put_after_if_else@2
+    b bytes_len_after_conditional_put_if_body@1
+
+bytes_len_after_conditional_put_if_body@1:
+    // regression_tests/box_read_forwarding.py:67
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+    b bytes_len_after_conditional_put_after_if_else@2
+
+bytes_len_after_conditional_put_after_if_else@2:
+    // regression_tests/box_read_forwarding.py:68
+    // assert m.length == 4
+    frame_dig 0
+    len
+    pushint 4
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:69
+    // self.b.value = Bytes(b"abcd")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 4 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_in_loop_with_put() -> void:
+bytes_len_in_loop_with_put:
+    // regression_tests/box_read_forwarding.py:71-72
+    // @subroutine
+    // def bytes_len_in_loop_with_put(self) -> None:
+    proto 0 0
+    b bytes_len_in_loop_with_put_block@0
+
+bytes_len_in_loop_with_put_block@0:
+    // regression_tests/box_read_forwarding.py:73
+    // m = self.b.value
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    // regression_tests/box_read_forwarding.py:74
+    // total = UInt64(0)
+    intc_0 // 0
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    intc_2 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+    b bytes_len_in_loop_with_put_for_header@1
+
+bytes_len_in_loop_with_put_for_header@1:
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    frame_dig 2
+    intc_1 // 2
+    <
+    bz bytes_len_in_loop_with_put_after_for@4
+    b bytes_len_in_loop_with_put_for_body@2
+
+bytes_len_in_loop_with_put_for_body@2:
+    // regression_tests/box_read_forwarding.py:76
+    // total += m.length
+    frame_dig 0
+    len
+    frame_dig 1
+    +
+    frame_bury 1
+    // regression_tests/box_read_forwarding.py:77
+    // self.b.value = Bytes(b"x")
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 5 // 0x78
+    box_put
+    b bytes_len_in_loop_with_put_for_footer@3
+
+bytes_len_in_loop_with_put_for_footer@3:
+    // regression_tests/box_read_forwarding.py:75
+    // for _i in urange(2):
+    frame_dig 2
+    intc_2 // 1
+    +
+    frame_bury 2
+    b bytes_len_in_loop_with_put_for_header@1
+
+bytes_len_in_loop_with_put_after_for@4:
+    // regression_tests/box_read_forwarding.py:78
+    // assert total == 8
+    frame_dig 1
+    intc_3 // 8
+    ==
+    assert
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_len_after_append() -> void:
+array_len_after_append:
+    b array_len_after_append_block@0
+
+array_len_after_append_block@0:
+    // regression_tests/box_read_forwarding.py:82
+    // m = self.a.value.copy()
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    // regression_tests/box_read_forwarding.py:83
+    // self.a.value.append(arc4.UInt64(9))
+    pushint 9
+    itob
+    bytec_2 // 0x
+    uncover 1
+    concat
+    bytec_1 // 0x61
+    intc_0 // 0
+    uncover 2
+    intc_2 // 1
+    intc_3 // 8
+    callsub box_dynamic_array_concat_fixed
+    // regression_tests/box_read_forwarding.py:84
+    // assert m.length == 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    ==
+    assert
+    // regression_tests/box_read_forwarding.py:85
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    intc_2 // 1
+    itob
+    intc_1 // 2
+    itob
+    intc_1 // 2
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    uncover 1
+    concat
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    uncover 1
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_element_after_set() -> void:
+array_element_after_set:
+    b array_element_after_set_block@0
+
+array_element_after_set_block@0:
+    // regression_tests/box_read_forwarding.py:89
+    // m = self.a.value.copy()
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    // regression_tests/box_read_forwarding.py:90
+    // self.a.value[0] = arc4.UInt64(7)
+    pushint 7
+    itob
+    intc_0 // 0
+    intc_1 // 2
+    +
+    intc_0 // 0
+    intc_3 // 8
+    *
+    +
+    bytec_1 // 0x61
+    uncover 1
+    uncover 2
+    box_replace // on error: index out of bounds
+    // regression_tests/box_read_forwarding.py:91
+    // assert m[0] == 1
+    dup
+    len
+    cover 1
+    intc_1 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    intc_3 // 8
+    *
+    intc_3 // 8
+    extract3 // on error: index access is out of bounds
+    intc_2 // 1
+    itob
+    b==
+    assert
+    // regression_tests/box_read_forwarding.py:92
+    // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+    intc_2 // 1
+    itob
+    intc_1 // 2
+    itob
+    intc_1 // 2
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    uncover 1
+    concat
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    uncover 1
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_append_write_back_after_put() -> void:
+array_append_write_back_after_put:
+    // regression_tests/box_read_forwarding.py:94-95
+    // @subroutine
+    // def array_append_write_back_after_put(self) -> None:
+    proto 0 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_2 // ""
+    b array_append_write_back_after_put_block@0
+
+array_append_write_back_after_put_block@0:
+    // regression_tests/box_read_forwarding.py:96
+    // m = self.a.value.copy()
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    // regression_tests/box_read_forwarding.py:97
+    // self.a.value = UInt64Array(arc4.UInt64(7))
+    pushint 7
+    itob
+    intc_2 // 1
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    uncover 1
+    box_put
+    // regression_tests/box_read_forwarding.py:98
+    // m.append(arc4.UInt64(9))
+    pushint 9
+    itob
+    bytec_2 // 0x
+    uncover 1
+    concat
+    b array_append_write_back_after_put_block@1
+
+array_append_write_back_after_put_block@1:
+    frame_dig 3
+    intc_0 // 0
+    extract_uint16
+    // regression_tests/box_read_forwarding.py:98
+    // m.append(arc4.UInt64(9))
+    intc_2 // 1
+    +
+    frame_bury 2
+    b array_append_write_back_after_put_block@2
+
+array_append_write_back_after_put_block@2:
+    frame_dig 2
+    itob
+    extract 6 0
+    frame_bury 0
+    b array_append_write_back_after_put_after_inlined__puya_lib.arc4._itob16@3
+
+array_append_write_back_after_put_after_inlined__puya_lib.arc4._itob16@3:
+    frame_dig 0
+    frame_dig 3
+    intc_0 // 0
+    uncover 2
+    replace3
+    frame_dig 4
+    concat
+    frame_bury 1
+    // regression_tests/box_read_forwarding.py:98
+    // m.append(arc4.UInt64(9))
+    b array_append_write_back_after_put_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
+
+array_append_write_back_after_put_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
+    // regression_tests/box_read_forwarding.py:98
+    // m.append(arc4.UInt64(9))
+    frame_dig 1
+    // regression_tests/box_read_forwarding.py:99
+    // self.a.value = m.copy()
+    bytec_1 // 0x61
+    box_del
+    pop
+    bytec_1 // 0x61
+    uncover 1
+    box_put
+    // regression_tests/box_read_forwarding.py:100
+    // assert self.a.value == UInt64Array(arc4.UInt64(1), arc4.UInt64(2), arc4.UInt64(9))
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    intc_2 // 1
+    itob
+    intc_1 // 2
+    itob
+    pushint 9
+    itob
+    pushint 3
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    uncover 2
+    concat
+    uncover 1
+    concat
+    ==
+    assert
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.struct_array_replaced_with_other_array() -> void:
+struct_array_replaced_with_other_array:
+    // regression_tests/box_read_forwarding.py:102-103
+    // @subroutine
+    // def struct_array_replaced_with_other_array(self) -> None:
+    proto 0 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_2 // ""
+    b struct_array_replaced_with_other_array_block@0
+
+struct_array_replaced_with_other_array_block@0:
+    // regression_tests/box_read_forwarding.py:104
+    // m = self.d.value.copy()
+    bytec_3 // 0x64
+    box_get
+    assert // check self.d exists
+    // regression_tests/box_read_forwarding.py:105
+    // other = UInt64Array(arc4.UInt64(5))
+    pushint 5
+    itob
+    intc_2 // 1
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    // regression_tests/box_read_forwarding.py:106
+    // other.append(arc4.UInt64(9))
+    pushint 9
+    itob
+    bytec_2 // 0x
+    uncover 1
+    concat
+    b struct_array_replaced_with_other_array_block@1
+
+struct_array_replaced_with_other_array_block@1:
+    frame_dig 4
+    intc_0 // 0
+    extract_uint16
+    // regression_tests/box_read_forwarding.py:106
+    // other.append(arc4.UInt64(9))
+    intc_2 // 1
+    +
+    frame_bury 2
+    b struct_array_replaced_with_other_array_block@2
+
+struct_array_replaced_with_other_array_block@2:
+    frame_dig 2
+    itob
+    extract 6 0
+    frame_bury 0
+    b struct_array_replaced_with_other_array_after_inlined__puya_lib.arc4._itob16@3
+
+struct_array_replaced_with_other_array_after_inlined__puya_lib.arc4._itob16@3:
+    frame_dig 0
+    frame_dig 4
+    intc_0 // 0
+    uncover 2
+    replace3
+    frame_dig 5
+    concat
+    frame_bury 1
+    // regression_tests/box_read_forwarding.py:106
+    // other.append(arc4.UInt64(9))
+    b struct_array_replaced_with_other_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
+
+struct_array_replaced_with_other_array_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
+    // regression_tests/box_read_forwarding.py:106
+    // other.append(arc4.UInt64(9))
+    frame_dig 1
+    // regression_tests/box_read_forwarding.py:107
+    // m.arr = other.copy()
+    frame_dig 3
+    dup
+    intc_3 // 8
+    extract_uint16
+    uncover 1
+    intc_0 // 0
+    uncover 2
+    extract3
+    uncover 1
+    concat
+    // regression_tests/box_read_forwarding.py:108
+    // self.d.value = m.copy()
+    bytec_3 // 0x64
+    box_del
+    pop
+    bytec_3 // 0x64
+    uncover 1
+    box_put
+    // regression_tests/box_read_forwarding.py:109
+    // assert self.d.value.arr == UInt64Array(arc4.UInt64(5), arc4.UInt64(9))
+    intc_0 // 0
+    pushint 10
+    +
+    bytec_3 // 0x64
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_3 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_3 // 0x64
+    uncover 2
+    uncover 2
+    box_extract
+    pushint 5
+    itob
+    pushint 9
+    itob
+    intc_1 // 2
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    uncover 1
+    concat
+    ==
+    assert
+    retsub
