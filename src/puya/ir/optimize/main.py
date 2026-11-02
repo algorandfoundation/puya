@@ -7,7 +7,10 @@ from puya.context import ArtifactCompileContext
 from puya.errors import InternalError
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
+from puya.ir.optimize.add_box_extract_replace import (
+    analyse_subroutines_for_box_modification,
+    replace_aggregate_box_ops,
+)
 from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import merge_blocks, remove_linear_jumps
 from puya.ir.optimize.compiled_reference import replace_compiled_references
@@ -153,6 +156,7 @@ def optimize_program_ir(
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         analyse_subroutines_for_inlining(opt_context, program)
+        analyse_subroutines_for_box_modification(opt_context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:

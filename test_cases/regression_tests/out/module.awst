@@ -1489,6 +1489,199 @@ contract VRFVerifier
   }
 }
 
+contract BoxReadForwarding
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    [hex<"62">]: bytes
+    [hex<"61">]: arc4.dynamic_array<arc4.uint64>
+    [hex<"64">]: test_cases.regression_tests.box_read_forwarding.Inner
+    [hex<"74">]: arc4.dynamic_array<uint64>
+    [hex<"6E">]: test_cases.regression_tests.box_read_forwarding.NativeInner
+    [hex<"6F">]: test_cases.regression_tests.box_read_forwarding.NativeOuter
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all(): void
+  {
+    Box[hex<"62">]: bytes = hex<"61626364">
+    Box[hex<"61">]: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64)
+    Box[hex<"64">]: test_cases.regression_tests.box_read_forwarding.Inner = new test_cases.regression_tests.box_read_forwarding.Inner(x=1_arc4u64, arr=new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64))
+    Box[hex<"74">]: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(1u, 2u)
+    Box[hex<"6E">]: test_cases.regression_tests.box_read_forwarding.NativeInner = new test_cases.regression_tests.box_read_forwarding.NativeInner(x=1u, arr=new arc4.dynamic_array<uint64>(1u, 2u))
+    Box[hex<"6F">]: test_cases.regression_tests.box_read_forwarding.NativeOuter = new test_cases.regression_tests.box_read_forwarding.NativeOuter(y=1u, inner=new test_cases.regression_tests.box_read_forwarding.NativeInner(x=1u, arr=new arc4.dynamic_array<uint64>(1u, 2u)))
+    this::bytes_len_after_put()
+    this::bytes_extract_after_splice()
+    this::bytes_len_after_subroutine_write()
+    this::bytes_len_after_conditional_put()
+    this::bytes_len_in_loop_with_put()
+    this::array_len_after_append()
+    this::array_element_after_set()
+    this::array_append_write_back_after_put()
+    this::struct_array_replaced_with_other_array()
+    this::array_two_copies_written_back_in_order()
+    this::nested_struct_copy_before_set()
+    this::nested_struct_copy_before_append()
+    this::native_field_copy_iterated_while_modified()
+  }
+  
+  abimethod test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.pad(): void
+  {
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_put(): void
+  {
+    m: bytes = Box[hex<"62">]
+    Box[hex<"62">]: bytes = hex<"05">
+    assert(len(m) == 4u)
+    Box[hex<"62">]: bytes = hex<"61626364">
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_extract_after_splice(): void
+  {
+    m: bytes = Box[hex<"62">]
+    box_splice(hex<"62">, 0u, 1u, hex<"717171">)
+    assert(m[0:2] == hex<"6162">)
+    Box[hex<"62">]: bytes = hex<"61626364">
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_subroutine_write(): void
+  {
+    m: bytes = Box[hex<"62">]
+    this::write_b()
+    assert(len(m) == 4u)
+    Box[hex<"62">]: bytes = hex<"61626364">
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b(): void
+  {
+    Box[hex<"62">]: bytes = hex<"78">
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_conditional_put(): void
+  {
+    m: bytes = Box[hex<"62">]
+    if (txn<NumAppArgs>() != 0u) {
+      Box[hex<"62">]: bytes = hex<"78">
+    }
+    assert(len(m) == 4u)
+    Box[hex<"62">]: bytes = hex<"61626364">
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_in_loop_with_put(): void
+  {
+    m: bytes = Box[hex<"62">]
+    total: uint64 = 0u
+    for _i in range(0u, 2u, 1u) {
+      total += len(m)
+      Box[hex<"62">]: bytes = hex<"78">
+    }
+    assert(total == 8u)
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_len_after_append(): void
+  {
+    m: arc4.dynamic_array<arc4.uint64> = Box[hex<"61">].copy()
+    Box[hex<"61">].extend((9_arc4u64))
+    assert(m.length == 2u)
+    Box[hex<"61">]: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64)
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_element_after_set(): void
+  {
+    m: arc4.dynamic_array<arc4.uint64> = Box[hex<"61">].copy()
+    Box[hex<"61">][0u]: arc4.uint64 = 7_arc4u64
+    assert(reinterpret_cast<biguint>(m[0u]) == reinterpret_cast<biguint>(1_arc4u64))
+    Box[hex<"61">]: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64)
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_append_write_back_after_put(): void
+  {
+    m: arc4.dynamic_array<arc4.uint64> = Box[hex<"61">].copy()
+    Box[hex<"61">]: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(7_arc4u64)
+    m.extend((9_arc4u64))
+    Box[hex<"61">]: arc4.dynamic_array<arc4.uint64> = m.copy()
+    assert(Box[hex<"61">] == new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64, 9_arc4u64))
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.struct_array_replaced_with_other_array(): void
+  {
+    m: test_cases.regression_tests.box_read_forwarding.Inner = Box[hex<"64">].copy()
+    other: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(5_arc4u64)
+    other.extend((9_arc4u64))
+    m.arr: arc4.dynamic_array<arc4.uint64> = other.copy()
+    Box[hex<"64">]: test_cases.regression_tests.box_read_forwarding.Inner = m.copy()
+    assert(Box[hex<"64">].arr == new arc4.dynamic_array<arc4.uint64>(5_arc4u64, 9_arc4u64))
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_two_copies_written_back_in_order(): void
+  {
+    m0: arc4.dynamic_array<uint64> = Box[hex<"74">].copy()
+    m0[0u]: uint64 = 123u
+    m1: arc4.dynamic_array<uint64> = Box[hex<"74">].copy()
+    m1[1u]: uint64 = 321u
+    Box[hex<"74">]: arc4.dynamic_array<uint64> = m0.copy()
+    Box[hex<"74">]: arc4.dynamic_array<uint64> = m1.copy()
+    assert(Box[hex<"74">] == new arc4.dynamic_array<uint64>(1u, 321u))
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_set(): void
+  {
+    m: test_cases.regression_tests.box_read_forwarding.NativeInner = Box[hex<"6F">].inner.copy()
+    Box[hex<"6F">].inner.arr[0u]: uint64 = 7u
+    assert(m.arr[0u] == 1u)
+    assert(Box[hex<"6F">].inner.arr[0u] == 7u)
+    Box[hex<"6F">].inner.arr[0u]: uint64 = 1u
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_append(): void
+  {
+    m: test_cases.regression_tests.box_read_forwarding.NativeInner = Box[hex<"6F">].inner.copy()
+    Box[hex<"6F">].inner.arr.extend((9u))
+    assert(m.arr.length == 2u)
+    assert(Box[hex<"6F">].inner.arr.length == 3u)
+    assert(Box[hex<"6F">].inner.arr.pop() == 9u)
+  }
+  
+  subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.native_field_copy_iterated_while_modified(): void
+  {
+    total: uint64 = 0u
+    for item in Box[hex<"6E">].arr.copy() {
+      Box[hex<"6E">].arr[1u]: uint64 = 100u
+      total += item
+    }
+    assert(total == 3u)
+    Box[hex<"6E">].arr[1u]: uint64 = 2u
+  }
+  
+  baremethod test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract BoxReadCache
 {
   method_resolution_order: (
