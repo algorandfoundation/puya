@@ -303,6 +303,17 @@ def test_box_read_forwarding(deployer_o: Deployer) -> None:
         dispenser_account=deployer_o.account,
         min_spending_balance=au.AlgoAmount.from_algo(1),
     )
-    client.send.call(
-        au.AppClientMethodCallParams(method="run_all", box_references=[b"a", b"b", b"d"])
+    # pad the group with calls that do nothing, to pool their opcode budget
+    group = client.algorand.new_group()
+    group.add_app_call_method_call(
+        client.params.call(
+            au.AppClientMethodCallParams(
+                method="run_all", box_references=[b"a", b"b", b"d", b"t", b"n", b"o"]
+            )
+        )
     )
+    for i in range(3):
+        group.add_app_call_method_call(
+            client.params.call(au.AppClientMethodCallParams(method="pad", note=bytes([i])))
+        )
+    group.send()

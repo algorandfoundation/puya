@@ -1,4 +1,15 @@
-from algopy import ARC4Contract, Box, Bytes, Txn, UInt64, arc4, subroutine, urange
+from algopy import (
+    ARC4Contract,
+    Array,
+    Box,
+    Bytes,
+    Struct,
+    Txn,
+    UInt64,
+    arc4,
+    subroutine,
+    urange,
+)
 
 UInt64Array = arc4.DynamicArray[arc4.UInt64]
 
@@ -6,6 +17,16 @@ UInt64Array = arc4.DynamicArray[arc4.UInt64]
 class Inner(arc4.Struct):
     x: arc4.UInt64
     arr: UInt64Array
+
+
+class NativeInner(Struct):
+    x: UInt64
+    arr: Array[UInt64]
+
+
+class NativeOuter(Struct):
+    y: UInt64
+    inner: NativeInner
 
 
 class BoxReadForwarding(ARC4Contract):
@@ -18,12 +39,21 @@ class BoxReadForwarding(ARC4Contract):
         self.b = Box(Bytes, key=b"b")
         self.a = Box(UInt64Array, key=b"a")
         self.d = Box(Inner, key=b"d")
+        self.t = Box(arc4.DynamicArray[UInt64], key=b"t")
+        self.n = Box(NativeInner, key=b"n")
+        self.o = Box(NativeOuter, key=b"o")
 
     @arc4.abimethod
     def run_all(self) -> None:
         self.b.value = Bytes(b"abcd")
         self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
         self.d.value = Inner(x=arc4.UInt64(1), arr=UInt64Array(arc4.UInt64(1), arc4.UInt64(2)))
+        self.t.value = arc4.DynamicArray[UInt64](UInt64(1), UInt64(2))
+        self.n.value = NativeInner(x=UInt64(1), arr=Array[UInt64]((UInt64(1), UInt64(2))))
+        self.o.value = NativeOuter(
+            y=UInt64(1),
+            inner=NativeInner(x=UInt64(1), arr=Array[UInt64]((UInt64(1), UInt64(2)))),
+        )
 
         self.bytes_len_after_put()
         self.bytes_extract_after_splice()
@@ -34,6 +64,14 @@ class BoxReadForwarding(ARC4Contract):
         self.array_element_after_set()
         self.array_append_write_back_after_put()
         self.struct_array_replaced_with_other_array()
+        self.array_two_copies_written_back_in_order()
+        self.nested_struct_copy_before_set()
+        self.nested_struct_copy_before_append()
+        self.native_field_copy_iterated_while_modified()
+
+    @arc4.abimethod
+    def pad(self) -> None:
+        """Does nothing, used to increase the opcode budget of a group"""
 
     @subroutine
     def bytes_len_after_put(self) -> None:
@@ -107,3 +145,39 @@ class BoxReadForwarding(ARC4Contract):
         m.arr = other.copy()
         self.d.value = m.copy()
         assert self.d.value.arr == UInt64Array(arc4.UInt64(5), arc4.UInt64(9))
+
+    @subroutine
+    def array_two_copies_written_back_in_order(self) -> None:
+        # the last write must replace the whole value
+        m0 = self.t.value.copy()
+        m0[0] = UInt64(123)
+        m1 = self.t.value.copy()
+        m1[1] = UInt64(321)
+        self.t.value = m0.copy()
+        self.t.value = m1.copy()
+        assert self.t.value == arc4.DynamicArray[UInt64](UInt64(1), UInt64(321))
+
+    @subroutine
+    def nested_struct_copy_before_set(self) -> None:
+        m = self.o.value.inner.copy()
+        self.o.value.inner.arr[0] = UInt64(7)
+        assert m.arr[0] == 1
+        assert self.o.value.inner.arr[0] == 7
+        self.o.value.inner.arr[0] = UInt64(1)
+
+    @subroutine
+    def nested_struct_copy_before_append(self) -> None:
+        m = self.o.value.inner.copy()
+        self.o.value.inner.arr.append(UInt64(9))
+        assert m.arr.length == 2
+        assert self.o.value.inner.arr.length == 3
+        assert self.o.value.inner.arr.pop() == 9
+
+    @subroutine
+    def native_field_copy_iterated_while_modified(self) -> None:
+        total = UInt64(0)
+        for item in self.n.value.arr.copy():
+            self.n.value.arr[1] = UInt64(100)
+            total += item
+        assert total == 3
+        self.n.value.arr[1] = UInt64(2)
