@@ -17,3 +17,11 @@ class BoxReadForwarding(algopy.arc4.ARC4Client, typing.Protocol):
     def run_all(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def pad(
+        self,
+    ) -> None:
+        """
+        Does nothing, used to increase the opcode budget of a group
+        """
