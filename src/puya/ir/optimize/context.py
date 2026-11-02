@@ -14,4 +14,5 @@ class IROptimizationContext(ArtifactCompileContext):
     inlineable_calls: set[tuple[str, str]] = attrs.field(factory=set)
     """src -> dst pairs that can/should be inlined"""
     constant_with_constant_args: dict[str, bool] = attrs.field(factory=dict)
+    box_modifying_subroutines: set[str] = attrs.field(factory=set)
     embedded_funcs: Mapping[PuyaLibIR, models.Subroutine]

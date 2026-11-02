@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence, Set
 
 import attrs
 
@@ -12,8 +12,9 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import OpFactory
+from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
+from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.types_ import EncodedType, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -25,7 +26,7 @@ logger = log.get_logger(__name__)
 def replace_aggregate_box_ops(
     context: IROptimizationContext, subroutine: models.Subroutine
 ) -> bool:
-    aggregates = _AggregateCollector()
+    aggregates = _AggregateCollector(box_modifying_subroutines=context.box_modifying_subroutines)
     for block in subroutine.body:
         aggregates.block_ops[block] = block.ops.copy()
         for index, block_op in enumerate(block.ops):
@@ -71,6 +72,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
     """position of each op in the original IR"""
     block_ops: dict[models.BasicBlock, list[models.Op]] = attrs.field(factory=dict)
     """ops of each block in the original IR"""
+    box_modifying_subroutines: Set[str]
     _assignment: models.Assignment | None = None
     _target: models.Register | None = None
     has_array_length: bool = False
@@ -128,7 +130,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
             # read, otherwise only the ops before the use are between
             use_block_ops = self.block_ops[use_block]
             between.extend(use_block_ops if use_block in before_use else use_block_ops[:use_index])
-        return all(_cannot_modify_boxes(op) for op in between)
+        return all(_cannot_modify_boxes(op, self.box_modifying_subroutines) for op in between)
 
     @typing.override
     def visit_array_length(self, read: models.ArrayLength) -> None:
@@ -1122,21 +1124,15 @@ def _is_dynamic_array_fixed_element(
     return encoding.length_header and encoding.element.is_fixed
 
 
-# ops that can't modify any box, in addition to PURE_AVM_OPS
+# ops that can't modify any box
 _BOX_PRESERVING_OPS: typing.Final = frozenset(
     (
-        # reads
-        AVMOp.app_global_get,
-        AVMOp.app_global_get_ex,
-        AVMOp.app_local_get,
-        AVMOp.app_local_get_ex,
-        AVMOp.box_extract,
-        AVMOp.box_get,
-        AVMOp.box_len,
-        AVMOp.global_,
-        AVMOp.itxn,
-        AVMOp.load,
-        AVMOp.loads,
+        *SIDE_EFFECT_FREE_AVM_OPS,
+        # reads of another app's boxes
+        # TODO: should we include these into SIDE_EFFECT_FREE_AVM_OPS?
+        AVMOp.app_box_extract,
+        AVMOp.app_box_get,
+        AVMOp.app_box_len,
         # writes to non-box state
         AVMOp.app_global_del,
         AVMOp.app_global_put,
@@ -1152,7 +1148,25 @@ _BOX_PRESERVING_OPS: typing.Final = frozenset(
 )
 
 
-def _cannot_modify_boxes(op: models.Op) -> bool:
+def analyse_subroutines_for_box_modification(
+    context: IROptimizationContext, program: models.Program
+) -> None:
+    context.box_modifying_subroutines.clear()
+    call_graph = CallGraph(program)
+    # subroutines whose own ops may modify a box, ignoring their calls
+    direct = {
+        sub.id
+        for sub in program.all_subroutines
+        if not all(_cannot_modify_boxes(op, set()) for block in sub.body for op in block.ops)
+    }
+    context.box_modifying_subroutines.update(
+        sub.id
+        for sub in program.all_subroutines
+        if sub.id in direct or any(call_graph.has_path(sub.id, sub_id) for sub_id in direct)
+    )
+
+
+def _cannot_modify_boxes(op: models.Op, box_modifying_subroutines: Set[str]) -> bool:
     source = op.source if isinstance(op, models.Assignment) else op
     match source:
         case (
@@ -1174,10 +1188,11 @@ def _cannot_modify_boxes(op: models.Op) -> bool:
         ):
             return True
         case models.Intrinsic(op=avm_op):
-            return avm_op.code in PURE_AVM_OPS or avm_op in _BOX_PRESERVING_OPS
+            return avm_op in _BOX_PRESERVING_OPS
+        case models.InvokeSubroutine(target=target):
+            return target.id not in box_modifying_subroutines
         case _:
-            # notably BoxWrite, box modifying ops, inner transaction submission
-            # and subroutine calls
+            # notably BoxWrite, box modifying ops and inner transaction submission
             return False
 
 
