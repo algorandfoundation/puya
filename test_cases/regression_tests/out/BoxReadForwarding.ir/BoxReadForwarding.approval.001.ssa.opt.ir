@@ -16,10 +16,10 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@5: // call_NoOp_L32
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "run_all()void" => block@6, method "pad()void" => block@7, * => block@10}
-    block@6: // run_all_route_L46
+    block@6: // run_all_route_L47
         test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all[routing]()
         goto block@10
-    block@7: // pad_route_L72
+    block@7: // pad_route_L73
         test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.pad[routing]()
         goto block@10
     block@10: // after_if_else_L32
@@ -570,7 +570,7 @@ subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> v
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all[routing]() -> void:
-    block@0: // L46
+    block@0: // L47
         box_write(0x62, 0x61626364)
         let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(1u)
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(2u)
@@ -600,11 +600,11 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run
         exit 1u
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.pad[routing]() -> void:
-    block@0: // L72
+    block@0: // L73
         exit 1u
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_put() -> void:
-    block@0: // L76
+    block@0: // L77
         let m#0: bytes = box_read(0x62)
         box_write(0x62, 0x05)
         let tmp%0#0: uint64 = (len m#0)
@@ -614,7 +614,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.byt
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_extract_after_splice() -> void:
-    block@0: // L83
+    block@0: // L84
         let m#0: bytes = box_read(0x62)
         (box_splice 0x62 0u 1u 0x717171)
         let length%0#0: uint64 = (len m#0)
@@ -629,7 +629,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.byt
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_subroutine_write() -> void:
-    block@0: // L90
+    block@0: // L91
         let m#0: bytes = box_read(0x62)
         test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b()
         let tmp%0#0: uint64 = (len m#0)
@@ -639,20 +639,20 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.byt
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
-    block@0: // L97
+    block@0: // L98
         box_write(0x62, 0x78)
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_conditional_put() -> void:
-    block@0: // L101
+    block@0: // L102
         let m#0: bytes = box_read(0x62)
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         goto tmp%0#0 ? block@1 : block@2
-    block@1: // if_body_L105
+    block@1: // if_body_L106
         box_write(0x62, 0x78)
         goto block@2
-    block@2: // after_if_else_L104
+    block@2: // after_if_else_L105
         let tmp%2#0: uint64 = (len m#0)
         let tmp%3#0: bool = (== tmp%2#0 4u)
         (assert tmp%3#0)
@@ -660,29 +660,29 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.byt
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_in_loop_with_put() -> void:
-    block@0: // L109
+    block@0: // L110
         let m#0: bytes = box_read(0x62)
         let total#0: uint64 = 0u
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L113
+    block@1: // for_header_L114
         let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@2)
         let continue_looping%0#0: bool = (< _i#0 2u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L114
+    block@2: // for_body_L115
         let tmp%0#0: uint64 = (len m#0)
         let total#2: uint64 = (+ total#1 tmp%0#0)
         box_write(0x62, 0x78)
         let value_internal%0#2: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L113
+    block@4: // after_for_L114
         let tmp%2#0: bool = (== total#1 8u)
         (assert tmp%2#0)
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_len_after_append() -> void:
-    block@0: // L118
+    block@0: // L119
         let m#0: Encoded(len+uint64[]) = box_read(0x61)
         let storage_value%1#0: bytes = box_read(0x61)
         let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(9u)
@@ -699,7 +699,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.arr
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_element_after_set() -> void:
-    block@0: // L125
+    block@0: // L126
         let m#0: Encoded(len+uint64[]) = box_read(0x61)
         let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(7u)
         let storage_value%1#0: bytes = box_read(0x61)
@@ -718,7 +718,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.arr
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_append_write_back_after_put() -> void:
-    block@0: // L132
+    block@0: // L133
         let m#0: Encoded(len+uint64[]) = box_read(0x61)
         let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(7u)
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
@@ -736,7 +736,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.arr
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.struct_array_replaced_with_other_array() -> void:
-    block@0: // L140
+    block@0: // L141
         let m#0: Encoded(uint64,(len+uint64[])) = box_read(0x64)
         let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(5u)
         let other#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(tmp%0#0)
@@ -759,7 +759,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.str
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_two_copies_written_back_in_order() -> void:
-    block@0: // L149
+    block@0: // L150
         let m0#0: Encoded(len+uint64[]) = box_read(0x74)
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(123u)
         let m0#1: Encoded(len+uint64[]) = replace_value(m0#0, 0u, encoded_value%0#0)
@@ -778,7 +778,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.arr
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_set() -> void:
-    block@0: // L160
+    block@0: // L161
         let storage_value%0#0: bytes = box_read(0x6f)
         let m#0: Encoded(uint64,(len+uint64[])) = extract_value(storage_value%0#0, 1)
         let storage_value%1#0: bytes = box_read(0x6f)
@@ -839,7 +839,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nes
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_append() -> void:
-    block@0: // L168
+    block@0: // L169
         let storage_value%0#0: bytes = box_read(0x6f)
         let m#0: Encoded(uint64,(len+uint64[])) = extract_value(storage_value%0#0, 1)
         let storage_value%1#0: bytes = box_read(0x6f)
@@ -922,7 +922,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nes
         return 
 
 subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.native_field_copy_iterated_while_modified() -> void:
-    block@0: // L176
+    block@0: // L177
         let total#0: uint64 = 0u
         let storage_value%0#0: bytes = box_read(0x6e)
         let box%offset%0#0: uint64 = (+ 0u 10u)
@@ -938,12 +938,12 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nat
         let array_length%0#0: uint64 = box%btoi%1#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L179
+    block@1: // for_header_L180
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@2)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L180
+    block@2: // for_body_L181
         let array_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, 1, item_index_internal%0#1)
         let item#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let storage_value%1#0: bytes = box_read(0x6e)
@@ -957,7 +957,7 @@ subroutine test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nat
         let total#2: uint64 = (+ total#1 item#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L179
+    block@4: // after_for_L180
         let tmp%2#0: bool = (== total#1 3u)
         (assert tmp%2#0)
         let storage_value%2#0: bytes = box_read(0x6e)

@@ -3,10 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 2 0 1
-    bytecblock 0x62 0x6f 0x61 0x64 0x74 0x6e 0x61626364 0x000200000000000000010000000000000002 0x78 0x0000000000000001000a000200000000000000010000000000000002 0x000200000000000000050000000000000009
-    intc_2 // 0
-    dup
+    intcblock 2 8 1 0
+    bytecblock 0x62 0x61 0x6f 0x64 0x74 0x6e 0x61626364 0x000200000000000000010000000000000002 0x78 0x0000000000000001000a000200000000000000010000000000000002 0x000200000000000000050000000000000009
     txn NumAppArgs
     bz main___algopy_default_create@11
     txn OnCompletion
@@ -20,7 +18,7 @@ main:
     err
 
 main_pad_route@7:
-    intc_3 // 1
+    intc_2 // 1
     return
 
 main_run_all_route@6:
@@ -30,16 +28,10 @@ main_run_all_route@6:
     bytec_0 // 0x62
     bytec 6 // 0x61626364
     box_put
-    intc_3 // 1
-    itob
-    bury 2
-    intc_1 // 2
-    itob
-    bury 1
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     box_del
     pop
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     bytec 7 // 0x000200000000000000010000000000000002
     box_put
     bytec_3 // 0x64
@@ -60,12 +52,79 @@ main_run_all_route@6:
     bytec 5 // 0x6e
     bytec 9 // 0x0000000000000001000a000200000000000000010000000000000002
     box_put
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     box_del
     pop
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushbytes 0x0000000000000001000a0000000000000001000a000200000000000000010000000000000002
     box_put
+    callsub bytes_len_after_put
+    callsub bytes_extract_after_splice
+    callsub bytes_len_after_subroutine_write
+    callsub bytes_len_after_conditional_put
+    callsub bytes_len_in_loop_with_put
+    callsub array_len_after_append
+    callsub array_element_after_set
+    callsub array_append_write_back_after_put
+    callsub struct_array_replaced_with_other_array
+    callsub array_two_copies_written_back_in_order
+    callsub nested_struct_copy_before_set
+    callsub nested_struct_copy_before_append
+    callsub native_field_copy_iterated_while_modified
+    intc_2 // 1
+    return
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+box_dynamic_array_concat_fixed:
+    proto 5 0
+    frame_dig -5
+    dup
+    frame_dig -4
+    intc_0 // 2
+    box_extract
+    btoi
+    frame_dig -5
+    dup
+    box_len
+    pop
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    box_resize
+    dup
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    frame_dig -4
+    intc_0 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    intc_3 // 0
+    frame_dig -3
+    box_splice
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_put() -> void:
+bytes_len_after_put:
     bytec_0 // 0x62
     box_get
     assert // check self.b exists
@@ -85,122 +144,240 @@ main_run_all_route@6:
     bytec_0 // 0x62
     bytec 6 // 0x61626364
     box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_extract_after_splice() -> void:
+bytes_extract_after_splice:
     bytec_0 // 0x62
-    intc_2 // 0
-    intc_3 // 1
+    box_get
+    assert // check self.b exists
+    bytec_0 // 0x62
+    intc_3 // 0
+    intc_2 // 1
     pushbytes 0x717171
     box_splice
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 6 // 0x61626364
-    box_put
-    callsub write_b
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 6 // 0x61626364
-    box_put
-    txn NumAppArgs
-    bz main_after_if_else@20
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 8 // 0x78
-    box_put
-
-main_after_if_else@20:
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 6 // 0x61626364
-    box_put
-    intc_2 // 0
     dup
-
-main_for_header@23:
-    dup
-    intc_1 // 2
-    <
-    bz main_after_for@25
-    swap
-    pushint 4
-    +
-    swap
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 8 // 0x78
-    box_put
-    intc_3 // 1
-    +
-    b main_for_header@23
-
-main_after_for@25:
-    pop
-    intc_0 // 8
+    len
+    intc_3 // 0
+    dig 1
+    >=
+    intc_3 // 0
+    dig 2
+    uncover 2
+    select
+    intc_0 // 2
+    dig 2
+    >=
+    intc_0 // 2
+    uncover 3
+    uncover 2
+    select
+    substring3
+    pushbytes 0x6162
     ==
     assert
-    bytec_2 // 0x61
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 6 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_subroutine_write() -> void:
+bytes_len_after_subroutine_write:
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    callsub write_b
+    len
+    pushint 4
+    ==
+    assert
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 6 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
+write_b:
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 8 // 0x78
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_conditional_put() -> void:
+bytes_len_after_conditional_put:
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    txn NumAppArgs
+    bz bytes_len_after_conditional_put_after_if_else@2
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 8 // 0x78
+    box_put
+
+bytes_len_after_conditional_put_after_if_else@2:
+    len
+    pushint 4
+    ==
+    assert
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 6 // 0x61626364
+    box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_in_loop_with_put() -> void:
+bytes_len_in_loop_with_put:
+    proto 0 0
+    bytec_0 // 0x62
+    box_get
+    assert // check self.b exists
+    intc_3 // 0
+    dup
+
+bytes_len_in_loop_with_put_for_header@1:
+    dup
+    intc_0 // 2
+    <
+    bz bytes_len_in_loop_with_put_after_for@4
+    dig 2
+    len
+    uncover 2
+    +
+    swap
+    bytec_0 // 0x62
+    box_del
+    pop
+    bytec_0 // 0x62
+    bytec 8 // 0x78
+    box_put
+    intc_2 // 1
+    +
+    b bytes_len_in_loop_with_put_for_header@1
+
+bytes_len_in_loop_with_put_after_for@4:
+    pop
+    intc_1 // 8
+    ==
+    assert
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_len_after_append() -> void:
+array_len_after_append:
+    bytec_1 // 0x61
     box_get
     assert // check self.a exists
+    bytec_1 // 0x61
+    intc_3 // 0
     pushint 9
     itob
-    bytec_2 // 0x61
-    intc_2 // 0
-    dig 2
-    intc_3 // 1
-    intc_0 // 8
+    intc_2 // 1
+    intc_1 // 8
     callsub box_dynamic_array_concat_fixed
-    swap
-    intc_2 // 0
+    intc_3 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
+    intc_0 // 2
     ==
     assert
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     box_del
     pop
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     bytec 7 // 0x000200000000000000010000000000000002
     box_put
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_element_after_set() -> void:
+array_element_after_set:
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    bytec_1 // 0x61
+    intc_0 // 2
     pushint 7
     itob
-    bytec_2 // 0x61
-    intc_1 // 2
-    dig 2
     box_replace // on error: index out of bounds
-    bytec_2 // 0x61
+    extract 2 8
+    intc_2 // 1
+    itob
+    b==
+    assert
+    bytec_1 // 0x61
     box_del
     pop
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     bytec 7 // 0x000200000000000000010000000000000002
     box_put
-    bytec_2 // 0x61
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_append_write_back_after_put() -> void:
+array_append_write_back_after_put:
+    bytec_1 // 0x61
+    box_get
+    assert // check self.a exists
+    bytec_1 // 0x61
     box_del
     pop
-    bytec_2 // 0x61
+    bytec_1 // 0x61
     pushbytes 0x00010000000000000007
     box_put
-    bytec_2 // 0x61
+    pushint 9
+    itob
+    dig 1
+    intc_3 // 0
+    extract_uint16
+    intc_2 // 1
+    +
+    itob
+    extract 6 0
+    uncover 2
+    swap
+    replace2 0
+    swap
+    concat
+    bytec_1 // 0x61
     box_del
     pop
-    bytec_2 // 0x61
-    pushbytes 0x0003000000000000000100000000000000020000000000000009
+    bytec_1 // 0x61
+    dig 1
     box_put
+    pushbytes 0x0003000000000000000100000000000000020000000000000009
+    ==
+    assert
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.struct_array_replaced_with_other_array() -> void:
+struct_array_replaced_with_other_array:
     bytec_3 // 0x64
     dup
     box_get
     assert // check self.d exists
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
-    intc_2 // 0
+    intc_3 // 0
     swap
     extract3
     bytec 10 // 0x000200000000000000050000000000000009
@@ -211,12 +388,12 @@ main_after_for@25:
     box_put
     bytec_3 // 0x64
     pushint 10
-    intc_1 // 2
+    intc_0 // 2
     box_extract
     btoi
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_1 // 2
+    intc_0 // 2
     +
     bytec_3 // 0x64
     pushint 10
@@ -225,6 +402,11 @@ main_after_for@25:
     bytec 10 // 0x000200000000000000050000000000000009
     ==
     assert
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_two_copies_written_back_in_order() -> void:
+array_two_copies_written_back_in_order:
     bytec 4 // 0x74
     box_get
     assert // check self.t exists
@@ -232,7 +414,7 @@ main_after_for@25:
     itob
     replace2 10 // on error: index access is out of bounds
     bytec 4 // 0x74
-    intc_1 // 2
+    intc_0 // 2
     pushint 123
     itob
     box_replace // on error: index out of bounds
@@ -245,83 +427,96 @@ main_after_for@25:
     pushbytes 0x000200000000000000010000000000000141
     ==
     assert
-    bytec_1 // 0x6f
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_set() -> void:
+nested_struct_copy_before_set:
+    bytec_2 // 0x6f
     box_get
     assert // check self.o exists
-    bytec_1 // 0x6f
+    pushint 7
+    itob
+    bytec_2 // 0x6f
     pushint 20
-    intc_1 // 2
+    intc_0 // 2
     box_extract
     btoi
     assert // index out of bounds
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 22
-    uncover 3
+    uncover 2
     box_replace // on error: index out of bounds
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
     dig 1
     len
     substring3
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
     dig 1
     len
     substring3
-    intc_1 // 2
+    intc_0 // 2
     extract_uint64
-    intc_3 // 1
+    intc_2 // 1
     ==
     assert
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 20
-    intc_1 // 2
+    intc_0 // 2
     box_extract
     btoi
     assert // index out of bounds
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 22
-    intc_0 // 8
+    intc_1 // 8
     box_extract // on error: index out of bounds
     btoi
     pushint 7
     ==
     assert
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 22
-    dig 4
+    intc_2 // 1
+    itob
     box_replace // on error: index out of bounds
-    bytec_1 // 0x6f
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_append() -> void:
+nested_struct_copy_before_append:
+    bytec_2 // 0x6f
     box_get
-    pop
-    bytec_1 // 0x6f
-    pushint 20
-    uncover 3
-    intc_3 // 1
-    intc_0 // 8
+    assert // check self.o exists
+    bytec_2 // 0x6f
+    pushints 20 9
+    itob
+    intc_2 // 1
+    intc_1 // 8
     callsub box_dynamic_array_concat_fixed
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
     dig 1
     len
     substring3
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
     dig 1
     len
     substring3
-    intc_2 // 0
+    intc_3 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
+    intc_0 // 2
     ==
     assert
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 20
-    intc_1 // 2
+    intc_0 // 2
     box_extract
     btoi
     dup
@@ -329,153 +524,96 @@ main_after_for@25:
     ==
     assert
     dup
-    intc_3 // 1
+    intc_2 // 1
     - // on error: cannot pop from empty array
     dup
     uncover 2
     <
     assert // index out of bounds
     dup
-    intc_0 // 8
+    intc_1 // 8
     *
     pushint 22
     +
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     dig 1
-    intc_0 // 8
+    intc_1 // 8
     box_extract // on error: index out of bounds
     btoi
     uncover 2
     itob
     extract 6 2
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     pushint 20
     uncover 2
     box_replace
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     uncover 2
-    intc_0 // 8
+    intc_1 // 8
     pushbytes 0x
     box_splice
-    bytec_1 // 0x6f
+    bytec_2 // 0x6f
     dup
     box_len
     pop
-    intc_0 // 8
+    intc_1 // 8
     -
     box_resize
     pushint 9
     ==
     assert
-    intc_2 // 0
+    retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.native_field_copy_iterated_while_modified() -> void:
+native_field_copy_iterated_while_modified:
+    intc_3 // 0
     bytec 5 // 0x6e
     box_get
-    swap
-    cover 2
     assert // check self.n exists
     bytec 5 // 0x6e
     pushint 10
-    intc_1 // 2
+    intc_0 // 2
     box_extract
     btoi
-    swap
-    intc_2 // 0
+    intc_3 // 0
 
-main_for_header@42:
+native_field_copy_iterated_while_modified_for_header@1:
     dup
-    dig 3
+    dig 2
     <
-    bz main_after_for@44
-    dig 3
+    bz native_field_copy_iterated_while_modified_after_for@4
+    dig 2
     dup
-    intc_0 // 8
+    intc_1 // 8
     extract_uint16
     dig 1
     len
     substring3
     extract 2 0
     dig 1
-    intc_0 // 8
+    intc_1 // 8
     *
     extract_uint64
     bytec 5 // 0x6e
     pushints 20 100
     itob
     box_replace // on error: index out of bounds
-    uncover 2
+    uncover 4
     +
-    swap
-    intc_3 // 1
+    cover 3
+    intc_2 // 1
     +
-    b main_for_header@42
+    b native_field_copy_iterated_while_modified_for_header@1
 
-main_after_for@44:
-    pop
+native_field_copy_iterated_while_modified_after_for@4:
+    popn 3
     pushint 3
     ==
     assert
     bytec 5 // 0x6e
     pushint 20
-    dig 4
-    box_replace // on error: index out of bounds
-    intc_3 // 1
-    return
-
-main___algopy_default_create@11:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return
-
-
-// _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
-box_dynamic_array_concat_fixed:
-    proto 5 0
-    frame_dig -5
-    dup
-    frame_dig -4
-    intc_1 // 2
-    box_extract
-    btoi
-    frame_dig -5
-    dup
-    box_len
-    pop
-    frame_dig -2
-    frame_dig -1
-    *
-    +
-    box_resize
-    dup
-    frame_dig -2
-    +
+    intc_0 // 2
     itob
-    extract 6 2
-    frame_dig -5
-    frame_dig -4
-    uncover 2
-    box_replace
-    frame_dig -4
-    intc_1 // 2
-    +
-    swap
-    frame_dig -1
-    *
-    +
-    intc_2 // 0
-    frame_dig -3
-    box_splice
-    retsub
-
-
-// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
-write_b:
-    bytec_0 // 0x62
-    box_del
-    pop
-    bytec_0 // 0x62
-    bytec 8 // 0x78
-    box_put
+    box_replace // on error: index out of bounds
     retsub

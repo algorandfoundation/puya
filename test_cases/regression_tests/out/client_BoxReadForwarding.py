@@ -11,6 +11,7 @@ class BoxReadForwarding(algopy.arc4.ARC4Client, typing.Protocol):
 
         A value read from a box must not observe later modifications to that box.
         Cases restore any box they modify that a later case reads.
+        Cases are not inlined, so each one is compiled to its own subroutine.
     
     """
     @algopy.arc4.abimethod

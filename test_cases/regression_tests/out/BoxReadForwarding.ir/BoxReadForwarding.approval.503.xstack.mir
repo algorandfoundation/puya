@@ -22,13 +22,13 @@ subroutine main:
         match main_run_all_route@6 main_pad_route@7 ; b main_after_if_else@10
 
     main_run_all_route@6:
-        // regression_tests/box_read_forwarding.py:46
+        // regression_tests/box_read_forwarding.py:47
         // @arc4.abimethod
         callsub run_all
         b main_after_if_else@10
 
     main_pad_route@7:
-        // regression_tests/box_read_forwarding.py:72
+        // regression_tests/box_read_forwarding.py:73
         // @arc4.abimethod
         int 1                                                                                      1
         return
@@ -101,7 +101,7 @@ subroutine box_dynamic_array_concat_fixed:
 // test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.run_all[routing]() -> void:
 subroutine run_all:
     run_all_block@0:
-        // regression_tests/box_read_forwarding.py:48
+        // regression_tests/box_read_forwarding.py:49
         // self.b.value = Bytes(b"abcd")
         byte 0x62                                                                                  0x62
         box_del                                                                                    {box_del}
@@ -109,21 +109,15 @@ subroutine run_all:
         byte 0x62                                                                                  0x62
         byte 0x61626364                                                                            0x62,0x61626364
         box_put
-        // regression_tests/box_read_forwarding.py:49
+        // regression_tests/box_read_forwarding.py:50
         // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        int 1                                                                                      1
-        itob                                                                                       aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
-        int 2                                                                                      2
-        itob                                                                                       aggregate%val_as_bytes%1#0
-        v-store aggregate%val_as_bytes%1#0
         byte 0x61                                                                                  0x61
         box_del                                                                                    {box_del}
         pop 1
         byte 0x61                                                                                  0x61
         byte 0x000200000000000000010000000000000002                                                0x61,0x000200000000000000010000000000000002
         box_put
-        // regression_tests/box_read_forwarding.py:50
+        // regression_tests/box_read_forwarding.py:51
         // self.d.value = Inner(x=arc4.UInt64(1), arr=UInt64Array(arc4.UInt64(1), arc4.UInt64(2)))
         byte 0x64                                                                                  0x64
         box_del                                                                                    {box_del}
@@ -131,7 +125,7 @@ subroutine run_all:
         byte 0x64                                                                                  0x64
         byte 0x0000000000000001000a000200000000000000010000000000000002                            0x64,0x0000000000000001000a000200000000000000010000000000000002
         box_put
-        // regression_tests/box_read_forwarding.py:51
+        // regression_tests/box_read_forwarding.py:52
         // self.t.value = arc4.DynamicArray[UInt64](UInt64(1), UInt64(2))
         byte 0x74                                                                                  0x74
         box_del                                                                                    {box_del}
@@ -139,7 +133,7 @@ subroutine run_all:
         byte 0x74                                                                                  0x74
         byte 0x000200000000000000010000000000000002                                                0x74,0x000200000000000000010000000000000002
         box_put
-        // regression_tests/box_read_forwarding.py:52
+        // regression_tests/box_read_forwarding.py:53
         // self.n.value = NativeInner(x=UInt64(1), arr=Array[UInt64]((UInt64(1), UInt64(2))))
         byte 0x6e                                                                                  0x6e
         box_del                                                                                    {box_del}
@@ -147,32 +141,80 @@ subroutine run_all:
         byte 0x6e                                                                                  0x6e
         byte 0x0000000000000001000a000200000000000000010000000000000002                            0x6e,0x0000000000000001000a000200000000000000010000000000000002
         box_put
-        // regression_tests/box_read_forwarding.py:53
+        // regression_tests/box_read_forwarding.py:54
         // self.o.value = NativeOuter(
         byte 0x6f                                                                                  0x6f
-        // regression_tests/box_read_forwarding.py:53-56
+        // regression_tests/box_read_forwarding.py:54-57
         // self.o.value = NativeOuter(
         //     y=UInt64(1),
         //     inner=NativeInner(x=UInt64(1), arr=Array[UInt64]((UInt64(1), UInt64(2)))),
         // )
         box_del                                                                                    {box_del}
         pop 1
-        // regression_tests/box_read_forwarding.py:53
+        // regression_tests/box_read_forwarding.py:54
         // self.o.value = NativeOuter(
         byte 0x6f                                                                                  0x6f
-        // regression_tests/box_read_forwarding.py:53-56
+        // regression_tests/box_read_forwarding.py:54-57
         // self.o.value = NativeOuter(
         //     y=UInt64(1),
         //     inner=NativeInner(x=UInt64(1), arr=Array[UInt64]((UInt64(1), UInt64(2)))),
         // )
         byte 0x0000000000000001000a0000000000000001000a000200000000000000010000000000000002 0x6f,0x0000000000000001000a0000000000000001000a000200000000000000010000000000000002
         box_put
-        // regression_tests/box_read_forwarding.py:78
+        // regression_tests/box_read_forwarding.py:59
+        // self.bytes_len_after_put()
+        callsub bytes_len_after_put
+        // regression_tests/box_read_forwarding.py:60
+        // self.bytes_extract_after_splice()
+        callsub bytes_extract_after_splice
+        // regression_tests/box_read_forwarding.py:61
+        // self.bytes_len_after_subroutine_write()
+        callsub bytes_len_after_subroutine_write
+        // regression_tests/box_read_forwarding.py:62
+        // self.bytes_len_after_conditional_put()
+        callsub bytes_len_after_conditional_put
+        // regression_tests/box_read_forwarding.py:63
+        // self.bytes_len_in_loop_with_put()
+        callsub bytes_len_in_loop_with_put
+        // regression_tests/box_read_forwarding.py:64
+        // self.array_len_after_append()
+        callsub array_len_after_append
+        // regression_tests/box_read_forwarding.py:65
+        // self.array_element_after_set()
+        callsub array_element_after_set
+        // regression_tests/box_read_forwarding.py:66
+        // self.array_append_write_back_after_put()
+        callsub array_append_write_back_after_put
+        // regression_tests/box_read_forwarding.py:67
+        // self.struct_array_replaced_with_other_array()
+        callsub struct_array_replaced_with_other_array
+        // regression_tests/box_read_forwarding.py:68
+        // self.array_two_copies_written_back_in_order()
+        callsub array_two_copies_written_back_in_order
+        // regression_tests/box_read_forwarding.py:69
+        // self.nested_struct_copy_before_set()
+        callsub nested_struct_copy_before_set
+        // regression_tests/box_read_forwarding.py:70
+        // self.nested_struct_copy_before_append()
+        callsub nested_struct_copy_before_append
+        // regression_tests/box_read_forwarding.py:71
+        // self.native_field_copy_iterated_while_modified()
+        callsub native_field_copy_iterated_while_modified
+        // regression_tests/box_read_forwarding.py:47
+        // @arc4.abimethod
+        int 1                                                                                      1
+        return
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_put() -> void:
+subroutine bytes_len_after_put:
+    bytes_len_after_put_block@0:
+        // regression_tests/box_read_forwarding.py:79
         // m = self.b.value
         byte 0x62                                                                                  0x62
         box_get                                                                                    m#0,aggregate%box_get%1#0
         assert // check self.b exists                                                              m#0
-        // regression_tests/box_read_forwarding.py:79
+        // regression_tests/box_read_forwarding.py:80
         // self.b.value = Bytes(b"\x05")
         byte 0x62                                                                                  m#0,0x62
         box_del                                                                                    m#0,{box_del}
@@ -180,14 +222,14 @@ subroutine run_all:
         byte 0x62                                                                                  m#0,0x62
         byte 0x05                                                                                  m#0,0x62,0x05
         box_put                                                                                    m#0
-        // regression_tests/box_read_forwarding.py:80
+        // regression_tests/box_read_forwarding.py:81
         // assert m.length == 4
         l-load m#0 0                                                                               m#0
-        len                                                                                        tmp%0#1
-        int 4                                                                                      tmp%0#1,4
-        ==                                                                                         tmp%1#1
+        len                                                                                        tmp%0#0
+        int 4                                                                                      tmp%0#0,4
+        ==                                                                                         tmp%1#0
         assert
-        // regression_tests/box_read_forwarding.py:81
+        // regression_tests/box_read_forwarding.py:82
         // self.b.value = Bytes(b"abcd")
         byte 0x62                                                                                  0x62
         box_del                                                                                    {box_del}
@@ -195,39 +237,93 @@ subroutine run_all:
         byte 0x62                                                                                  0x62
         byte 0x61626364                                                                            0x62,0x61626364
         box_put
-        // regression_tests/box_read_forwarding.py:86
-        // self.b.splice(0, 1, b"qqq")
-        byte 0x62                                                                                  0x62
-        int 0                                                                                      0x62,0
-        int 1                                                                                      0x62,0,1
-        byte 0x717171                                                                              0x62,0,1,0x717171
-        box_splice
-        // regression_tests/box_read_forwarding.py:88
-        // self.b.value = Bytes(b"abcd")
-        byte 0x62                                                                                  0x62
-        box_del                                                                                    {box_del}
-        pop 1
-        byte 0x62                                                                                  0x62
-        byte 0x61626364                                                                            0x62,0x61626364
-        box_put
-        // regression_tests/box_read_forwarding.py:93
-        // self.write_b()
-        callsub write_b
-        // regression_tests/box_read_forwarding.py:95
-        // self.b.value = Bytes(b"abcd")
-        byte 0x62                                                                                  0x62
-        box_del                                                                                    {box_del}
-        pop 1
-        byte 0x62                                                                                  0x62
-        byte 0x61626364                                                                            0x62,0x61626364
-        box_put
-        // regression_tests/box_read_forwarding.py:104
-        // if Txn.num_app_args:  # always true, but not known at compile time
-        txn NumAppArgs                                                                             tmp%0#1
-        bz run_all_after_if_else@9 ; b run_all_if_body@8
+        retsub
 
-    run_all_if_body@8:
-        // regression_tests/box_read_forwarding.py:105
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_extract_after_splice() -> void:
+subroutine bytes_extract_after_splice:
+    bytes_extract_after_splice_block@0:
+        // regression_tests/box_read_forwarding.py:86
+        // m = self.b.value
+        byte 0x62                                                                                  0x62
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        assert // check self.b exists                                                              m#0
+        // regression_tests/box_read_forwarding.py:87
+        // self.b.splice(0, 1, b"qqq")
+        byte 0x62                                                                                  m#0,0x62
+        int 0                                                                                      m#0,0x62,0
+        int 1                                                                                      m#0,0x62,0,1
+        byte 0x717171                                                                              m#0,0x62,0,1,0x717171
+        box_splice                                                                                 m#0
+        // regression_tests/box_read_forwarding.py:88
+        // assert m[0:2] == b"ab"
+        l-load-copy m#0 0                                                                          m#0,m#0 (copy)
+        len                                                                                        m#0,length%0#0
+        int 0                                                                                      m#0,length%0#0,0
+        l-load-copy length%0#0 1                                                                   m#0,length%0#0,0,length%0#0 (copy)
+        >=                                                                                         m#0,length%0#0,is_out_of_bounds%0#0
+        int 0                                                                                      m#0,length%0#0,is_out_of_bounds%0#0,0
+        l-load-copy length%0#0 2                                                                   m#0,length%0#0,is_out_of_bounds%0#0,0,length%0#0 (copy)
+        l-load is_out_of_bounds%0#0 2                                                              m#0,length%0#0,0,length%0#0 (copy),is_out_of_bounds%0#0
+        select                                                                                     m#0,length%0#0,bounded_index%0#0
+        int 2                                                                                      m#0,length%0#0,bounded_index%0#0,2
+        l-load-copy length%0#0 2                                                                   m#0,length%0#0,bounded_index%0#0,2,length%0#0 (copy)
+        >=                                                                                         m#0,length%0#0,bounded_index%0#0,is_out_of_bounds%1#0
+        int 2                                                                                      m#0,length%0#0,bounded_index%0#0,is_out_of_bounds%1#0,2
+        l-load length%0#0 3                                                                        m#0,bounded_index%0#0,is_out_of_bounds%1#0,2,length%0#0
+        l-load is_out_of_bounds%1#0 2                                                              m#0,bounded_index%0#0,2,length%0#0,is_out_of_bounds%1#0
+        select                                                                                     m#0,bounded_index%0#0,bounded_index%1#0
+        l-load m#0 2                                                                               bounded_index%0#0,bounded_index%1#0,m#0
+        l-load bounded_index%0#0 2                                                                 bounded_index%1#0,m#0,bounded_index%0#0
+        l-load bounded_index%1#0 2                                                                 m#0,bounded_index%0#0,bounded_index%1#0
+        substring3                                                                                 tmp%0#0
+        byte 0x6162                                                                                tmp%0#0,0x6162
+        ==                                                                                         tmp%1#0
+        assert
+        // regression_tests/box_read_forwarding.py:89
+        // self.b.value = Bytes(b"abcd")
+        byte 0x62                                                                                  0x62
+        box_del                                                                                    {box_del}
+        pop 1
+        byte 0x62                                                                                  0x62
+        byte 0x61626364                                                                            0x62,0x61626364
+        box_put
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_subroutine_write() -> void:
+subroutine bytes_len_after_subroutine_write:
+    bytes_len_after_subroutine_write_block@0:
+        // regression_tests/box_read_forwarding.py:93
+        // m = self.b.value
+        byte 0x62                                                                                  0x62
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        assert // check self.b exists                                                              m#0
+        // regression_tests/box_read_forwarding.py:94
+        // self.write_b()
+        callsub write_b                                                                            m#0
+        // regression_tests/box_read_forwarding.py:95
+        // assert m.length == 4
+        l-load m#0 0                                                                               m#0
+        len                                                                                        tmp%0#0
+        int 4                                                                                      tmp%0#0,4
+        ==                                                                                         tmp%1#0
+        assert
+        // regression_tests/box_read_forwarding.py:96
+        // self.b.value = Bytes(b"abcd")
+        byte 0x62                                                                                  0x62
+        box_del                                                                                    {box_del}
+        pop 1
+        byte 0x62                                                                                  0x62
+        byte 0x61626364                                                                            0x62,0x61626364
+        box_put
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
+subroutine write_b:
+    write_b_block@0:
+        // regression_tests/box_read_forwarding.py:100
         // self.b.value = Bytes(b"x")
         byte 0x62                                                                                  0x62
         box_del                                                                                    {box_del}
@@ -235,10 +331,45 @@ subroutine run_all:
         byte 0x62                                                                                  0x62
         byte 0x78                                                                                  0x62,0x78
         box_put
-        b run_all_after_if_else@9
+        retsub
 
-    run_all_after_if_else@9:
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_after_conditional_put() -> void:
+subroutine bytes_len_after_conditional_put:
+    bytes_len_after_conditional_put_block@0:
+        // regression_tests/box_read_forwarding.py:104
+        // m = self.b.value
+        byte 0x62                                                                                  0x62
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                            aggregate%box_get%1#0,m#0
+        x-store m#0                                                                                (𝕏) m#0 | aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                             (𝕏) m#0 | aggregate%box_get%1#0
+        assert // check self.b exists                                                              (𝕏) m#0 |
+        // regression_tests/box_read_forwarding.py:105
+        // if Txn.num_app_args:  # always true, but not known at compile time
+        txn NumAppArgs                                                                             (𝕏) m#0 | tmp%0#0
+        bz bytes_len_after_conditional_put_after_if_else@2 ; b bytes_len_after_conditional_put_if_body@1 (𝕏) m#0 | 
+
+    bytes_len_after_conditional_put_if_body@1:                                                     (𝕏) m#0 |
+        // regression_tests/box_read_forwarding.py:106
+        // self.b.value = Bytes(b"x")
+        byte 0x62                                                                                  (𝕏) m#0 | 0x62
+        box_del                                                                                    (𝕏) m#0 | {box_del}
+        pop 1                                                                                      (𝕏) m#0 |
+        byte 0x62                                                                                  (𝕏) m#0 | 0x62
+        byte 0x78                                                                                  (𝕏) m#0 | 0x62,0x78
+        box_put                                                                                    (𝕏) m#0 |
+        b bytes_len_after_conditional_put_after_if_else@2                                          (𝕏) m#0 |
+
+    bytes_len_after_conditional_put_after_if_else@2:                                               (𝕏) m#0 |
         // regression_tests/box_read_forwarding.py:107
+        // assert m.length == 4
+        x-load m#0                                                                                 m#0
+        len                                                                                        tmp%2#0
+        int 4                                                                                      tmp%2#0,4
+        ==                                                                                         tmp%3#0
+        assert
+        // regression_tests/box_read_forwarding.py:108
         // self.b.value = Bytes(b"abcd")
         byte 0x62                                                                                  0x62
         box_del                                                                                    {box_del}
@@ -246,315 +377,412 @@ subroutine run_all:
         byte 0x62                                                                                  0x62
         byte 0x61626364                                                                            0x62,0x61626364
         box_put
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.bytes_len_in_loop_with_put() -> void:
+subroutine bytes_len_in_loop_with_put:
+    bytes_len_in_loop_with_put_block@0:
         // regression_tests/box_read_forwarding.py:112
+        // m = self.b.value
+        byte 0x62                                                                                  0x62
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                            aggregate%box_get%1#0,m#0
+        x-store m#0                                                                                (𝕏) m#0 | aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                             (𝕏) m#0 | aggregate%box_get%1#0
+        assert // check self.b exists                                                              (𝕏) m#0 |
+        // regression_tests/box_read_forwarding.py:113
         // total = UInt64(0)
-        int 0                                                                                      0
-        x-store total#0                                                                            (𝕏) total#0 |
-        // regression_tests/box_read_forwarding.py:113
-        // for _i in urange(2):
-        int 0                                                                                      (𝕏) total#0 | value_internal%0#0
-        x-store _i#0                                                                               (𝕏) total#0,_i#0 |
-        b run_all_for_header@12                                                                    (𝕏) total#0,_i#0 |
-
-    run_all_for_header@12:                                                                         (𝕏) total#0,_i#0 |
-        // regression_tests/box_read_forwarding.py:113
-        // for _i in urange(2):
-        x-load-copy _i#0                                                                           (𝕏) total#0,_i#0 | _i#0 (copy)
-        int 2                                                                                      (𝕏) total#0,_i#0 | _i#0 (copy),2
-        <                                                                                          (𝕏) total#0,_i#0 | continue_looping%0#0
-        bz run_all_after_for@14 ; b run_all_for_body@13                                            (𝕏) total#0,_i#0 |
-
-    run_all_for_body@13:                                                                           (𝕏) total#0,_i#0 |
+        int 0                                                                                      (𝕏) m#0 | 0
+        x-store total#0                                                                            (𝕏) m#0,total#0 |
         // regression_tests/box_read_forwarding.py:114
-        // total += m.length
-        x-load total#0                                                                             (𝕏) _i#0 | total#0
-        int 4                                                                                      (𝕏) _i#0 | total#0,4
-        +                                                                                          (𝕏) _i#0 | total#0
-        x-store total#0                                                                            (𝕏) total#0,_i#0 |
-        // regression_tests/box_read_forwarding.py:115
-        // self.b.value = Bytes(b"x")
-        byte 0x62                                                                                  (𝕏) total#0,_i#0 | 0x62
-        box_del                                                                                    (𝕏) total#0,_i#0 | {box_del}
-        pop 1                                                                                      (𝕏) total#0,_i#0 |
-        byte 0x62                                                                                  (𝕏) total#0,_i#0 | 0x62
-        byte 0x78                                                                                  (𝕏) total#0,_i#0 | 0x62,0x78
-        box_put                                                                                    (𝕏) total#0,_i#0 |
-        // regression_tests/box_read_forwarding.py:113
         // for _i in urange(2):
-        x-load _i#0                                                                                (𝕏) total#0 | _i#0
-        int 1                                                                                      (𝕏) total#0 | _i#0,1
-        +                                                                                          (𝕏) total#0 | value_internal%0#0
-        x-store _i#0                                                                               (𝕏) total#0,_i#0 |
-        b run_all_for_header@12                                                                    (𝕏) total#0,_i#0 |
+        int 0                                                                                      (𝕏) m#0,total#0 | value_internal%0#0
+        x-store _i#0                                                                               (𝕏) m#0,total#0,_i#0 |
+        b bytes_len_in_loop_with_put_for_header@1                                                  (𝕏) m#0,total#0,_i#0 |
 
-    run_all_after_for@14:                                                                          (𝕏) total#0,_i#0 |
-        x-load _i#0                                                                                (𝕏) total#0 | _i#0
-        pop 1                                                                                      (𝕏) total#0 |
+    bytes_len_in_loop_with_put_for_header@1:                                                       (𝕏) m#0,total#0,_i#0 |
+        // regression_tests/box_read_forwarding.py:114
+        // for _i in urange(2):
+        x-load-copy _i#0                                                                           (𝕏) m#0,total#0,_i#0 | _i#0 (copy)
+        int 2                                                                                      (𝕏) m#0,total#0,_i#0 | _i#0 (copy),2
+        <                                                                                          (𝕏) m#0,total#0,_i#0 | continue_looping%0#0
+        bz bytes_len_in_loop_with_put_after_for@4 ; b bytes_len_in_loop_with_put_for_body@2 (𝕏) m#0,total#0,_i#0 | 
+
+    bytes_len_in_loop_with_put_for_body@2:                                                         (𝕏) m#0,total#0,_i#0 |
+        // regression_tests/box_read_forwarding.py:115
+        // total += m.length
+        x-load-copy m#0                                                                            (𝕏) m#0,total#0,_i#0 | m#0 (copy)
+        len                                                                                        (𝕏) m#0,total#0,_i#0 | tmp%0#0
+        x-load total#0                                                                             (𝕏) m#0,_i#0 | tmp%0#0,total#0
+        l-load tmp%0#0 1                                                                           (𝕏) m#0,_i#0 | total#0,tmp%0#0
+        +                                                                                          (𝕏) m#0,_i#0 | total#0
+        x-store total#0                                                                            (𝕏) m#0,total#0,_i#0 |
         // regression_tests/box_read_forwarding.py:116
+        // self.b.value = Bytes(b"x")
+        byte 0x62                                                                                  (𝕏) m#0,total#0,_i#0 | 0x62
+        box_del                                                                                    (𝕏) m#0,total#0,_i#0 | {box_del}
+        pop 1                                                                                      (𝕏) m#0,total#0,_i#0 |
+        byte 0x62                                                                                  (𝕏) m#0,total#0,_i#0 | 0x62
+        byte 0x78                                                                                  (𝕏) m#0,total#0,_i#0 | 0x62,0x78
+        box_put                                                                                    (𝕏) m#0,total#0,_i#0 |
+        // regression_tests/box_read_forwarding.py:114
+        // for _i in urange(2):
+        x-load _i#0                                                                                (𝕏) m#0,total#0 | _i#0
+        int 1                                                                                      (𝕏) m#0,total#0 | _i#0,1
+        +                                                                                          (𝕏) m#0,total#0 | value_internal%0#0
+        x-store _i#0                                                                               (𝕏) m#0,total#0,_i#0 |
+        b bytes_len_in_loop_with_put_for_header@1                                                  (𝕏) m#0,total#0,_i#0 |
+
+    bytes_len_in_loop_with_put_after_for@4:                                                        (𝕏) m#0,total#0,_i#0 |
+        x-load _i#0                                                                                (𝕏) m#0,total#0 | _i#0
+        pop 1                                                                                      (𝕏) m#0,total#0 |
+        // regression_tests/box_read_forwarding.py:117
         // assert total == 8
-        x-load total#0                                                                             total#0
-        int 8                                                                                      total#0,8
-        ==                                                                                         tmp%2#1
-        assert
-        // regression_tests/box_read_forwarding.py:120
+        x-load total#0                                                                             (𝕏) m#0 | total#0
+        int 8                                                                                      (𝕏) m#0 | total#0,8
+        ==                                                                                         (𝕏) m#0 | tmp%2#0
+        assert                                                                                     (𝕏) m#0 |
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_len_after_append() -> void:
+subroutine array_len_after_append:
+    array_len_after_append_block@0:
+        // regression_tests/box_read_forwarding.py:121
         // m = self.a.value.copy()
         byte 0x61                                                                                  0x61
-        box_get                                                                                    m#0,aggregate%box_get%11#0
+        box_get                                                                                    m#0,aggregate%box_get%1#0
         assert // check self.a exists                                                              m#0
-        // regression_tests/box_read_forwarding.py:121
+        // regression_tests/box_read_forwarding.py:122
         // self.a.value.append(arc4.UInt64(9))
         int 9                                                                                      m#0,9
-        itob                                                                                       m#0,new_items_bytes#0
-        byte 0x61                                                                                  m#0,new_items_bytes#0,0x61
-        int 0                                                                                      m#0,new_items_bytes#0,0x61,0
-        l-load-copy new_items_bytes#0 2                                                            m#0,new_items_bytes#0,0x61,0,new_items_bytes#0 (copy)
-        int 1                                                                                      m#0,new_items_bytes#0,0x61,0,new_items_bytes#0 (copy),1
-        int 8                                                                                      m#0,new_items_bytes#0,0x61,0,new_items_bytes#0 (copy),1,8
-        callsub box_dynamic_array_concat_fixed                                                     m#0,new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:122
+        itob                                                                                       m#0,aggregate%val_as_bytes%0#0
+        byte 0x61                                                                                  m#0,aggregate%val_as_bytes%0#0,0x61
+        int 0                                                                                      m#0,aggregate%val_as_bytes%0#0,0x61,0
+        l-load aggregate%val_as_bytes%0#0 2                                                        m#0,0x61,0,aggregate%val_as_bytes%0#0
+        int 1                                                                                      m#0,0x61,0,aggregate%val_as_bytes%0#0,1
+        int 8                                                                                      m#0,0x61,0,aggregate%val_as_bytes%0#0,1,8
+        callsub box_dynamic_array_concat_fixed                                                     m#0
+        // regression_tests/box_read_forwarding.py:123
         // assert m.length == 2
-        l-load m#0 1                                                                               new_items_bytes#0,m#0
-        int 0                                                                                      new_items_bytes#0,m#0,0
-        extract_uint16 // on error: invalid array length header                                    new_items_bytes#0,aggregate%array_length%0#0
-        int 2                                                                                      new_items_bytes#0,aggregate%array_length%0#0,2
-        ==                                                                                         new_items_bytes#0,tmp%4#0
-        assert                                                                                     new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:123
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        byte 0x61                                                                                  new_items_bytes#0,0x61
-        box_del                                                                                    new_items_bytes#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0
-        byte 0x61                                                                                  new_items_bytes#0,0x61
-        // regression_tests/box_read_forwarding.py:49
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        byte 0x000200000000000000010000000000000002                                                new_items_bytes#0,0x61,0x000200000000000000010000000000000002
-        // regression_tests/box_read_forwarding.py:123
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        box_put                                                                                    new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:128
-        // self.a.value[0] = arc4.UInt64(7)
-        int 7                                                                                      new_items_bytes#0,7
-        itob                                                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        int 2                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61,2
-        l-load-copy aggregate%val_as_bytes%7#0 2                                                   new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61,2,aggregate%val_as_bytes%7#0 (copy)
-        box_replace // on error: index out of bounds                                               new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:130
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        box_del                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        // regression_tests/box_read_forwarding.py:49
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        byte 0x000200000000000000010000000000000002                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61,0x000200000000000000010000000000000002
-        // regression_tests/box_read_forwarding.py:130
-        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
-        box_put                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:135
-        // self.a.value = UInt64Array(arc4.UInt64(7))
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        box_del                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        byte 0x00010000000000000007                                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61,0x00010000000000000007
-        box_put                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:137
-        // self.a.value = m.copy()
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        box_del                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0
-        byte 0x61                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61
-        byte 0x0003000000000000000100000000000000020000000000000009                                new_items_bytes#0,aggregate%val_as_bytes%7#0,0x61,0x0003000000000000000100000000000000020000000000000009
-        // regression_tests/box_read_forwarding.py:137
-        // self.a.value = m.copy()
-        box_put                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:142
-        // m = self.d.value.copy()
-        byte 0x64                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64
-        box_get                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,aggregate%box_get%19#0
-        assert // check self.d exists                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0
-        // regression_tests/box_read_forwarding.py:145
-        // m.arr = other.copy()
-        l-load-copy m#0 0                                                                          new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,m#0 (copy)
-        int 8                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,m#0 (copy),8
-        extract_uint16                                                                             new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,aggregate%item_offset%0#0
-        l-load m#0 1                                                                               new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%item_offset%0#0,m#0
-        int 0                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%item_offset%0#0,m#0,0
-        l-load aggregate%item_offset%0#0 2                                                         new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,0,aggregate%item_offset%0#0
-        extract3                                                                                   new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%data_up_to_item%0#0
-        byte 0x000200000000000000050000000000000009                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%data_up_to_item%0#0,0x000200000000000000050000000000000009
-        // regression_tests/box_read_forwarding.py:145
-        // m.arr = other.copy()
-        concat                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0
-        // regression_tests/box_read_forwarding.py:146
-        // self.d.value = m.copy()
-        byte 0x64                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,0x64
-        box_del                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0
-        byte 0x64                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,m#0,0x64
-        l-load m#0 1                                                                               new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64,m#0
-        box_put                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:147
-        // assert self.d.value.arr == UInt64Array(arc4.UInt64(5), arc4.UInt64(9))
-        byte 0x64                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64
-        int 10                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64,10
-        int 2                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64,10,2
-        box_extract                                                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,box%box_extract%0#0
-        btoi                                                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0,box%btoi%0#0
-        int 8                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,box%btoi%0#0,8
-        *                                                                                          new_items_bytes#0,aggregate%val_as_bytes%7#0,box%data_bytes%0#0
-        int 2                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,box%data_bytes%0#0,2
-        +                                                                                          new_items_bytes#0,aggregate%val_as_bytes%7#0,box%total_bytes%0#0
-        byte 0x64                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,box%total_bytes%0#0,0x64
-        int 10                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,box%total_bytes%0#0,0x64,10
-        l-load box%total_bytes%0#0 2                                                               new_items_bytes#0,aggregate%val_as_bytes%7#0,0x64,10,box%total_bytes%0#0
-        box_extract                                                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,box%box_extract%1#0
-        byte 0x000200000000000000050000000000000009                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,box%box_extract%1#0,0x000200000000000000050000000000000009
-        ==                                                                                         new_items_bytes#0,aggregate%val_as_bytes%7#0,tmp%6#2
-        assert                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:153
-        // m0[0] = UInt64(123)
-        int 123                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,123
-        itob                                                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0
-        // regression_tests/box_read_forwarding.py:154
-        // m1 = self.t.value.copy()
-        byte 0x74                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,0x74
-        box_get                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,aggregate%box_get%21#0
-        assert // check self.t exists                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0
-        // regression_tests/box_read_forwarding.py:155
-        // m1[1] = UInt64(321)
-        int 321                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,321
-        itob                                                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,aggregate%val_as_bytes%10#0
-        l-load m1#0 1                                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,aggregate%val_as_bytes%10#0,m1#0
-        l-load aggregate%val_as_bytes%10#0 1                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,aggregate%val_as_bytes%10#0
-        replace2 10 // on error: index access is out of bounds                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0
-        // regression_tests/box_read_forwarding.py:156
-        // self.t.value = m0.copy()
-        byte 0x74                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,0x74
-        // regression_tests/box_read_forwarding.py:153
-        // m0[0] = UInt64(123)
-        int 2                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%val_as_bytes%9#0,m1#0,0x74,2
-        l-load aggregate%val_as_bytes%9#0 3                                                        new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,0x74,2,aggregate%val_as_bytes%9#0
-        box_replace // on error: index out of bounds                                               new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0
-        // regression_tests/box_read_forwarding.py:157
-        // self.t.value = m1.copy()
-        byte 0x74                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,0x74
-        box_del                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,{box_del}
-        pop 1                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0
-        byte 0x74                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,0x74
-        l-load-copy m1#0 1                                                                         new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,0x74,m1#0 (copy)
-        box_put                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0
-        // regression_tests/box_read_forwarding.py:158
-        // assert self.t.value == arc4.DynamicArray[UInt64](UInt64(1), UInt64(321))
-        l-load m1#0 0                                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0
-        byte 0x000200000000000000010000000000000141                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,m1#0,0x000200000000000000010000000000000141
-        ==                                                                                         new_items_bytes#0,aggregate%val_as_bytes%7#0,tmp%0#10
-        assert                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0
-        // regression_tests/box_read_forwarding.py:162
-        // m = self.o.value.inner.copy()
-        byte 0x6f                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,0x6f
-        box_get                                                                                    new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,aggregate%box_get%25#0
-        assert // check self.o exists                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0
-        // regression_tests/box_read_forwarding.py:163
-        // self.o.value.inner.arr[0] = UInt64(7)
-        byte 0x6f                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,0x6f
-        int 20                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,0x6f,20
-        int 2                                                                                      new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,0x6f,20,2
-        box_extract                                                                                new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,box%box_extract%0#0
-        btoi                                                                                       new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,box%btoi%0#0
-        assert // index out of bounds                                                              new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0
-        byte 0x6f                                                                                  new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,0x6f
-        int 22                                                                                     new_items_bytes#0,aggregate%val_as_bytes%7#0,aggregate%box_get%24#0,0x6f,22
-        l-load aggregate%val_as_bytes%7#0 3                                                        new_items_bytes#0,aggregate%box_get%24#0,0x6f,22,aggregate%val_as_bytes%7#0
-        box_replace // on error: index out of bounds                                               new_items_bytes#0,aggregate%box_get%24#0
-        // regression_tests/box_read_forwarding.py:164
-        // assert m.arr[0] == 1
-        l-load-copy aggregate%box_get%24#0 0                                                       new_items_bytes#0,aggregate%box_get%24#0,aggregate%box_get%24#0 (copy)
-        int 8                                                                                      new_items_bytes#0,aggregate%box_get%24#0,aggregate%box_get%24#0 (copy),8
-        extract_uint16                                                                             new_items_bytes#0,aggregate%box_get%24#0,aggregate%extract_uint16%0#0
-        l-load-copy aggregate%box_get%24#0 1                                                       new_items_bytes#0,aggregate%box_get%24#0,aggregate%extract_uint16%0#0,aggregate%box_get%24#0 (copy)
-        len                                                                                        new_items_bytes#0,aggregate%box_get%24#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        l-load aggregate%box_get%24#0 2                                                            new_items_bytes#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,aggregate%box_get%24#0
-        l-load aggregate%extract_uint16%0#0 2                                                      new_items_bytes#0,aggregate%len%0#0,aggregate%box_get%24#0,aggregate%extract_uint16%0#0
-        l-load aggregate%len%0#0 2                                                                 new_items_bytes#0,aggregate%box_get%24#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                                 new_items_bytes#0,aggregate%substring3%0#0
-        l-load-copy aggregate%substring3%0#0 0                                                     new_items_bytes#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
-        int 8                                                                                      new_items_bytes#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),8
-        extract_uint16                                                                             new_items_bytes#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0
-        l-load-copy aggregate%substring3%0#0 1                                                     new_items_bytes#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0 (copy)
-        len                                                                                        new_items_bytes#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
-        l-load aggregate%substring3%0#0 2                                                          new_items_bytes#0,aggregate%extract_uint16%1#0,aggregate%len%1#0,aggregate%substring3%0#0
-        l-load aggregate%extract_uint16%1#0 2                                                      new_items_bytes#0,aggregate%len%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0
-        l-load aggregate%len%1#0 2                                                                 new_items_bytes#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
-        substring3                                                                                 new_items_bytes#0,aggregate%substring3%1#0
-        int 2                                                                                      new_items_bytes#0,aggregate%substring3%1#0,2
-        extract_uint64                                                                             new_items_bytes#0,tmp%0#1
-        int 1                                                                                      new_items_bytes#0,tmp%0#1,1
-        ==                                                                                         new_items_bytes#0,tmp%1#1
-        assert                                                                                     new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:165
-        // assert self.o.value.inner.arr[0] == 7
-        byte 0x6f                                                                                  new_items_bytes#0,0x6f
-        int 20                                                                                     new_items_bytes#0,0x6f,20
-        int 2                                                                                      new_items_bytes#0,0x6f,20,2
-        box_extract                                                                                new_items_bytes#0,box%box_extract%3#0
-        btoi                                                                                       new_items_bytes#0,box%btoi%2#0
-        assert // index out of bounds                                                              new_items_bytes#0
-        byte 0x6f                                                                                  new_items_bytes#0,0x6f
-        int 22                                                                                     new_items_bytes#0,0x6f,22
-        int 8                                                                                      new_items_bytes#0,0x6f,22,8
-        box_extract // on error: index out of bounds                                               new_items_bytes#0,box%box_extract%4#0
-        btoi                                                                                       new_items_bytes#0,tmp%2#6
-        int 7                                                                                      new_items_bytes#0,tmp%2#6,7
-        ==                                                                                         new_items_bytes#0,tmp%3#2
-        assert                                                                                     new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:166
-        // self.o.value.inner.arr[0] = UInt64(1)
-        byte 0x6f                                                                                  new_items_bytes#0,0x6f
-        int 22                                                                                     new_items_bytes#0,0x6f,22
-        v-load aggregate%val_as_bytes%0#0                                                          new_items_bytes#0,0x6f,22,aggregate%val_as_bytes%0#0
-        box_replace // on error: index out of bounds                                               new_items_bytes#0
-        // regression_tests/box_read_forwarding.py:170
-        // m = self.o.value.inner.copy()
-        byte 0x6f                                                                                  new_items_bytes#0,0x6f
-        box_get                                                                                    new_items_bytes#0,aggregate%box_get%26#0,aggregate%box_get%27#0
-        pop 1                                                                                      new_items_bytes#0,aggregate%box_get%26#0
-        l-store aggregate%box_get%26#0 0                                                           new_items_bytes#0,aggregate%box_get%26#0
-        // regression_tests/box_read_forwarding.py:171
-        // self.o.value.inner.arr.append(UInt64(9))
-        byte 0x6f                                                                                  new_items_bytes#0,aggregate%box_get%26#0,0x6f
-        int 20                                                                                     new_items_bytes#0,aggregate%box_get%26#0,0x6f,20
-        l-load new_items_bytes#0 3                                                                 aggregate%box_get%26#0,0x6f,20,new_items_bytes#0
-        int 1                                                                                      aggregate%box_get%26#0,0x6f,20,new_items_bytes#0,1
-        int 8                                                                                      aggregate%box_get%26#0,0x6f,20,new_items_bytes#0,1,8
-        callsub box_dynamic_array_concat_fixed                                                     aggregate%box_get%26#0
-        // regression_tests/box_read_forwarding.py:172
-        // assert m.arr.length == 2
-        l-load-copy aggregate%box_get%26#0 0                                                       aggregate%box_get%26#0,aggregate%box_get%26#0 (copy)
-        int 8                                                                                      aggregate%box_get%26#0,aggregate%box_get%26#0 (copy),8
-        extract_uint16                                                                             aggregate%box_get%26#0,aggregate%extract_uint16%2#0
-        l-load-copy aggregate%box_get%26#0 1                                                       aggregate%box_get%26#0,aggregate%extract_uint16%2#0,aggregate%box_get%26#0 (copy)
-        len                                                                                        aggregate%box_get%26#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
-        l-load aggregate%box_get%26#0 2                                                            aggregate%extract_uint16%2#0,aggregate%len%2#0,aggregate%box_get%26#0
-        l-load aggregate%extract_uint16%2#0 2                                                      aggregate%len%2#0,aggregate%box_get%26#0,aggregate%extract_uint16%2#0
-        l-load aggregate%len%2#0 2                                                                 aggregate%box_get%26#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
-        substring3                                                                                 aggregate%substring3%2#0
-        l-load-copy aggregate%substring3%2#0 0                                                     aggregate%substring3%2#0,aggregate%substring3%2#0 (copy)
-        int 8                                                                                      aggregate%substring3%2#0,aggregate%substring3%2#0 (copy),8
-        extract_uint16                                                                             aggregate%substring3%2#0,aggregate%extract_uint16%3#0
-        l-load-copy aggregate%substring3%2#0 1                                                     aggregate%substring3%2#0,aggregate%extract_uint16%3#0,aggregate%substring3%2#0 (copy)
-        len                                                                                        aggregate%substring3%2#0,aggregate%extract_uint16%3#0,aggregate%len%3#0
-        l-load aggregate%substring3%2#0 2                                                          aggregate%extract_uint16%3#0,aggregate%len%3#0,aggregate%substring3%2#0
-        l-load aggregate%extract_uint16%3#0 2                                                      aggregate%len%3#0,aggregate%substring3%2#0,aggregate%extract_uint16%3#0
-        l-load aggregate%len%3#0 2                                                                 aggregate%substring3%2#0,aggregate%extract_uint16%3#0,aggregate%len%3#0
-        substring3                                                                                 aggregate%substring3%3#0
-        int 0                                                                                      aggregate%substring3%3#0,0
-        extract_uint16 // on error: invalid array length header                                    aggregate%array_length%1#0
-        int 2                                                                                      aggregate%array_length%1#0,2
-        ==                                                                                         tmp%3#2
+        l-load m#0 0                                                                               m#0
+        int 0                                                                                      m#0,0
+        extract_uint16 // on error: invalid array length header                                    aggregate%array_length%0#0
+        int 2                                                                                      aggregate%array_length%0#0,2
+        ==                                                                                         tmp%4#0
         assert
+        // regression_tests/box_read_forwarding.py:124
+        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+        byte 0x61                                                                                  0x61
+        box_del                                                                                    {box_del}
+        pop 1
+        byte 0x61                                                                                  0x61
+        byte 0x000200000000000000010000000000000002                                                0x61,0x000200000000000000010000000000000002
+        box_put
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_element_after_set() -> void:
+subroutine array_element_after_set:
+    array_element_after_set_block@0:
+        // regression_tests/box_read_forwarding.py:128
+        // m = self.a.value.copy()
+        byte 0x61                                                                                  0x61
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        assert // check self.a exists                                                              m#0
+        // regression_tests/box_read_forwarding.py:129
+        // self.a.value[0] = arc4.UInt64(7)
+        int 7                                                                                      m#0,7
+        itob                                                                                       m#0,aggregate%val_as_bytes%0#0
+        byte 0x61                                                                                  m#0,aggregate%val_as_bytes%0#0,0x61
+        int 2                                                                                      m#0,aggregate%val_as_bytes%0#0,0x61,2
+        l-load aggregate%val_as_bytes%0#0 2                                                        m#0,0x61,2,aggregate%val_as_bytes%0#0
+        box_replace // on error: index out of bounds                                               m#0
+        // regression_tests/box_read_forwarding.py:130
+        // assert m[0] == 1
+        l-load m#0 0                                                                               m#0
+        extract 2 8                                                                                aggregate%encoded_element%0#0
+        int 1                                                                                      aggregate%encoded_element%0#0,1
+        itob                                                                                       aggregate%encoded_element%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%encoded_element%0#0 1                                                     aggregate%val_as_bytes%1#0,aggregate%encoded_element%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                        aggregate%encoded_element%0#0,aggregate%val_as_bytes%1#0
+        b==                                                                                        tmp%2#0
+        assert
+        // regression_tests/box_read_forwarding.py:131
+        // self.a.value = UInt64Array(arc4.UInt64(1), arc4.UInt64(2))
+        byte 0x61                                                                                  0x61
+        box_del                                                                                    {box_del}
+        pop 1
+        byte 0x61                                                                                  0x61
+        byte 0x000200000000000000010000000000000002                                                0x61,0x000200000000000000010000000000000002
+        box_put
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_append_write_back_after_put() -> void:
+subroutine array_append_write_back_after_put:
+    array_append_write_back_after_put_block@0:
+        // regression_tests/box_read_forwarding.py:135
+        // m = self.a.value.copy()
+        byte 0x61                                                                                  0x61
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        assert // check self.a exists                                                              m#0
+        // regression_tests/box_read_forwarding.py:136
+        // self.a.value = UInt64Array(arc4.UInt64(7))
+        byte 0x61                                                                                  m#0,0x61
+        box_del                                                                                    m#0,{box_del}
+        pop 1                                                                                      m#0
+        byte 0x61                                                                                  m#0,0x61
+        byte 0x00010000000000000007                                                                m#0,0x61,0x00010000000000000007
+        box_put                                                                                    m#0
+        // regression_tests/box_read_forwarding.py:137
+        // m.append(arc4.UInt64(9))
+        int 9                                                                                      m#0,9
+        itob                                                                                       m#0,new_items_bytes#0
+        l-load-copy m#0 1                                                                          m#0,new_items_bytes#0,m#0 (copy)
+        int 0                                                                                      m#0,new_items_bytes#0,m#0 (copy),0
+        extract_uint16                                                                             m#0,new_items_bytes#0,array_length#0
+        // regression_tests/box_read_forwarding.py:137
+        // m.append(arc4.UInt64(9))
+        int 1                                                                                      m#0,new_items_bytes#0,array_length#0,1
+        +                                                                                          m#0,new_items_bytes#0,new_array_length#0
+        itob                                                                                       m#0,new_items_bytes#0,tmp%0#2
+        extract 6 0                                                                                m#0,new_items_bytes#0,new_len_u16#0
+        l-load m#0 2                                                                               new_items_bytes#0,new_len_u16#0,m#0
+        l-load new_len_u16#0 1                                                                     new_items_bytes#0,m#0,new_len_u16#0
+        replace2 0                                                                                 new_items_bytes#0,result#0
+        l-load new_items_bytes#0 1                                                                 result#0,new_items_bytes#0
+        concat                                                                                     m#0
+        // regression_tests/box_read_forwarding.py:138
+        // self.a.value = m.copy()
+        byte 0x61                                                                                  m#0,0x61
+        box_del                                                                                    m#0,{box_del}
+        pop 1                                                                                      m#0
+        byte 0x61                                                                                  m#0,0x61
+        l-load-copy m#0 1                                                                          m#0,0x61,m#0 (copy)
+        box_put                                                                                    m#0
+        // regression_tests/box_read_forwarding.py:139
+        // assert self.a.value == UInt64Array(arc4.UInt64(1), arc4.UInt64(2), arc4.UInt64(9))
+        l-load m#0 0                                                                               m#0
+        byte 0x0003000000000000000100000000000000020000000000000009                                m#0,0x0003000000000000000100000000000000020000000000000009
+        ==                                                                                         tmp%7#0
+        assert
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.struct_array_replaced_with_other_array() -> void:
+subroutine struct_array_replaced_with_other_array:
+    struct_array_replaced_with_other_array_block@0:
+        // regression_tests/box_read_forwarding.py:143
+        // m = self.d.value.copy()
+        byte 0x64                                                                                  0x64
+        box_get                                                                                    m#0,aggregate%box_get%1#0
+        assert // check self.d exists                                                              m#0
+        // regression_tests/box_read_forwarding.py:146
+        // m.arr = other.copy()
+        l-load-copy m#0 0                                                                          m#0,m#0 (copy)
+        int 8                                                                                      m#0,m#0 (copy),8
+        extract_uint16                                                                             m#0,aggregate%item_offset%0#0
+        l-load m#0 1                                                                               aggregate%item_offset%0#0,m#0
+        int 0                                                                                      aggregate%item_offset%0#0,m#0,0
+        l-load aggregate%item_offset%0#0 2                                                         m#0,0,aggregate%item_offset%0#0
+        extract3                                                                                   aggregate%data_up_to_item%0#0
+        byte 0x000200000000000000050000000000000009                                                aggregate%data_up_to_item%0#0,0x000200000000000000050000000000000009
+        // regression_tests/box_read_forwarding.py:146
+        // m.arr = other.copy()
+        concat                                                                                     m#0
+        // regression_tests/box_read_forwarding.py:147
+        // self.d.value = m.copy()
+        byte 0x64                                                                                  m#0,0x64
+        box_del                                                                                    m#0,{box_del}
+        pop 1                                                                                      m#0
+        byte 0x64                                                                                  m#0,0x64
+        l-load m#0 1                                                                               0x64,m#0
+        box_put
+        // regression_tests/box_read_forwarding.py:148
+        // assert self.d.value.arr == UInt64Array(arc4.UInt64(5), arc4.UInt64(9))
+        byte 0x64                                                                                  0x64
+        int 10                                                                                     0x64,10
+        int 2                                                                                      0x64,10,2
+        box_extract                                                                                box%box_extract%0#0
+        btoi                                                                                       box%btoi%0#0
+        int 8                                                                                      box%btoi%0#0,8
+        *                                                                                          box%data_bytes%0#0
+        int 2                                                                                      box%data_bytes%0#0,2
+        +                                                                                          box%total_bytes%0#0
+        byte 0x64                                                                                  box%total_bytes%0#0,0x64
+        int 10                                                                                     box%total_bytes%0#0,0x64,10
+        l-load box%total_bytes%0#0 2                                                               0x64,10,box%total_bytes%0#0
+        box_extract                                                                                box%box_extract%1#0
+        byte 0x000200000000000000050000000000000009                                                box%box_extract%1#0,0x000200000000000000050000000000000009
+        ==                                                                                         tmp%6#0
+        assert
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.array_two_copies_written_back_in_order() -> void:
+subroutine array_two_copies_written_back_in_order:
+    array_two_copies_written_back_in_order_block@0:
+        // regression_tests/box_read_forwarding.py:154
+        // m0[0] = UInt64(123)
+        int 123                                                                                    123
+        itob                                                                                       aggregate%val_as_bytes%0#0
+        // regression_tests/box_read_forwarding.py:155
+        // m1 = self.t.value.copy()
+        byte 0x74                                                                                  aggregate%val_as_bytes%0#0,0x74
+        box_get                                                                                    aggregate%val_as_bytes%0#0,m1#0,aggregate%box_get%1#0
+        assert // check self.t exists                                                              aggregate%val_as_bytes%0#0,m1#0
+        // regression_tests/box_read_forwarding.py:156
+        // m1[1] = UInt64(321)
+        int 321                                                                                    aggregate%val_as_bytes%0#0,m1#0,321
+        itob                                                                                       aggregate%val_as_bytes%0#0,m1#0,aggregate%val_as_bytes%1#0
+        l-load m1#0 1                                                                              aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,m1#0
+        l-load aggregate%val_as_bytes%1#0 1                                                        aggregate%val_as_bytes%0#0,m1#0,aggregate%val_as_bytes%1#0
+        replace2 10 // on error: index access is out of bounds                                     aggregate%val_as_bytes%0#0,m1#0
+        // regression_tests/box_read_forwarding.py:157
+        // self.t.value = m0.copy()
+        byte 0x74                                                                                  aggregate%val_as_bytes%0#0,m1#0,0x74
+        // regression_tests/box_read_forwarding.py:154
+        // m0[0] = UInt64(123)
+        int 2                                                                                      aggregate%val_as_bytes%0#0,m1#0,0x74,2
+        l-load aggregate%val_as_bytes%0#0 3                                                        m1#0,0x74,2,aggregate%val_as_bytes%0#0
+        box_replace // on error: index out of bounds                                               m1#0
+        // regression_tests/box_read_forwarding.py:158
+        // self.t.value = m1.copy()
+        byte 0x74                                                                                  m1#0,0x74
+        box_del                                                                                    m1#0,{box_del}
+        pop 1                                                                                      m1#0
+        byte 0x74                                                                                  m1#0,0x74
+        l-load-copy m1#0 1                                                                         m1#0,0x74,m1#0 (copy)
+        box_put                                                                                    m1#0
+        // regression_tests/box_read_forwarding.py:159
+        // assert self.t.value == arc4.DynamicArray[UInt64](UInt64(1), UInt64(321))
+        l-load m1#0 0                                                                              m1#0
+        byte 0x000200000000000000010000000000000141                                                m1#0,0x000200000000000000010000000000000141
+        ==                                                                                         tmp%0#0
+        assert
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_set() -> void:
+subroutine nested_struct_copy_before_set:
+    nested_struct_copy_before_set_block@0:
+        // regression_tests/box_read_forwarding.py:163
+        // m = self.o.value.inner.copy()
+        byte 0x6f                                                                                  0x6f
+        box_get                                                                                    aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.o exists                                                              aggregate%box_get%0#0
+        // regression_tests/box_read_forwarding.py:164
+        // self.o.value.inner.arr[0] = UInt64(7)
+        int 7                                                                                      aggregate%box_get%0#0,7
+        itob                                                                                       aggregate%box_get%0#0,aggregate%val_as_bytes%0#0
+        byte 0x6f                                                                                  aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f
+        int 20                                                                                     aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f,20
+        int 2                                                                                      aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f,20,2
+        box_extract                                                                                aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,box%box_extract%0#0
+        btoi                                                                                       aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,box%btoi%0#0
+        assert // index out of bounds                                                              aggregate%box_get%0#0,aggregate%val_as_bytes%0#0
+        byte 0x6f                                                                                  aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f
+        int 22                                                                                     aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f,22
+        l-load aggregate%val_as_bytes%0#0 2                                                        aggregate%box_get%0#0,0x6f,22,aggregate%val_as_bytes%0#0
+        box_replace // on error: index out of bounds                                               aggregate%box_get%0#0
+        // regression_tests/box_read_forwarding.py:165
+        // assert m.arr[0] == 1
+        l-load-copy aggregate%box_get%0#0 0                                                        aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        int 8                                                                                      aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),8
+        extract_uint16                                                                             aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load-copy aggregate%box_get%0#0 1                                                        aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%box_get%0#0 (copy)
+        len                                                                                        aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load aggregate%box_get%0#0 2                                                             aggregate%extract_uint16%0#0,aggregate%len%0#0,aggregate%box_get%0#0
+        l-load aggregate%extract_uint16%0#0 2                                                      aggregate%len%0#0,aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                 aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                 aggregate%substring3%0#0
+        l-load-copy aggregate%substring3%0#0 0                                                     aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
+        int 8                                                                                      aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),8
+        extract_uint16                                                                             aggregate%substring3%0#0,aggregate%extract_uint16%1#0
+        l-load-copy aggregate%substring3%0#0 1                                                     aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0 (copy)
+        len                                                                                        aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
+        l-load aggregate%substring3%0#0 2                                                          aggregate%extract_uint16%1#0,aggregate%len%1#0,aggregate%substring3%0#0
+        l-load aggregate%extract_uint16%1#0 2                                                      aggregate%len%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0
+        l-load aggregate%len%1#0 2                                                                 aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
+        substring3                                                                                 aggregate%substring3%1#0
+        int 2                                                                                      aggregate%substring3%1#0,2
+        extract_uint64                                                                             tmp%0#0
+        int 1                                                                                      tmp%0#0,1
+        ==                                                                                         tmp%1#0
+        assert
+        // regression_tests/box_read_forwarding.py:166
+        // assert self.o.value.inner.arr[0] == 7
+        byte 0x6f                                                                                  0x6f
+        int 20                                                                                     0x6f,20
+        int 2                                                                                      0x6f,20,2
+        box_extract                                                                                box%box_extract%3#0
+        btoi                                                                                       box%btoi%2#0
+        assert // index out of bounds
+        byte 0x6f                                                                                  0x6f
+        int 22                                                                                     0x6f,22
+        int 8                                                                                      0x6f,22,8
+        box_extract // on error: index out of bounds                                               box%box_extract%4#0
+        btoi                                                                                       tmp%2#0
+        int 7                                                                                      tmp%2#0,7
+        ==                                                                                         tmp%3#0
+        assert
+        // regression_tests/box_read_forwarding.py:167
+        // self.o.value.inner.arr[0] = UInt64(1)
+        int 1                                                                                      1
+        itob                                                                                       aggregate%val_as_bytes%1#0
+        byte 0x6f                                                                                  aggregate%val_as_bytes%1#0,0x6f
+        int 22                                                                                     aggregate%val_as_bytes%1#0,0x6f,22
+        l-load aggregate%val_as_bytes%1#0 2                                                        0x6f,22,aggregate%val_as_bytes%1#0
+        box_replace // on error: index out of bounds
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.nested_struct_copy_before_append() -> void:
+subroutine nested_struct_copy_before_append:
+    nested_struct_copy_before_append_block@0:
+        // regression_tests/box_read_forwarding.py:171
+        // m = self.o.value.inner.copy()
+        byte 0x6f                                                                                  0x6f
+        box_get                                                                                    aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.o exists                                                              aggregate%box_get%0#0
+        // regression_tests/box_read_forwarding.py:172
+        // self.o.value.inner.arr.append(UInt64(9))
+        int 9                                                                                      aggregate%box_get%0#0,9
+        itob                                                                                       aggregate%box_get%0#0,aggregate%val_as_bytes%0#0
+        byte 0x6f                                                                                  aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f
+        int 20                                                                                     aggregate%box_get%0#0,aggregate%val_as_bytes%0#0,0x6f,20
+        l-load aggregate%val_as_bytes%0#0 2                                                        aggregate%box_get%0#0,0x6f,20,aggregate%val_as_bytes%0#0
+        int 1                                                                                      aggregate%box_get%0#0,0x6f,20,aggregate%val_as_bytes%0#0,1
+        int 8                                                                                      aggregate%box_get%0#0,0x6f,20,aggregate%val_as_bytes%0#0,1,8
+        callsub box_dynamic_array_concat_fixed                                                     aggregate%box_get%0#0
         // regression_tests/box_read_forwarding.py:173
+        // assert m.arr.length == 2
+        l-load-copy aggregate%box_get%0#0 0                                                        aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        int 8                                                                                      aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),8
+        extract_uint16                                                                             aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load-copy aggregate%box_get%0#0 1                                                        aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%box_get%0#0 (copy)
+        len                                                                                        aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load aggregate%box_get%0#0 2                                                             aggregate%extract_uint16%0#0,aggregate%len%0#0,aggregate%box_get%0#0
+        l-load aggregate%extract_uint16%0#0 2                                                      aggregate%len%0#0,aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                 aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                 aggregate%substring3%0#0
+        l-load-copy aggregate%substring3%0#0 0                                                     aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
+        int 8                                                                                      aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),8
+        extract_uint16                                                                             aggregate%substring3%0#0,aggregate%extract_uint16%1#0
+        l-load-copy aggregate%substring3%0#0 1                                                     aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0 (copy)
+        len                                                                                        aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
+        l-load aggregate%substring3%0#0 2                                                          aggregate%extract_uint16%1#0,aggregate%len%1#0,aggregate%substring3%0#0
+        l-load aggregate%extract_uint16%1#0 2                                                      aggregate%len%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%1#0
+        l-load aggregate%len%1#0 2                                                                 aggregate%substring3%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
+        substring3                                                                                 aggregate%substring3%1#0
+        int 0                                                                                      aggregate%substring3%1#0,0
+        extract_uint16 // on error: invalid array length header                                    aggregate%array_length%0#0
+        int 2                                                                                      aggregate%array_length%0#0,2
+        ==                                                                                         tmp%3#0
+        assert
+        // regression_tests/box_read_forwarding.py:174
         // assert self.o.value.inner.arr.length == 3
         byte 0x6f                                                                                  0x6f
         int 20                                                                                     0x6f,20
@@ -563,171 +791,166 @@ subroutine run_all:
         btoi                                                                                       arr_len#0
         l-load-copy arr_len#0 0                                                                    arr_len#0,arr_len#0 (copy)
         int 3                                                                                      arr_len#0,arr_len#0 (copy),3
-        ==                                                                                         arr_len#0,tmp%5#3
+        ==                                                                                         arr_len#0,tmp%5#0
         assert                                                                                     arr_len#0
-        // regression_tests/box_read_forwarding.py:174
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
         l-load-copy arr_len#0 0                                                                    arr_len#0,arr_len#0 (copy)
         int 1                                                                                      arr_len#0,arr_len#0 (copy),1
         - // on error: cannot pop from empty array                                                 arr_len#0,new_arr_len#0
         l-load-copy new_arr_len#0 0                                                                arr_len#0,new_arr_len#0,new_arr_len#0 (copy)
         l-load arr_len#0 2                                                                         new_arr_len#0,new_arr_len#0 (copy),arr_len#0
-        <                                                                                          new_arr_len#0,box%index_ok%0#1
+        <                                                                                          new_arr_len#0,box%index_ok%0#0
         assert // index out of bounds                                                              new_arr_len#0
         l-load-copy new_arr_len#0 0                                                                new_arr_len#0,new_arr_len#0 (copy)
         int 8                                                                                      new_arr_len#0,new_arr_len#0 (copy),8
-        *                                                                                          new_arr_len#0,box%element_offset%0#3
-        int 22                                                                                     new_arr_len#0,box%element_offset%0#3,22
-        l-load box%element_offset%0#3 1                                                            new_arr_len#0,22,box%element_offset%0#3
+        *                                                                                          new_arr_len#0,box%element_offset%0#0
+        int 22                                                                                     new_arr_len#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                            new_arr_len#0,22,box%element_offset%0#0
         +                                                                                          new_arr_len#0,popped_item_offset#0
         byte 0x6f                                                                                  new_arr_len#0,popped_item_offset#0,0x6f
         l-load-copy popped_item_offset#0 1                                                         new_arr_len#0,popped_item_offset#0,0x6f,popped_item_offset#0 (copy)
         int 8                                                                                      new_arr_len#0,popped_item_offset#0,0x6f,popped_item_offset#0 (copy),8
         box_extract // on error: index out of bounds                                               new_arr_len#0,popped_item_offset#0,box%box_extract%9#0
-        btoi                                                                                       new_arr_len#0,popped_item_offset#0,tmp%8#1
-        l-load new_arr_len#0 2                                                                     popped_item_offset#0,tmp%8#1,new_arr_len#0
-        itob                                                                                       popped_item_offset#0,tmp%8#1,value_bytes#0
-        extract 6 2                                                                                popped_item_offset#0,tmp%8#1,new_arr_len_u16#0
-        // regression_tests/box_read_forwarding.py:174
+        btoi                                                                                       new_arr_len#0,popped_item_offset#0,tmp%8#0
+        l-load new_arr_len#0 2                                                                     popped_item_offset#0,tmp%8#0,new_arr_len#0
+        itob                                                                                       popped_item_offset#0,tmp%8#0,value_bytes#0
+        extract 6 2                                                                                popped_item_offset#0,tmp%8#0,new_arr_len_u16#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        byte 0x6f                                                                                  popped_item_offset#0,tmp%8#1,new_arr_len_u16#0,0x6f
-        int 20                                                                                     popped_item_offset#0,tmp%8#1,new_arr_len_u16#0,0x6f,20
-        l-load new_arr_len_u16#0 2                                                                 popped_item_offset#0,tmp%8#1,0x6f,20,new_arr_len_u16#0
-        box_replace                                                                                popped_item_offset#0,tmp%8#1
-        // regression_tests/box_read_forwarding.py:174
+        byte 0x6f                                                                                  popped_item_offset#0,tmp%8#0,new_arr_len_u16#0,0x6f
+        int 20                                                                                     popped_item_offset#0,tmp%8#0,new_arr_len_u16#0,0x6f,20
+        l-load new_arr_len_u16#0 2                                                                 popped_item_offset#0,tmp%8#0,0x6f,20,new_arr_len_u16#0
+        box_replace                                                                                popped_item_offset#0,tmp%8#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        byte 0x6f                                                                                  popped_item_offset#0,tmp%8#1,0x6f
-        l-load popped_item_offset#0 2                                                              tmp%8#1,0x6f,popped_item_offset#0
-        // regression_tests/box_read_forwarding.py:174
+        byte 0x6f                                                                                  popped_item_offset#0,tmp%8#0,0x6f
+        l-load popped_item_offset#0 2                                                              tmp%8#0,0x6f,popped_item_offset#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        int 8                                                                                      tmp%8#1,0x6f,popped_item_offset#0,8
-        byte 0x                                                                                    tmp%8#1,0x6f,popped_item_offset#0,8,0x
-        box_splice                                                                                 tmp%8#1
-        // regression_tests/box_read_forwarding.py:174
+        int 8                                                                                      tmp%8#0,0x6f,popped_item_offset#0,8
+        byte 0x                                                                                    tmp%8#0,0x6f,popped_item_offset#0,8,0x
+        box_splice                                                                                 tmp%8#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        byte 0x6f                                                                                  tmp%8#1,0x6f
-        box_len                                                                                    tmp%8#1,box_size#0,_exists#0
-        pop 1                                                                                      tmp%8#1,box_size#0
-        l-store box_size#0 0                                                                       tmp%8#1,box_size#0
-        l-load box_size#0 0                                                                        tmp%8#1,box_size#0
-        // regression_tests/box_read_forwarding.py:174
+        byte 0x6f                                                                                  tmp%8#0,0x6f
+        box_len                                                                                    tmp%8#0,box_size#0,_exists#0
+        pop 1                                                                                      tmp%8#0,box_size#0
+        l-store box_size#0 0                                                                       tmp%8#0,box_size#0
+        l-load box_size#0 0                                                                        tmp%8#0,box_size#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        int 8                                                                                      tmp%8#1,box_size#0,8
-        -                                                                                          tmp%8#1,new_size#0
-        // regression_tests/box_read_forwarding.py:174
+        int 8                                                                                      tmp%8#0,box_size#0,8
+        -                                                                                          tmp%8#0,new_size#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        byte 0x6f                                                                                  tmp%8#1,new_size#0,0x6f
-        l-load new_size#0 1                                                                        tmp%8#1,0x6f,new_size#0
-        box_resize                                                                                 tmp%8#1
-        // regression_tests/box_read_forwarding.py:174
+        byte 0x6f                                                                                  tmp%8#0,new_size#0,0x6f
+        l-load new_size#0 1                                                                        tmp%8#0,0x6f,new_size#0
+        box_resize                                                                                 tmp%8#0
+        // regression_tests/box_read_forwarding.py:175
         // assert self.o.value.inner.arr.pop() == 9
-        l-load tmp%8#1 0                                                                           tmp%8#1
-        int 9                                                                                      tmp%8#1,9
+        l-load tmp%8#0 0                                                                           tmp%8#0
+        int 9                                                                                      tmp%8#0,9
         ==                                                                                         tmp%10#0
         assert
-        // regression_tests/box_read_forwarding.py:178
+        retsub
+
+
+// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.native_field_copy_iterated_while_modified() -> void:
+subroutine native_field_copy_iterated_while_modified:
+    native_field_copy_iterated_while_modified_block@0:
+        // regression_tests/box_read_forwarding.py:179
         // total = UInt64(0)
         int 0                                                                                      0
         x-store total#0                                                                            (𝕏) total#0 |
-        // regression_tests/box_read_forwarding.py:179
+        // regression_tests/box_read_forwarding.py:180
         // for item in self.n.value.arr.copy():
         byte 0x6e                                                                                  (𝕏) total#0 | 0x6e
-        box_get                                                                                    (𝕏) total#0 | aggregate%box_get%28#0,aggregate%box_get%29#0
-        l-store aggregate%box_get%29#0 1                                                           (𝕏) total#0 | aggregate%box_get%29#0,aggregate%box_get%28#0
-        x-store aggregate%box_get%28#0                                                             (𝕏) aggregate%box_get%28#0,total#0 | aggregate%box_get%29#0
-        l-load aggregate%box_get%29#0 0                                                            (𝕏) aggregate%box_get%28#0,total#0 | aggregate%box_get%29#0
-        assert // check self.n exists                                                              (𝕏) aggregate%box_get%28#0,total#0 |
-        byte 0x6e                                                                                  (𝕏) aggregate%box_get%28#0,total#0 | 0x6e
-        int 10                                                                                     (𝕏) aggregate%box_get%28#0,total#0 | 0x6e,10
-        int 2                                                                                      (𝕏) aggregate%box_get%28#0,total#0 | 0x6e,10,2
-        box_extract                                                                                (𝕏) aggregate%box_get%28#0,total#0 | box%box_extract%2#2
-        btoi                                                                                       (𝕏) aggregate%box_get%28#0,total#0 | box%btoi%1#2
-        x-store box%btoi%1#2                                                                       (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 |
-        int 0                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | 0
-        x-store item_index_internal%0#0                                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-        b run_all_for_header@31                                                                    (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
+        box_get                                                                                    (𝕏) total#0 | aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-store aggregate%box_get%1#0 1                                                            (𝕏) total#0 | aggregate%box_get%1#0,aggregate%box_get%0#0
+        x-store aggregate%box_get%0#0                                                              (𝕏) total#0,aggregate%box_get%0#0 | aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                             (𝕏) total#0,aggregate%box_get%0#0 | aggregate%box_get%1#0
+        assert // check self.n exists                                                              (𝕏) total#0,aggregate%box_get%0#0 |
+        byte 0x6e                                                                                  (𝕏) total#0,aggregate%box_get%0#0 | 0x6e
+        int 10                                                                                     (𝕏) total#0,aggregate%box_get%0#0 | 0x6e,10
+        int 2                                                                                      (𝕏) total#0,aggregate%box_get%0#0 | 0x6e,10,2
+        box_extract                                                                                (𝕏) total#0,aggregate%box_get%0#0 | box%box_extract%2#0
+        btoi                                                                                       (𝕏) total#0,aggregate%box_get%0#0 | box%btoi%1#0
+        x-store box%btoi%1#0                                                                       (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 |
+        int 0                                                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | 0
+        x-store item_index_internal%0#0                                                            (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
+        b native_field_copy_iterated_while_modified_for_header@1                                   (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
 
-    run_all_for_header@31:                                                                         (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-        // regression_tests/box_read_forwarding.py:179
-        // for item in self.n.value.arr.copy():
-        x-load-copy item_index_internal%0#0                                                        (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
-        x-load-copy box%btoi%1#2                                                                   (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),box%btoi%1#2 (copy)
-        <                                                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | continue_looping%0#0
-        bz run_all_after_for@33 ; b run_all_for_body@32                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-
-    run_all_for_body@32:                                                                           (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-        // regression_tests/box_read_forwarding.py:179
-        // for item in self.n.value.arr.copy():
-        x-load-copy aggregate%box_get%28#0                                                         (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0 (copy)
-        l-store-copy aggregate%box_get%28#0 0                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%box_get%28#0 (copy)
-        int 8                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%box_get%28#0 (copy),8
-        extract_uint16                                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%extract_uint16%4#0
-        l-load-copy aggregate%box_get%28#0 1                                                       (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%extract_uint16%4#0,aggregate%box_get%28#0 (copy)
-        len                                                                                        (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%extract_uint16%4#0,aggregate%len%4#0
-        l-load aggregate%box_get%28#0 2                                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%extract_uint16%4#0,aggregate%len%4#0,aggregate%box_get%28#0
-        l-load aggregate%extract_uint16%4#0 2                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%len%4#0,aggregate%box_get%28#0,aggregate%extract_uint16%4#0
-        l-load aggregate%len%4#0 2                                                                 (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%box_get%28#0,aggregate%extract_uint16%4#0,aggregate%len%4#0
-        substring3                                                                                 (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%substring3%4#0
-        extract 2 0                                                                                (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 | aggregate%array_trimmed%2#0
-        x-load item_index_internal%0#0                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | aggregate%array_trimmed%2#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                     (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,aggregate%array_trimmed%2#0,item_index_internal%0#0 (copy)
-        int 8                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,aggregate%array_trimmed%2#0,item_index_internal%0#0 (copy),8
-        *                                                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,aggregate%array_trimmed%2#0,aggregate%bytes_offset%2#0
-        l-load aggregate%array_trimmed%2#0 1                                                       (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,aggregate%bytes_offset%2#0,aggregate%array_trimmed%2#0
-        l-load aggregate%bytes_offset%2#0 1                                                        (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,aggregate%array_trimmed%2#0,aggregate%bytes_offset%2#0
-        extract_uint64                                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0
+    native_field_copy_iterated_while_modified_for_header@1:                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
         // regression_tests/box_read_forwarding.py:180
-        // self.n.value.arr[1] = UInt64(100)
-        int 100                                                                                    (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0,100
-        itob                                                                                       (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%14#0
-        byte 0x6e                                                                                  (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%14#0,0x6e
-        int 20                                                                                     (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%14#0,0x6e,20
-        l-load aggregate%val_as_bytes%14#0 2                                                       (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0,0x6e,20,aggregate%val_as_bytes%14#0
-        box_replace // on error: index out of bounds                                               (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,item#0
+        // for item in self.n.value.arr.copy():
+        x-load-copy item_index_internal%0#0                                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | item_index_internal%0#0 (copy)
+        x-load-copy box%btoi%1#0                                                                   (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | item_index_internal%0#0 (copy),box%btoi%1#0 (copy)
+        <                                                                                          (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | continue_looping%0#0
+        bz native_field_copy_iterated_while_modified_after_for@4 ; b native_field_copy_iterated_while_modified_for_body@2 (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | 
+
+    native_field_copy_iterated_while_modified_for_body@2:                                          (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
+        // regression_tests/box_read_forwarding.py:180
+        // for item in self.n.value.arr.copy():
+        x-load-copy aggregate%box_get%0#0                                                          (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0 (copy)
+        l-store-copy aggregate%box_get%0#0 0                                                       (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        int 8                                                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),8
+        extract_uint16                                                                             (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load-copy aggregate%box_get%0#0 1                                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%box_get%0#0 (copy)
+        len                                                                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load aggregate%box_get%0#0 2                                                             (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%extract_uint16%0#0,aggregate%len%0#0,aggregate%box_get%0#0
+        l-load aggregate%extract_uint16%0#0 2                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%len%0#0,aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                 (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                 (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%substring3%0#0
+        extract 2 0                                                                                (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 | aggregate%array_trimmed%0#0
+        x-load item_index_internal%0#0                                                             (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                     (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
+        int 8                                                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy),8
+        *                                                                                          (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                       (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        extract_uint64                                                                             (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0
         // regression_tests/box_read_forwarding.py:181
-        // total += item
-        x-load total#0                                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | item_index_internal%0#0,item#0,total#0
-        l-load item#0 1                                                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | item_index_internal%0#0,total#0,item#0
-        +                                                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | item_index_internal%0#0,total#0
-        x-store total#0                                                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                           (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0
-        int 1                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0,1
-        +                                                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0
-        x-store item_index_internal%0#0                                                            (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-        b run_all_for_header@31                                                                    (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-
-    run_all_after_for@33:                                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0,item_index_internal%0#0 |
-        x-load item_index_internal%0#0                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 | item_index_internal%0#0
-        pop 1                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2,total#0 |
+        // self.n.value.arr[1] = UInt64(100)
+        int 100                                                                                    (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,100
+        itob                                                                                       (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%0#0
+        byte 0x6e                                                                                  (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%0#0,0x6e
+        int 20                                                                                     (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,aggregate%val_as_bytes%0#0,0x6e,20
+        l-load aggregate%val_as_bytes%0#0 2                                                        (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,0x6e,20,aggregate%val_as_bytes%0#0
+        box_replace // on error: index out of bounds                                               (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0
         // regression_tests/box_read_forwarding.py:182
-        // assert total == 3
-        x-load total#0                                                                             (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | total#0
-        int 3                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | total#0,3
-        ==                                                                                         (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | tmp%2#1
-        assert                                                                                     (𝕏) aggregate%box_get%28#0,box%btoi%1#2 |
+        // total += item
+        x-load total#0                                                                             (𝕏) aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,item#0,total#0
+        l-load item#0 1                                                                            (𝕏) aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,total#0,item#0
+        +                                                                                          (𝕏) aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,total#0
+        x-store total#0                                                                            (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                           (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0
+        int 1                                                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0,1
+        +                                                                                          (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0
+        x-store item_index_internal%0#0                                                            (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
+        b native_field_copy_iterated_while_modified_for_header@1                                   (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
+
+    native_field_copy_iterated_while_modified_after_for@4:                                         (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0,item_index_internal%0#0 |
+        x-load item_index_internal%0#0                                                             (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 | item_index_internal%0#0
+        pop 1                                                                                      (𝕏) total#0,aggregate%box_get%0#0,box%btoi%1#0 |
+        x-load box%btoi%1#0                                                                        (𝕏) total#0,aggregate%box_get%0#0 | box%btoi%1#0
+        pop 1                                                                                      (𝕏) total#0,aggregate%box_get%0#0 |
+        x-load aggregate%box_get%0#0                                                               (𝕏) total#0 | aggregate%box_get%0#0
+        pop 1                                                                                      (𝕏) total#0 |
         // regression_tests/box_read_forwarding.py:183
+        // assert total == 3
+        x-load total#0                                                                             total#0
+        int 3                                                                                      total#0,3
+        ==                                                                                         tmp%2#0
+        assert
+        // regression_tests/box_read_forwarding.py:184
         // self.n.value.arr[1] = UInt64(2)
-        byte 0x6e                                                                                  (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | 0x6e
-        int 20                                                                                     (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | 0x6e,20
-        v-load aggregate%val_as_bytes%1#0                                                          (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | 0x6e,20,aggregate%val_as_bytes%1#0
-        box_replace // on error: index out of bounds                                               (𝕏) aggregate%box_get%28#0,box%btoi%1#2 |
-        // regression_tests/box_read_forwarding.py:46
-        // @arc4.abimethod
-        int 1                                                                                      (𝕏) aggregate%box_get%28#0,box%btoi%1#2 | 1
-        return                                                                                     (𝕏) aggregate%box_get%28#0,box%btoi%1#2 |
-
-
-// test_cases.regression_tests.box_read_forwarding.BoxReadForwarding.write_b() -> void:
-subroutine write_b:
-    write_b_block@0:
-        // regression_tests/box_read_forwarding.py:99
-        // self.b.value = Bytes(b"x")
-        byte 0x62                                                                                  0x62
-        box_del                                                                                    {box_del}
-        pop 1
-        byte 0x62                                                                                  0x62
-        byte 0x78                                                                                  0x62,0x78
-        box_put
+        int 2                                                                                      2
+        itob                                                                                       aggregate%val_as_bytes%1#0
+        byte 0x6e                                                                                  aggregate%val_as_bytes%1#0,0x6e
+        int 20                                                                                     aggregate%val_as_bytes%1#0,0x6e,20
+        l-load aggregate%val_as_bytes%1#0 2                                                        0x6e,20,aggregate%val_as_bytes%1#0
+        box_replace // on error: index out of bounds
         retsub
 
 
