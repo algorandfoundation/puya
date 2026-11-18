@@ -1169,6 +1169,10 @@ def analyse_subroutines_for_box_modification(
 def _cannot_modify_boxes(op: models.Op, box_modifying_subroutines: Set[str]) -> bool:
     source = op.source if isinstance(op, models.Assignment) else op
     match source:
+        case models.Intrinsic(op=avm_op):
+            return avm_op in _BOX_PRESERVING_OPS
+        case models.InvokeSubroutine(target=target):
+            return target.id not in box_modifying_subroutines
         case (
             models.Value()
             | models.Assert()
@@ -1187,10 +1191,6 @@ def _cannot_modify_boxes(op: models.Op, box_modifying_subroutines: Set[str]) -> 
             | models.WriteSlot()
         ):
             return True
-        case models.Intrinsic(op=avm_op):
-            return avm_op in _BOX_PRESERVING_OPS
-        case models.InvokeSubroutine(target=target):
-            return target.id not in box_modifying_subroutines
         case _:
             # notably BoxWrite, box modifying ops and inner transaction submission
             return False
