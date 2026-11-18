@@ -152,11 +152,13 @@ def optimize_program_ir(
         expand_all_bytes=context.options.expand_all_bytes,
         embedded_funcs={PuyaLibIR(s.id): s for s in program.subroutines if s.id in PuyaLibIR},
     )
+    # only needs to be done once, optimizing doesn't make a subroutine modify a box
+    # if it couldn't already
+    analyse_subroutines_for_box_modification(opt_context, program)
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         analyse_subroutines_for_inlining(opt_context, program)
-        analyse_subroutines_for_box_modification(opt_context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
